@@ -2,40 +2,39 @@
  * MailVault — Frappe Page Controller
  * ecclesia/page/mail_hub/mail_hub.js
  *
- * Wires the MailVault UI to Frappe's backend via:
- *   - frappe.call()    → REST API (whitelisted Python methods)
- *   - frappe.realtime  → Socket.io push for new emails
+ * Page registration: frappe.pages["mail_hub"] — key matches page.json `name` exactly.
  *
- * Frappe calls the exported `on_page_load` function automatically
- * after creating the page object. Do NOT reference frappe.pages[]
- * at the top level — it doesn't exist yet when the file is parsed.
+ * Backend API calls go to ecclesia/api/mail_hub.py (NOT page/mail_hub/mail_hub.py).
+ * Reason: the `page/` directory has no __init__.py so Python cannot import it as a
+ * module. All @frappe.whitelist() methods live in ecclesia/api/mail_hub.py and are
+ * called as:  ecclesia.api.mail_hub.<method_name>
  */
 
-/* exported on_page_load, on_page_show, on_page_hide */
-
-var on_page_load = function (wrapper) {
-    const page = frappe.ui.make_app_page({
+frappe.pages["mail_hub"].on_page_load = function (wrapper) {
+    var page = frappe.ui.make_app_page({
         parent: wrapper,
         title: "MailVault",
         single_column: true,
     });
 
+    // Stash page ref on wrapper so on_page_show/hide can access it
+    wrapper._mv_page = page;
+
     // Mount CSS first
     MailVault.injectCSS();
 
     // page.body is the jQuery object Frappe exposes for page content area
-    // This is more reliable than searching for .page-content
     page.body.html(MailVault.getHTML());
 
     // Boot the app
     MailVault.init(wrapper, page);
 };
 
-var on_page_show = function (wrapper) {
+frappe.pages["mail_hub"].on_page_show = function (wrapper) {
     MailVault.onShow();
 };
 
-var on_page_hide = function (wrapper) {
+frappe.pages["mail_hub"].on_page_hide = function (wrapper) {
     MailVault.onHide();
 };
 
@@ -72,7 +71,7 @@ window.MailVault = {
         call(method, args = {}) {
             return new Promise((resolve, reject) => {
                 frappe.call({
-                    method: `ecclesia.page.mail_hub.mail_hub.${method}`,
+                    method: `ecclesia.api.mail_hub.${method}`,
                     args,
                     callback: (r) => resolve(r.message || {}),
                     error: (err) => {
@@ -145,7 +144,7 @@ window.MailVault = {
     onShow() {
         // Resume polling
         if (!this.state.pollInterval) this.startPolling();
-        frappe.breadcrumbs.add("Ecclesia", "mail-hub");
+        frappe.breadcrumbs.add("Ecclesia", "mail-vault");
     },
 
     onHide() {
@@ -159,35 +158,27 @@ window.MailVault = {
     // ── Real-time ──────────────────────────────────────────
 
     initRealtime() {
-        // Frappe socket.io: listen for new email events
         frappe.realtime.on("new_email", (data) => {
             this.handleNewEmailEvent(data);
         });
 
-        // Also listen for email_sync_complete from scheduler
         frappe.realtime.on("email_sync_complete", (data) => {
             this.handleSyncComplete(data);
         });
     },
 
     handleNewEmailEvent(data) {
-        // data: { name, subject, sender, email_account }
         const accounts = this.state.accounts.map(a => a.name);
         if (!accounts.includes(data.email_account)) return;
 
-        // Update account badge
         const acct = this.state.accounts.find(a => a.name === data.email_account);
         if (acct) acct.unread_count = (acct.unread_count || 0) + 1;
         this.renderAccounts();
 
-        // Show refresh bar with count
         this._pendingNewCount = (this._pendingNewCount || 0) + 1;
         this.showRefreshBar(this._pendingNewCount);
 
-        // Push notification
         this.toast(data.sender_name || "New message", "📬", data.subject);
-
-        // Update RT status
         this.setRTStatus("live");
     },
 
@@ -200,7 +191,6 @@ window.MailVault = {
     },
 
     startPolling() {
-        // Poll every 30 seconds as fallback for socket.io
         this.state.lastPolled = frappe.datetime.now_datetime();
         this.state.pollInterval = setInterval(async () => {
             await this.pollForNewEmails();
@@ -223,8 +213,6 @@ window.MailVault = {
             if (result.count > 0) {
                 this._pendingNewCount = (this._pendingNewCount || 0) + result.count;
                 this.showRefreshBar(this._pendingNewCount);
-
-                // Update folder count badge
                 this.state.folderCounts.inbox =
                     (this.state.folderCounts.inbox || 0) + result.count;
                 this.renderFolderNav();
@@ -251,20 +239,20 @@ window.MailVault = {
     },
 
     setRTStatus(status) {
-        const dot  = document.getElementById("mv-rt-dot");
+        const dot   = document.getElementById("mv-rt-dot");
         const label = document.getElementById("mv-rt-label");
         if (!dot || !label) return;
 
         if (status === "live") {
-            dot.style.background   = "var(--accent3)";
-            label.textContent      = "Live";
-            this._lastRefresh      = new Date();
+            dot.style.background = "var(--accent3)";
+            label.textContent    = "Live";
+            this._lastRefresh    = new Date();
         } else if (status === "offline") {
-            dot.style.background   = "var(--accent-danger)";
-            label.textContent      = "Offline";
+            dot.style.background = "var(--accent-danger)";
+            label.textContent    = "Offline";
         } else {
-            dot.style.background   = "var(--accent-warn)";
-            label.textContent      = "Syncing…";
+            dot.style.background = "var(--accent-warn)";
+            label.textContent    = "Syncing…";
         }
     },
 
@@ -285,8 +273,8 @@ window.MailVault = {
                 page_size: this.state.pageSize,
             });
 
-            this.state.emails     = result.emails || [];
-            this.state.totalEmails = result.total || 0;
+            this.state.emails      = result.emails || [];
+            this.state.totalEmails = result.total  || 0;
             this.renderEmailList(animate);
 
         } catch (e) {
@@ -303,18 +291,15 @@ window.MailVault = {
         if (this.state.activeEmailName === name) return;
         this.state.activeEmailName = name;
 
-        // Highlight in list
         document.querySelectorAll(".mv-email-row").forEach(r => r.classList.remove("selected"));
         const row = document.getElementById(`mv-row-${name}`);
         if (row) {
             row.classList.add("selected");
-            // Mark unread row as read visually
             row.classList.remove("unread");
             const dot = row.querySelector(".mv-unread-dot");
             if (dot) dot.remove();
         }
 
-        // Show loading state in detail panel
         this.showDetailLoading();
 
         try {
@@ -339,7 +324,6 @@ window.MailVault = {
                 el.textContent = isStarred ? "★" : "☆";
                 el.classList.toggle("starred", !!isStarred);
             }
-            // Update local cache
             const email = this.state.emails.find(e => e.name === name);
             if (email) email.mail_starred = isStarred;
         } catch (e) {
@@ -373,14 +357,13 @@ window.MailVault = {
                 names: JSON.stringify(names),
                 folder,
             });
-            // Remove from current list view
             names.forEach(n => {
                 this.state.emails = this.state.emails.filter(e => e.name !== n);
                 const row = document.getElementById(`mv-row-${n}`);
                 if (row) {
                     row.style.transition = "opacity 0.3s, transform 0.3s";
-                    row.style.opacity = "0";
-                    row.style.transform = "translateX(-20px)";
+                    row.style.opacity    = "0";
+                    row.style.transform  = "translateX(-20px)";
                     setTimeout(() => row.remove(), 300);
                 }
             });
@@ -406,7 +389,7 @@ window.MailVault = {
             });
             const email = this.state.emails.find(e => e.name === name);
             if (email) {
-                email.labels = labels;
+                email.labels     = labels;
                 email.mail_label = labels.join(",");
             }
             this.closeModal("mv-label-modal");
@@ -420,15 +403,12 @@ window.MailVault = {
     async sendEmail(opts) {
         try {
             this.setBtn("mv-send-btn", "Sending…", true);
-            const result = await this.api.call("send_email", opts);
+            await this.api.call("send_email", opts);
             this.closeModal("mv-compose-modal");
             this.clearCompose();
             this.toast("Message sent", "✅");
-
-            // Update sent count
             this.state.folderCounts.sent = (this.state.folderCounts.sent || 0) + 1;
             this.renderFolderNav();
-
         } catch (e) {
             this.toast("Send failed", "⚠️", e.message);
         } finally {
@@ -451,24 +431,23 @@ window.MailVault = {
 
     async sendReply() {
         const textarea = document.getElementById("mv-reply-textarea");
-        const content = textarea ? textarea.value.trim() : "";
+        const content  = textarea ? textarea.value.trim() : "";
 
         if (!content) {
             this.toast("Write a reply first", "⚠️");
             return;
         }
 
-        const modeEl = document.querySelector(".mv-rmode-tab.active");
-        const mode = modeEl ? modeEl.dataset.mode : "reply";
+        const modeEl      = document.querySelector(".mv-rmode-tab.active");
+        const mode        = modeEl ? modeEl.dataset.mode : "reply";
         const activeEmail = this.state.emails.find(e => e.name === this.state.activeEmailName);
-        const fromAccount = activeEmail ? activeEmail.email_account :
-                            (this.state.accounts[0] ? this.state.accounts[0].name : "");
+        const fromAccount = activeEmail
+            ? activeEmail.email_account
+            : (this.state.accounts[0] ? this.state.accounts[0].name : "");
 
-        // Determine recipients
         let recipients = "";
         if (mode === "reply-all" && activeEmail) {
-            recipients = [activeEmail.sender, activeEmail.recipients]
-                .filter(Boolean).join(",");
+            recipients = [activeEmail.sender, activeEmail.recipients].filter(Boolean).join(",");
         } else if (activeEmail) {
             recipients = activeEmail.sender || "";
         }
@@ -485,8 +464,6 @@ window.MailVault = {
 
             if (textarea) textarea.value = "";
             this.toast("Reply sent", "✅");
-
-            // Reload thread
             await this.selectEmail(this.state.activeEmailName);
 
         } catch (e) {
@@ -499,7 +476,6 @@ window.MailVault = {
     async deleteEmail(name) {
         const email = this.state.emails.find(e => e.name === name);
         if (email && email.status === "Trash") {
-            // Permanent delete
             frappe.confirm(__("Permanently delete this message?"), async () => {
                 await this.api.call("delete_permanent", { names: JSON.stringify([name]) });
                 this.state.emails = this.state.emails.filter(e => e.name !== name);
@@ -508,7 +484,6 @@ window.MailVault = {
                 this.toast("Permanently deleted", "🗑");
             });
         } else {
-            // Move to trash
             await this.moveToFolder([name], "trash");
         }
     },
@@ -516,10 +491,10 @@ window.MailVault = {
     // ── Folder & Account Selection ─────────────────────────
 
     async selectFolder(id) {
-        this.state.activeFolder = id;
+        this.state.activeFolder    = id;
         this.state.activeEmailName = null;
-        this.state.currentPage = 0;
-        this.state.searchQuery = "";
+        this.state.currentPage     = 0;
+        this.state.searchQuery     = "";
         const searchEl = document.getElementById("mv-search");
         if (searchEl) searchEl.value = "";
 
@@ -528,7 +503,6 @@ window.MailVault = {
         this.showDetailEmpty();
         await this.loadEmails();
 
-        // Update title
         const folder = this.state.activeFolder.charAt(0).toUpperCase()
                      + this.state.activeFolder.slice(1);
         document.getElementById("mv-list-title").textContent = folder;
@@ -536,13 +510,13 @@ window.MailVault = {
 
     selectAccount(id) {
         this.state.activeAccount = this.state.activeAccount === id ? null : id;
-        this.state.currentPage = 0;
+        this.state.currentPage   = 0;
         this.renderAccounts();
         this.loadEmails();
     },
 
     setFilter(filter, el) {
-        this.state.filter = filter;
+        this.state.filter      = filter;
         this.state.currentPage = 0;
         document.querySelectorAll(".mv-ftab").forEach(t => t.classList.remove("active"));
         if (el) el.classList.add("active");
@@ -570,7 +544,6 @@ window.MailVault = {
             this.clearSelection();
         } else {
             all.forEach(n => this.state.selectedNames.add(n));
-            // Check all checkboxes
             document.querySelectorAll(".mv-er-check").forEach(cb => cb.checked = true);
             this.updateBulkBar();
         }
@@ -617,7 +590,7 @@ window.MailVault = {
         try {
             const boot = await this.api.call("get_boot_data");
             this.state.folderCounts = boot.folder_counts || {};
-            this.state.accounts = boot.accounts || [];
+            this.state.accounts     = boot.accounts      || [];
             this.renderFolderNav();
             this.renderAccounts();
         } catch (e) {}
@@ -634,7 +607,6 @@ window.MailVault = {
             this.api.call("save_preferences", {
                 prefs: JSON.stringify(this.state.prefs),
             }).catch(() => {});
-            // Also persist locally
             try { localStorage.setItem("mv_theme", theme); } catch (e) {}
         }
     },
@@ -649,6 +621,10 @@ window.MailVault = {
     // ── Keyboard ───────────────────────────────────────────
 
     bindKeyboard() {
+        // Guard: only bind once
+        if (this._keyboardBound) return;
+        this._keyboardBound = true;
+
         document.addEventListener("keydown", (e) => {
             if (["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)) return;
 
@@ -680,8 +656,8 @@ window.MailVault = {
 
     _navigateEmail(dir) {
         const emails = this.state.emails;
-        const idx = emails.findIndex(e => e.name === this.state.activeEmailName);
-        const next = idx + dir;
+        const idx    = emails.findIndex(e => e.name === this.state.activeEmailName);
+        const next   = idx + dir;
         if (next >= 0 && next < emails.length) {
             this.selectEmail(emails[next].name);
         }
@@ -691,12 +667,12 @@ window.MailVault = {
 
     getComposeValues() {
         return {
-            from_account: document.getElementById("mv-compose-from")?.value || "",
-            recipients: document.getElementById("mv-compose-to")?.value || "",
-            cc: document.getElementById("mv-compose-cc")?.value || "",
-            bcc: document.getElementById("mv-compose-bcc")?.value || "",
-            subject: document.getElementById("mv-compose-subject")?.value || "",
-            content: document.getElementById("mv-compose-body")?.value || "",
+            from_account: document.getElementById("mv-compose-from")?.value   || "",
+            recipients:   document.getElementById("mv-compose-to")?.value     || "",
+            cc:           document.getElementById("mv-compose-cc")?.value     || "",
+            bcc:          document.getElementById("mv-compose-bcc")?.value    || "",
+            subject:      document.getElementById("mv-compose-subject")?.value || "",
+            content:      document.getElementById("mv-compose-body")?.value   || "",
         };
     },
 
@@ -724,7 +700,7 @@ window.MailVault = {
     focusReply() {
         const container = document.getElementById("mv-reply-container");
         if (container) container.style.display = "block";
-        const textarea = document.getElementById("mv-reply-textarea");
+        const textarea  = document.getElementById("mv-reply-textarea");
         if (textarea) textarea.focus();
     },
 
@@ -735,7 +711,7 @@ window.MailVault = {
         if (!activeEmail) return;
         const chip = document.getElementById("mv-reply-to-chip");
         if (chip) {
-            if (mode === "forward") chip.textContent = "(enter recipients)";
+            if (mode === "forward")   chip.textContent = "(enter recipients)";
             else if (mode === "reply-all") chip.textContent =
                 [activeEmail.sender, activeEmail.recipients].filter(Boolean).join(", ");
             else chip.textContent = activeEmail.sender || "";
@@ -769,10 +745,10 @@ window.MailVault = {
         const list = document.getElementById("mv-folder-list");
         if (list) {
             list.innerHTML = [
-                { id:"inbox", label:"Inbox", icon:"📥" },
+                { id:"inbox",   label:"Inbox",   icon:"📥" },
                 { id:"archive", label:"Archive", icon:"🗂" },
-                { id:"spam", label:"Spam", icon:"🚫" },
-                { id:"trash", label:"Trash", icon:"🗑" },
+                { id:"spam",    label:"Spam",    icon:"🚫" },
+                { id:"trash",   label:"Trash",   icon:"🗑" },
             ].map(f => `
               <div class="mv-folder-option ${f.id === this.state.activeFolder ? "selected" : ""}"
                    onclick="MailVault._moveTarget='${f.id}';
@@ -806,9 +782,9 @@ window.MailVault = {
     },
 
     openLabelModal() {
-        const activeEmail = this.state.emails.find(e => e.name === this.state.activeEmailName);
-        const currentLabels = activeEmail ? (activeEmail.labels || []) : [];
-        const body = document.getElementById("mv-label-list-body");
+        const activeEmail    = this.state.emails.find(e => e.name === this.state.activeEmailName);
+        const currentLabels  = activeEmail ? (activeEmail.labels || []) : [];
+        const body           = document.getElementById("mv-label-list-body");
         if (body) {
             body.innerHTML = this.state.labels.map(l => `
               <div class="mv-label-toggle-row"
@@ -827,7 +803,7 @@ window.MailVault = {
 
     _toggleLabelCheck(labelName, el) {
         const check = el.querySelector(".mv-label-check");
-        const idx = this._pendingLabels.indexOf(labelName);
+        const idx   = this._pendingLabels.indexOf(labelName);
         if (idx > -1) {
             this._pendingLabels.splice(idx, 1);
             check.textContent = "";
@@ -851,7 +827,7 @@ window.MailVault = {
         const menu = document.getElementById("mv-context-menu");
         if (!menu) return;
         menu.classList.add("visible");
-        menu.style.left = Math.min(e.clientX, window.innerWidth - 210) + "px";
+        menu.style.left = Math.min(e.clientX, window.innerWidth  - 210) + "px";
         menu.style.top  = Math.min(e.clientY, window.innerHeight - 250) + "px";
     },
 
@@ -861,15 +837,15 @@ window.MailVault = {
         const name = this._ctxEmailName;
         if (!name) return;
 
-        if (action === "reply")    { this.selectEmail(name).then(() => this.focusReply()); }
-        if (action === "forward")  { this.selectEmail(name).then(() => this.focusReply()); }
-        if (action === "read")     { this.markRead([name], 1); }
-        if (action === "unread")   { this.markRead([name], 0); }
-        if (action === "star")     { this.toggleStar(name, null); }
-        if (action === "move")     { this.state.activeEmailName = name; this.openMoveModal(); }
-        if (action === "label")    { this.state.activeEmailName = name; this.openLabelModal(); }
-        if (action === "delete")   { this.deleteEmail(name); }
-        if (action === "archive")  { this.moveToFolder([name], "archive"); }
+        if (action === "reply")   { this.selectEmail(name).then(() => this.focusReply()); }
+        if (action === "forward") { this.selectEmail(name).then(() => this.focusReply()); }
+        if (action === "read")    { this.markRead([name], 1); }
+        if (action === "unread")  { this.markRead([name], 0); }
+        if (action === "star")    { this.toggleStar(name, null); }
+        if (action === "move")    { this.state.activeEmailName = name; this.openMoveModal(); }
+        if (action === "label")   { this.state.activeEmailName = name; this.openLabelModal(); }
+        if (action === "delete")  { this.deleteEmail(name); }
+        if (action === "archive") { this.moveToFolder([name], "archive"); }
     },
 
     // ── Toast ──────────────────────────────────────────────
@@ -1001,7 +977,7 @@ window.MailVault = {
             "#0891b2","#e11d48","#d97706","#84cc16",
         ];
         if (!email) return PALETTE[0];
-        const h = [...email].reduce((a,c) => a + c.charCodeAt(0), 0);
+        const h = [...email].reduce((a, c) => a + c.charCodeAt(0), 0);
         return PALETTE[h % PALETTE.length];
     },
 
@@ -1012,9 +988,9 @@ window.MailVault = {
         if (!list) return;
         list.innerHTML = this.state.accounts.map(a => {
             const initials = a.email_account_name
-                ? a.email_account_name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase()
+                ? a.email_account_name.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase()
                 : (a.email_id || "").slice(0,2).toUpperCase();
-            const color = this._avatarColor(a.email_id);
+            const color  = this._avatarColor(a.email_id);
             const unread = a.unread_count || 0;
             const active = this.state.activeAccount === a.name;
             return `
@@ -1037,12 +1013,12 @@ window.MailVault = {
         if (!nav) return;
         const FOLDERS = [
             { id:"inbox",   label:"Inbox",   icon:"📥", countKey:"inbox",   type:"unread" },
-            { id:"starred", label:"Starred", icon:"⭐", countKey:"starred", type:"muted" },
-            { id:"sent",    label:"Sent",    icon:"📤", countKey:"sent",    type:"muted" },
-            { id:"drafts",  label:"Drafts",  icon:"📝", countKey:"drafts",  type:"warn" },
-            { id:"spam",    label:"Spam",    icon:"🚫", countKey:"spam",    type:"muted" },
-            { id:"archive", label:"Archive", icon:"🗂", countKey:"archive", type:"muted" },
-            { id:"trash",   label:"Trash",   icon:"🗑", countKey:"trash",   type:"muted" },
+            { id:"starred", label:"Starred", icon:"⭐", countKey:"starred", type:"muted"  },
+            { id:"sent",    label:"Sent",    icon:"📤", countKey:"sent",    type:"muted"  },
+            { id:"drafts",  label:"Drafts",  icon:"📝", countKey:"drafts",  type:"warn"   },
+            { id:"spam",    label:"Spam",    icon:"🚫", countKey:"spam",    type:"muted"  },
+            { id:"archive", label:"Archive", icon:"🗂", countKey:"archive", type:"muted"  },
+            { id:"trash",   label:"Trash",   icon:"🗑", countKey:"trash",   type:"muted"  },
         ];
         const fc = this.state.folderCounts;
         nav.innerHTML = FOLDERS.map(f => {
@@ -1084,11 +1060,11 @@ window.MailVault = {
         const el = document.getElementById("mv-theme-switcher");
         if (!el) return;
         const themes = [
-            { id:"navy",   label:"Deep Navy" },
-            { id:"galaxy", label:"Midnight Galaxy" },
-            { id:"teal",   label:"Forest Teal" },
-            { id:"rose",   label:"Rose Gold" },
-            { id:"arctic", label:"Arctic Blue" },
+            { id:"navy",   label:"Deep Navy"        },
+            { id:"galaxy", label:"Midnight Galaxy"  },
+            { id:"teal",   label:"Forest Teal"      },
+            { id:"rose",   label:"Rose Gold"        },
+            { id:"arctic", label:"Arctic Blue"      },
         ];
         el.innerHTML = themes.map(t => `
           <div class="mv-theme-dot ${this.state.theme === t.id ? "active" : ""}"
@@ -1117,8 +1093,8 @@ window.MailVault = {
 
         container.innerHTML = emails.map((e, i) => {
             const isSelected = this.state.selectedNames.has(e.name);
-            const animClass = (animate && i === 0) ? "mv-new-arrival" : "";
-            const labels = e.labels || [];
+            const animClass  = (animate && i === 0) ? "mv-new-arrival" : "";
+            const labels     = e.labels || [];
             return `
               <div class="mv-email-row ${e.read_by_current_user ? "" : "unread"}
                           ${e.name === this.state.activeEmailName ? "selected" : ""}
@@ -1152,8 +1128,7 @@ window.MailVault = {
               </div>`;
         }).join("");
 
-        // Update title with count
-        const folder = this.state.activeFolder.charAt(0).toUpperCase() + this.state.activeFolder.slice(1);
+        const folder  = this.state.activeFolder.charAt(0).toUpperCase() + this.state.activeFolder.slice(1);
         const titleEl = document.getElementById("mv-list-title");
         if (titleEl) titleEl.textContent = `${folder} (${this.state.totalEmails})`;
     },
@@ -1169,7 +1144,6 @@ window.MailVault = {
         const first = thread[0];
         const email = this.state.emails.find(e => e.name === this.state.activeEmailName);
 
-        // Tags
         const tagsEl = document.getElementById("mv-detail-tags");
         if (tagsEl && email) {
             tagsEl.innerHTML = (email.labels || []).map(l =>
@@ -1178,7 +1152,6 @@ window.MailVault = {
                 '<span style="font-size:10px;color:var(--text-muted);margin-left:4px">📎 Attachment</span>' : "");
         }
 
-        // Toolbar
         const actEl = document.getElementById("mv-detail-actions");
         if (actEl) {
             actEl.innerHTML = `
@@ -1190,15 +1163,12 @@ window.MailVault = {
             `;
         }
 
-        // Breadcrumb
         const bc = document.getElementById("mv-breadcrumb-name");
         if (bc) bc.textContent = first.sender_name || first.sender_email || "Thread";
 
-        // Reply chip
         const chip = document.getElementById("mv-reply-to-chip");
         if (chip) chip.textContent = first.sender || first.sender_email || "";
 
-        // Thread
         const scroll = document.getElementById("mv-detail-scroll");
         if (!scroll) return;
 
@@ -1241,17 +1211,15 @@ window.MailVault = {
           </div>
         `;
 
-        // Collapse all except last
         thread.forEach((_, i) => {
-            if (i < thread.length - 1) {
+            if (i > 0 && i < thread.length - 1) {
                 const body = document.getElementById(`mv-msg-body-${i}`);
-                if (body && i > 0) body.style.display = "none";
+                if (body) body.style.display = "none";
             }
         });
 
         scroll.scrollTop = 0;
 
-        // Show reply box
         const reply = document.getElementById("mv-reply-container");
         if (reply) reply.style.display = "block";
     },
@@ -1265,17 +1233,16 @@ window.MailVault = {
         this.state.searchQuery = "";
         const searchEl = document.getElementById("mv-search");
         if (searchEl) searchEl.value = "";
-        // Use label filter via search
         this.state.activeFolder = "inbox";
-        this.state.currentPage = 0;
+        this.state.currentPage  = 0;
         this.renderFolderNav();
         frappe.call({
-            method: "ecclesia.page.mail_hub.mail_hub.search_emails",
+            method: "ecclesia.api.mail_hub.search_emails",
             args: { query: "", label: labelName },
             callback: (r) => {
                 if (r.message) {
-                    this.state.emails = r.message.emails || [];
-                    this.state.totalEmails = r.message.total || 0;
+                    this.state.emails      = r.message.emails || [];
+                    this.state.totalEmails = r.message.total  || 0;
                     this.renderEmailList();
                     const titleEl = document.getElementById("mv-list-title");
                     if (titleEl) titleEl.textContent = `${labelName} (${this.state.totalEmails})`;
@@ -1515,20 +1482,19 @@ window.MailVault = {
         link.href = "/assets/ecclesia/css/mail_hub.css";
         document.head.appendChild(link);
 
-        // Load fonts
         const font = document.createElement("link");
         font.rel  = "stylesheet";
         font.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Crimson+Pro:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap";
         document.head.appendChild(font);
     },
 
-    // Sync accounts manually
+    // ── Sync Accounts ──────────────────────────────────────
+
     async syncAccounts() {
         try {
             const r = await this.api.call("trigger_email_sync");
             this.toast(`Syncing ${r.syncing} account${r.syncing !== 1 ? "s" : ""}…`, "⟳");
             this.setRTStatus("syncing");
-            // Re-poll after 10s
             setTimeout(() => this.pollForNewEmails(), 10000);
         } catch (e) {
             this.toast("Sync failed", "⚠️");
