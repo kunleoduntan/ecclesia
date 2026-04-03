@@ -28,7 +28,7 @@
    "reqd": 1
   },
   {
-   "fieldname": "doctype_name",
+   "fieldname": "reference_doctype",
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "DocType",
