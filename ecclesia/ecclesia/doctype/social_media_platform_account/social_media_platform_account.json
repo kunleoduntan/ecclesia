@@ -1,0 +1,384 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{platform}-{account_name}",
+ "creation": "2026-03-18 18:31:22.197822",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "platform",
+  "account_name",
+  "account_id",
+  "profile_picture",
+  "is_active",
+  "account_type",
+  "column_break_5",
+  "api_key",
+  "api_secret",
+  "access_token",
+  "token_expiry_date",
+  "refresh_token",
+  "api_settings_section",
+  "api_rate_limit",
+  "api_calls_made_today",
+  "last_api_call",
+  "remaining_calls_today",
+  "column_break_10",
+  "webhook_verify_token",
+  "webhook_subscribed",
+  "webhook_last_ping",
+  "platform_specific_config_section",
+  "default_post_type",
+  "allowed_post_types",
+  "max_image_size_mb",
+  "max_video_length_sec",
+  "max_video_size_mb",
+  "column_break_14",
+  "max_carousel_images",
+  "character_limit",
+  "hashtag_limit",
+  "supports_stories",
+  "supports_reels",
+  "supports_ads",
+  "permissions_section",
+  "can_post",
+  "can_read_inbox",
+  "can_read_analytics",
+  "can_manage_ads",
+  "column_break_18",
+  "assigned_teams",
+  "primary_manager",
+  "account_status",
+  "status_message",
+  "sync_settings_section",
+  "last_sync_date",
+  "sync_frequency",
+  "sync_comments",
+  "sync_messages",
+  "sync_stories",
+  "column_break_22",
+  "auto_sync_enabled",
+  "sync_posts_last_30_days",
+  "sync_posts_last_90_days",
+  "best_posting_times"
+ ],
+ "fields": [
+  {
+   "fieldname": "platform",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Platform",
+   "options": "\nFacebook\nInstagram\nInstagram Business\nTwitter/X\nLinkedIn\nLinkedIn Company Page\nTikTok\nPinterest\nYouTube\nSnapchat\nWhatsApp Business\nTelegram\nThreads\nBluesky\nMastodon\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Account Name / Page Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "account_id",
+   "fieldtype": "Data",
+   "label": "Account ID / Page ID"
+  },
+  {
+   "fieldname": "profile_picture",
+   "fieldtype": "Attach Image",
+   "label": "Profile Picture"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "account_type",
+   "fieldtype": "Select",
+   "label": "Account Type",
+   "options": "\nPersonal\nBusiness\nCreator\nOrganization\nPage\nGroup"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key / App ID"
+  },
+  {
+   "fieldname": "api_secret",
+   "fieldtype": "Password",
+   "label": "API Secret"
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token"
+  },
+  {
+   "fieldname": "token_expiry_date",
+   "fieldtype": "Date",
+   "label": "Token Expiry Date"
+  },
+  {
+   "fieldname": "refresh_token",
+   "fieldtype": "Password",
+   "label": "Refresh Token"
+  },
+  {
+   "fieldname": "api_settings_section",
+   "fieldtype": "Section Break",
+   "label": "API Usage"
+  },
+  {
+   "description": "Requests allowed per hour",
+   "fieldname": "api_rate_limit",
+   "fieldtype": "Int",
+   "label": "API Rate Limit"
+  },
+  {
+   "fieldname": "api_calls_made_today",
+   "fieldtype": "Int",
+   "label": "API Calls Made Today",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_api_call",
+   "fieldtype": "Datetime",
+   "label": "Last API Call",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remaining_calls_today",
+   "fieldtype": "Int",
+   "label": "Remaining Calls Today",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "webhook_verify_token",
+   "fieldtype": "Data",
+   "label": "Webhook Verify Token"
+  },
+  {
+   "default": "0",
+   "fieldname": "webhook_subscribed",
+   "fieldtype": "Check",
+   "label": "Webhook Subscribed"
+  },
+  {
+   "fieldname": "webhook_last_ping",
+   "fieldtype": "Datetime",
+   "label": "Last Webhook Ping"
+  },
+  {
+   "fieldname": "platform_specific_config_section",
+   "fieldtype": "Section Break",
+   "label": "Platform-Specific Configuration"
+  },
+  {
+   "fieldname": "default_post_type",
+   "fieldtype": "Select",
+   "label": "Default Post Type",
+   "options": "\nImage\nVideo\nCarousel\nReel\nStory\nText Only\nLink\nPoll\nArticle"
+  },
+  {
+   "description": "Comma-separated list",
+   "fieldname": "allowed_post_types",
+   "fieldtype": "Small Text",
+   "label": "Allowed Post Types"
+  },
+  {
+   "fieldname": "max_image_size_mb",
+   "fieldtype": "Float",
+   "label": "Max Image Size (MB)"
+  },
+  {
+   "fieldname": "max_video_length_sec",
+   "fieldtype": "Int",
+   "label": "Max Video Length (Seconds)"
+  },
+  {
+   "fieldname": "max_video_size_mb",
+   "fieldtype": "Float",
+   "label": "Max Video Size (MB)"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "max_carousel_images",
+   "fieldtype": "Int",
+   "label": "Max Carousel Images"
+  },
+  {
+   "fieldname": "character_limit",
+   "fieldtype": "Int",
+   "label": "Character Limit"
+  },
+  {
+   "fieldname": "hashtag_limit",
+   "fieldtype": "Int",
+   "label": "Hashtag Limit"
+  },
+  {
+   "default": "0",
+   "fieldname": "supports_stories",
+   "fieldtype": "Check",
+   "label": "Supports Stories"
+  },
+  {
+   "default": "0",
+   "fieldname": "supports_reels",
+   "fieldtype": "Check",
+   "label": "Supports Reels"
+  },
+  {
+   "default": "0",
+   "fieldname": "supports_ads",
+   "fieldtype": "Check",
+   "label": "Supports Ads"
+  },
+  {
+   "fieldname": "permissions_section",
+   "fieldtype": "Section Break",
+   "label": "Permissions"
+  },
+  {
+   "default": "1",
+   "fieldname": "can_post",
+   "fieldtype": "Check",
+   "label": "Can Post Content"
+  },
+  {
+   "default": "1",
+   "fieldname": "can_read_inbox",
+   "fieldtype": "Check",
+   "label": "Can Read Inbox"
+  },
+  {
+   "default": "1",
+   "fieldname": "can_read_analytics",
+   "fieldtype": "Check",
+   "label": "Can Read Analytics"
+  },
+  {
+   "default": "0",
+   "fieldname": "can_manage_ads",
+   "fieldtype": "Check",
+   "label": "Can Manage Ads"
+  },
+  {
+   "fieldname": "column_break_18",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assigned_teams",
+   "fieldtype": "Table MultiSelect",
+   "label": "Assigned Teams",
+   "options": "Social Media Team Assignment"
+  },
+  {
+   "fieldname": "primary_manager",
+   "fieldtype": "Link",
+   "label": "Primary Manager",
+   "options": "User"
+  },
+  {
+   "default": "Connected",
+   "fieldname": "account_status",
+   "fieldtype": "Select",
+   "label": "Account Status",
+   "options": "\nConnected\nDisconnected\nToken Expired\nRate Limited\nAPI Error\nPending Verification"
+  },
+  {
+   "fieldname": "status_message",
+   "fieldtype": "Small Text",
+   "label": "Status Message"
+  },
+  {
+   "fieldname": "sync_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Sync Settings"
+  },
+  {
+   "fieldname": "last_sync_date",
+   "fieldtype": "Datetime",
+   "label": "Last Sync Date"
+  },
+  {
+   "fieldname": "sync_frequency",
+   "fieldtype": "Select",
+   "label": "Sync Frequency",
+   "options": "\nEvery Hour\nEvery 3 Hours\nEvery 6 Hours\nEvery 12 Hours\nDaily\nManual Only"
+  },
+  {
+   "default": "1",
+   "fieldname": "sync_comments",
+   "fieldtype": "Check",
+   "label": "Sync Comments"
+  },
+  {
+   "default": "1",
+   "fieldname": "sync_messages",
+   "fieldtype": "Check",
+   "label": "Sync Direct Messages"
+  },
+  {
+   "default": "0",
+   "fieldname": "sync_stories",
+   "fieldtype": "Check",
+   "label": "Sync Stories"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_sync_enabled",
+   "fieldtype": "Check",
+   "label": "Auto-Sync Enabled"
+  },
+  {
+   "default": "1",
+   "fieldname": "sync_posts_last_30_days",
+   "fieldtype": "Check",
+   "label": "Sync Posts from Last 30 Days"
+  },
+  {
+   "default": "0",
+   "fieldname": "sync_posts_last_90_days",
+   "fieldtype": "Check",
+   "label": "Sync Posts from Last 90 Days"
+  },
+  {
+   "fieldname": "best_posting_times",
+   "fieldtype": "JSON",
+   "label": "Best Posting Times (AI Generated)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-18 18:31:22.197822",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Social Media Platform Account",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

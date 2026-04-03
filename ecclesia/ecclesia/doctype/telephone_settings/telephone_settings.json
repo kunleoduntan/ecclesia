@@ -1,0 +1,466 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-28 08:18:50.237468",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "general_section",
+  "default_call_mode",
+  "auto_detect_internal",
+  "enable_call_recording",
+  "enable_telephone_call_log",
+  "max_call_duration",
+  "missed_call_timeout_minutes",
+  "column_break_general",
+  "dialpad_position",
+  "dialpad_theme",
+  "show_dialpad_on_login",
+  "keyboard_shortcut",
+  "ringtone_volume",
+  "webrtc_section",
+  "stun_server_url",
+  "column_break_webrtc",
+  "turn_server_url",
+  "turn_username",
+  "turn_secret",
+  "external_provider_section",
+  "active_provider",
+  "fallback_provider",
+  "twilio_section",
+  "twilio_account_sid",
+  "twilio_auth_token",
+  "twilio_phone_number",
+  "column_break_twilio",
+  "twilio_twiml_app_sid",
+  "twilio_webhook_url",
+  "vonage_section",
+  "vonage_api_key",
+  "vonage_api_secret",
+  "vonage_app_id",
+  "vonage_phone_number",
+  "column_break_vonage",
+  "vonage_private_key",
+  "vonage_webhook_url",
+  "plivo_section",
+  "plivo_auth_id",
+  "plivo_auth_token",
+  "plivo_phone_number",
+  "column_break_plivo",
+  "plivo_webhook_url",
+  "asterisk_section",
+  "asterisk_ami_host",
+  "asterisk_ami_port",
+  "asterisk_ami_username",
+  "asterisk_ami_password",
+  "column_break_asterisk",
+  "asterisk_sip_trunk",
+  "asterisk_default_context",
+  "asterisk_wss_url",
+  "crm_integration_section",
+  "enable_call_button_lead",
+  "enable_call_button_contact",
+  "enable_call_button_customer",
+  "enable_call_button_opportunity",
+  "enable_call_button_employee",
+  "column_break_crm",
+  "auto_create_telephone_call_log",
+  "auto_open_record_on_inbound",
+  "screen_pop_lookup_order"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_section",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "default": "Internal",
+   "fieldname": "default_call_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Default Call Mode",
+   "options": "Internal\nExternal",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_detect_internal",
+   "fieldtype": "Check",
+   "label": "Auto-detect Internal Calls"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_call_recording",
+   "fieldtype": "Check",
+   "label": "Enable Call Recording"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_telephone_call_log",
+   "fieldtype": "Check",
+   "label": "Enable Telephone Call Log"
+  },
+  {
+   "default": "60",
+   "fieldname": "max_call_duration",
+   "fieldtype": "Int",
+   "label": "Max Call Duration (minutes)"
+  },
+  {
+   "fieldname": "column_break_general",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Bottom Right",
+   "fieldname": "dialpad_position",
+   "fieldtype": "Select",
+   "label": "Dialpad Position",
+   "options": "Bottom Right\nBottom Left\nDocked Right\nDocked Left"
+  },
+  {
+   "default": "System",
+   "fieldname": "dialpad_theme",
+   "fieldtype": "Select",
+   "label": "Dialpad Theme",
+   "options": "System\nLight\nDark"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_dialpad_on_login",
+   "fieldtype": "Check",
+   "label": "Show Dialpad on Login"
+  },
+  {
+   "default": "Alt+D",
+   "fieldname": "keyboard_shortcut",
+   "fieldtype": "Data",
+   "label": "Keyboard Shortcut"
+  },
+  {
+   "default": "80",
+   "fieldname": "ringtone_volume",
+   "fieldtype": "Int",
+   "label": "Ringtone Volume (0-100)"
+  },
+  {
+   "fieldname": "webrtc_section",
+   "fieldtype": "Section Break",
+   "label": "Internal Calls (WebRTC)"
+  },
+  {
+   "default": "stun:stun.l.google.com:19302",
+   "fieldname": "stun_server_url",
+   "fieldtype": "Data",
+   "label": "STUN Server URL"
+  },
+  {
+   "fieldname": "column_break_webrtc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "turn_server_url",
+   "fieldtype": "Data",
+   "label": "TURN Server URL"
+  },
+  {
+   "fieldname": "turn_username",
+   "fieldtype": "Data",
+   "label": "TURN Username"
+  },
+  {
+   "fieldname": "turn_secret",
+   "fieldtype": "Password",
+   "label": "TURN Secret"
+  },
+  {
+   "fieldname": "external_provider_section",
+   "fieldtype": "Section Break",
+   "label": "External Call Provider"
+  },
+  {
+   "default": "Twilio",
+   "fieldname": "active_provider",
+   "fieldtype": "Select",
+   "label": "Active Provider",
+   "options": "Twilio\nVonage\nPlivo\nAsterisk"
+  },
+  {
+   "fieldname": "fallback_provider",
+   "fieldtype": "Select",
+   "label": "Fallback Provider",
+   "options": "\nTwilio\nVonage\nPlivo\nAsterisk"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "twilio_section",
+   "fieldtype": "Section Break",
+   "label": "Twilio Configuration"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "twilio_account_sid",
+   "fieldtype": "Data",
+   "label": "Account SID"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "twilio_auth_token",
+   "fieldtype": "Password",
+   "label": "Auth Token"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "twilio_phone_number",
+   "fieldtype": "Data",
+   "label": "Twilio Phone Number (E.164)"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "column_break_twilio",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "twilio_twiml_app_sid",
+   "fieldtype": "Data",
+   "label": "TwiML App SID"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Twilio' || doc.fallback_provider == 'Twilio'",
+   "fieldname": "twilio_webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL (auto-filled)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_section",
+   "fieldtype": "Section Break",
+   "label": "Vonage Configuration"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_api_key",
+   "fieldtype": "Data",
+   "label": "API Key"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_api_secret",
+   "fieldtype": "Password",
+   "label": "API Secret"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_app_id",
+   "fieldtype": "Data",
+   "label": "Application ID"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_phone_number",
+   "fieldtype": "Data",
+   "label": "Vonage Phone Number (E.164)"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "column_break_vonage",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_private_key",
+   "fieldtype": "Password",
+   "label": "Private Key"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Vonage' || doc.fallback_provider == 'Vonage'",
+   "fieldname": "vonage_webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL (auto-filled)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Plivo' || doc.fallback_provider == 'Plivo'",
+   "fieldname": "plivo_section",
+   "fieldtype": "Section Break",
+   "label": "Plivo Configuration"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Plivo' || doc.fallback_provider == 'Plivo'",
+   "fieldname": "plivo_auth_id",
+   "fieldtype": "Data",
+   "label": "Auth ID"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Plivo' || doc.fallback_provider == 'Plivo'",
+   "fieldname": "plivo_auth_token",
+   "fieldtype": "Password",
+   "label": "Auth Token"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Plivo' || doc.fallback_provider == 'Plivo'",
+   "fieldname": "plivo_phone_number",
+   "fieldtype": "Data",
+   "label": "Plivo Phone Number (E.164)"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Plivo' || doc.fallback_provider == 'Plivo'",
+   "fieldname": "column_break_plivo",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Plivo' || doc.fallback_provider == 'Plivo'",
+   "fieldname": "plivo_webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL (auto-filled)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_section",
+   "fieldtype": "Section Break",
+   "label": "Asterisk / SIP Configuration"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_ami_host",
+   "fieldtype": "Data",
+   "label": "AMI Host"
+  },
+  {
+   "default": "5038",
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_ami_port",
+   "fieldtype": "Int",
+   "label": "AMI Port"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_ami_username",
+   "fieldtype": "Data",
+   "label": "AMI Username"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_ami_password",
+   "fieldtype": "Password",
+   "label": "AMI Password"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "column_break_asterisk",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_sip_trunk",
+   "fieldtype": "Data",
+   "label": "SIP Trunk"
+  },
+  {
+   "default": "from-internal",
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_default_context",
+   "fieldtype": "Data",
+   "label": "Default Dialplan Context"
+  },
+  {
+   "depends_on": "eval:doc.active_provider == 'Asterisk' || doc.fallback_provider == 'Asterisk'",
+   "fieldname": "asterisk_wss_url",
+   "fieldtype": "Data",
+   "label": "WebRTC WSS URL"
+  },
+  {
+   "fieldname": "crm_integration_section",
+   "fieldtype": "Section Break",
+   "label": "CRM Integration"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_call_button_lead",
+   "fieldtype": "Check",
+   "label": "Enable Call Button on Lead"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_call_button_contact",
+   "fieldtype": "Check",
+   "label": "Enable Call Button on Contact"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_call_button_customer",
+   "fieldtype": "Check",
+   "label": "Enable Call Button on Customer"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_call_button_opportunity",
+   "fieldtype": "Check",
+   "label": "Enable Call Button on Opportunity"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_call_button_employee",
+   "fieldtype": "Check",
+   "label": "Enable Call Button on Employee"
+  },
+  {
+   "fieldname": "column_break_crm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_create_telephone_call_log",
+   "fieldtype": "Check",
+   "label": "Auto-create Telephone Call Log"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_open_record_on_inbound",
+   "fieldtype": "Check",
+   "label": "Auto-open Record on Inbound Call"
+  },
+  {
+   "default": "Contact\nLead\nCustomer",
+   "description": "Order in which CRM records are searched for an inbound number. E.g: Contact, Lead, Customer",
+   "fieldname": "screen_pop_lookup_order",
+   "fieldtype": "Small Text",
+   "label": "Screen-pop Lookup Order (one per line)"
+  },
+  {
+   "default": "2",
+   "fieldname": "missed_call_timeout_minutes",
+   "fieldtype": "Int",
+   "label": "Missed Call Timeout (minutes)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-04-01 13:53:34.541315",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Telephone Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

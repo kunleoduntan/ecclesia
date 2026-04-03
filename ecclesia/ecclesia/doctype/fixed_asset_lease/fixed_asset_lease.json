@@ -1,0 +1,746 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-05 19:17:10.976077",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "company",
+  "lease_type",
+  "column_break_1",
+  "lease_date",
+  "column_break_ivooj",
+  "lease_status",
+  "section_break_asset",
+  "asset",
+  "asset_name",
+  "asset_code",
+  "column_break_asset1",
+  "asset_category",
+  "asset_value",
+  "column_break_ril6u",
+  "asset_fair_value",
+  "asset_useful_life_months",
+  "section_break_party",
+  "lessor",
+  "lessor_name",
+  "lessee",
+  "lessee_name",
+  "column_break_party1",
+  "party_type",
+  "party",
+  "party_name",
+  "column_break_party2",
+  "contact_person",
+  "contact_email",
+  "contact_phone",
+  "section_break_lease_terms",
+  "lease_start_date",
+  "lease_end_date",
+  "lease_term_months",
+  "column_break_terms1",
+  "lease_classification",
+  "classification_notes",
+  "ownership_transfer_at_end",
+  "bargain_purchase_option",
+  "asset_is_specialized",
+  "column_break_terms2",
+  "renewal_option",
+  "purchase_option",
+  "purchase_option_price",
+  "residual_value",
+  "section_break_payment",
+  "payment_frequency",
+  "lease_payment_amount",
+  "number_of_payments",
+  "total_lease_payments",
+  "column_break_payment1",
+  "advance_payment",
+  "security_deposit",
+  "deposit_refundable",
+  "section_break_schedule",
+  "lease_payment_schedule",
+  "section_break_accounting",
+  "accounting_treatment",
+  "lease_liability_account",
+  "right_of_use_asset_account",
+  "column_break_accounting1",
+  "lease_expense_account",
+  "interest_expense_account",
+  "cost_center",
+  "column_break_accounting2",
+  "journal_entry",
+  "section_break_interest",
+  "discount_rate",
+  "implicit_interest_rate",
+  "incremental_borrowing_rate",
+  "column_break_interest1",
+  "present_value_of_lease_payments",
+  "total_interest_expense",
+  "section_break_depreciation",
+  "depreciation_method",
+  "useful_life_months",
+  "column_break_depreciation1",
+  "monthly_depreciation",
+  "accumulated_depreciation",
+  "section_break_conditions",
+  "maintenance_responsibility",
+  "insurance_responsibility",
+  "column_break_conditions1",
+  "early_termination_allowed",
+  "early_termination_penalty",
+  "termination_date",
+  "termination_reason",
+  "section_break_documents",
+  "lease_agreement",
+  "signed_agreement",
+  "column_break_documents1",
+  "additional_documents",
+  "section_break_notes",
+  "terms_and_conditions",
+  "special_clauses",
+  "column_break_notes1",
+  "internal_notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "default": "FAL-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "FAL-.YYYY.-.#####\nFALI-.YYYY.-.#####\nFALO-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "lease_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Lease Type",
+   "options": "Lease In (We are Lessee)\nLease Out (We are Lessor)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "lease_date",
+   "fieldtype": "Date",
+   "label": "Lease Date",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "lease_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nActive\nExpired\nExpiring Soon\nTerminated\nRenewed\nCancelled\nGrace Period"
+  },
+  {
+   "fieldname": "section_break_asset",
+   "fieldtype": "Section Break",
+   "label": "\ud83c\udff7\ufe0f Asset Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Fixed Asset",
+   "options": "Fixed Asset",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.asset_code",
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_asset1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset.asset_category",
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "label": "Asset Category",
+   "options": "Fixed Asset Category",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.current_gross_value",
+   "fieldname": "asset_value",
+   "fieldtype": "Currency",
+   "label": "Asset Current Value",
+   "read_only": 1
+  },
+  {
+   "description": "Fair value of the asset for lease classification",
+   "fieldname": "asset_fair_value",
+   "fieldtype": "Currency",
+   "label": "Asset Fair Value"
+  },
+  {
+   "description": "Total useful life of the asset in months",
+   "fieldname": "asset_useful_life_months",
+   "fieldtype": "Int",
+   "label": "Asset Useful Life (Months)"
+  },
+  {
+   "fieldname": "section_break_party",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udc65 Lessor/Lessee Information"
+  },
+  {
+   "depends_on": "eval:doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "lessor",
+   "fieldtype": "Link",
+   "label": "Lessor (Supplier)",
+   "options": "Supplier"
+  },
+  {
+   "fetch_from": "lessor.supplier_name",
+   "fieldname": "lessor_name",
+   "fieldtype": "Data",
+   "label": "Lessor Name",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.lease_type=='Lease Out (We are Lessor)'",
+   "fieldname": "lessee",
+   "fieldtype": "Link",
+   "label": "Lessee (Customer)",
+   "options": "Customer"
+  },
+  {
+   "fetch_from": "lessee.customer_name",
+   "fieldname": "lessee_name",
+   "fieldtype": "Data",
+   "label": "Lessee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_party1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "label": "Party Type",
+   "options": "Customer\nSupplier"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "label": "Party",
+   "options": "party_type"
+  },
+  {
+   "fetch_from": "party.name",
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "label": "Party Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_party2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Contact Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Contact Phone"
+  },
+  {
+   "fieldname": "section_break_lease_terms",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc5 Lease Terms"
+  },
+  {
+   "bold": 1,
+   "fieldname": "lease_start_date",
+   "fieldtype": "Date",
+   "label": "Lease Start Date",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "lease_end_date",
+   "fieldtype": "Date",
+   "label": "Lease End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "lease_term_months",
+   "fieldtype": "Int",
+   "label": "Lease Term (Months)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_terms1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Finance Lease: Transfer of ownership risks and rewards | Operating Lease: No transfer of ownership",
+   "fieldname": "lease_classification",
+   "fieldtype": "Select",
+   "label": "Lease Classification (IFRS 16 / ASC 842)",
+   "options": "Finance Lease\nOperating Lease",
+   "reqd": 1
+  },
+  {
+   "fieldname": "classification_notes",
+   "fieldtype": "Small Text",
+   "label": "Classification Notes",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "description": "Does ownership transfer at end of lease?",
+   "fieldname": "ownership_transfer_at_end",
+   "fieldtype": "Check",
+   "label": "Ownership Transfer at End"
+  },
+  {
+   "default": "0",
+   "description": "Is there a bargain purchase option?",
+   "fieldname": "bargain_purchase_option",
+   "fieldtype": "Check",
+   "label": "Bargain Purchase Option"
+  },
+  {
+   "default": "0",
+   "description": "Is the asset specialized with no alternative use?",
+   "fieldname": "asset_is_specialized",
+   "fieldtype": "Check",
+   "label": "Asset is Specialized"
+  },
+  {
+   "fieldname": "column_break_terms2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "renewal_option",
+   "fieldtype": "Check",
+   "label": "Renewal Option Available"
+  },
+  {
+   "default": "0",
+   "fieldname": "purchase_option",
+   "fieldtype": "Check",
+   "label": "Purchase Option Available"
+  },
+  {
+   "depends_on": "purchase_option",
+   "fieldname": "purchase_option_price",
+   "fieldtype": "Currency",
+   "label": "Purchase Option Price"
+  },
+  {
+   "description": "Residual value at end of lease",
+   "fieldname": "residual_value",
+   "fieldtype": "Currency",
+   "label": "Residual Value"
+  },
+  {
+   "fieldname": "section_break_payment",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Payment Terms"
+  },
+  {
+   "default": "Monthly",
+   "fieldname": "payment_frequency",
+   "fieldtype": "Select",
+   "label": "Payment Frequency",
+   "options": "Monthly\nQuarterly\nSemi-Annual\nAnnual",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "lease_payment_amount",
+   "fieldtype": "Currency",
+   "label": "Lease Payment Amount (Per Period)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "number_of_payments",
+   "fieldtype": "Int",
+   "label": "Number of Payments",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "total_lease_payments",
+   "fieldtype": "Currency",
+   "label": "Total Lease Payments",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_payment1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "advance_payment",
+   "fieldtype": "Currency",
+   "label": "Advance Payment"
+  },
+  {
+   "fieldname": "security_deposit",
+   "fieldtype": "Currency",
+   "label": "Security Deposit"
+  },
+  {
+   "default": "1",
+   "fieldname": "deposit_refundable",
+   "fieldtype": "Check",
+   "label": "Security Deposit Refundable"
+  },
+  {
+   "fieldname": "section_break_schedule",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Payment Schedule"
+  },
+  {
+   "fieldname": "lease_payment_schedule",
+   "fieldtype": "Table",
+   "label": "Lease Payment Schedule",
+   "options": "Lease Payment Schedule"
+  },
+  {
+   "fieldname": "section_break_accounting",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcda Accounting Treatment"
+  },
+  {
+   "default": "IFRS 16",
+   "fieldname": "accounting_treatment",
+   "fieldtype": "Select",
+   "label": "Accounting Standard",
+   "options": "IFRS 16\nASC 842 (US GAAP)\nIAS 17 (Old Standard)"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "lease_liability_account",
+   "fieldtype": "Link",
+   "label": "Lease Liability Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "right_of_use_asset_account",
+   "fieldtype": "Link",
+   "label": "Right-of-Use Asset Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_accounting1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "lease_expense_account",
+   "fieldtype": "Link",
+   "label": "Lease Expense Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease'",
+   "fieldname": "interest_expense_account",
+   "fieldtype": "Link",
+   "label": "Interest Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_accounting2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Initial Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease'",
+   "fieldname": "section_break_interest",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Interest Calculation"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease'",
+   "description": "Discount rate for PV calculation",
+   "fieldname": "discount_rate",
+   "fieldtype": "Percent",
+   "label": "Discount Rate (%)",
+   "precision": "2"
+  },
+  {
+   "description": "Interest rate implicit in the lease",
+   "fieldname": "implicit_interest_rate",
+   "fieldtype": "Percent",
+   "label": "Implicit Interest Rate (%)",
+   "precision": "2"
+  },
+  {
+   "description": "Rate lessee would pay to borrow funds",
+   "fieldname": "incremental_borrowing_rate",
+   "fieldtype": "Percent",
+   "label": "Incremental Borrowing Rate (%)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_interest1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease'",
+   "fieldname": "present_value_of_lease_payments",
+   "fieldtype": "Currency",
+   "label": "Present Value of Lease Payments",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease'",
+   "fieldname": "total_interest_expense",
+   "fieldtype": "Currency",
+   "label": "Total Interest Expense",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "section_break_depreciation",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc9 Depreciation (Finance Lease)"
+  },
+  {
+   "default": "Straight Line",
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "depreciation_method",
+   "fieldtype": "Select",
+   "label": "Depreciation Method",
+   "options": "Straight Line\nDeclining Balance"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "description": "Shorter of lease term or asset useful life",
+   "fieldname": "useful_life_months",
+   "fieldtype": "Int",
+   "label": "Useful Life (Months)"
+  },
+  {
+   "fieldname": "column_break_depreciation1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "monthly_depreciation",
+   "fieldtype": "Currency",
+   "label": "Monthly Depreciation",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.lease_classification=='Finance Lease' && doc.lease_type=='Lease In (We are Lessee)'",
+   "fieldname": "accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Accumulated Depreciation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_conditions",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Lease Conditions"
+  },
+  {
+   "default": "Lessor",
+   "fieldname": "maintenance_responsibility",
+   "fieldtype": "Select",
+   "label": "Maintenance Responsibility",
+   "options": "Lessor\nLessee\nShared",
+   "reqd": 1
+  },
+  {
+   "default": "Lessor",
+   "fieldname": "insurance_responsibility",
+   "fieldtype": "Select",
+   "label": "Insurance Responsibility",
+   "options": "Lessor\nLessee\nShared",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_conditions1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "early_termination_allowed",
+   "fieldtype": "Check",
+   "label": "Early Termination Allowed"
+  },
+  {
+   "depends_on": "early_termination_allowed",
+   "fieldname": "early_termination_penalty",
+   "fieldtype": "Currency",
+   "label": "Early Termination Penalty"
+  },
+  {
+   "fieldname": "termination_date",
+   "fieldtype": "Date",
+   "label": "Termination Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "termination_reason",
+   "fieldtype": "Small Text",
+   "label": "Termination Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_documents",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcce Documents"
+  },
+  {
+   "fieldname": "lease_agreement",
+   "fieldtype": "Attach",
+   "label": "Lease Agreement (Draft)"
+  },
+  {
+   "fieldname": "signed_agreement",
+   "fieldtype": "Attach",
+   "label": "Signed Agreement"
+  },
+  {
+   "fieldname": "column_break_documents1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_documents",
+   "fieldtype": "Table",
+   "label": "Additional Documents",
+   "options": "Lease Document Attachment"
+  },
+  {
+   "fieldname": "section_break_notes",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcdd Terms & Notes"
+  },
+  {
+   "fieldname": "terms_and_conditions",
+   "fieldtype": "Text Editor",
+   "label": "Terms and Conditions"
+  },
+  {
+   "fieldname": "special_clauses",
+   "fieldtype": "Text",
+   "label": "Special Clauses"
+  },
+  {
+   "fieldname": "column_break_notes1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "internal_notes",
+   "fieldtype": "Text",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Lease",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Lease",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ivooj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ril6u",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-18 15:13:40.693683",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Lease",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

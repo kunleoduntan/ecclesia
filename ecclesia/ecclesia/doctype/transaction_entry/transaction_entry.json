@@ -1,0 +1,462 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 15:34:36.050021",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "posting_date",
+  "trans_type",
+  "party_name",
+  "amount",
+  "inflow",
+  "column_break_9fa1z",
+  "outflow",
+  "remark",
+  "exch_rate",
+  "party",
+  "party_type",
+  "cost_center",
+  "payee_name",
+  "start_date",
+  "end_date",
+  "charged_amount",
+  "frequency",
+  "column_break_ynjze",
+  "column_break_aojwe",
+  "amortise",
+  "accounting_entry_section",
+  "account_to_debit",
+  "account_to_credit",
+  "column_break_vbaiu",
+  "column_break_d9i5b",
+  "transaction_description",
+  "column_break_qeojs",
+  "next_posting_date",
+  "next_schedule",
+  "column_break_3xvdf",
+  "amount_in_fc",
+  "amortization_settings_section",
+  "no_of_periods",
+  "transaction_currency",
+  "amount_in_lc",
+  "mode_of_payment",
+  "customer_name",
+  "department",
+  "cost_classifications_section",
+  "column_break_peoy",
+  "column_break_pmno",
+  "column_break_wg5o",
+  "nature_of_expense",
+  "customer_id",
+  "column_break_w64d",
+  "local_currency_section",
+  "column_break_fewd",
+  "column_break_rofv",
+  "column_break_7mtl",
+  "foreign_currency_section",
+  "column_break_jrt2",
+  "project",
+  "project_name",
+  "branch",
+  "balance",
+  "column_break_ki86",
+  "supplier_nam",
+  "reference_no",
+  "payment_entry",
+  "receipt_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "trans_type",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Trans Type",
+   "options": "\nSupplier Payment\nCustomer Receipt\nTransfer Out\nTransfer In\nPayment\nReceipt\nCustomer Refunds\nSupplier Refunds\nPending",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.party_type != \"Account\"",
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Account Name"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Amount",
+   "precision": "2"
+  },
+  {
+   "fieldname": "inflow",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Inflow",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_9fa1z",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "outflow",
+   "fieldtype": "Float",
+   "label": "Outflow",
+   "precision": "2"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Description",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "exch_rate",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Exch Rate"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Account",
+   "options": "party_type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Link",
+   "label": "Account Type",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Cost Center",
+   "mandatory_depends_on": "eval:in_list([\"Payment\", \"Receipt\"], doc.trans_type)\r\n",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "payee_name",
+   "fieldtype": "Data",
+   "label": "Payee Name",
+   "mandatory_depends_on": "eval:in_list([\"Payment\", \"Receipt\"], doc.trans_type)"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date",
+   "options": "\n",
+   "read_only": 1
+  },
+  {
+   "fieldname": "charged_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Charged Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "mandatory_depends_on": "amortise",
+   "options": "\nDaily\nWeekly\nMonthly\nQuarterly\nHalf-yearly\nYearly"
+  },
+  {
+   "fieldname": "column_break_ynjze",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_aojwe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval: doc.trans_type == \"Payment\" || doc.trans_type == \"Receipt\"",
+   "fieldname": "amortise",
+   "fieldtype": "Check",
+   "label": "Amortize"
+  },
+  {
+   "depends_on": "amortise",
+   "fieldname": "accounting_entry_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Entry"
+  },
+  {
+   "fieldname": "account_to_debit",
+   "fieldtype": "Link",
+   "label": "Account To Debit",
+   "mandatory_depends_on": "amortise",
+   "options": "Account"
+  },
+  {
+   "fieldname": "account_to_credit",
+   "fieldtype": "Link",
+   "label": "Account to Credit",
+   "mandatory_depends_on": "amortise",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_vbaiu",
+   "fieldtype": "Column Break",
+   "label": "For Amortization"
+  },
+  {
+   "fieldname": "column_break_d9i5b",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_description",
+   "fieldtype": "Small Text",
+   "label": "Transaction Description",
+   "mandatory_depends_on": "amortise"
+  },
+  {
+   "fieldname": "column_break_qeojs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "next_posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next Posting Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "next_schedule",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Next Schedule",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3xvdf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount_in_fc",
+   "fieldtype": "Float",
+   "label": "Amount In FC",
+   "options": "currency",
+   "precision": "2"
+  },
+  {
+   "depends_on": "amortise",
+   "fieldname": "amortization_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Amortization Settings"
+  },
+  {
+   "fieldname": "no_of_periods",
+   "fieldtype": "Int",
+   "label": "No of periods",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transaction_currency",
+   "fieldtype": "Link",
+   "label": "Trans Ccy",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "amount_in_lc",
+   "fieldtype": "Currency",
+   "label": "Amount In LC"
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment"
+  },
+  {
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "cost_classifications_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Classifications"
+  },
+  {
+   "fieldname": "column_break_peoy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_pmno",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wg5o",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nature_of_expense",
+   "fieldtype": "Select",
+   "label": "Nature of Expenze",
+   "options": "\nInternal\nFor Customer"
+  },
+  {
+   "fieldname": "customer_id",
+   "fieldtype": "Link",
+   "label": "Cusomer ID",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_w64d",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "local_currency_section",
+   "fieldtype": "Section Break",
+   "label": "Local Currency"
+  },
+  {
+   "fieldname": "column_break_fewd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_rofv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_7mtl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "foreign_currency_section",
+   "fieldtype": "Section Break",
+   "label": "Foreign Currency"
+  },
+  {
+   "fieldname": "column_break_jrt2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Float",
+   "label": "Balance",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ki86",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_nam",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Supplier Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Cheque /Ref No",
+   "length": 7,
+   "width": "120"
+  },
+  {
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payments"
+  },
+  {
+   "fieldname": "receipt_entry",
+   "fieldtype": "Link",
+   "label": "Receipt Entry",
+   "options": "Receipts"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-02 15:34:36.050021",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Transaction Entry",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

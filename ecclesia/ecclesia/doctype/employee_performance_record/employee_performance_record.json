@@ -1,0 +1,237 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:EPR-{YYYY}-{#####}",
+ "creation": "2026-03-13 17:18:56.992059",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "cycle",
+  "employee",
+  "employee_name",
+  "col1",
+  "department",
+  "designation",
+  "manager",
+  "status",
+  "sec_goals",
+  "goals",
+  "sec_scores",
+  "kpi_score",
+  "self_score",
+  "col2",
+  "peer_score",
+  "peer_review_count",
+  "manager_score",
+  "composite_score",
+  "sec_ratings",
+  "final_rating",
+  "calibrated_rating",
+  "sec_self",
+  "self_narrative",
+  "self_appraisal_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "cycle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.reports_to",
+   "fieldname": "manager",
+   "fieldtype": "Link",
+   "label": "Manager",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "default": "Goal Setting",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Goal Setting\nSelf Appraisal\nPeer Review\nManager Review\nCalibration\nResults Released",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_goals",
+   "fieldtype": "Section Break",
+   "label": "Goals & KPIs"
+  },
+  {
+   "fieldname": "goals",
+   "fieldtype": "Table",
+   "label": "Goals",
+   "options": "Performance Goal"
+  },
+  {
+   "fieldname": "sec_scores",
+   "fieldtype": "Section Break",
+   "label": "Scores"
+  },
+  {
+   "fieldname": "kpi_score",
+   "fieldtype": "Float",
+   "label": "KPI Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "self_score",
+   "fieldtype": "Float",
+   "label": "Self-Appraisal Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "peer_score",
+   "fieldtype": "Float",
+   "label": "Peer Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "peer_review_count",
+   "fieldtype": "Int",
+   "label": "Peer Reviews Received",
+   "read_only": 1
+  },
+  {
+   "fieldname": "manager_score",
+   "fieldtype": "Float",
+   "label": "Manager Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "composite_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Composite Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_ratings",
+   "fieldtype": "Section Break",
+   "label": "Ratings"
+  },
+  {
+   "fieldname": "final_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "System Rating",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calibrated_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Calibrated Rating",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_self",
+   "fieldtype": "Section Break",
+   "label": "Self-Appraisal"
+  },
+  {
+   "fieldname": "self_narrative",
+   "fieldtype": "Text Editor",
+   "label": "Self-Appraisal Narrative"
+  },
+  {
+   "fieldname": "self_appraisal_date",
+   "fieldtype": "Datetime",
+   "label": "Submitted On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Employee Performance Record",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-13 17:29:02.925299",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Employee Performance Record",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,448 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-28 21:09:11.531239",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "import_header_section",
+  "naming_series",
+  "import_date",
+  "column_break_h1",
+  "company",
+  "column_break_h2",
+  "import_status",
+  "column_break_h3",
+  "imported_by",
+  "file_section",
+  "upload_file",
+  "column_break_f1",
+  "file_type",
+  "column_break_f2",
+  "sheet_name",
+  "column_break_f3",
+  "header_row",
+  "column_mapping_section",
+  "date_column",
+  "column_break_m1",
+  "narration_column",
+  "column_break_m2",
+  "debit_column",
+  "column_break_m3",
+  "credit_column",
+  "column_break_m4",
+  "bank_account_column",
+  "column_break_m5",
+  "reference_column",
+  "column_break_m6",
+  "balance_column",
+  "processing_options_section",
+  "creation_mode",
+  "column_break_p1",
+  "batch_size",
+  "column_break_p2",
+  "skip_duplicates",
+  "column_break_p3",
+  "confidence_threshold",
+  "column_break_p4",
+  "default_cost_center",
+  "column_break_p5",
+  "default_department",
+  "summary_section",
+  "total_rows",
+  "column_break_s1",
+  "rows_ready",
+  "column_break_s2",
+  "rows_review",
+  "column_break_s3",
+  "rows_failed",
+  "column_break_s4",
+  "rows_skipped",
+  "column_break_s5",
+  "rows_created",
+  "progress_section",
+  "progress_html",
+  "import_log_section",
+  "import_log",
+  "items_section",
+  "import_items",
+  "default_bank_account"
+ ],
+ "fields": [
+  {
+   "fieldname": "import_header_section",
+   "fieldtype": "Section Break",
+   "label": "Import Details"
+  },
+  {
+   "default": "BSI-.YY.-.MM.-.####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "BSI-.YY.-.MM.-.####\nBSI-.YY.-.#####"
+  },
+  {
+   "default": "Today",
+   "fieldname": "import_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Import Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_h1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_h2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "import_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Import Status",
+   "options": "\nDraft\nParsing\nStaging\nCreating\nCompleted\nCompleted with Errors\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_h3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "owner",
+   "fieldname": "imported_by",
+   "fieldtype": "Data",
+   "label": "Imported By",
+   "read_only": 1
+  },
+  {
+   "fieldname": "file_section",
+   "fieldtype": "Section Break",
+   "label": "File Configuration"
+  },
+  {
+   "fieldname": "upload_file",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Upload File",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_f1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "file_type",
+   "fieldtype": "Select",
+   "label": "File Type",
+   "options": "\nCSV\nXLSX\nXLS\nOFX\nMT940",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_f2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Sheet1",
+   "depends_on": "eval:in_list(['XLSX','XLS'], doc.file_type)",
+   "fieldname": "sheet_name",
+   "fieldtype": "Data",
+   "label": "Sheet Name"
+  },
+  {
+   "fieldname": "column_break_f3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "header_row",
+   "fieldtype": "Int",
+   "label": "Header Row Number"
+  },
+  {
+   "fieldname": "column_mapping_section",
+   "fieldtype": "Section Break",
+   "label": "Column Mapping"
+  },
+  {
+   "default": "Date",
+   "description": "Column header for transaction date",
+   "fieldname": "date_column",
+   "fieldtype": "Data",
+   "label": "Date Column",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_m1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Description",
+   "description": "Column header for narration / description",
+   "fieldname": "narration_column",
+   "fieldtype": "Data",
+   "label": "Narration / Description Column",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_m2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Debit",
+   "description": "Column header for debit amounts",
+   "fieldname": "debit_column",
+   "fieldtype": "Data",
+   "label": "Debit Column"
+  },
+  {
+   "fieldname": "column_break_m3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Credit",
+   "description": "Column header for credit amounts",
+   "fieldname": "credit_column",
+   "fieldtype": "Data",
+   "label": "Credit Column"
+  },
+  {
+   "fieldname": "column_break_m4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Bank Account",
+   "description": "Column header for bank account (one per row or set a default below)",
+   "fieldname": "bank_account_column",
+   "fieldtype": "Data",
+   "label": "Bank Account Column"
+  },
+  {
+   "fieldname": "column_break_m5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Reference",
+   "description": "Column header for reference / cheque number",
+   "fieldname": "reference_column",
+   "fieldtype": "Data",
+   "label": "Reference / Cheque Column"
+  },
+  {
+   "fieldname": "column_break_m6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Balance",
+   "description": "Column header for running balance (optional)",
+   "fieldname": "balance_column",
+   "fieldtype": "Data",
+   "label": "Balance Column"
+  },
+  {
+   "fieldname": "processing_options_section",
+   "fieldtype": "Section Break",
+   "label": "Processing Options"
+  },
+  {
+   "default": "Batch",
+   "description": "Use Immediate for < 200 rows. Batch queues as background job.",
+   "fieldname": "creation_mode",
+   "fieldtype": "Select",
+   "label": "Creation Mode",
+   "options": "Immediate\nBatch"
+  },
+  {
+   "fieldname": "column_break_p1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "50",
+   "depends_on": "eval:doc.creation_mode == 'Batch'",
+   "fieldname": "batch_size",
+   "fieldtype": "Int",
+   "label": "Batch Size (rows per job)"
+  },
+  {
+   "fieldname": "column_break_p2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "skip_duplicates",
+   "fieldtype": "Check",
+   "label": "Skip Duplicate Rows"
+  },
+  {
+   "fieldname": "column_break_p3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "85",
+   "description": "Rows below this go to review queue",
+   "fieldname": "confidence_threshold",
+   "fieldtype": "Percent",
+   "label": "AI Confidence Threshold (%)"
+  },
+  {
+   "fieldname": "column_break_p4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_p5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_department",
+   "fieldtype": "Link",
+   "label": "Default Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Import Summary"
+  },
+  {
+   "fieldname": "total_rows",
+   "fieldtype": "Int",
+   "label": "Total Rows",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_s1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rows_ready",
+   "fieldtype": "Int",
+   "label": "Ready",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_s2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rows_review",
+   "fieldtype": "Int",
+   "label": "Needs Review",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_s3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rows_failed",
+   "fieldtype": "Int",
+   "label": "Failed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_s4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rows_skipped",
+   "fieldtype": "Int",
+   "label": "Duplicates Skipped",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_s5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rows_created",
+   "fieldtype": "Int",
+   "label": "Documents Created",
+   "read_only": 1
+  },
+  {
+   "fieldname": "progress_section",
+   "fieldtype": "Section Break",
+   "label": "Live Progress"
+  },
+  {
+   "fieldname": "progress_html",
+   "fieldtype": "HTML",
+   "label": "Progress"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "import_log_section",
+   "fieldtype": "Section Break",
+   "label": "Import Log"
+  },
+  {
+   "fieldname": "import_log",
+   "fieldtype": "Long Text",
+   "label": "Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Staged Transactions"
+  },
+  {
+   "fieldname": "import_items",
+   "fieldtype": "Table",
+   "label": "Import Items",
+   "options": "Bank Statement Upload Item"
+  },
+  {
+   "description": "Used when no Bank Account column is in the Excel, or as fallback",
+   "fieldname": "default_bank_account",
+   "fieldtype": "Link",
+   "label": "Default Bank Account",
+   "options": "Bank Account"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-28 21:09:26.969461",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bank Statement Upload",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

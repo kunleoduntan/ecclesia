@@ -1,0 +1,88 @@
+/* Universal Audit Engine — Styles */
+
+/* Risk level badges */
+.ua-risk-critical {
+    background: #c0392b !important;
+    color: #fff !important;
+}
+.ua-risk-high {
+    background: #e67e22 !important;
+    color: #fff !important;
+}
+.ua-risk-medium {
+    background: #f1c40f !important;
+    color: #333 !important;
+}
+.ua-risk-low {
+    background: #27ae60 !important;
+    color: #fff !important;
+}
+
+/* Stat cards */
+.ua-stat-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+}
+.ua-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.ua-stat-label {
+    font-size: 11px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Audit panel */
+.ua-panel {
+    font-size: 13px;
+}
+.ua-panel h4 {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Audit button highlight */
+.btn-audit-universal:hover {
+    background: #2c6fad !important;
+    color: #fff !important;
+}
+
+/* Anomaly table */
+.ua-panel .table th {
+    background: #2c3e50;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Dashboard cards for Audit module */
+.ua-dashboard-card {
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.ua-dashboard-card.critical { border-left: 5px solid #c0392b; }
+.ua-dashboard-card.high     { border-left: 5px solid #e67e22; }
+.ua-dashboard-card.medium   { border-left: 5px solid #f1c40f; }
+.ua-dashboard-card.low      { border-left: 5px solid #27ae60; }
+
+/* Finding severity indicator */
+.ua-finding-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+.ua-finding-indicator.critical { background: #c0392b; }
+.ua-finding-indicator.high     { background: #e67e22; }
+.ua-finding-indicator.medium   { background: #f1c40f; }
+.ua-finding-indicator.low      { background: #27ae60; }

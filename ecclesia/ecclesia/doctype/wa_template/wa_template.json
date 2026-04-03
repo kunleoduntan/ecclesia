@@ -1,0 +1,223 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:template_name",
+ "creation": "2026-03-01 08:31:44.844433",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "template_name",
+  "template_id",
+  "channel",
+  "category",
+  "language_code",
+  "col_break_1",
+  "status",
+  "linked_doctype",
+  "is_active",
+  "header_section",
+  "header_type",
+  "header_text",
+  "header_media_url",
+  "body_section",
+  "body_text",
+  "footer_section",
+  "footer_text",
+  "buttons_section",
+  "button_type",
+  "buttons",
+  "params_section",
+  "template_params",
+  "preview_section",
+  "preview_html",
+  "notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "description": "Must match exactly as registered on Meta (lowercase, underscores)",
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "Auto-assigned by Meta after approval",
+   "fieldname": "template_id",
+   "fieldtype": "Data",
+   "label": "Template ID (from Meta)"
+  },
+  {
+   "default": "WhatsApp",
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Channel",
+   "options": "WhatsApp\nSMS\nEmail\nAll",
+   "reqd": 1
+  },
+  {
+   "default": "UTILITY",
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "UTILITY\nMARKETING\nAUTHENTICATION",
+   "reqd": 1
+  },
+  {
+   "default": "en_US",
+   "fieldname": "language_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Language Code",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Approval Status",
+   "options": "Draft\nPending Approval\nApproved\nRejected\nPaused"
+  },
+  {
+   "description": "ERPNext document this template is used for",
+   "fieldname": "linked_doctype",
+   "fieldtype": "Link",
+   "label": "Linked DocType",
+   "options": "DocType"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "header_section",
+   "fieldtype": "Section Break",
+   "label": "Header (Optional)"
+  },
+  {
+   "fieldname": "header_type",
+   "fieldtype": "Select",
+   "label": "Header Type",
+   "options": "\nTEXT\nIMAGE\nVIDEO\nDOCUMENT"
+  },
+  {
+   "depends_on": "eval:doc.header_type=='TEXT'",
+   "fieldname": "header_text",
+   "fieldtype": "Data",
+   "label": "Header Text"
+  },
+  {
+   "depends_on": "eval:doc.header_type in ['IMAGE','VIDEO','DOCUMENT']",
+   "fieldname": "header_media_url",
+   "fieldtype": "Data",
+   "label": "Header Media URL"
+  },
+  {
+   "fieldname": "body_section",
+   "fieldtype": "Section Break",
+   "label": "Body"
+  },
+  {
+   "description": "Use {{1}}, {{2}}, {{3}} for dynamic variables",
+   "fieldname": "body_text",
+   "fieldtype": "Text Editor",
+   "label": "Body Text",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "footer_section",
+   "fieldtype": "Section Break",
+   "label": "Footer (Optional)"
+  },
+  {
+   "fieldname": "footer_text",
+   "fieldtype": "Data",
+   "label": "Footer Text"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "buttons_section",
+   "fieldtype": "Section Break",
+   "label": "Buttons (Optional)"
+  },
+  {
+   "fieldname": "button_type",
+   "fieldtype": "Select",
+   "label": "Button Type",
+   "options": "\nQUICK_REPLY\nCALL_TO_ACTION"
+  },
+  {
+   "description": "[{\"type\":\"QUICK_REPLY\",\"text\":\"Approve\"},{\"type\":\"QUICK_REPLY\",\"text\":\"Reject\"}]",
+   "fieldname": "buttons",
+   "fieldtype": "Small Text",
+   "label": "Buttons (JSON)"
+  },
+  {
+   "fieldname": "params_section",
+   "fieldtype": "Section Break",
+   "label": "Parameters"
+  },
+  {
+   "fieldname": "template_params",
+   "fieldtype": "Table",
+   "label": "Template Parameters",
+   "options": "WA Template Param"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "preview_section",
+   "fieldtype": "Section Break",
+   "label": "Preview"
+  },
+  {
+   "fieldname": "preview_html",
+   "fieldtype": "HTML",
+   "label": "Preview"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Internal Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 11:30:54.078405",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WA Template",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

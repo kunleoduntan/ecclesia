@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-28 15:30:10.253439",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "quarter",
+  "engagement_title",
+  "doctype_names",
+  "planned_from",
+  "planned_to",
+  "risk_level",
+  "lead_auditor",
+  "audit_days",
+  "status",
+  "linked_engagement",
+  "ai_priority_score"
+ ],
+ "fields": [
+  {
+   "fieldname": "quarter",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Quarter",
+   "options": "Q1\nQ2\nQ3\nQ4"
+  },
+  {
+   "bold": 1,
+   "fieldname": "engagement_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Engagement Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "doctype_names",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "DocTypes in Scope"
+  },
+  {
+   "fieldname": "planned_from",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Planned From"
+  },
+  {
+   "fieldname": "planned_to",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Planned To"
+  },
+  {
+   "fieldname": "risk_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Risk",
+   "options": "Critical\nHigh\nMedium\nLow"
+  },
+  {
+   "fieldname": "lead_auditor",
+   "fieldtype": "Link",
+   "label": "Lead Auditor",
+   "options": "User"
+  },
+  {
+   "fieldname": "audit_days",
+   "fieldtype": "Int",
+   "label": "Days"
+  },
+  {
+   "default": "Planned",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Planned\nIn Progress\nCompleted\nDeferred\nCancelled"
+  },
+  {
+   "fieldname": "linked_engagement",
+   "fieldtype": "Link",
+   "label": "Engagement Ref",
+   "options": "Audit Engagement"
+  },
+  {
+   "fieldname": "ai_priority_score",
+   "fieldtype": "Float",
+   "label": "AI Priority Score",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-28 15:30:10.253439",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Annual Plan Engagement Row",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

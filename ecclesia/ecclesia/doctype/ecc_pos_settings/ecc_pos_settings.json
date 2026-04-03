@@ -1,0 +1,221 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:pos_name",
+ "creation": "2026-03-03 10:55:09.423515",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_general",
+  "pos_name",
+  "company",
+  "branch",
+  "column_break_1",
+  "is_active",
+  "default_pos_profile",
+  "naming_series",
+  "section_warehouse",
+  "default_warehouse",
+  "column_break_2",
+  "default_customer",
+  "price_list",
+  "section_tax",
+  "enable_vat",
+  "vat_rate",
+  "column_break_3",
+  "vat_account",
+  "section_items",
+  "item_groups",
+  "show_stock_qty",
+  "column_break_4",
+  "section_payment",
+  "allowed_payment_modes",
+  "section_users",
+  "user_permissions"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_general",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "fieldname": "pos_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "POS Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Branch / Location",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "description": "Used for POS Opening/Closing Entry",
+   "fieldname": "default_pos_profile",
+   "fieldtype": "Link",
+   "label": "Default POS Profile",
+   "options": "POS Profile"
+  },
+  {
+   "default": "POS-.YYYY.-.MM.-.DD.-",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Invoice Naming Series",
+   "options": "POS-.YYYY.-.MM.-.DD.-\nSAL-.YYYY.-\nINV-.####.-"
+  },
+  {
+   "fieldname": "section_warehouse",
+   "fieldtype": "Section Break",
+   "label": "Warehouse & Customer"
+  },
+  {
+   "fieldname": "default_warehouse",
+   "fieldtype": "Link",
+   "label": "Default Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_customer",
+   "fieldtype": "Link",
+   "label": "Default Walk-In Customer",
+   "options": "Customer"
+  },
+  {
+   "default": "Standard Selling",
+   "fieldname": "price_list",
+   "fieldtype": "Link",
+   "label": "Price List",
+   "options": "Price List",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_tax",
+   "fieldtype": "Section Break",
+   "label": "Tax"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_vat",
+   "fieldtype": "Check",
+   "label": "Enable VAT"
+  },
+  {
+   "default": "7.5",
+   "depends_on": "enable_vat",
+   "fieldname": "vat_rate",
+   "fieldtype": "Float",
+   "label": "VAT Rate (%)"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "enable_vat",
+   "fieldname": "vat_account",
+   "fieldtype": "Link",
+   "label": "VAT Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "section_items",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "description": "Comma-separated list. Leave blank to show all.",
+   "fieldname": "item_groups",
+   "fieldtype": "Small Text",
+   "label": "Allowed Item Groups"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_stock_qty",
+   "fieldtype": "Check",
+   "label": "Show Stock Quantity"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_payment",
+   "fieldtype": "Section Break",
+   "label": "Payment Modes"
+  },
+  {
+   "fieldname": "allowed_payment_modes",
+   "fieldtype": "Table",
+   "label": "Allowed Payment Modes",
+   "options": "ECC POS Payment Mode"
+  },
+  {
+   "fieldname": "section_users",
+   "fieldtype": "Section Break",
+   "label": "User Permissions"
+  },
+  {
+   "fieldname": "user_permissions",
+   "fieldtype": "Table",
+   "label": "User Permissions",
+   "options": "ECC POS User Permission"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-03 11:33:15.132622",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "ECC POS Settings",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

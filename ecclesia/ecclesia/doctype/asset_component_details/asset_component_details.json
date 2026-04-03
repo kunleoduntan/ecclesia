@@ -1,0 +1,86 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-04 06:44:38.375868",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "component_name",
+  "component_description",
+  "column_break_1",
+  "component_value",
+  "component_life_months",
+  "separate_depreciation",
+  "column_break_njrqe",
+  "warranty_expiry",
+  "serial_number"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "component_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Component Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "component_description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "component_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Component Value",
+   "reqd": 1
+  },
+  {
+   "fieldname": "component_life_months",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Life (Months)"
+  },
+  {
+   "default": "0",
+   "fieldname": "separate_depreciation",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Depreciate Separately"
+  },
+  {
+   "fieldname": "warranty_expiry",
+   "fieldtype": "Date",
+   "label": "Warranty Expiry"
+  },
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Data",
+   "label": "Serial Number"
+  },
+  {
+   "fieldname": "column_break_njrqe",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-07 10:54:51.511283",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Asset Component Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

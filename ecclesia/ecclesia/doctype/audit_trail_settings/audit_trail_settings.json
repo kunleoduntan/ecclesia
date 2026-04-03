@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-29 17:36:40.667341",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "retention_section",
+  "retention_days",
+  "alert_section",
+  "alert_on_deactivation",
+  "additional_alert_emails"
+ ],
+ "fields": [
+  {
+   "fieldname": "retention_section",
+   "fieldtype": "Section Break",
+   "label": "Log retention policy"
+  },
+  {
+   "default": "730",
+   "description": "Logs older than this number of days are automatically deleted by the nightly scheduler. Minimum recommended: 365. Default: 730 (2 years). Set to 0 to retain indefinitely.",
+   "fieldname": "retention_days",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Retain logs for (days)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "alert_section",
+   "fieldtype": "Section Break",
+   "label": "Deactivation alerts"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_on_deactivation",
+   "fieldtype": "Check",
+   "label": "Email System Managers on audit trail deactivation"
+  },
+  {
+   "description": "Comma-separated. These addresses receive deactivation alerts in addition to System Managers.",
+   "fieldname": "additional_alert_emails",
+   "fieldtype": "Small Text",
+   "label": "Additional alert email addresses"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-03-29 17:36:40.667341",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Trail Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

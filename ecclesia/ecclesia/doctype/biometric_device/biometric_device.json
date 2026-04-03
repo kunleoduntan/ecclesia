@@ -1,0 +1,267 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "prompt",
+ "creation": "2026-03-10 10:41:16.024806",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sec_identity",
+  "device_name",
+  "device_brand",
+  "col_id1",
+  "protocol",
+  "enabled",
+  "branch",
+  "sec_connection",
+  "ip_address",
+  "port",
+  "col_conn1",
+  "device_serial",
+  "use_https",
+  "sec_credentials",
+  "username",
+  "col_cred1",
+  "password",
+  "col_cred2",
+  "communication_key",
+  "api_key",
+  "sec_brand_cfg",
+  "biostar_server_url",
+  "col_brand1",
+  "cloudclox_device_id",
+  "cloudclox_api_url",
+  "sec_sync",
+  "sync_mode",
+  "sync_interval_minutes",
+  "col_sync1",
+  "last_sync",
+  "device_status",
+  "sec_notes",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_identity",
+   "fieldtype": "Section Break",
+   "label": "Device Identity"
+  },
+  {
+   "fieldname": "device_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Device Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "device_brand",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Brand",
+   "options": "\nZKTeco\nHikvision\nDahua\nSuprema\nAnviz\neSSL\nVirdi\nRealand\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_id1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Auto-set when Brand is selected. Shows which protocol this device uses.",
+   "fieldname": "protocol",
+   "fieldtype": "Select",
+   "label": "Protocol",
+   "options": "\nSDK\nHTTP API\nUDP\nISAPI / REST\nBioStar API\nCloudClox API\nREST API",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Branch / Location",
+   "options": "Branch"
+  },
+  {
+   "description": "Network details used to reach the device.",
+   "fieldname": "sec_connection",
+   "fieldtype": "Section Break",
+   "label": "Network Connection"
+  },
+  {
+   "fieldname": "ip_address",
+   "fieldtype": "Data",
+   "label": "IP Address / Hostname",
+   "reqd": 1
+  },
+  {
+   "default": "4370",
+   "description": "ZKTeco/eSSL: 4370 (UDP/SDK) | Hikvision/Dahua/Virdi: 80 or 443 | Suprema: 1433 | Anviz: 5010",
+   "fieldname": "port",
+   "fieldtype": "Int",
+   "label": "Port"
+  },
+  {
+   "fieldname": "col_conn1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "device_serial",
+   "fieldtype": "Data",
+   "label": "Device Serial No"
+  },
+  {
+   "default": "0",
+   "description": "Enable for Hikvision, Dahua, Suprema, Virdi when SSL is configured.",
+   "fieldname": "use_https",
+   "fieldtype": "Check",
+   "label": "Use HTTPS"
+  },
+  {
+   "description": "Fill only the fields relevant to your brand's protocol.",
+   "fieldname": "sec_credentials",
+   "fieldtype": "Section Break",
+   "label": "Authentication / Credentials"
+  },
+  {
+   "description": "Hikvision: admin | Dahua: admin | Suprema: API username | Anviz: Account ID | Virdi: admin",
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Username / Client ID"
+  },
+  {
+   "fieldname": "col_cred1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "HTTP Basic password for Hikvision, Dahua, Virdi. API secret for Suprema/Anviz.",
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Password / Secret"
+  },
+  {
+   "fieldname": "col_cred2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "ZKTeco/eSSL: numeric device password (0 if none). Realand: SDK key.",
+   "fieldname": "communication_key",
+   "fieldtype": "Password",
+   "label": "Communication Key / Device Password"
+  },
+  {
+   "description": "Suprema BioStar2: Bearer token after login. Anviz CloudClox: API key. Virdi: REST token.",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key / Token"
+  },
+  {
+   "fieldname": "sec_brand_cfg",
+   "fieldtype": "Section Break",
+   "label": "Brand-Specific Configuration"
+  },
+  {
+   "description": "Suprema only. e.g. https://your-biostar2-server:443",
+   "fieldname": "biostar_server_url",
+   "fieldtype": "Data",
+   "label": "BioStar2 Server URL"
+  },
+  {
+   "fieldname": "col_brand1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Anviz only. Found in your CloudClox cloud account.",
+   "fieldname": "cloudclox_device_id",
+   "fieldtype": "Data",
+   "label": "CloudClox Device ID"
+  },
+  {
+   "default": "https://api.cloudclox.com",
+   "description": "Anviz CloudClox API base URL.",
+   "fieldname": "cloudclox_api_url",
+   "fieldtype": "Data",
+   "label": "CloudClox API URL"
+  },
+  {
+   "fieldname": "sec_sync",
+   "fieldtype": "Section Break",
+   "label": "Sync Settings"
+  },
+  {
+   "default": "Pull (Scheduled)",
+   "description": "Pull: Frappe fetches from device on schedule. Push: Device POSTs punches to Frappe (supported by ZKTeco/eSSL push firmware).",
+   "fieldname": "sync_mode",
+   "fieldtype": "Select",
+   "label": "Sync Mode",
+   "options": "Pull (Scheduled)\nPush (Real-time)"
+  },
+  {
+   "default": "30",
+   "fieldname": "sync_interval_minutes",
+   "fieldtype": "Int",
+   "label": "Sync Interval (mins)"
+  },
+  {
+   "fieldname": "col_sync1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_sync",
+   "fieldtype": "Datetime",
+   "label": "Last Successful Sync",
+   "read_only": 1
+  },
+  {
+   "default": "Unknown",
+   "fieldname": "device_status",
+   "fieldtype": "Select",
+   "label": "Device Status",
+   "options": "Online\nOffline\nUnknown",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "description": "Any additional notes about this device (location, special config, etc.)",
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-10 14:57:48.710472",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Biometric Device",
+ "naming_rule": "Set by user",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,249 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-04 06:43:19.429654",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset_category",
+  "asset_name",
+  "description",
+  "column_break_1",
+  "qty",
+  "rate",
+  "amount",
+  "location_section",
+  "location",
+  "department",
+  "column_break_loc1",
+  "custodian",
+  "cost_center",
+  "depreciation_section",
+  "is_depreciable",
+  "available_for_use_date",
+  "column_break_dep1",
+  "useful_life_months",
+  "depreciation_method",
+  "additional_info_section",
+  "serial_number",
+  "manufacturer",
+  "model_number",
+  "column_break_add1",
+  "brand",
+  "warranty_period_months",
+  "warranty_expiry_date",
+  "accounting_dimensions_section",
+  "dimension_1",
+  "dimension_2",
+  "column_break_dim1",
+  "dimension_3",
+  "dimension_4"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset Category",
+   "options": "Fixed Asset Category",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "rate",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccd Location & Assignment"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "column_break_loc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "custodian",
+   "fieldtype": "Link",
+   "label": "Custodian",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "depreciation_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd22 Depreciation Configuration"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_depreciable",
+   "fieldtype": "Check",
+   "label": "Is Depreciable Asset"
+  },
+  {
+   "description": "When asset starts being used",
+   "fieldname": "available_for_use_date",
+   "fieldtype": "Date",
+   "label": "Available for Use Date"
+  },
+  {
+   "fieldname": "column_break_dep1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "is_depreciable",
+   "fieldname": "useful_life_months",
+   "fieldtype": "Int",
+   "label": "Useful Life (Months)"
+  },
+  {
+   "depends_on": "is_depreciable",
+   "fieldname": "depreciation_method",
+   "fieldtype": "Select",
+   "label": "Depreciation Method",
+   "options": "Straight Line\nWritten Down Value\nDouble Declining Balance\nUnits of Production\nSum of Years Digits"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "additional_info_section",
+   "fieldtype": "Section Break",
+   "label": "\u2139\ufe0f Additional Information"
+  },
+  {
+   "fieldname": "serial_number",
+   "fieldtype": "Data",
+   "label": "Serial Number"
+  },
+  {
+   "fieldname": "manufacturer",
+   "fieldtype": "Data",
+   "label": "Manufacturer"
+  },
+  {
+   "fieldname": "column_break_add1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Data",
+   "label": "Brand"
+  },
+  {
+   "fieldname": "warranty_period_months",
+   "fieldtype": "Int",
+   "label": "Warranty Period (Months)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "accounting_dimensions_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Accounting Dimensions"
+  },
+  {
+   "fieldname": "dimension_1",
+   "fieldtype": "Link",
+   "label": "Dimension 1",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "dimension_2",
+   "fieldtype": "Link",
+   "label": "Dimension 2",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_dim1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dimension_3",
+   "fieldtype": "Data",
+   "label": "Dimension 3"
+  },
+  {
+   "fieldname": "dimension_4",
+   "fieldtype": "Data",
+   "label": "Dimension 4"
+  },
+  {
+   "bold": 1,
+   "default": "1",
+   "fieldname": "qty",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Quantity",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Name/Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Asset Description"
+  },
+  {
+   "fieldname": "warranty_expiry_date",
+   "fieldtype": "Date",
+   "label": "Warranty Expiry Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "model_number",
+   "fieldtype": "Data",
+   "label": "Model Number"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-05 10:40:40.417583",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Asset Purchase Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

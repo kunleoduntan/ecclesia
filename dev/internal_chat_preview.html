@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internal Chat Widget — soft & professional preview</title>
+  <style>
+    /* ===== PROFESSIONAL LIGHT THEME ===== */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f7fb;  /* soft cool off-white */
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      color: #1e293b;        /* deep navy-grey for text */
+    }
+
+    /* subtle pattern overlay (very light, professional) */
+    .desk-bg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      gap: 24px;
+      padding: 20px;
+      background-image: radial-gradient(circle at 25px 25px, #d9e2ef 1.2px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    .demo-card {
+      background: #ffffffdd;
+      backdrop-filter: blur(2px);
+      border: 1px solid #ffffff;
+      border-radius: 28px;
+      padding: 32px 40px;
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 35px -8px rgba(0,20,45,0.15), 0 4px 8px rgba(0,0,0,0.02);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .demo-card:hover {
+      box-shadow: 0 25px 45px -10px rgba(17, 45, 78, 0.18);
+    }
+
+    .demo-card h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      font-weight: 550;
+      letter-spacing: -0.3px;
+      color: #0b2b4a;           /* rich navy */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .demo-card h2 span {
+      background: #eaf1fd;
+      font-size: 0.8rem;
+      font-weight: 450;
+      padding: 4px 10px;
+      border-radius: 50px;
+      color: #1d4e89;
+      letter-spacing: normal;
+      border: 1px solid #cdddec;
+    }
+
+    .demo-card p {
+      margin: 10px 0 0;
+      font-size: 15px;
+      color: #334155;
+      line-height: 1.6;
+      font-weight: 380;
+    }
+
+    .demo-card p:first-of-type {
+      margin-top: 6px;
+      font-size: 15.5px;
+    }
+
+    .demo-card kbd {
+      background: #edf2f9;
+      border: 1px solid #b7c9e0;
+      border-radius: 8px;
+      padding: 4px 10px;
+      color: #1d3b61;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-weight: 500;
+      box-shadow: inset 0 -1px 0 #b0c2d8;
+    }
+
+    .demo-card strong[style] {
+      color: #1f6bc0 !important;   /* friendly blue */
+      font-weight: 550;
+    }
+
+    .desk-label {
+      color: #6f7f99;
+      font-size: 13px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      background: #eaf0f8cc;
+      padding: 6px 16px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+      border: 1px solid #ffffffb0;
+      font-weight: 450;
+    }
+
+    /* mock accent style */
+    .demo-card kbd, .demo-card strong {
+      transition: all 0.1s ease;
+    }
+
+    /* quick responsive */
+    @media (max-width: 450px) {
+      .demo-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="desk-bg">
+  <div class="demo-card">
+    <h2>
+      💬 internal chat
+      <span>light · professional</span>
+    </h2>
+    <p>ERPNext Desk — floating widget with soft palette<br/>
+      Click <strong>↘ bottom right</strong> or press <kbd>⌥ Alt+C</kbd></p>
+    <p style="margin-top: 16px; color: #3f5575;">mock data: online now · Sarah, Emmanuel · unread highlights</p>
+  </div>
+  <div class="desk-label">✨ erpnext desk · light theme simulation</div>
+</div>
+
+<!-- mock frappe globals (light‑friendly user info, same functionality) -->
+<script>
+  var frappe = {
+    session: { user: "john@company.com" },
+    boot: {
+      user_info: { "john@company.com": { fullname: "John Adeyemi" } },
+      internal_chat: { enabled: true, chat_position: "Bottom Right" }
+    },
+    realtime: {
+      _handlers: {},
+      on: function(ev, cb) { this._handlers[ev] = this._handlers[ev] || []; this._handlers[ev].push(cb); },
+      fire: function(ev, data) { (this._handlers[ev] || []).forEach(function(h){ h(data); }); }
+    },
+    call: function(opts) {
+      var method = opts.method || "";
+      var cb = opts.callback;
+      setTimeout(function() {
+        if (method.includes("get_my_conversations")) {
+          cb({ message: [
+            { name: "conv-001", chat_type: "Direct Message", chat_name: "Sarah Okonkwo", last_message_preview: "Can you review the Q3 report?", last_message_at: new Date(Date.now()-300000).toISOString(), unread_count: 3, _other_user: "sarah@company.com", members: [{user:"sarah@company.com",full_name:"Sarah Okonkwo"}] },
+            { name: "conv-002", chat_type: "Group", chat_name: "Engineering Team", last_message_preview: "Deployment is live ✅", last_message_at: new Date(Date.now()-1800000).toISOString(), unread_count: 1, members: [{user:"a@x.com",full_name:"Amina"},{user:"b@x.com",full_name:"Bola"},{user:"c@x.com",full_name:"Chidi"}] },
+            { name: "conv-003", chat_type: "Direct Message", chat_name: "Emmanuel Osei", last_message_preview: "Invoice approved 👍", last_message_at: new Date(Date.now()-7200000).toISOString(), unread_count: 0, _other_user: "emma@company.com", members: [] },
+            { name: "conv-004", chat_type: "Document Channel", chat_name: "PO-2024-0042", last_message_preview: "Vendor confirmed delivery date", last_message_at: new Date(Date.now()-86400000).toISOString(), unread_count: 0, members: [] },
+            { name: "conv-005", chat_type: "Group", chat_name: "Sales & Marketing", last_message_preview: "New campaign is ready for review", last_message_at: new Date(Date.now()-172800000).toISOString(), unread_count: 7, members: [] }
+          ]});
+        } else if (method.includes("get_messages")) {
+          var msgs = [
+            { name:"m001", sender:"sarah@company.com", sender_name:"Sarah Okonkwo", message_type:"text", body:"Good morning! Did you check the latest sales figures?", timestamp: new Date(Date.now()-3600000).toISOString(), reactions: null },
+            { name:"m002", sender:"john@company.com", sender_name:"John Adeyemi", message_type:"text", body:"Yes! Revenue is up 18% this quarter 🎉", timestamp: new Date(Date.now()-3500000).toISOString(), reactions: JSON.stringify({"🎉":["sarah@company.com","emma@company.com"],"👏":["emma@company.com"]}) },
+            { name:"m003", sender:"sarah@company.com", sender_name:"Sarah Okonkwo", message_type:"text", body:"Incredible! Can you send me the detailed breakdown?", timestamp: new Date(Date.now()-3400000).toISOString(), reactions: null },
+            { name:"m004", sender:"john@company.com", sender_name:"John Adeyemi", message_type:"text", body:"Of course, give me 5 minutes.", timestamp: new Date(Date.now()-3300000).toISOString(), reactions: JSON.stringify({"👍":["sarah@company.com"]}) },
+            { name:"m005", sender:"sarah@company.com", sender_name:"Sarah Okonkwo", message_type:"text", body:"Also — can you review the Q3 report before the board meeting?", timestamp: new Date(Date.now()-300000).toISOString(), reactions: null },
+            { name:"m006", sender:"sarah@company.com", sender_name:"Sarah Okonkwo", message_type:"text", body:"The meeting is at 3pm today.", timestamp: new Date(Date.now()-290000).toISOString(), reactions: null },
+          ];
+          cb({ message: { messages: msgs, has_more: false }});
+        } else if (method.includes("send_message")) {
+          cb({ message: Object.assign({}, opts.args, { name: "m-new-"+Date.now(), sender: "john@company.com", sender_name: "John Adeyemi", timestamp: new Date().toISOString(), reactions: null })});
+        } else if (method.includes("search_users")) {
+          cb({ message: [
+            { email:"sarah@company.com", full_name:"Sarah Okonkwo" },
+            { email:"emma@company.com",  full_name:"Emmanuel Osei" },
+            { email:"amina@company.com", full_name:"Amina Bello" },
+            { email:"chidi@company.com", full_name:"Chidi Nwankwo" }
+          ]});
+        } else if (method.includes("get_or_create_conversation")) {
+          var m = opts.args;
+          cb({ message: { name: "conv-new-"+Date.now(), chat_type: m.chat_type, chat_name: m.chat_name || "New Chat", members: m.members.map(function(e){return{user:e,full_name:e};}), _other_user: m.members[0] }});
+        } else if (method.includes("mark_as_read")) {
+          // no-op
+        } else if (method.includes("react_to_message")) {
+          var r = {}; r[opts.args.emoji] = ["john@company.com"];
+          cb({ message: { reactions: JSON.stringify(r) }});
+        } else if (method.includes("broadcast_typing") || method.includes("set_online_status")) {
+          // no-op
+        } else {
+          if (cb) cb({ message: null });
+        }
+      }, 80);
+    },
+    show_alert: function(opts) { console.log("[Alert]", opts.message); },
+    confirm: function(msg, cb) { if (window.confirm(msg)) cb(); }
+  };
+
+  // Simulate typing event after 3s
+  setTimeout(function(){
+    frappe.realtime.fire("ic_typing", { chat_name: "conv-001", user: "sarah@company.com", user_name: "Sarah", is_typing: true });
+    setTimeout(function(){ frappe.realtime.fire("ic_typing", { chat_name: "conv-001", user: "sarah@company.com", is_typing: false }); }, 3000);
+  }, 5000);
+
+  // Simulate incoming message after 8s
+  setTimeout(function(){
+    frappe.realtime.fire("ic_new_message", { chat_name: "conv-001", sender: "sarah@company.com", sender_name: "Sarah Okonkwo", message_type: "text", body: "Actually the meeting was moved to 4pm 🙌", timestamp: new Date().toISOString(), name: "m-rt-"+Date.now() });
+  }, 8000);
+
+  // Mark some users online
+  setTimeout(function(){
+    frappe.realtime.fire("ic_user_online", { user: "sarah@company.com", online: true });
+    frappe.realtime.fire("ic_user_online", { user: "emma@company.com", online: true });
+  }, 1000);
+</script>
+
+<!-- Load the actual widget JS (internal_chat.js) — path remains same -->
+<script src="ecclesia/ecclesia/public/js/internal_chat.js"></script>
+<!-- Note: widget will use frappe global; background & style of widget itself 
+     will be light/professional according to its own CSS (if any). 
+     The preview environment now reflects a light, airy backdrop. -->
+</body>
+</html>

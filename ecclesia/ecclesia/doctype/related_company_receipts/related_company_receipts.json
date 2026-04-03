@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 15:17:28.084023",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "related_company",
+  "trans_type",
+  "column_break_1",
+  "party_type",
+  "party",
+  "party_name",
+  "section_break_2",
+  "amount",
+  "exch_rate",
+  "amount_in_lc",
+  "column_break_3",
+  "related_company_account",
+  "cost_center",
+  "section_break_4",
+  "remark",
+  "payee_name",
+  "invoice_references"
+ ],
+ "fields": [
+  {
+   "fieldname": "related_company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Related Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "trans_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Transaction Type",
+   "options": "\nCustomer Receipt\nReceipt",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Link",
+   "hidden": 1,
+   "label": "Party Type",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.related_company",
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Party",
+   "options": "party_type",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Party Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "exch_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "precision": "4"
+  },
+  {
+   "fieldname": "amount_in_lc",
+   "fieldtype": "Currency",
+   "label": "Amount in Local Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.related_company",
+   "fieldname": "related_company_account",
+   "fieldtype": "Link",
+   "label": "Related Company Account",
+   "mandatory_depends_on": "eval:doc.related_company",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.related_company",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_4",
+   "fieldtype": "Section Break",
+   "label": "Additional Details"
+  },
+  {
+   "fieldname": "remark",
+   "fieldtype": "Small Text",
+   "label": "Remark",
+   "max_height": "100px"
+  },
+  {
+   "fieldname": "payee_name",
+   "fieldtype": "Data",
+   "label": "Payee Name"
+  },
+  {
+   "depends_on": "eval:doc.trans_type == 'Customer Receipt'",
+   "description": "Comma separated list of Sales Invoice IDs",
+   "fieldname": "invoice_references",
+   "fieldtype": "Small Text",
+   "label": "Invoice References"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-02 15:22:47.972001",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Related Company Receipts",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

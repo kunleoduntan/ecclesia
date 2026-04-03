@@ -1,0 +1,621 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-04 20:18:04.487433",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_info_section",
+  "naming_series",
+  "asset_category",
+  "company",
+  "column_break_doc1",
+  "posting_date",
+  "posting_time",
+  "column_break_doc2",
+  "set_posting_time",
+  "purchase_type_section",
+  "purchase_type",
+  "column_break_type1",
+  "payment_type",
+  "supplier_section",
+  "supplier",
+  "supplier_name",
+  "column_break_supp1",
+  "supplier_account",
+  "supplier_invoice_number",
+  "column_break_supp2",
+  "supplier_invoice_date",
+  "credit_days",
+  "cash_purchase_section",
+  "bank_account",
+  "column_break_cash1",
+  "mode_of_payment",
+  "payment_reference",
+  "dates_section",
+  "purchase_date",
+  "column_break_dates1",
+  "expected_delivery_date",
+  "asset_purchase_details_section",
+  "asset_purchase_details",
+  "additional_costs_section",
+  "additional_costs",
+  "taxes_section",
+  "taxes_and_charges",
+  "taxes_and_charges_table",
+  "section_break_totals",
+  "total_qty",
+  "total",
+  "column_break_tot1",
+  "total_additional_costs",
+  "total_taxes_and_charges",
+  "column_break_tot2",
+  "grand_total",
+  "accounting_tab",
+  "accounting_section",
+  "cost_center",
+  "department",
+  "column_break_acc1",
+  "project",
+  "item_linked_code",
+  "column_break_acc2",
+  "create_gl_entry",
+  "payment_tab",
+  "payment_section",
+  "payment_terms_template",
+  "payment_schedule",
+  "payment_summary_section",
+  "total_paid",
+  "outstanding_amount",
+  "column_break_pay1",
+  "payment_status",
+  "status_section",
+  "status",
+  "column_break_stat1",
+  "assets_created",
+  "column_break_stat2",
+  "purchase_invoice_created",
+  "accounting_entry_section",
+  "journal_entry",
+  "column_break_je1",
+  "purchase_invoice",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_info_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc4 Document Information"
+  },
+  {
+   "default": "FAP-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FAP-.YYYY.-.#####\nFAP-.####",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_doc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "depends_on": "set_posting_time",
+   "fieldname": "posting_time",
+   "fieldtype": "Time",
+   "label": "Posting Time"
+  },
+  {
+   "fieldname": "column_break_doc2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "set_posting_time",
+   "fieldtype": "Check",
+   "label": "Set Posting Time"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Purchase",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_type_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Purchase Type"
+  },
+  {
+   "bold": 1,
+   "default": "Supplier Purchase",
+   "description": "Cash Purchase: Pay immediately from bank. Supplier Purchase: Create Purchase Invoice on credit.",
+   "fieldname": "purchase_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Purchase Type",
+   "options": "Cash Purchase\nSupplier Purchase",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_type1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "On Credit",
+   "depends_on": "eval:doc.purchase_type=='Supplier Purchase'",
+   "description": "For supplier purchases: pay immediately or on credit terms",
+   "fieldname": "payment_type",
+   "fieldtype": "Select",
+   "label": "Payment Type",
+   "options": "On Credit\nImmediate Payment",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.purchase_type=='Supplier Purchase'",
+   "fieldname": "supplier_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83c\udfe2 Supplier Details"
+  },
+  {
+   "bold": 1,
+   "fieldname": "supplier",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Supplier",
+   "mandatory_depends_on": "eval:doc.purchase_type=='Supplier Purchase'",
+   "options": "Supplier"
+  },
+  {
+   "fetch_from": "supplier.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_supp1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Creditors/Payable account for supplier",
+   "fieldname": "supplier_account",
+   "fieldtype": "Link",
+   "label": "Supplier Account (Payable)",
+   "options": "Account"
+  },
+  {
+   "fieldname": "supplier_invoice_number",
+   "fieldtype": "Data",
+   "label": "Supplier Invoice Number"
+  },
+  {
+   "fieldname": "column_break_supp2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "supplier_invoice_date",
+   "fieldtype": "Date",
+   "label": "Supplier Invoice Date"
+  },
+  {
+   "default": "0",
+   "description": "Number of days credit period",
+   "fieldname": "credit_days",
+   "fieldtype": "Int",
+   "label": "Credit Days"
+  },
+  {
+   "depends_on": "eval:doc.purchase_type=='Cash Purchase'",
+   "fieldname": "cash_purchase_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb3 Cash Purchase Details"
+  },
+  {
+   "bold": 1,
+   "description": "Bank account to credit for cash payment",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "mandatory_depends_on": "eval:doc.purchase_type=='Cash Purchase'",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_cash1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment"
+  },
+  {
+   "description": "Cheque number, transaction reference, etc.",
+   "fieldname": "payment_reference",
+   "fieldtype": "Data",
+   "label": "Payment Reference/Cheque No"
+  },
+  {
+   "fieldname": "dates_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc5 Dates"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dates1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expected_delivery_date",
+   "fieldtype": "Date",
+   "label": "Expected Delivery Date"
+  },
+  {
+   "fieldname": "asset_purchase_details_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\uded2 Asset Purchase Details"
+  },
+  {
+   "fieldname": "asset_purchase_details",
+   "fieldtype": "Table",
+   "label": "Asset Details",
+   "options": "Asset Purchase Details",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "additional_costs_section",
+   "fieldtype": "Section Break",
+   "label": "\u2795 Additional Costs"
+  },
+  {
+   "fieldname": "additional_costs",
+   "fieldtype": "Table",
+   "label": "Additional Costs",
+   "options": "Additional Cost Details"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "taxes_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Taxes and Charges"
+  },
+  {
+   "fieldname": "taxes_and_charges",
+   "fieldtype": "Link",
+   "label": "Taxes and Charges Template",
+   "options": "Purchase Taxes and Charges Template"
+  },
+  {
+   "fieldname": "taxes_and_charges_table",
+   "fieldtype": "Table",
+   "label": "Purchase Taxes and Charges",
+   "options": "Purchase Taxes and Charges"
+  },
+  {
+   "fieldname": "section_break_totals",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Totals"
+  },
+  {
+   "fieldname": "total_qty",
+   "fieldtype": "Float",
+   "label": "Total Quantity",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "total",
+   "fieldtype": "Currency",
+   "label": "Total Asset Value",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tot1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_additional_costs",
+   "fieldtype": "Currency",
+   "label": "Total Additional Costs",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_taxes_and_charges",
+   "fieldtype": "Currency",
+   "label": "Total Taxes and Charges",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tot2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcc8 Accounting"
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Details"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center",
+   "reqd": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_acc2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Create Journal Entry (cash) or Purchase Invoice (supplier) automatically",
+   "fieldname": "create_gl_entry",
+   "fieldtype": "Check",
+   "label": "Create Accounting Entry"
+  },
+  {
+   "depends_on": "eval:doc.purchase_type=='Supplier Purchase' && doc.payment_type=='On Credit'",
+   "fieldname": "payment_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcb3 Payment"
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Terms"
+  },
+  {
+   "fieldname": "payment_terms_template",
+   "fieldtype": "Link",
+   "label": "Payment Terms Template",
+   "options": "Payment Terms Template"
+  },
+  {
+   "fieldname": "payment_schedule",
+   "fieldtype": "Table",
+   "label": "Payment Schedule",
+   "options": "Payment Schedule"
+  },
+  {
+   "fieldname": "payment_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Summary"
+  },
+  {
+   "fieldname": "total_paid",
+   "fieldtype": "Currency",
+   "label": "Total Paid",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outstanding_amount",
+   "fieldtype": "Currency",
+   "label": "Outstanding Amount",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_pay1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Unpaid",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payment Status",
+   "options": "Unpaid\nPartially Paid\nPaid",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_stat1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Indicates if Fixed Assets have been created",
+   "fieldname": "assets_created",
+   "fieldtype": "Check",
+   "label": "Assets Created",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_stat2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Indicates if Purchase Invoice has been created",
+   "fieldname": "purchase_invoice_created",
+   "fieldtype": "Check",
+   "label": "Purchase Invoice Created",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_entry_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Entries"
+  },
+  {
+   "description": "Link to Journal Entry (for cash purchases)",
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "no_copy": 1,
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_je1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Link to Purchase Invoice (for supplier purchases)",
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "no_copy": 1,
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Purchase",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "label": "Asset Category",
+   "options": "Fixed Asset Category"
+  },
+  {
+   "fetch_from": "asset_category.item_linked_code",
+   "fieldname": "item_linked_code",
+   "fieldtype": "Data",
+   "label": "Item Linked Code",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-02 19:31:55.922349",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Purchase",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

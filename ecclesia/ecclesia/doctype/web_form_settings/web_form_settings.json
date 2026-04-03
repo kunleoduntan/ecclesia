@@ -1,0 +1,298 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:WFS-{form_key}",
+ "creation": "2026-03-21 12:08:59.211851",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_identity",
+  "form_key",
+  "form_label",
+  "is_active",
+  "company",
+  "column_break_1",
+  "allowed_origin",
+  "assignment_strategy",
+  "ai_provider",
+  "target_salesperson_role",
+  "section_branding",
+  "header_title",
+  "header_subtitle",
+  "brand_color",
+  "column_break_2",
+  "logo_url",
+  "contact_email",
+  "contact_phone",
+  "contact_address",
+  "section_fields",
+  "show_phone",
+  "show_company",
+  "show_industry",
+  "show_budget",
+  "column_break_3",
+  "industry_options",
+  "budget_options",
+  "section_routing",
+  "success_message",
+  "success_subtext",
+  "redirect_url",
+  "column_break_4",
+  "notify_emails",
+  "duplicate_window_hours",
+  "section_notes",
+  "internal_notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_identity",
+   "fieldtype": "Section Break",
+   "label": "Identity & Company"
+  },
+  {
+   "bold": 1,
+   "description": "Unique slug embedded in the website HTML. Lowercase, hyphens only. e.g. <b>vic-main</b>, <b>client-a-portal</b>",
+   "fieldname": "form_key",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Form Key",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "Human-readable name. e.g. 'Value Impacts \u2014 Main Website'",
+   "fieldname": "form_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Form Label",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  },
+  {
+   "description": "All Contact Us records created via this form will be linked to this company.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The exact website URL that will POST to this form. e.g. <b>https://yoursite.com</b>. Must also be in site_config.json allow_cors.",
+   "fieldname": "allowed_origin",
+   "fieldtype": "Data",
+   "label": "Allowed CORS Origin",
+   "reqd": 1
+  },
+  {
+   "default": "AI + Load Balancing",
+   "fieldname": "assignment_strategy",
+   "fieldtype": "Select",
+   "label": "Assignment Strategy",
+   "options": "AI + Load Balancing\nLoad Balancing Only\nRound Robin\nFixed Salesperson",
+   "reqd": 1
+  },
+  {
+   "default": "Anthropic (Claude)",
+   "depends_on": "eval:in_list(['AI + Load Balancing'], doc.assignment_strategy)",
+   "fieldname": "ai_provider",
+   "fieldtype": "Select",
+   "label": "AI Provider",
+   "options": "Anthropic (Claude)\nOpenAI\nNone"
+  },
+  {
+   "description": "Only users with this role will be considered for assignment. Leave blank to use all Sales Users.",
+   "fieldname": "target_salesperson_role",
+   "fieldtype": "Link",
+   "label": "Restrict Assignment to Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "section_branding",
+   "fieldtype": "Section Break",
+   "label": "Branding & Display"
+  },
+  {
+   "default": "Get in touch",
+   "fieldname": "header_title",
+   "fieldtype": "Data",
+   "label": "Header Title",
+   "reqd": 1
+  },
+  {
+   "default": "We'll respond within one business day",
+   "fieldname": "header_subtitle",
+   "fieldtype": "Data",
+   "label": "Header Subtitle"
+  },
+  {
+   "default": "#c8972a",
+   "description": "Used for progress pills, focus rings, and button accents.",
+   "fieldname": "brand_color",
+   "fieldtype": "Color",
+   "label": "Brand Accent Colour"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "logo_url",
+   "fieldtype": "Attach Image",
+   "label": "Logo"
+  },
+  {
+   "description": "Shown in the form footer or info panel.",
+   "fieldname": "contact_email",
+   "fieldtype": "Data",
+   "label": "Display Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Display Phone"
+  },
+  {
+   "fieldname": "contact_address",
+   "fieldtype": "Data",
+   "label": "Display Address"
+  },
+  {
+   "fieldname": "section_fields",
+   "fieldtype": "Section Break",
+   "label": "Form Fields Visibility"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_phone",
+   "fieldtype": "Check",
+   "label": "Show Phone Field"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_company",
+   "fieldtype": "Check",
+   "label": "Show Company Field"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_industry",
+   "fieldtype": "Check",
+   "label": "Show Industry Field"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_budget",
+   "fieldtype": "Check",
+   "label": "Show Budget Field"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "show_industry",
+   "description": "One per line. Leave blank to use system defaults.",
+   "fieldname": "industry_options",
+   "fieldtype": "Small Text",
+   "label": "Industry Options"
+  },
+  {
+   "depends_on": "show_budget",
+   "description": "One per line. Leave blank to use system defaults.",
+   "fieldname": "budget_options",
+   "fieldtype": "Small Text",
+   "label": "Budget Options"
+  },
+  {
+   "fieldname": "section_routing",
+   "fieldtype": "Section Break",
+   "label": "Submission Behaviour"
+  },
+  {
+   "default": "Message sent!",
+   "fieldname": "success_message",
+   "fieldtype": "Data",
+   "label": "Success Message"
+  },
+  {
+   "default": "Thanks for reaching out. A member of our team will be in touch with you shortly.",
+   "fieldname": "success_subtext",
+   "fieldtype": "Small Text",
+   "label": "Success Sub-text"
+  },
+  {
+   "description": "Optional. If set, the form redirects here after a successful submission instead of showing the success state.",
+   "fieldname": "redirect_url",
+   "fieldtype": "Data",
+   "label": "Redirect URL After Submit"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "One per line. These addresses receive a copy of every submission, in addition to the assigned salesperson.",
+   "fieldname": "notify_emails",
+   "fieldtype": "Small Text",
+   "label": "Additional Notification Emails"
+  },
+  {
+   "default": "24",
+   "description": "Submissions from the same email within this window are treated as duplicates and not re-created.",
+   "fieldname": "duplicate_window_hours",
+   "fieldtype": "Int",
+   "label": "Duplicate Window (Hours)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_notes",
+   "fieldtype": "Section Break",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "internal_notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-21 12:09:44.152181",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Web Form Settings",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

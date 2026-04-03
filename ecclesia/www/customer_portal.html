@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f7ff;
+  --surface: #ffffff;
+  --surface2: #e6f0fa;
+  --surface3: #cfe2ff;
+  --border: #b8d1f0;
+  --primary: #0a4b7a;
+  --primary-lt: #1e6aa5;
+  --accent: #0077be;
+  --text: #0a2540;
+  --text2: #2c3e50;
+  --muted: #5e6f8d;
+  --success: #0f7b5a;
+  --warn: #b45b0f;
+  --danger: #b33c2f;
+  --info: #2c7da0;
+  --font: 'Inter', sans-serif;
+  --sh: 0 4px 10px rgba(0,40,80,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;}
+
+/* ── Login overlay ── */
+#login-overlay{
+  position:fixed;inset:0;z-index:10000;
+  background:linear-gradient(135deg,var(--primary) 0%,#062e50 60%,#0a4b6e 100%);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.login-card{
+  background:var(--surface);border-radius:20px;padding:44px 40px;
+  width:min(440px,96vw);box-shadow:0 20px 60px rgba(0,0,0,.3);
+  border-top:4px solid var(--accent);animation:loginIn .35s ease;
+}
+@keyframes loginIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .logo-icon{
+  width:60px;height:60px;margin:0 auto 12px;background:var(--primary);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:#fff;box-shadow:0 4px 16px rgba(10,75,122,.3);
+}
+.login-logo h1{font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.login-logo p{font-size:13px;color:var(--muted);}
+.login-field{margin-bottom:20px;}
+.login-field label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-bottom:7px;text-transform:uppercase;letter-spacing:.4px;}
+.login-field input{
+  width:100%;background:var(--surface);border:1.5px solid var(--border);
+  border-radius:8px;padding:12px 14px;font-size:14px;font-family:var(--font);
+  color:var(--text);outline:none;transition:border-color .15s;
+}
+.login-field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,119,190,.12);}
+.login-hint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
+.login-btn{
+  width:100%;padding:14px;border-radius:9px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-lt));
+  color:#fff;font-size:15px;font-weight:600;font-family:var(--font);
+  border:none;cursor:pointer;transition:opacity .15s;margin-top:8px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.login-btn:hover{opacity:.9;}
+.login-btn:disabled{opacity:.55;cursor:not-allowed;}
+.login-error{
+  background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;
+  padding:10px 14px;font-size:13px;color:var(--danger);
+  margin-bottom:16px;display:none;line-height:1.5;
+}
+.login-footer{text-align:center;margin-top:20px;font-size:12px;color:var(--muted);line-height:1.6;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── Sidebar ── */
+.sidebar{width:255px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;box-shadow:var(--sh);}
+.s-brand{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.s-brand-row{display:flex;align-items:center;gap:10px;}
+.s-icon{width:34px;height:34px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;flex-shrink:0;}
+.s-brand-text{font-weight:700;font-size:15px;color:var(--primary);}
+.s-brand-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+.s-cust{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.s-avatar{width:40px;height:40px;border-radius:8px;background:var(--primary-lt);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;color:#fff;}
+.s-cust-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.s-cust-sub{font-size:11px;color:var(--muted);}
+.s-nav{flex:1;padding:12px;overflow-y:auto;}
+.s-section{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:14px 10px 6px;font-weight:700;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;user-select:none;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--surface3);color:var(--primary);font-weight:600;}
+.nav-item .icon{font-size:17px;width:22px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:18px;text-align:center;}
+.s-footer{padding:16px 20px;border-top:1px solid var(--border);}
+.main{margin-left:255px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{padding:16px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface);position:sticky;top:0;z-index:50;box-shadow:var(--sh);}
+.topbar-title{font-size:17px;font-weight:700;color:var(--text);}
+.content{padding:28px;flex:1;}
+.btn{padding:8px 16px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:7px;}
+.btn-primary{background:var(--primary);color:#fff;}.btn-primary:hover{background:var(--primary-lt);}
+.btn-outline{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);}
+.btn-success{background:var(--success);color:#fff;}
+.btn:disabled{opacity:.6;cursor:not-allowed;}
+.panel{display:none;}.panel.active{display:block;animation:fadeIn .18s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:20px;background:var(--surface);padding:4px;border-radius:8px;overflow-x:auto;}
+.tab{padding:7px 15px;font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;color:var(--text2);white-space:nowrap;transition:all .15s;}
+.tab:hover{color:var(--text);background:var(--surface2);}
+.tab.active{color:var(--primary);background:var(--surface3);font-weight:600;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--sh);}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.card-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;color:var(--text);}
+.card-body{padding:18px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;box-shadow:var(--sh);}
+.stat-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px;font-weight:600;}
+.stat-value{font-size:26px;font-weight:700;line-height:1;margin-bottom:3px;}
+.stat-sub{font-size:11px;color:var(--muted);}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.pill-green{background:#d1fae5;color:#065f46;}.pill-yellow{background:#fef3c7;color:#92400e;}
+.pill-red{background:#fee2e2;color:#991b1b;}.pill-blue{background:#dbeafe;color:#1e40af;}
+.pill-purple{background:#ede9fe;color:#6d28d9;}.pill-grey{background:var(--surface2);color:var(--muted);}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{padding:11px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);}
+.data-table td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tbody tr:hover{background:var(--surface2);}
+.data-table tbody tr[onclick]{cursor:pointer;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-icon{font-size:36px;margin-bottom:12px;}
+.loading-row{text-align:center;padding:32px;color:var(--muted);font-style:italic;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.form-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text);transition:border .15s;}
+.form-input:focus{outline:none;border-color:var(--accent);}
+.form-input:disabled{background:var(--surface2);cursor:not-allowed;color:var(--muted);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.addr-card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:all .15s;}
+.addr-card.primary{border-color:var(--accent);background:#f0f6ff;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;}
+.modal-box{background:var(--surface);border-radius:14px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+#toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 18px;font-size:13px;box-shadow:var(--sh);z-index:2000;display:none;max-width:360px;}
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;flex:1;}
+.prog-fill{height:100%;background:var(--success);border-radius:3px;}
+.out-banner{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;margin-bottom:20px;border:1px solid;}
+.out-banner.has-balance{background:#fff1f2;border-color:#fca5a5;}
+.out-banner.all-clear{background:#ecfdf5;border-color:#6ee7b7;}
+
+/* ── Ledger specific ── */
+.ledger-filter-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;}
+.ledger-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.ledger-sum-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.ledger-sum-label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:4px;font-weight:600;}
+.ledger-sum-val{font-size:20px;font-weight:700;}
+.debit-cell{color:var(--danger);font-weight:600;}
+.credit-cell{color:var(--success);font-weight:600;}
+.balance-pos{color:var(--danger);}   /* positive balance = customer owes us */
+.balance-neg{color:var(--success);}  /* negative balance = we owe customer */
+.doc-abbr{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+.abbr-SI{background:#dbeafe;color:#1e40af;}
+.abbr-CN{background:#ede9fe;color:#6d28d9;}
+.abbr-PMT{background:#d1fae5;color:#065f46;}
+.abbr-JV{background:#fef3c7;color:#92400e;}
+
+/* ── Place Order / Sales Order Form ── */
+.so-form-wrap { max-width: 960px; }
+.so-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: var(--sh); margin-bottom: 20px; }
+.so-section-head { padding: 13px 20px; background: var(--surface2); border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+.so-section-body { padding: 20px; }
+.so-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.so-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.so-fg { display: flex; flex-direction: column; gap: 5px; }
+.so-fg label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+.so-fg input, .so-fg select, .so-fg textarea {
+  padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 7px;
+  font-size: 13px; font-family: var(--font); background: var(--surface);
+  color: var(--text); outline: none; transition: border-color .15s; width: 100%;
+}
+.so-fg input:focus, .so-fg select:focus, .so-fg textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,119,190,.08); }
+.so-fg textarea { resize: vertical; min-height: 70px; }
+
+/* Items table */
+.so-items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.so-items-table th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); background: var(--surface2); border-bottom: 1px solid var(--border); white-space: nowrap; }
+.so-items-table td { padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.so-items-table tr:last-child td { border-bottom: none; }
+.so-items-table input, .so-items-table select {
+  padding: 6px 9px; border: 1.5px solid var(--border); border-radius: 6px;
+  font-size: 12px; font-family: var(--font); background: var(--surface);
+  color: var(--text); outline: none; width: 100%; transition: border-color .15s;
+}
+.so-items-table input:focus, .so-items-table select:focus { border-color: var(--accent); }
+.so-item-search { position: relative; }
+.so-item-dropdown {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 500;
+  background: var(--surface); border: 1.5px solid var(--border); border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,40,80,.12); max-height: 260px; overflow-y: auto;
+  display: none;
+}
+.so-item-dropdown.open { display: block; }
+.so-item-option {
+  padding: 10px 14px; cursor: pointer; border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.so-item-option:last-child { border-bottom: none; }
+.so-item-option:hover { background: var(--surface2); }
+.so-item-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.so-item-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.so-item-price { font-size: 12px; color: var(--primary); font-weight: 600; float: right; }
+.so-del-btn { width: 28px; height: 28px; border-radius: 6px; border: none; background: #fee2e2; color: var(--danger); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+.so-del-btn:hover { background: var(--danger); color: #fff; }
+.so-totals { margin-top: 12px; padding: 14px 18px; background: var(--surface2); border-radius: 8px; }
+.so-totals-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; color: var(--text2); }
+.so-totals-row.grand { font-size: 15px; font-weight: 700; color: var(--primary); border-top: 1px solid var(--border); padding-top: 10px; margin-top: 5px; }
+.so-submit-bar { display: flex; gap: 12px; align-items: center; padding: 18px 0 4px; }
+.so-confirm-overlay { position: fixed; inset: 0; background: rgba(0,40,80,.45); z-index: 2000; display: none; align-items: center; justify-content: center; }
+.so-confirm-card { background: var(--surface); border-radius: 16px; padding: 36px 40px; max-width: 520px; width: 94vw; box-shadow: 0 20px 60px rgba(0,40,80,.2); text-align: center; border-top: 4px solid var(--success); animation: fadeIn .2s ease; }
+.so-confirm-icon { font-size: 52px; margin-bottom: 16px; }
+.so-confirm-card h2 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+.so-confirm-card p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+.so-confirm-details { background: var(--surface2); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px; text-align: left; }
+.so-confirm-details tr td:first-child { color: var(--muted); font-size: 12px; padding: 4px 8px 4px 0; white-space: nowrap; }
+.so-confirm-details tr td:last-child { font-weight: 600; font-size: 13px; padding: 4px 0; }
+
+</style>
+</head>
+<body>
+
+<div id="cp-boot" data-boot="" style="display:none"></div>
+<div id="toast"></div>
+
+<!-- ══ LOGIN OVERLAY ══ -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-icon">⚓</div>
+      <h1>Customer Portal</h1>
+      <p>Sign in with your portal credentials</p>
+    </div>
+    <div id="login-error" class="login-error"></div>
+    <div class="login-field">
+      <label>Portal Email</label>
+      <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>Portal Password</label>
+      <input type="password" id="login-password" placeholder="Enter your portal password" autocomplete="current-password">
+      <div class="login-hint">Contact the sales team if you need access.</div>
+    </div>
+    <button class="login-btn" id="login-btn" onclick="window.doLogin()">
+      <span>&#x1F511;</span> Sign In
+    </button>
+    <div class="login-footer">Don't have access? Contact the sales team.</div>
+  </div>
+</div>
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sidebar">
+  <div class="s-brand">
+    <div class="s-brand-row">
+      <div class="s-icon">⚓</div>
+      <div><div class="s-brand-text">Bluewater ERP</div><div class="s-brand-sub">Customer Portal</div></div>
+    </div>
+  </div>
+  <div class="s-cust">
+    <div class="s-avatar" id="cust-avatar">C</div>
+    <div><div class="s-cust-name" id="cust-name">—</div><div class="s-cust-sub" id="cust-group"></div></div>
+  </div>
+  <div class="s-nav">
+    <div class="s-section">Overview</div>
+    <div class="nav-item active" data-panel="dashboard"><span class="icon">📊</span>Dashboard</div>
+    <div class="s-section">Commerce</div>
+    <div class="nav-item" data-panel="quotes"><span class="icon">📋</span>Quotations<span class="nav-badge" id="badge-quotes" style="display:none"></span></div>
+    <div class="nav-item" data-panel="orders"><span class="icon">📦</span>Sales Orders<span class="nav-badge" id="badge-orders" style="display:none"></span></div>
+    <div class="nav-item" data-panel="new-order"><span class="icon">🛒</span>Place Order</div>
+    <div class="nav-item" data-panel="deliveries"><span class="icon">🚚</span>Deliveries</div>
+    <div class="s-section">Finance</div>
+    <div class="nav-item" data-panel="invoices"><span class="icon">🧾</span>Invoices<span class="nav-badge" id="badge-invoices" style="display:none"></span></div>
+    <div class="nav-item" data-panel="payments"><span class="icon">💳</span>Payments</div>
+    <div class="nav-item" data-panel="ledger"><span class="icon">📒</span>Account Ledger</div>
+    <div class="s-section">Support</div>
+    <div class="nav-item" data-panel="support"><span class="icon">🎫</span>Support Tickets<span class="nav-badge" id="badge-support" style="display:none"></span></div>
+    <div class="s-section">Account</div>
+    <div class="nav-item" data-panel="profile"><span class="icon">👤</span>My Profile</div>
+  </div>
+  <div class="s-footer">
+    <a href="javascript:void(0)" onclick="window.doLogout()" class="btn btn-outline" style="width:100%;justify-content:center;font-size:12px">🚪 Sign Out</a>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div style="font-size:13px;color:var(--muted)" id="topbar-date"></div>
+  </div>
+  <div class="content" id="main-content">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-label">Open Orders</div><div class="stat-value" id="s-orders">—</div></div>
+        <div class="stat-card"><div class="stat-label">Unpaid Invoices</div><div class="stat-value" id="s-invoices">—</div></div>
+        <div class="stat-card"><div class="stat-label">Open Quotes</div><div class="stat-value" id="s-quotes">—</div></div>
+        <div class="stat-card"><div class="stat-label">Support Tickets</div><div class="stat-value" id="s-support">—</div></div>
+        <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value" style="font-size:18px" id="s-outstanding">—</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📦 Recent Orders</div><button class="btn btn-outline" style="font-size:11px;padding:4px 10px" data-panel="orders">View All</button></div>
+          <div class="card-body" style="padding:0"><table class="data-table" id="dash-orders-table"><thead><tr><th>Order</th><th>Date</th><th>Value</th><th>Status</th></tr></thead><tbody><tr><td colspan="4" class="loading-row">Loading...</td></tr></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🧾 Recent Invoices</div><button class="btn btn-outline" style="font-size:11px;padding:4px 10px" data-panel="invoices">View All</button></div>
+          <div class="card-body" style="padding:0"><table class="data-table" id="dash-inv-table"><thead><tr><th>Invoice</th><th>Date</th><th>Outstanding</th><th>Status</th></tr></thead><tbody><tr><td colspan="4" class="loading-row">Loading...</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🎫 Recent Support Tickets</div><button class="btn btn-outline" style="font-size:11px;padding:4px 10px" data-panel="support">View All</button></div>
+        <div class="card-body" style="padding:0"><table class="data-table" id="dash-support-table"><thead><tr><th>Ticket</th><th>Subject</th><th>Priority</th><th>Status</th></tr></thead><tbody><tr><td colspan="4" class="loading-row">Loading...</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- QUOTATIONS -->
+    <div id="panel-quotes" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Quotations</div>
+          <select class="form-input" id="q-status" onchange="loadQuotations()" style="width:auto;padding:5px 10px;font-size:12px">
+            <option value="">All</option><option>Open</option><option>Ordered</option><option>Cancelled</option><option>Expired</option>
+          </select>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="quotes-table">
+            <thead><tr><th>Reference</th><th>Date</th><th>Valid Till</th><th>Total</th><th>Status</th><th></th></tr></thead>
+            <tbody><tr><td colspan="6" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALES ORDERS -->
+    <div id="panel-orders" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 Sales Orders</div>
+          <select class="form-input" id="so-status" onchange="loadOrders()" style="width:auto;padding:5px 10px;font-size:12px">
+            <option value="All">All</option><option>To Deliver and Bill</option><option>To Deliver</option><option>To Bill</option><option>Completed</option><option>Cancelled</option>
+          </select>
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="orders-table">
+            <thead><tr><th>Order</th><th>Date</th><th>Delivery Date</th><th>Value</th><th>Delivered</th><th>Status</th><th></th></tr></thead>
+            <tbody><tr><td colspan="7" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- PLACE NEW ORDER -->
+    <div id="panel-new-order" class="panel">
+      <div class="so-form-wrap">
+
+        <!-- Header bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+          <div>
+            <h2 style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px">🛒 Place New Order</h2>
+            <p style="font-size:13px;color:var(--muted)">Fill in the details below and submit to create a Sales Order</p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-outline" onclick="resetNewOrder()">↺ Reset</button>
+            <button class="btn btn-primary" id="btn-place-order" onclick="confirmPlaceOrder()">
+              <span>✓</span> Place Order
+            </button>
+          </div>
+        </div>
+
+        <!-- ① Order Info -->
+        <div class="so-section">
+          <div class="so-section-head">📋 Order Information</div>
+          <div class="so-section-body">
+            <div class="so-grid-3" style="margin-bottom:16px">
+              <div class="so-fg">
+                <label>Order Date *</label>
+                <input type="date" id="so-date">
+              </div>
+              <div class="so-fg">
+                <label>Required Delivery Date *</label>
+                <input type="date" id="so-delivery-date">
+              </div>
+              <div class="so-fg">
+                <label>Order Type</label>
+                <select id="so-order-type">
+                  <option value="Sales">Sales</option>
+                  <option value="Shopping Cart">Shopping Cart</option>
+                </select>
+              </div>
+            </div>
+            <div class="so-grid-3">
+              <div class="so-fg">
+                <label>Your PO / Reference No.</label>
+                <input type="text" id="so-po-no" placeholder="Your purchase order number">
+              </div>
+              <div class="so-fg">
+                <label>PO Date</label>
+                <input type="date" id="so-po-date">
+              </div>
+              <div class="so-fg">
+                <label>Payment Terms</label>
+                <select id="so-payment-terms">
+                  <option value="">— Select —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② Customer & Delivery -->
+        <div class="so-section">
+          <div class="so-section-head">🏢 Customer &amp; Delivery</div>
+          <div class="so-section-body">
+            <div class="so-grid-2" style="margin-bottom:16px">
+              <div class="so-fg">
+                <label>Customer</label>
+                <input type="text" id="so-customer-name" disabled style="background:var(--surface2);color:var(--muted)">
+              </div>
+              <div class="so-fg">
+                <label>Currency</label>
+                <input type="text" id="so-currency" disabled style="background:var(--surface2);color:var(--muted)">
+              </div>
+            </div>
+            <div class="so-grid-2">
+              <div class="so-fg">
+                <label>Shipping Address</label>
+                <select id="so-shipping-addr">
+                  <option value="">— Select delivery address —</option>
+                </select>
+              </div>
+              <div class="so-fg">
+                <label>Tax Template</label>
+                <select id="so-taxes">
+                  <option value="">— None —</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ③ Items Table -->
+        <div class="so-section">
+          <div class="so-section-head" style="justify-content:space-between">
+            <span>📦 Items</span>
+            <button class="btn btn-primary" style="font-size:12px;padding:5px 12px" onclick="addOrderRow()">+ Add Item</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="so-items-table" id="so-items-table">
+              <thead>
+                <tr>
+                  <th style="width:36px">#</th>
+                  <th style="min-width:220px">Item *</th>
+                  <th style="width:120px">Description</th>
+                  <th style="width:80px">Qty *</th>
+                  <th style="width:90px">UOM</th>
+                  <th style="width:120px">Rate</th>
+                  <th style="width:130px">Amount</th>
+                  <th style="width:36px"></th>
+                </tr>
+              </thead>
+              <tbody id="so-items-body">
+                <!-- rows injected by JS -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Totals -->
+          <div class="so-totals" id="so-totals">
+            <div class="so-totals-row"><span>Subtotal</span><span id="so-subtotal">0.00</span></div>
+            <div class="so-totals-row" id="so-tax-row" style="display:none"><span id="so-tax-label">Tax</span><span id="so-tax-val">0.00</span></div>
+            <div class="so-totals-row grand"><span>Grand Total</span><span id="so-grand-total">0.00</span></div>
+          </div>
+        </div>
+
+        <!-- ④ Notes -->
+        <div class="so-section">
+          <div class="so-section-head">📝 Additional Notes</div>
+          <div class="so-section-body">
+            <div class="so-fg">
+              <label>Notes / Special Instructions</label>
+              <textarea id="so-notes" rows="3" placeholder="Delivery instructions, special requirements…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit bar (duplicate for convenience) -->
+        <div class="so-submit-bar">
+          <button class="btn btn-primary" id="btn-place-order-2" onclick="confirmPlaceOrder()">
+            <span>✓</span> Place Order
+          </button>
+          <button class="btn btn-outline" onclick="resetNewOrder()">↺ Reset</button>
+          <span id="so-item-count" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+
+      </div><!-- /so-form-wrap -->
+    </div><!-- /panel-new-order -->
+
+    <!-- Order Confirmation Overlay -->
+    <div class="so-confirm-overlay" id="so-confirm-overlay">
+      <div class="so-confirm-card">
+        <div class="so-confirm-icon">🎉</div>
+        <h2>Order Placed!</h2>
+        <p id="so-confirm-msg">Your order has been submitted successfully.</p>
+        <div class="so-confirm-details">
+          <table style="width:100%">
+            <tr><td>Order No.</td><td id="so-conf-name">—</td></tr>
+            <tr><td>Date</td><td id="so-conf-date">—</td></tr>
+            <tr><td>Delivery Date</td><td id="so-conf-delivery">—</td></tr>
+            <tr><td>Grand Total</td><td id="so-conf-total">—</td></tr>
+            <tr><td>Status</td><td id="so-conf-status">—</td></tr>
+          </table>
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center">
+          <button class="btn btn-primary" onclick="viewConfirmedOrder()">View Order</button>
+          <button class="btn btn-outline" onclick="closeOrderConfirmation()">Place Another</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DELIVERIES -->
+    <div id="panel-deliveries" class="panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">🚚 Deliveries</div></div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="deliveries-table">
+            <thead><tr><th>Delivery Note</th><th>Date</th><th>Value</th><th>LR / Tracking</th><th>Status</th></tr></thead>
+            <tbody><tr><td colspan="5" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVOICES -->
+    <div id="panel-invoices" class="panel">
+      <div id="out-banner-wrap"></div>
+      <div class="tabs">
+        <div class="tab active" data-inv-tab="inv-all">All</div>
+        <div class="tab" data-inv-tab="inv-unpaid">Unpaid</div>
+        <div class="tab" data-inv-tab="inv-overdue">Overdue</div>
+        <div class="tab" data-inv-tab="inv-paid">Paid</div>
+      </div>
+      <div id="inv-all" class="panel active">
+        <div class="card"><div class="card-body" style="padding:0">
+          <table class="data-table" id="inv-all-table">
+            <thead><tr><th>Invoice</th><th>Date</th><th>Due</th><th>Total</th><th>Outstanding</th><th>Status</th></tr></thead>
+            <tbody><tr><td colspan="6" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div></div>
+      </div>
+      <div id="inv-unpaid" class="panel">
+        <div class="card"><div class="card-body" style="padding:0">
+          <table class="data-table" id="inv-unpaid-table">
+            <thead><tr><th>Invoice</th><th>Date</th><th>Due</th><th>Total</th><th>Outstanding</th><th>Status</th></tr></thead>
+            <tbody><tr><td colspan="6" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div></div>
+      </div>
+      <div id="inv-overdue" class="panel">
+        <div class="card"><div class="card-body" style="padding:0">
+          <table class="data-table" id="inv-overdue-table">
+            <thead><tr><th>Invoice</th><th>Date</th><th>Due Date</th><th>Total</th><th>Outstanding</th><th>Overdue By</th></tr></thead>
+            <tbody><tr><td colspan="6" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div></div>
+      </div>
+      <div id="inv-paid" class="panel">
+        <div class="card"><div class="card-body" style="padding:0">
+          <table class="data-table" id="inv-paid-table">
+            <thead><tr><th>Invoice</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
+            <tbody><tr><td colspan="4" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div id="panel-payments" class="panel">
+      <div class="card">
+        <div class="card-header"><div class="card-title">💳 Payment History</div></div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="payments-table">
+            <thead><tr><th>Reference</th><th>Date</th><th>Amount</th><th>Mode</th><th>Ref No.</th></tr></thead>
+            <tbody><tr><td colspan="5" class="loading-row">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT LEDGER -->
+    <div id="panel-ledger" class="panel">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📒 Account Ledger</div>
+          <button class="btn btn-outline" style="font-size:12px" onclick="exportLedger()">&#x2B07; Export CSV</button>
+        </div>
+        <div class="card-body">
+
+          <!-- Date filter bar -->
+          <div class="ledger-filter-bar">
+            <div class="form-group" style="margin:0;display:flex;align-items:center;gap:8px">
+              <label class="form-label" style="margin:0;white-space:nowrap">From</label>
+              <input type="date" class="form-input" id="led-from" style="width:150px;padding:6px 10px">
+            </div>
+            <div class="form-group" style="margin:0;display:flex;align-items:center;gap:8px">
+              <label class="form-label" style="margin:0;white-space:nowrap">To</label>
+              <input type="date" class="form-input" id="led-to" style="width:150px;padding:6px 10px">
+            </div>
+            <button class="btn btn-primary" style="font-size:12px" onclick="loadLedger()">Apply</button>
+            <button class="btn btn-outline" style="font-size:12px" onclick="resetLedgerDates()">Reset</button>
+          </div>
+
+          <!-- Summary cards -->
+          <div class="ledger-summary">
+            <div class="ledger-sum-card">
+              <div class="ledger-sum-label">Total Invoiced (Debit)</div>
+              <div class="ledger-sum-val debit-cell" id="led-total-debit">—</div>
+            </div>
+            <div class="ledger-sum-card">
+              <div class="ledger-sum-label">Total Paid (Credit)</div>
+              <div class="ledger-sum-val credit-cell" id="led-total-credit">—</div>
+            </div>
+            <div class="ledger-sum-card">
+              <div class="ledger-sum-label">Closing Balance</div>
+              <div class="ledger-sum-val" id="led-balance">—</div>
+            </div>
+          </div>
+
+        </div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table" id="ledger-table">
+            <thead>
+              <tr>
+                <th style="width:100px">Date</th>
+                <th style="width:70px">Type</th>
+                <th>Reference</th>
+                <th>Description</th>
+                <th style="text-align:right;width:130px">Debit</th>
+                <th style="text-align:right;width:130px">Credit</th>
+                <th style="text-align:right;width:130px">Balance</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-tbody">
+              <tr><td colspan="7" class="loading-row">Loading...</td></tr>
+            </tbody>
+            <tfoot id="ledger-tfoot" style="display:none">
+              <tr style="background:var(--surface2);font-weight:700">
+                <td colspan="4" style="padding:11px 14px;text-align:right">Totals</td>
+                <td style="padding:11px 14px;text-align:right;color:var(--danger)" id="led-foot-debit">—</td>
+                <td style="padding:11px 14px;text-align:right;color:var(--success)" id="led-foot-credit">—</td>
+                <td style="padding:11px 14px;text-align:right" id="led-foot-balance">—</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="led-pagination" style="display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:13px;color:var(--muted)"></div>
+    </div>
+
+    <!-- SUPPORT -->
+    <div id="panel-support" class="panel">
+      <div class="tabs">
+        <div class="tab active" data-support-tab="sup-list">My Tickets</div>
+        <div class="tab" data-support-tab="sup-new">New Ticket</div>
+      </div>
+      <div id="sup-list" class="panel active">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎫 Support Tickets</div>
+            <div style="display:flex;gap:10px;align-items:center">
+              <select class="form-input" id="sup-status" onchange="loadIssues()" style="width:auto;padding:5px 10px;font-size:12px">
+                <option value="All">All</option><option>Open</option><option>Replied</option><option>Resolved</option><option>Closed</option>
+              </select>
+              <button class="btn btn-primary" style="font-size:12px" data-support-tab="sup-new">+ New Ticket</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <table class="data-table" id="issues-table">
+              <thead><tr><th>Ticket</th><th>Subject</th><th>Priority</th><th>Date</th><th>Status</th><th></th></tr></thead>
+              <tbody><tr><td colspan="6" class="loading-row">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div id="sup-new" class="panel">
+        <div class="card" style="max-width:600px">
+          <div class="card-header"><div class="card-title">🎫 New Support Ticket</div></div>
+          <div class="card-body">
+            <div class="form-group"><label class="form-label">Subject *</label><input type="text" class="form-input" id="new-issue-subject" placeholder="Brief description of your issue"></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Priority</label>
+                <select class="form-input" id="new-issue-priority"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option><option value="Urgent">Urgent</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Type</label>
+                <select class="form-input" id="new-issue-type"><option value="">General</option><option>Billing</option><option>Delivery</option><option>Product Quality</option><option>Technical</option><option>Other</option></select>
+              </div>
+            </div>
+            <div class="form-group"><label class="form-label">Description *</label><textarea class="form-input" id="new-issue-desc" rows="5" placeholder="Please describe your issue in detail..."></textarea></div>
+            <button class="btn btn-primary" id="btn-submit-issue" onclick="submitNewIssue()">Submit Ticket</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="panel-profile" class="panel">
+      <div class="tabs">
+        <div class="tab active" data-profile-tab="prof-contact">Contact Info</div>
+        <div class="tab" data-profile-tab="prof-addresses">Addresses</div>
+        <div class="tab" data-profile-tab="prof-password">Portal Password</div>
+        <div class="tab" data-profile-tab="prof-account">Account Details</div>
+      </div>
+      <div id="prof-contact" class="panel active">
+        <div class="card" style="max-width:540px">
+          <div class="card-header"><div class="card-title">👤 Contact Information</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">First Name *</label><input type="text" class="form-input" id="prof-firstname"></div>
+              <div class="form-group"><label class="form-label">Last Name</label><input type="text" class="form-input" id="prof-lastname"></div>
+            </div>
+            <div class="form-group"><label class="form-label">Email (cannot be changed)</label><input type="email" class="form-input" id="prof-email" disabled></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Phone</label><input type="tel" class="form-input" id="prof-phone"></div>
+              <div class="form-group"><label class="form-label">Mobile</label><input type="tel" class="form-input" id="prof-mobile"></div>
+            </div>
+            <button class="btn btn-primary" id="btn-save-contact" onclick="saveContact()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+      <div id="prof-addresses" class="panel">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+          <button class="btn btn-primary" onclick="openAddressModal(null)">+ Add Address</button>
+        </div>
+        <div id="addr-grid" class="three-col"><div class="loading-row">Loading...</div></div>
+      </div>
+      <div id="prof-password" class="panel">
+        <div class="card" style="max-width:540px">
+          <div class="card-header"><div class="card-title">&#x1F510; Change Portal Password</div></div>
+          <div class="card-body">
+            <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Update the password you use to log in to this portal.</p>
+            <div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="new-password" placeholder="At least 6 characters" minlength="6"></div>
+            <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="confirm-password" placeholder="Repeat new password" minlength="6"></div>
+            <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+      </div>
+      <div id="prof-account" class="panel">
+        <div class="card" style="max-width:540px">
+          <div class="card-header"><div class="card-title">🏢 Account Details</div></div>
+          <div class="card-body">
+            <table class="data-table"><tbody>
+              <tr><td style="color:var(--muted);width:150px">Customer ID</td><td><strong id="acc-id">—</strong></td></tr>
+              <tr><td style="color:var(--muted)">Company Name</td><td id="acc-name">—</td></tr>
+              <tr><td style="color:var(--muted)">Customer Group</td><td id="acc-group">—</td></tr>
+              <tr><td style="color:var(--muted)">Territory</td><td id="acc-territory">—</td></tr>
+              <tr><td style="color:var(--muted)">Currency</td><td id="acc-currency">—</td></tr>
+              <tr><td style="color:var(--muted)">Price List</td><td id="acc-pricelist">—</td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</main>
+
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box" id="modal-box"></div>
+</div>
+
+<script>
+(function () {
+'use strict';
+
+// ─── State ────────────────────────────────────────────────────────────────────
+var B = null;
+var _loaded = {};
+var _ledgerPage = 1;
+var _ledgerTotal = 0;
+var PAGE_SIZE = 50;
+
+var _titles = {
+  dashboard:'Dashboard', quotes:'Quotations', orders:'Sales Orders', 'new-order':'Place New Order',
+  deliveries:'Deliveries', invoices:'Invoices', payments:'Payments',
+  ledger:'Account Ledger', support:'Support Tickets', profile:'My Profile'
+};
+
+// ─── Login / session ──────────────────────────────────────────────────────────
+function showLogin() {
+  document.getElementById('login-overlay').style.display = 'flex';
+  document.getElementById('login-error').style.display   = 'none';
+  document.getElementById('login-email').value    = '';
+  document.getElementById('login-password').value = '';
+}
+function hideLogin() {
+  document.getElementById('login-overlay').style.display = 'none';
+}
+
+async function doLogin() {
+  var btn   = document.getElementById('login-btn');
+  var errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  var email    = document.getElementById('login-email').value.trim();
+  var password = document.getElementById('login-password').value;
+
+  if (!email)    { errEl.textContent='Please enter your portal email.';    errEl.style.display='block'; return; }
+  if (!password) { errEl.textContent='Please enter your portal password.'; errEl.style.display='block'; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite"></span> Signing in...';
+
+  try {
+    // GET with URL params — identical to working supplier portal pattern
+    var res = await api('ecclesia.api.customer_portal_api.portal_login', {
+      email: email, password: password
+    });
+    if (!res || !res.success) {
+      throw new Error((res && res.message) || 'Login failed. Please try again.');
+    }
+    hideLogin();
+    toast('Welcome, ' + (res.customer_name || 'Customer') + '!', 'success');
+    await loadBootAndPopulate();
+  } catch(e) {
+    errEl.innerHTML = e.message || 'Login failed.';
+    errEl.style.display = 'block';
+    console.error('[Portal Login]', e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>&#x1F511;</span> Sign In';
+  }
+}
+
+async function doLogout() {
+  try {
+    await api('ecclesia.api.customer_portal_api.portal_logout', {});
+  } catch(e) {}
+  B = null; _loaded = {};
+  document.querySelectorAll('.main .panel').forEach(function(p) {
+    if (p.id && p.id.startsWith('panel-')) p.classList.remove('active');
+  });
+  document.getElementById('panel-dashboard').classList.add('active');
+  showLogin();
+}
+
+// ─── API helper (GET — same pattern as working supplier portal) ───────────────
+async function api(method, args) {
+  var params = new URLSearchParams();
+  if (args) {
+    Object.entries(args).forEach(function(kv) {
+      if (kv[1] !== null && kv[1] !== undefined)
+        params.append(kv[0], typeof kv[1] === 'object' ? JSON.stringify(kv[1]) : kv[1]);
+    });
+  }
+  var url = '/api/method/' + method + (params.toString() ? '?' + params.toString() : '');
+  var r = await fetch(url, { credentials: 'include' });
+  var raw = await r.text();
+
+  if (raw.trimStart().startsWith('<')) {
+    var m = raw.match(/<title[^>]*>(.*?)<\/title>/i);
+    throw new Error('Server error: ' + (m ? m[1].trim() : 'HTTP ' + r.status));
+  }
+
+  var d;
+  try { d = JSON.parse(raw); } catch(e) { throw new Error('Non-JSON response: ' + raw.slice(0,120)); }
+
+  // frappe.throw() → _server_messages
+  if (d.exc || d._server_messages) {
+    var msg = 'Server error';
+    try {
+      if (d._server_messages) msg = JSON.parse(JSON.parse(d._server_messages)[0]).message || msg;
+      else msg = String(d.exc).replace(/<[^>]+>/g,'').trim().split('\n').filter(Boolean).slice(-3).join(' | ');
+    } catch(e) {}
+    if (r.status === 401 && !method.includes('portal_login')) { showLogin(); }
+    throw new Error(msg);
+  }
+
+  if (r.status === 401) {
+    if (!method.includes('portal_login')) showLogin();
+    throw new Error((d.message && typeof d.message === 'string') ? d.message : 'Authentication failed.');
+  }
+
+  return d.message;
+}
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+async function checkSessionAndBoot() {
+  try {
+    var sess = await api('ecclesia.api.customer_portal_api.check_portal_session', {});
+    if (sess && sess.authenticated) {
+      await loadBootAndPopulate();
+    } else {
+      showLogin();
+    }
+  } catch(e) { showLogin(); }
+}
+
+async function loadBootAndPopulate() {
+  try {
+    var data = await api('ecclesia.api.customer_portal_api.get_portal_boot', {});
+    if (!data || data.error === 'no_session') { showLogin(); return; }
+    B = data;
+    populatePortal(data);
+  } catch(e) { showLogin(); }
+}
+
+function populatePortal(data) {
+  var initials = (data.customer_name || 'C').split(/\s+/).slice(0,2).map(function(w){return w[0];}).join('').toUpperCase();
+  var av = document.getElementById('cust-avatar'); if (av) av.textContent = initials;
+  setText('cust-name', data.customer_name || data.customer);
+  setText('cust-group', [data.customer_group, data.territory].filter(Boolean).join(' · ') || '');
+
+  var now = data.today ? new Date(data.today + 'T00:00:00') : new Date();
+  var el = document.getElementById('topbar-date');
+  if (el) el.textContent = now.toLocaleDateString('en-NG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  var s = data.stats || {};
+  setText('s-orders',      s.open_orders     || 0);
+  setText('s-invoices',    s.unpaid_invoices  || 0);
+  setText('s-quotes',      s.open_quotes      || 0);
+  setText('s-support',     s.open_issues      || 0);
+  setText('s-outstanding', (data.currency||'NGN') + ' ' + Number(s.outstanding||0).toLocaleString('en-NG',{minimumFractionDigits:0}));
+
+  var setBadge = function(id, n) {
+    var el = document.getElementById(id); if (!el) return;
+    el.textContent = n||''; el.style.display = n ? '' : 'none';
+  };
+  setBadge('badge-orders',  s.open_orders);
+  setBadge('badge-invoices',s.unpaid_invoices);
+  setBadge('badge-quotes',  s.open_quotes);
+  setBadge('badge-support', s.open_issues);
+
+  var cur = data.currency || 'NGN';
+  function renderDash(tbId, rows, cols, mapper) {
+    var tb = document.querySelector('#'+tbId+' tbody'); if (!tb) return;
+    if (!rows||!rows.length) { tb.innerHTML='<tr><td colspan="'+cols+'" class="loading-row" style="font-style:normal;color:var(--muted)">None yet</td></tr>'; return; }
+    tb.innerHTML = rows.map(mapper).join('');
+  }
+  renderDash('dash-orders-table', data.recent_orders, 4, function(r) {
+    return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.transaction_date+'</td>'+
+      '<td>'+fmt(r.grand_total, r.currency||cur)+'</td><td>'+pill(r.status)+'</td></tr>';
+  });
+  renderDash('dash-inv-table', data.recent_invoices, 4, function(r) {
+    return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.posting_date+'</td>'+
+      '<td style="'+(r.outstanding_amount>0?'color:var(--danger);font-weight:600':'')+'">'+
+      (r.outstanding_amount>0 ? fmt(r.outstanding_amount,r.currency||cur) : '<span style="color:var(--success)">Paid</span>')+'</td>'+
+      '<td>'+pill(r.status)+'</td></tr>';
+  });
+  renderDash('dash-support-table', data.recent_issues, 4, function(r) {
+    return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.subject+'</td>'+
+      '<td>'+pill(r.priority)+'</td><td>'+pill(r.status)+'</td></tr>';
+  });
+
+  setText('acc-id',        data.customer);
+  setText('acc-name',      data.customer_name);
+  setText('acc-group',     data.customer_group);
+  setText('acc-territory', data.territory);
+  setText('acc-currency',  data.currency);
+  setText('acc-pricelist', data.price_list);
+
+  if (data.contact && data.contact.email_id) {
+    setVal('prof-email', data.contact.email_id);
+  }
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  var t = document.getElementById('toast');
+  var icons = {success:'✅ ',error:'❌ ',warn:'⚠️ ',info:'ℹ️ '};
+  t.innerHTML = (icons[type]||'') + msg;
+  t.style.display = 'block';
+  t.style.borderLeft = '4px solid var(--'+(type==='error'?'danger':type==='warn'?'warn':type==='success'?'success':'info')+')';
+  clearTimeout(t._t); t._t = setTimeout(function(){t.style.display='none';}, 4500);
+}
+
+function fmt(v, c) {
+  return (c || (B&&B.currency) || 'NGN') + ' ' + Number(v||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtNoSym(v) {
+  return Number(v||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+function pill(s) {
+  var m = {
+    'Open':'pill-blue','Draft':'pill-grey','To Deliver and Bill':'pill-yellow',
+    'Completed':'pill-green','To Deliver':'pill-yellow','To Bill':'pill-yellow',
+    'Submitted':'pill-green','Cancelled':'pill-red','Expired':'pill-red',
+    'Paid':'pill-green','Unpaid':'pill-yellow','Overdue':'pill-red',
+    'Replied':'pill-blue','Resolved':'pill-green','Closed':'pill-grey',
+    'Return':'pill-purple','Urgent':'pill-red','High':'pill-yellow',
+    'Medium':'pill-blue','Low':'pill-grey'
+  };
+  return '<span class="pill '+(m[s]||'pill-grey')+'">'+(s||'—')+'</span>';
+}
+
+function showBtn(btn,msg){if(!btn)return;btn._orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='⏳ '+msg;}
+function resetBtn(btn){if(!btn)return;btn.disabled=false;if(btn._orig)btn.innerHTML=btn._orig;}
+function openModal(html){document.getElementById('modal-box').innerHTML=html;document.getElementById('modal-overlay').style.display='flex';}
+function closeModal(){document.getElementById('modal-overlay').style.display='none';}
+function setVal(id,v){var el=document.getElementById(id);if(el)el.value=v||'';}
+function setText(id,v){var el=document.getElementById(id);if(el)el.textContent=(v!==null&&v!==undefined)?v:'—';}
+function g(id){var el=document.getElementById(id);return el?el.value:'';}
+function chk(id){var el=document.getElementById(id);return el&&el.checked?1:0;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+function go(name, srcEl) {
+  document.querySelectorAll('.main > .content > .panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var panel = document.getElementById('panel-'+name);
+  if (panel) panel.classList.add('active');
+  if (srcEl&&srcEl.classList&&srcEl.classList.contains('nav-item')) srcEl.classList.add('active');
+  else document.querySelectorAll('.nav-item[data-panel="'+name+'"]').forEach(function(n){n.classList.add('active');});
+  document.getElementById('topbar-title').textContent = _titles[name] || name;
+  if (_loaded[name]) return;
+  _loaded[name] = true;
+  if (name==='quotes')     loadQuotations();
+  if (name==='orders')     loadOrders();
+  if (name==='new-order')  initNewOrder();
+  if (name==='deliveries') loadDeliveries();
+  if (name==='invoices')   { loadInvoices('all'); loadOutstandingBanner(); }
+  if (name==='payments')   loadPayments();
+  if (name==='ledger')     { initLedgerDates(); loadLedger(); }
+  if (name==='support')    loadIssues();
+  if (name==='profile')    loadProfile();
+}
+
+// ─── Tab switchers ────────────────────────────────────────────────────────────
+function switchInvTab(id, el) {
+  var p = document.getElementById('panel-invoices');
+  p.querySelectorAll(':scope > .panel').forEach(function(x){x.classList.remove('active');});
+  p.querySelectorAll('.tab[data-inv-tab]').forEach(function(t){t.classList.remove('active');});
+  var tp = document.getElementById(id); if(tp)tp.classList.add('active');
+  if(el)el.classList.add('active');
+  var map={'inv-all':'all','inv-unpaid':'Unpaid','inv-overdue':'Overdue','inv-paid':'Paid'};
+  loadInvoices(map[id]||'all');
+}
+function switchSupportTab(id, el) {
+  var p = document.getElementById('panel-support');
+  p.querySelectorAll(':scope > .panel').forEach(function(x){x.classList.remove('active');});
+  p.querySelectorAll('.tab[data-support-tab]').forEach(function(t){t.classList.remove('active');});
+  var tp = document.getElementById(id); if(tp)tp.classList.add('active');
+  if(el)el.classList.add('active');
+  if(id==='sup-list') loadIssues();
+}
+function switchProfileTab(id, el) {
+  var p = document.getElementById('panel-profile');
+  p.querySelectorAll(':scope > .panel').forEach(function(x){x.classList.remove('active');});
+  p.querySelectorAll('.tab[data-profile-tab]').forEach(function(t){t.classList.remove('active');});
+  var tp = document.getElementById(id); if(tp)tp.classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+// ─── Quotations ───────────────────────────────────────────────────────────────
+function loadQuotations() {
+  var tb = document.querySelector('#quotes-table tbody');
+  if(tb) tb.innerHTML='<tr><td colspan="6" class="loading-row">Loading...</td></tr>';
+  api('ecclesia.api.customer_portal_api.get_quotations',{status:g('q-status'),page:1,page_size:50})
+    .then(function(res){
+      var tb=document.querySelector('#quotes-table tbody'); if(!tb||!res) return;
+      if(!res.data||!res.data.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📋</div><p>No quotations found</p></div></td></tr>';return;}
+      tb.innerHTML=res.data.map(function(r){
+        return '<tr onclick="viewQuotation(\''+r.name+'\')" style="cursor:pointer">'+
+          '<td><strong>'+r.name+'</strong></td><td>'+r.transaction_date+'</td>'+
+          '<td>'+(r.valid_till||'—')+'</td><td>'+fmt(r.grand_total,r.currency)+'</td>'+
+          '<td>'+pill(r.status)+'</td>'+
+          '<td><button class="btn btn-outline" style="font-size:11px;padding:3px 9px" onclick="event.stopPropagation();viewQuotation(\''+r.name+'\')">View</button></td>'+
+        '</tr>';
+      }).join('');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function viewQuotation(name) {
+  openModal('<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>');
+  api('ecclesia.api.customer_portal_api.get_quotation_detail',{name:name})
+    .then(function(d){
+      if(!d) return;
+      openModal('<h3 style="margin:0 0 4px;font-size:17px;font-weight:600">📋 '+d.name+'</h3>'+
+        '<p style="color:var(--muted);font-size:12px;margin-bottom:18px">'+d.transaction_date+' · '+pill(d.status)+'</p>'+
+        '<table class="data-table" style="margin-bottom:16px"><thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>'+
+        '<tbody>'+d.items.map(function(i){return '<tr><td>'+i.item_name+'</td><td>'+i.qty+' '+i.uom+'</td><td>'+fmt(i.rate,d.currency)+'</td><td>'+fmt(i.amount,d.currency)+'</td></tr>';}).join('')+'</tbody>'+
+        '<tfoot><tr><td colspan="3" style="text-align:right;font-weight:600">Grand Total</td><td style="font-weight:700">'+fmt(d.grand_total,d.currency)+'</td></tr></tfoot></table>'+
+        (d.terms?'<div style="font-size:12px;color:var(--muted);padding:10px;background:var(--surface2);border-radius:6px;margin-bottom:16px">'+d.terms+'</div>':'')+
+        '<button class="btn btn-outline" onclick="closeModal()">Close</button>');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
+function loadOrders() {
+  var tb=document.querySelector('#orders-table tbody');
+  if(tb)tb.innerHTML='<tr><td colspan="7" class="loading-row">Loading...</td></tr>';
+  api('ecclesia.api.customer_portal_api.get_orders',{status:g('so-status')||'All',page:1,page_size:50})
+    .then(function(res){
+      var tb=document.querySelector('#orders-table tbody'); if(!tb||!res) return;
+      if(!res.data||!res.data.length){tb.innerHTML='<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📦</div><p>No orders found</p></div></td></tr>';return;}
+      tb.innerHTML=res.data.map(function(r){
+        var pct=Math.round(r.per_delivered||0);
+        return '<tr onclick="viewOrder(\''+r.name+'\')" style="cursor:pointer">'+
+          '<td><strong>'+r.name+'</strong></td><td>'+r.transaction_date+'</td>'+
+          '<td>'+(r.delivery_date||'—')+'</td><td>'+fmt(r.grand_total,r.currency)+'</td>'+
+          '<td><div style="display:flex;align-items:center;gap:6px"><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div><span style="font-size:11px">'+pct+'%</span></div></td>'+
+          '<td>'+pill(r.status)+'</td>'+
+          '<td><button class="btn btn-outline" style="font-size:11px;padding:3px 9px" onclick="event.stopPropagation();viewOrder(\''+r.name+'\')">View</button></td>'+
+        '</tr>';
+      }).join('');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function viewOrder(name) {
+  openModal('<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>');
+  api('ecclesia.api.customer_portal_api.get_order_detail',{name:name})
+    .then(function(d){
+      if(!d) return;
+      openModal('<h3 style="margin:0 0 4px;font-size:17px;font-weight:600">📦 '+d.name+'</h3>'+
+        '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">'+d.transaction_date+' · '+pill(d.status)+'</p>'+
+        '<table class="data-table" style="margin-bottom:16px"><thead><tr><th>Item</th><th>Qty</th><th>Delivered</th><th>Rate</th><th>Amount</th></tr></thead>'+
+        '<tbody>'+d.items.map(function(i){return '<tr><td>'+i.item_name+'</td><td>'+i.qty+' '+i.uom+'</td><td>'+i.delivered_qty+'</td><td>'+fmt(i.rate,d.currency)+'</td><td>'+fmt(i.amount,d.currency)+'</td></tr>';}).join('')+'</tbody>'+
+        '<tfoot><tr><td colspan="4" style="text-align:right;font-weight:600">Grand Total</td><td style="font-weight:700">'+fmt(d.grand_total,d.currency)+'</td></tr></tfoot></table>'+
+        (d.delivery_notes&&d.delivery_notes.length?'<p style="font-size:12px;color:var(--muted);margin-bottom:16px">Delivery Notes: '+d.delivery_notes.join(', ')+'</p>':'')+
+        '<button class="btn btn-outline" onclick="closeModal()">Close</button>');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+// ─── Deliveries ───────────────────────────────────────────────────────────────
+function loadDeliveries() {
+  var tb=document.querySelector('#deliveries-table tbody');
+  if(tb)tb.innerHTML='<tr><td colspan="5" class="loading-row">Loading...</td></tr>';
+  api('ecclesia.api.customer_portal_api.get_deliveries',{page:1,page_size:50})
+    .then(function(res){
+      var tb=document.querySelector('#deliveries-table tbody'); if(!tb||!res) return;
+      if(!res.data||!res.data.length){tb.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🚚</div><p>No deliveries yet</p></div></td></tr>';return;}
+      tb.innerHTML=res.data.map(function(r){
+        return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.posting_date+'</td>'+
+          '<td>'+fmt(r.grand_total,r.currency)+'</td><td>'+(r.lr_no||'—')+'</td><td>'+pill(r.status)+'</td></tr>';
+      }).join('');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+// ─── Invoices ─────────────────────────────────────────────────────────────────
+function loadInvoices(filter) {
+  var map={all:'inv-all-table',Unpaid:'inv-unpaid-table',Overdue:'inv-overdue-table',Paid:'inv-paid-table'};
+  var tableId=map[filter]||'inv-all-table';
+  var cols=filter==='Paid'?4:(filter==='Overdue'?6:6);
+  var tb=document.querySelector('#'+tableId+' tbody'); if(!tb) return;
+  tb.innerHTML='<tr><td colspan="'+cols+'" class="loading-row">Loading...</td></tr>';
+  api('ecclesia.api.customer_portal_api.get_invoices',{status:filter==='all'?'':filter,page:1,page_size:50})
+    .then(function(res){
+      var tb=document.querySelector('#'+tableId+' tbody'); if(!tb||!res) return;
+      if(!res.data||!res.data.length){tb.innerHTML='<tr><td colspan="'+cols+'"><div class="empty-state"><div class="empty-icon">🧾</div><p>No invoices</p></div></td></tr>';return;}
+      var badge=document.getElementById('badge-invoices');
+      if(badge&&filter==='all'){var n=res.data.filter(function(r){return r.outstanding_amount>0;}).length;badge.textContent=n||'';badge.style.display=n?'':'none';}
+      tb.innerHTML=res.data.map(function(r){
+        if(filter==='Paid') return '<tr onclick="viewInvoice(\''+r.name+'\')" style="cursor:pointer"><td><strong>'+r.name+'</strong></td><td>'+r.posting_date+'</td><td>'+fmt(r.grand_total,r.currency)+'</td><td>'+pill(r.status)+'</td></tr>';
+        if(filter==='Overdue'){var days=r.due_date?Math.max(0,Math.floor((Date.now()-new Date(r.due_date))/864e5)):0;return '<tr onclick="viewInvoice(\''+r.name+'\')" style="cursor:pointer"><td><strong>'+r.name+'</strong></td><td>'+r.posting_date+'</td><td style="color:var(--danger)">'+r.due_date+'</td><td>'+fmt(r.grand_total,r.currency)+'</td><td style="color:var(--danger);font-weight:600">'+fmt(r.outstanding_amount,r.currency)+'</td><td style="color:var(--danger)">'+days+' days</td></tr>';}
+        return '<tr onclick="viewInvoice(\''+r.name+'\')" style="cursor:pointer"><td><strong>'+r.name+'</strong></td><td>'+r.posting_date+'</td><td>'+(r.due_date||'—')+'</td><td>'+fmt(r.grand_total,r.currency)+'</td>'+
+          '<td style="'+(r.outstanding_amount>0?'color:var(--danger);font-weight:600':'')+'">'+(r.outstanding_amount>0?fmt(r.outstanding_amount,r.currency):'<span style="color:var(--success)">Paid</span>')+'</td>'+
+          '<td>'+pill(r.is_overdue?'Overdue':r.status)+'</td></tr>';
+      }).join('');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function loadOutstandingBanner() {
+  api('ecclesia.api.customer_portal_api.get_outstanding_summary',{})
+    .then(function(d){
+      var c=document.getElementById('out-banner-wrap'); if(!c||!d) return;
+      if(d.total_outstanding<=0){c.innerHTML='<div class="out-banner all-clear"><span style="font-size:22px">✅</span><div><strong style="color:var(--success)">All Paid Up!</strong><p style="font-size:13px;color:var(--muted)">No outstanding invoices.</p></div></div>';return;}
+      c.innerHTML='<div class="out-banner has-balance"><span style="font-size:22px">⚠️</span><div>'+
+        '<strong style="color:var(--danger)">Outstanding: '+fmt(d.total_outstanding)+'</strong>'+
+        (d.total_overdue>0?'<p style="font-size:13px;color:var(--danger)">Overdue: '+fmt(d.total_overdue)+'</p>':'')+
+        '</div></div>';
+    }).catch(function(){});
+}
+
+function viewInvoice(name) {
+  openModal('<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>');
+  api('ecclesia.api.customer_portal_api.get_invoice_detail',{name:name})
+    .then(function(d){
+      if(!d) return;
+      openModal('<h3 style="margin:0 0 4px;font-size:17px;font-weight:600">🧾 '+d.name+'</h3>'+
+        '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">'+d.posting_date+' · Due: '+(d.due_date||'—')+' · '+pill(d.status)+'</p>'+
+        '<table class="data-table" style="margin-bottom:16px"><thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>'+
+        '<tbody>'+d.items.map(function(i){return '<tr><td>'+i.item_name+'</td><td>'+i.qty+' '+i.uom+'</td><td>'+fmt(i.rate,d.currency)+'</td><td>'+fmt(i.amount,d.currency)+'</td></tr>';}).join('')+'</tbody>'+
+        '<tfoot>'+(d.total_taxes_and_charges?'<tr><td colspan="3" style="text-align:right">Tax</td><td>'+fmt(d.total_taxes_and_charges,d.currency)+'</td></tr>':'')+
+        '<tr><td colspan="3" style="text-align:right;font-weight:700">Total</td><td style="font-weight:700">'+fmt(d.grand_total,d.currency)+'</td></tr>'+
+        (d.outstanding_amount>0?'<tr style="color:var(--danger)"><td colspan="3" style="text-align:right;font-weight:600">Outstanding</td><td style="font-weight:700">'+fmt(d.outstanding_amount,d.currency)+'</td></tr>':'')+
+        '</tfoot></table><button class="btn btn-outline" onclick="closeModal()">Close</button>');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+// ─── Payments ─────────────────────────────────────────────────────────────────
+function loadPayments() {
+  var tb=document.querySelector('#payments-table tbody');
+  if(tb)tb.innerHTML='<tr><td colspan="5" class="loading-row">Loading...</td></tr>';
+  api('ecclesia.api.customer_portal_api.get_payment_history',{page:1,page_size:50})
+    .then(function(res){
+      var tb=document.querySelector('#payments-table tbody'); if(!tb||!res) return;
+      if(!res.data||!res.data.length){tb.innerHTML='<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💳</div><p>No payments recorded</p></div></td></tr>';return;}
+      tb.innerHTML=res.data.map(function(r){
+        return '<tr><td><strong>'+r.name+'</strong></td><td>'+r.posting_date+'</td>'+
+          '<td style="color:var(--success);font-weight:600">'+fmt(r.paid_amount,r.currency)+'</td>'+
+          '<td>'+(r.mode_of_payment||'—')+'</td><td>'+(r.reference_no||'—')+'</td></tr>';
+      }).join('');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+// ─── Account Ledger ───────────────────────────────────────────────────────────
+function initLedgerDates() {
+  var today = new Date();
+  var from  = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+  var fd = document.getElementById('led-from');
+  var td = document.getElementById('led-to');
+  if (fd && !fd.value) fd.value = from.toISOString().slice(0,10);
+  if (td && !td.value) td.value = today.toISOString().slice(0,10);
+}
+
+function resetLedgerDates() {
+  document.getElementById('led-from').value = '';
+  document.getElementById('led-to').value   = '';
+  _ledgerPage = 1;
+  initLedgerDates();
+  loadLedger();
+}
+
+function loadLedger(page) {
+  _ledgerPage = page || 1;
+  var fromDate = g('led-from');
+  var toDate   = g('led-to');
+  var tbody = document.getElementById('ledger-tbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="loading-row">Loading...</td></tr>';
+  document.getElementById('ledger-tfoot').style.display = 'none';
+
+  api('ecclesia.api.customer_portal_api.get_ledger', {
+    from_date: fromDate, to_date: toDate,
+    page: _ledgerPage, page_size: PAGE_SIZE
+  }).then(function(res) {
+    if (!res) return;
+    _ledgerTotal = res.total || 0;
+    var cur = (B && B.currency) || 'NGN';
+
+    // Summary cards
+    setText('led-total-debit',  fmt(res.total_debit,  cur));
+    setText('led-total-credit', fmt(res.total_credit, cur));
+    var bal = res.closing_balance || 0;
+    var balEl = document.getElementById('led-balance');
+    if (balEl) {
+      balEl.textContent = fmt(Math.abs(bal), cur) + (bal > 0 ? ' (owed to us)' : bal < 0 ? ' (credit)' : '');
+      balEl.className = 'ledger-sum-val ' + (bal > 0 ? 'balance-pos' : bal < 0 ? 'balance-neg' : '');
+    }
+
+    // Footer totals
+    setText('led-foot-debit',   fmtNoSym(res.total_debit));
+    setText('led-foot-credit',  fmtNoSym(res.total_credit));
+    var footBal = document.getElementById('led-foot-balance');
+    if (footBal) {
+      footBal.textContent = fmtNoSym(Math.abs(bal));
+      footBal.className   = bal > 0 ? 'balance-pos' : 'balance-neg';
+    }
+
+    var tbody = document.getElementById('ledger-tbody');
+    if (!tbody) return;
+
+    if (!res.data || !res.data.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📒</div><p>No transactions in this date range</p></div></td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = res.data.map(function(e) {
+      var abbrClass = 'abbr-' + (e.doc_abbr || 'JV');
+      var desc = e.remarks || e.mode_of_payment || e.ext_ref || e.status || '';
+      var balVal = e.balance || 0;
+      var balClass = balVal > 0 ? 'balance-pos' : balVal < 0 ? 'balance-neg' : '';
+      return '<tr>' +
+        '<td style="white-space:nowrap">' + (e.trx_date || '—') + '</td>' +
+        '<td><span class="doc-abbr ' + abbrClass + '">' + (e.doc_abbr||'') + '</span></td>' +
+        '<td><strong>' + esc(e.ref_no||'') + '</strong></td>' +
+        '<td style="font-size:12px;color:var(--muted)">' + esc(desc.slice(0,60)) + '</td>' +
+        '<td style="text-align:right">' + (e.debit  > 0 ? '<span class="debit-cell">'  + fmtNoSym(e.debit)  + '</span>' : '<span style="color:var(--muted)">—</span>') + '</td>' +
+        '<td style="text-align:right">' + (e.credit > 0 ? '<span class="credit-cell">' + fmtNoSym(e.credit) + '</span>' : '<span style="color:var(--muted)">—</span>') + '</td>' +
+        '<td style="text-align:right"><span class="' + balClass + '">' + fmtNoSym(Math.abs(balVal)) + (balVal < 0 ? ' Cr' : '') + '</span></td>' +
+      '</tr>';
+    }).join('');
+
+    document.getElementById('ledger-tfoot').style.display = '';
+    renderLedgerPagination();
+  }).catch(function(e) { toast(e.message, 'error'); });
+}
+
+function renderLedgerPagination() {
+  var wrap = document.getElementById('led-pagination');
+  if (!wrap) return;
+  var totalPages = Math.ceil(_ledgerTotal / PAGE_SIZE);
+  if (totalPages <= 1) { wrap.innerHTML = ''; return; }
+  var html = '<span>Page ' + _ledgerPage + ' of ' + totalPages + ' (' + _ledgerTotal + ' entries)</span>';
+  if (_ledgerPage > 1) html += ' <button class="btn btn-outline" style="font-size:11px;padding:4px 10px" onclick="loadLedger(' + (_ledgerPage-1) + ')">← Prev</button>';
+  if (_ledgerPage < totalPages) html += ' <button class="btn btn-outline" style="font-size:11px;padding:4px 10px" onclick="loadLedger(' + (_ledgerPage+1) + ')">Next →</button>';
+  wrap.innerHTML = html;
+}
+
+function exportLedger() {
+  var fromDate = g('led-from');
+  var toDate   = g('led-to');
+  // Fetch all (page_size=9999) then download as CSV
+  api('ecclesia.api.customer_portal_api.get_ledger',{
+    from_date: fromDate, to_date: toDate, page: 1, page_size: 9999
+  }).then(function(res) {
+    if (!res || !res.data || !res.data.length) { toast('No data to export', 'warn'); return; }
+    var cur = (B && B.currency) || 'NGN';
+    var rows = [['Date','Type','Reference','Description','Debit ('+cur+')','Credit ('+cur+')','Balance ('+cur+')']];
+    res.data.forEach(function(e) {
+      var desc = (e.remarks || e.mode_of_payment || e.ext_ref || e.status || '').replace(/,/g,' ');
+      var bal  = e.balance || 0;
+      rows.push([
+        e.trx_date||'', e.doc_type||'', e.ref_no||'', desc,
+        e.debit  > 0 ? fmtNoSym(e.debit)  : '0.00',
+        e.credit > 0 ? fmtNoSym(e.credit) : '0.00',
+        fmtNoSym(Math.abs(bal)) + (bal < 0 ? ' Cr' : '')
+      ]);
+    });
+    // Footer row
+    rows.push(['','','','TOTALS',
+      fmtNoSym(res.total_debit),fmtNoSym(res.total_credit),
+      fmtNoSym(Math.abs(res.closing_balance||0)) + ((res.closing_balance||0) < 0 ? ' Cr' : '')
+    ]);
+    var csv = rows.map(function(r){ return r.map(function(c){ return '"'+String(c||'').replace(/"/g,'""')+'"'; }).join(','); }).join('\r\n');
+    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href   = url;
+    a.download = 'account_ledger_' + (fromDate||'all') + '_to_' + (toDate||'today') + '.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Ledger exported ✓', 'success');
+  }).catch(function(e){ toast(e.message,'error'); });
+}
+
+// ─── Support ──────────────────────────────────────────────────────────────────
+function loadIssues() {
+  var status = g('sup-status') || 'All';
+  var tb = document.querySelector('#issues-table tbody');
+  if (tb) tb.innerHTML = '<tr><td colspan="6" class="loading-row">Loading...</td></tr>';
+  api('ecclesia.api.customer_portal_api.get_issues',{status:status,page:1,page_size:50})
+    .then(function(res){
+      var tb=document.querySelector('#issues-table tbody'); if(!tb||!res) return;
+      var badge=document.getElementById('badge-support');
+      if(badge){var n=res.total||0;badge.textContent=n||'';badge.style.display=n?'':'none';}
+      if(!res.data||!res.data.length){tb.innerHTML='<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🎫</div><p>No tickets found.</p></div></td></tr>';return;}
+      tb.innerHTML=res.data.map(function(r){
+        return '<tr onclick="viewIssue(\''+r.name+'\')" style="cursor:pointer">'+
+          '<td><strong>'+r.name+'</strong></td><td>'+esc(r.subject)+'</td>'+
+          '<td>'+pill(r.priority)+'</td><td>'+r.opening_date+'</td>'+
+          '<td>'+pill(r.status)+'</td>'+
+          '<td><button class="btn btn-outline" style="font-size:11px;padding:3px 9px" onclick="event.stopPropagation();viewIssue(\''+r.name+'\')">View</button></td>'+
+        '</tr>';
+      }).join('');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function viewIssue(name) {
+  openModal('<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading...</p></div>');
+  api('ecclesia.api.customer_portal_api.get_issue_detail',{name:name})
+    .then(function(d){
+      if(!d) return;
+      var comms=(d.communications||[]).map(function(c){
+        var isMe=c.sent_or_received==='Sent';
+        return '<div style="margin-bottom:12px;padding:12px;border-radius:8px;background:'+(isMe?'#e8f0fe':'var(--surface2)')+';">'+
+          '<div style="font-size:11px;color:var(--muted);margin-bottom:4px">'+(c.sender_full_name||c.sender)+' · '+c.communication_date+'</div>'+
+          '<div style="font-size:13px">'+c.content+'</div></div>';
+      }).join('');
+      openModal('<h3 style="margin:0 0 4px;font-size:17px;font-weight:600">🎫 '+d.name+'</h3>'+
+        '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">'+esc(d.subject)+' · '+pill(d.priority)+' · '+pill(d.status)+'</p>'+
+        (d.description?'<div style="background:var(--surface2);padding:12px;border-radius:8px;font-size:13px;margin-bottom:16px">'+d.description+'</div>':'')+
+        (comms?'<div style="margin-bottom:16px">'+comms+'</div>':'')+
+        '<div class="form-group"><label class="form-label">Reply</label>'+
+        '<textarea class="form-input" id="issue-reply" rows="3" placeholder="Type your reply..."></textarea></div>'+
+        '<div style="display:flex;gap:10px">'+
+        '<button class="btn btn-primary" id="btn-reply" onclick="replyToIssue(\''+d.name+'\')">Send Reply</button>'+
+        (d.status!=='Closed'?'<button class="btn btn-outline" onclick="closeIssue(\''+d.name+'\')">Close Ticket</button>':'')+
+        '<button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>');
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function replyToIssue(name) {
+  var msg=g('issue-reply');
+  if(!msg.trim()){toast('Please enter a reply','warn');return;}
+  var btn=document.getElementById('btn-reply'); showBtn(btn,'Sending...');
+  api('ecclesia.api.customer_portal_api.reply_to_issue',{name:name,message:msg})
+    .then(function(){resetBtn(btn);closeModal();toast('Reply sent ✓','success');loadIssues();})
+    .catch(function(e){resetBtn(btn);toast(e.message,'error');});
+}
+
+function closeIssue(name) {
+  api('ecclesia.api.customer_portal_api.close_issue',{name:name})
+    .then(function(){closeModal();toast('Ticket closed','success');_loaded.support=false;loadIssues();})
+    .catch(function(e){toast(e.message,'error');});
+}
+
+function submitNewIssue() {
+  var subject=g('new-issue-subject'), desc=g('new-issue-desc');
+  if(!subject.trim()){toast('Subject is required','warn');return;}
+  if(!desc.trim()){toast('Description is required','warn');return;}
+  var btn=document.getElementById('btn-submit-issue'); showBtn(btn,'Submitting...');
+  api('ecclesia.api.customer_portal_api.create_issue',{
+    subject:subject.trim(), priority:g('new-issue-priority')||'Medium',
+    issue_type:g('new-issue-type'), description:desc.trim()
+  }).then(function(res){
+    resetBtn(btn);
+    if(!res){toast('Submission failed','error');return;}
+    toast('Ticket '+res.name+' created ✓','success');
+    setVal('new-issue-subject',''); setVal('new-issue-desc','');
+    _loaded.support=false; switchSupportTab('sup-list',null); loadIssues();
+  }).catch(function(e){resetBtn(btn);toast(e.message,'error');});
+}
+
+// ─── Profile ──────────────────────────────────────────────────────────────────
+function loadProfile() {
+  api('ecclesia.api.customer_portal_api.get_profile',{})
+    .then(function(d){
+      if(!d) return;
+      var c=d.contact||{}, cu=d.customer||{};
+      setVal('prof-firstname', c.first_name); setVal('prof-lastname',  c.last_name);
+      setVal('prof-email',     c.email_id  ); setVal('prof-phone',     c.phone);
+      setVal('prof-mobile',    c.mobile_no );
+      setText('acc-id',        cu.name          || (B&&B.customer));
+      setText('acc-name',      cu.customer_name || (B&&B.customer_name));
+      setText('acc-group',     cu.customer_group|| (B&&B.customer_group));
+      setText('acc-territory', cu.territory     || (B&&B.territory));
+      setText('acc-currency',  cu.default_currency || (B&&B.currency));
+      setText('acc-pricelist', cu.default_price_list|| (B&&B.price_list));
+      renderAddresses(d.addresses||[]);
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function saveContact() {
+  var first=g('prof-firstname');
+  if(!first.trim()){toast('First name is required','warn');return;}
+  var btn=document.getElementById('btn-save-contact'); showBtn(btn,'Saving...');
+  api('ecclesia.api.customer_portal_api.update_contact',{
+    first_name:first.trim(), last_name:g('prof-lastname').trim(),
+    phone:g('prof-phone'), mobile_no:g('prof-mobile')
+  }).then(function(){resetBtn(btn);toast('Contact updated ✓','success');})
+    .catch(function(e){resetBtn(btn);toast(e.message,'error');});
+}
+
+function changePassword() {
+  var np=document.getElementById('new-password').value;
+  var cp=document.getElementById('confirm-password').value;
+  if(!np||np.length<6){toast('Password must be at least 6 characters','warn');return;}
+  if(np!==cp){toast('Passwords do not match','warn');return;}
+  api('ecclesia.api.customer_portal_api.set_portal_password',{new_password:np})
+    .then(function(res){
+      toast(res&&res.message?res.message:'Password updated ✓','success');
+      document.getElementById('new-password').value='';
+      document.getElementById('confirm-password').value='';
+    }).catch(function(e){toast(e.message,'error');});
+}
+
+function renderAddresses(addrs) {
+  var grid=document.getElementById('addr-grid'); if(!grid) return;
+  if(!addrs.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">📍</div><p>No addresses saved.</p><button class="btn btn-primary" style="margin-top:12px" onclick="openAddressModal(null)">Add Address</button></div>';return;}
+  grid.innerHTML=addrs.map(function(a){
+    var addrJson=JSON.stringify(a).replace(/"/g,'&quot;');
+    return '<div class="addr-card'+(a.is_primary_address?' primary':'')+'">'+
+      (a.is_primary_address?'<span style="position:absolute;top:10px;right:10px;background:#dbeafe;color:var(--info);font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px">Primary</span>':'')+
+      (a.is_shipping_address?'<span style="position:absolute;top:'+(a.is_primary_address?32:10)+'px;right:10px;background:#d1fae5;color:var(--success);font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px">Shipping</span>':'')+
+      '<div style="font-size:13px;font-weight:600;margin-bottom:6px">'+(a.address_type||'Address')+'</div>'+
+      '<div style="font-size:13px;color:var(--text2);line-height:1.7">'+esc(a.address_line1)+
+      (a.address_line2?'<br>'+esc(a.address_line2):'')+
+      '<br>'+esc(a.city)+(a.state?', '+esc(a.state):'')+'<br>'+esc(a.country)+(a.pincode?' '+a.pincode:'')+'</div>'+
+      '<div style="margin-top:10px"><button class="btn btn-outline" style="font-size:11px;padding:3px 9px" onclick="openAddressModal('+addrJson+')">Edit</button></div>'+
+    '</div>';
+  }).join('');
+}
+
+function openAddressModal(existing) {
+  var a=existing||{};
+  openModal('<h3 style="margin:0 0 20px;font-size:17px;font-weight:600">📍 '+(existing?'Edit':'Add')+' Address</h3>'+
+    '<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">Type</label><select class="form-input" id="a-type">'+
+    ['Billing','Shipping','Office','Other'].map(function(t){return '<option'+(a.address_type===t?' selected':'')+'>'+t+'</option>';}).join('')+
+    '</select></div>'+
+    '<div class="form-group"><label class="form-label">Country *</label><input class="form-input" id="a-country" value="'+esc(a.country||'Nigeria')+'" placeholder="Country"></div>'+
+    '</div>'+
+    '<div class="form-group"><label class="form-label">Address Line 1 *</label><input class="form-input" id="a-line1" value="'+esc(a.address_line1||'')+'" placeholder="Street address"></div>'+
+    '<div class="form-group"><label class="form-label">Address Line 2</label><input class="form-input" id="a-line2" value="'+esc(a.address_line2||'')+'" placeholder="Suite, floor, etc."></div>'+
+    '<div class="form-row">'+
+    '<div class="form-group"><label class="form-label">City *</label><input class="form-input" id="a-city" value="'+esc(a.city||'')+'" placeholder="City"></div>'+
+    '<div class="form-group"><label class="form-label">State</label><input class="form-input" id="a-state" value="'+esc(a.state||'')+'" placeholder="State"></div>'+
+    '</div>'+
+    '<div class="form-group"><label class="form-label">Postcode</label><input class="form-input" id="a-pin" value="'+esc(a.pincode||'')+'" placeholder="Postcode"></div>'+
+    '<div style="display:flex;gap:20px;margin-bottom:18px">'+
+    '<label style="font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="a-primary"'+(a.is_primary_address?' checked':'')+' style="width:15px;height:15px"> Primary Billing</label>'+
+    '<label style="font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="a-shipping"'+(a.is_shipping_address?' checked':'')+' style="width:15px;height:15px"> Shipping Address</label>'+
+    '</div>'+
+    '<div style="display:flex;gap:10px">'+
+    '<button class="btn btn-primary" id="btn-save-addr" onclick="saveAddress('+(existing?'\''+existing.name+'\'':'null')+')">Save Address</button>'+
+    '<button class="btn btn-outline" onclick="closeModal()">Cancel</button></div>');
+}
+
+function saveAddress(existingName) {
+  var line1=g('a-line1').trim(), city=g('a-city').trim(), country=g('a-country').trim();
+  if(!line1){toast('Address line 1 is required','warn');return;}
+  if(!city){toast('City is required','warn');return;}
+  if(!country){toast('Country is required','warn');return;}
+  var btn=document.getElementById('btn-save-addr'); showBtn(btn,'Saving...');
+  var method=existingName?'ecclesia.api.customer_portal_api.update_address':'ecclesia.api.customer_portal_api.add_address';
+  var args={address_line1:line1,address_line2:g('a-line2').trim(),city:city,
+    state:g('a-state').trim(),country:country,pincode:g('a-pin').trim(),
+    address_type:g('a-type'),is_primary:chk('a-primary'),is_shipping:chk('a-shipping')};
+  if(existingName) args.name=existingName;
+  api(method,args).then(function(){
+    resetBtn(btn);closeModal();toast('Address saved ✓','success');
+    _loaded.profile=false; loadProfile();
+  }).catch(function(e){resetBtn(btn);toast(e.message,'error');});
+}
+
+// ─── Event wiring ─────────────────────────────────────────────────────────────
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PLACE NEW SALES ORDER
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  var _soDefaults   = null;   // cached order defaults from server
+  var _soRowCount   = 0;      // ever-incrementing row ID counter
+  var _soLastOrder  = null;   // last confirmed order (for confirmation modal)
+  var _soSearchTmr  = {};     // debounce timers keyed by rowId
+  // Item data store — avoids JSON.stringify in onclick attributes
+  var _soItemStore  = {};     // rowId → full item object from server
+
+  // ── Init form on first visit ───────────────────────────────────────────────
+  async function initNewOrder() {
+    var today = new Date().toISOString().slice(0, 10);
+    var dv = document.getElementById('so-date');
+    if (dv && !dv.value) dv.value = today;
+
+    var dvd = document.getElementById('so-delivery-date');
+    if (dvd && !dvd.value) {
+      var d7 = new Date(); d7.setDate(d7.getDate() + 7);
+      dvd.value = d7.toISOString().slice(0, 10);
+    }
+
+    if (!_soDefaults) {
+      try {
+        _soDefaults = await api('ecclesia.api.customer_portal_api.get_order_defaults', {});
+      } catch(e) { toast('Could not load order defaults: ' + e.message, 'error'); return; }
+    }
+    var D = _soDefaults;
+
+    // Read-only fields
+    var cn = document.getElementById('so-customer-name');
+    if (cn) cn.value = D.customer_name || D.customer || '';
+    var cu = document.getElementById('so-currency');
+    if (cu) cu.value = D.currency || 'NGN';
+
+    // Payment terms
+    var pt = document.getElementById('so-payment-terms');
+    if (pt) {
+      pt.innerHTML = '<option value="">— None —</option>' +
+        (D.payment_terms_list || []).map(function(p) {
+          return '<option value="' + esc(p.name) + '"' +
+            (p.name === D.payment_terms ? ' selected' : '') + '>' + esc(p.name) + '</option>';
+        }).join('');
+    }
+
+    // Tax templates
+    var tx = document.getElementById('so-taxes');
+    if (tx) {
+      tx.innerHTML = '<option value="">— None —</option>' +
+        (D.taxes || []).map(function(t) {
+          return '<option value="' + esc(t.name) + '"' +
+            (t.name === D.default_tax ? ' selected' : '') + '>' + esc(t.title || t.name) + '</option>';
+        }).join('');
+    }
+
+    // Shipping addresses
+    var sa = document.getElementById('so-shipping-addr');
+    if (sa) {
+      sa.innerHTML = '<option value="">— Select delivery address —</option>' +
+        (D.addresses || []).map(function(a) {
+          var lbl = [a.address_line1, a.city, a.state, a.country].filter(Boolean).join(', ');
+          return '<option value="' + esc(a.name) + '"' +
+            (a.is_shipping_address ? ' selected' : '') + '>' + esc(lbl) + '</option>';
+        }).join('');
+    }
+
+    // First blank row
+    var tbody = document.getElementById('so-items-body');
+    if (tbody && !tbody.querySelector('tr[data-row]')) addOrderRow();
+
+    _updateTotals();
+  }
+
+  // ── Add item row ───────────────────────────────────────────────────────────
+  function addOrderRow() {
+    _soRowCount++;
+    var rowId = 'r' + _soRowCount;
+    var tbody = document.getElementById('so-items-body');
+    if (!tbody) return;
+
+    var tr = document.createElement('tr');
+    tr.setAttribute('data-row', rowId);
+    tr.style.borderBottom = '1px solid var(--border)';
+
+    tr.innerHTML =
+      /* # */
+      '<td style="text-align:center;color:var(--muted);font-size:12px;padding:8px 6px" class="row-num">—</td>' +
+      /* Item search */
+      '<td style="padding:4px 6px;min-width:220px">' +
+        '<div style="position:relative" id="swrap-' + rowId + '">' +
+          '<input type="text" id="isearch-' + rowId + '" autocomplete="off" spellcheck="false"' +
+            ' placeholder="Search item…"' +
+            ' style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);outline:none"' +
+            ' oninput="soInput(\'' + rowId + '\')"' +
+            ' onfocus="soFocus(\'' + rowId + '\')">' +
+          '<input type="hidden" id="icode-' + rowId + '">' +
+          '<div id="idrop-' + rowId + '"' +
+            ' style="display:none;position:absolute;top:calc(100% + 3px);left:0;right:0;z-index:600;' +
+                    'background:#fff;border:1.5px solid var(--border);border-radius:8px;' +
+                    'box-shadow:0 8px 24px rgba(0,40,80,.13);max-height:280px;overflow-y:auto;">' +
+          '</div>' +
+        '</div>' +
+      '</td>' +
+      /* Description */
+      '<td style="padding:4px 6px">' +
+        '<input type="text" id="idesc-' + rowId + '" placeholder="Optional"' +
+          ' style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);outline:none">' +
+      '</td>' +
+      /* Qty */
+      '<td style="padding:4px 6px;width:80px">' +
+        '<input type="number" id="iqty-' + rowId + '" value="1" min="0.001" step="any"' +
+          ' style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);outline:none"' +
+          ' oninput="soRowCalc(\'' + rowId + '\')">' +
+      '</td>' +
+      /* UOM */
+      '<td style="padding:4px 6px;width:100px">' +
+        '<select id="iuom-' + rowId + '"' +
+          ' style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);outline:none;background:#fff"' +
+          ' onchange="soUomChange(\'' + rowId + '\')">' +
+          '<option value="">—</option>' +
+        '</select>' +
+      '</td>' +
+      /* Rate */
+      '<td style="padding:4px 6px;width:120px">' +
+        '<input type="number" id="irate-' + rowId + '" value="" min="0" step="any"' +
+          ' style="width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:12px;font-family:var(--font);outline:none"' +
+          ' placeholder="0.00"' +
+          ' oninput="soRowCalc(\'' + rowId + '\')">' +
+      '</td>' +
+      /* Amount */
+      '<td style="padding:4px 6px;width:130px">' +
+        '<input type="text" id="iamt-' + rowId + '" disabled' +
+          ' style="width:100%;padding:7px 10px;border:1.5px solid var(--surface2);border-radius:6px;font-size:12px;font-family:var(--font);background:var(--surface2);font-weight:600;color:var(--primary)">' +
+      '</td>' +
+      /* Delete */
+      '<td style="padding:4px 6px;width:36px">' +
+        '<button onclick="soDelRow(\'' + rowId + '\')" title="Remove"' +
+          ' style="width:28px;height:28px;border-radius:6px;border:none;background:#fee2e2;color:var(--danger);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">' +
+          '✕</button>' +
+      '</td>';
+
+    tbody.appendChild(tr);
+    _soRenumber();
+    _soItemCount();
+    // focus
+    setTimeout(function() {
+      var el = document.getElementById('isearch-' + rowId);
+      if (el) el.focus();
+    }, 40);
+  }
+
+  function soDelRow(rowId) {
+    var tr = document.querySelector('tr[data-row="' + rowId + '"]');
+    if (tr) tr.remove();
+    delete _soItemStore[rowId];
+    _soRenumber(); _updateTotals(); _soItemCount();
+  }
+
+  function _soRenumber() {
+    document.querySelectorAll('#so-items-body tr[data-row]').forEach(function(tr, i) {
+      var c = tr.querySelector('.row-num'); if (c) c.textContent = i + 1;
+    });
+  }
+  function _soItemCount() {
+    var n = document.querySelectorAll('#so-items-body tr[data-row]').length;
+    var el = document.getElementById('so-item-count');
+    if (el) el.textContent = n + ' item' + (n !== 1 ? 's' : '');
+  }
+
+  // ── Item search ────────────────────────────────────────────────────────────
+  function soInput(rowId) {
+    clearTimeout(_soSearchTmr[rowId]);
+    _soSearchTmr[rowId] = setTimeout(function() { soSearch(rowId); }, 280);
+  }
+
+  function soFocus(rowId) {
+    var q = (document.getElementById('isearch-' + rowId) || {}).value || '';
+    if (q.length >= 1) {
+      var drop = document.getElementById('idrop-' + rowId);
+      if (drop && drop.innerHTML.trim()) drop.style.display = 'block';
+    }
+  }
+
+  async function soSearch(rowId) {
+    var q = (document.getElementById('isearch-' + rowId) || {}).value || '';
+    var drop = document.getElementById('idrop-' + rowId);
+    if (!drop) return;
+
+    if (!q.trim()) { drop.style.display = 'none'; drop.innerHTML = ''; return; }
+
+    drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:13px">Searching…</div>';
+    drop.style.display = 'block';
+
+    try {
+      var res = await api('ecclesia.api.customer_portal_api.get_items_for_order', {
+        search: q, page: 1, page_size: 10
+      });
+
+      if (!res || !res.data || !res.data.length) {
+        drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:13px">No items found for "' + esc(q) + '"</div>';
+        return;
+      }
+
+      var cur = (_soDefaults && _soDefaults.currency) || (B && B.currency) || 'NGN';
+
+      // Store items in _soItemStore keyed by a search-result index
+      // Use data attributes on each div to reference them safely (no JSON in onclick)
+      drop.innerHTML = res.data.map(function(item, idx) {
+        var storeKey = rowId + '_s' + idx;
+        _soItemStore[storeKey] = item;  // store full object
+        var priceStr = item.rate > 0 ? fmt(item.rate, cur) : '<span style="color:var(--muted)">No price</span>';
+        return '<div data-pick="' + storeKey + '"' +
+          ' style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .1s"' +
+          ' onmousedown="soPick(\'' + rowId + '\',\'' + storeKey + '\')"' +
+          ' onmouseover="this.style.background=\'var(--surface2)\'"' +
+          ' onmouseout="this.style.background=\'\'">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+            '<span style="font-size:13px;font-weight:600;color:var(--text)">' + esc(item.item_name) + '</span>' +
+            '<span style="font-size:12px;font-weight:600;color:var(--primary);margin-left:8px;white-space:nowrap">' + priceStr + '</span>' +
+          '</div>' +
+          '<div style="font-size:11px;color:var(--muted);margin-top:2px">' +
+            esc(item.item_code) +
+            (item.item_group ? ' · ' + esc(item.item_group) : '') +
+            ' · ' + esc(item.uom) +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+    } catch(e) {
+      drop.innerHTML = '<div style="padding:12px 14px;color:var(--danger);font-size:13px">' + esc(e.message) + '</div>';
+    }
+  }
+
+  // Called via onmousedown (fires before onblur, so the input hasn't lost focus yet)
+  function soPick(rowId, storeKey) {
+    var item = _soItemStore[storeKey];
+    if (!item) return;
+
+    // Display name in search input
+    var searchEl = document.getElementById('isearch-' + rowId);
+    if (searchEl) searchEl.value = item.item_name + '  [' + item.item_code + ']';
+
+    // Hidden item_code
+    var codeEl = document.getElementById('icode-' + rowId);
+    if (codeEl) codeEl.value = item.item_code;
+
+    // Description
+    var descEl = document.getElementById('idesc-' + rowId);
+    if (descEl && !descEl.value) descEl.value = (item.description || '').slice(0, 100);
+
+    // UOM dropdown — stock_uom first, then all conversion UOMs
+    var uomSel = document.getElementById('iuom-' + rowId);
+    if (uomSel) {
+      var uoms = item.uoms;
+      if (!uoms || !uoms.length) uoms = [{ uom: item.uom || 'Nos', conversion_factor: 1 }];
+      uomSel.innerHTML = uoms.map(function(u) {
+        return '<option value="' + esc(u.uom) + '" data-cf="' + (u.conversion_factor || 1) + '">' +
+          esc(u.uom) + '</option>';
+      }).join('');
+      uomSel.selectedIndex = 0;
+    }
+
+    // Rate
+    var rateEl = document.getElementById('irate-' + rowId);
+    if (rateEl) rateEl.value = item.rate > 0 ? item.rate : '';
+
+    // Store the selected item
+    _soItemStore[rowId] = item;
+
+    // Close dropdown
+    var drop = document.getElementById('idrop-' + rowId);
+    if (drop) { drop.style.display = 'none'; drop.innerHTML = ''; }
+
+    // Highlight rate if 0
+    if (item.rate === 0 && rateEl) {
+      rateEl.style.borderColor = 'var(--warn)';
+      rateEl.placeholder = 'Enter price';
+      rateEl.focus();
+    }
+
+    soRowCalc(rowId);
+  }
+
+  // ── UOM change → re-fetch price ────────────────────────────────────────────
+  async function soUomChange(rowId) {
+    var itemCode = (document.getElementById('icode-' + rowId) || {}).value || '';
+    var uomSel   = document.getElementById('iuom-' + rowId);
+    var uom      = uomSel ? uomSel.value : '';
+    if (!itemCode) return;
+
+    try {
+      var res = await api('ecclesia.api.customer_portal_api.get_item_price', {
+        item_code: itemCode, uom: uom
+      });
+      if (res) {
+        var rateEl = document.getElementById('irate-' + rowId);
+        if (rateEl && res.rate > 0) {
+          rateEl.value = res.rate;
+          rateEl.style.borderColor = '';
+        }
+      }
+    } catch(e) { /* non-fatal */ }
+    soRowCalc(rowId);
+  }
+
+  // ── Row calculation ────────────────────────────────────────────────────────
+  function soRowCalc(rowId) {
+    var qty    = parseFloat((document.getElementById('iqty-'  + rowId) || {}).value || 0) || 0;
+    var rate   = parseFloat((document.getElementById('irate-' + rowId) || {}).value || 0) || 0;
+    var amount = qty * rate;
+    var amtEl  = document.getElementById('iamt-' + rowId);
+    if (amtEl) amtEl.value = amount > 0
+      ? amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : '';
+    _updateTotals();
+  }
+
+  function _updateTotals() {
+    var sub = 0;
+    document.querySelectorAll('#so-items-body tr[data-row]').forEach(function(tr) {
+      var rowId = tr.getAttribute('data-row');
+      var qty   = parseFloat((document.getElementById('iqty-'  + rowId) || {}).value || 0) || 0;
+      var rate  = parseFloat((document.getElementById('irate-' + rowId) || {}).value || 0) || 0;
+      sub += qty * rate;
+    });
+    var cur   = (_soDefaults && _soDefaults.currency) || (B && B.currency) || 'NGN';
+    var fmtAmt = cur + ' ' + sub.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    var st = document.getElementById('so-subtotal');   if (st) st.textContent = fmtAmt;
+    var gt = document.getElementById('so-grand-total'); if (gt) gt.textContent = fmtAmt;
+
+    // Tax row
+    var taxSel  = document.getElementById('so-taxes');
+    var taxRow  = document.getElementById('so-tax-row');
+    var taxLbl  = document.getElementById('so-tax-label');
+    if (taxRow) {
+      if (taxSel && taxSel.value) {
+        taxRow.style.display = '';
+        if (taxLbl) taxLbl.textContent = taxSel.options[taxSel.selectedIndex].text;
+        var taxVal = document.getElementById('so-tax-val');
+        if (taxVal) taxVal.textContent = '(applied on submission)';
+      } else {
+        taxRow.style.display = 'none';
+      }
+    }
+  }
+
+  // ── Validate & collect ─────────────────────────────────────────────────────
+  function _collectOrderData() {
+    var soDate       = g('so-date');
+    var deliveryDate = g('so-delivery-date');
+    if (!soDate)       { toast('Order date is required', 'warn'); return null; }
+    if (!deliveryDate) { toast('Required delivery date is required', 'warn'); return null; }
+
+    var rows = document.querySelectorAll('#so-items-body tr[data-row]');
+    if (!rows.length)  { toast('Please add at least one item', 'warn'); return null; }
+
+    var items = [];
+    var ok    = true;
+    rows.forEach(function(tr) {
+      if (!ok) return;
+      var rowId    = tr.getAttribute('data-row');
+      var itemCode = (document.getElementById('icode-'  + rowId) || {}).value || '';
+      var qty      = parseFloat((document.getElementById('iqty-'   + rowId) || {}).value || 0) || 0;
+      var rate     = parseFloat((document.getElementById('irate-'  + rowId) || {}).value || 0) || 0;
+      var uom      = (document.getElementById('iuom-'   + rowId) || {}).value || '';
+      var desc     = (document.getElementById('idesc-'  + rowId) || {}).value || '';
+
+      if (!itemCode)  { toast('Select an item for all rows (row ' + (items.length+1) + ')', 'warn'); ok = false; return; }
+      if (qty <= 0)   { toast('Quantity must be > 0 for all items', 'warn'); ok = false; return; }
+      if (rate <= 0)  { toast('Rate must be > 0 — enter a price for all items', 'warn'); ok = false; return; }
+
+      // item_name from store or from display text
+      var storedItem = _soItemStore[rowId];
+      var itemName   = (storedItem && storedItem.item_name) ||
+                       (document.getElementById('isearch-' + rowId) || {}).value.replace(/\s*\[[^\]]+\]\s*$/, '').trim() ||
+                       itemCode;
+
+      var warehouse = (_soDefaults && _soDefaults.warehouses && _soDefaults.warehouses[0]) || '';
+
+      items.push({ item_code: itemCode, item_name: itemName, qty: qty,
+                   rate: rate, uom: uom, warehouse: warehouse, description: desc });
+    });
+
+    if (!ok) return null;
+
+    return {
+      transaction_date:       soDate,
+      delivery_date:          deliveryDate,
+      po_no:                  g('so-po-no'),
+      po_date:                g('so-po-date') || null,
+      payment_terms_template: g('so-payment-terms'),
+      taxes_and_charges:      g('so-taxes'),
+      shipping_address_name:  g('so-shipping-addr'),
+      notes:                  g('so-notes'),
+      items:                  items
+    };
+  }
+
+  // ── Review & confirm ───────────────────────────────────────────────────────
+  function confirmPlaceOrder() {
+    var data = _collectOrderData();
+    if (!data) return;
+    var cur = (_soDefaults && _soDefaults.currency) || (B && B.currency) || 'NGN';
+    var sub = data.items.reduce(function(s, i) { return s + i.qty * i.rate; }, 0);
+
+    var itemRows = data.items.map(function(item, idx) {
+      return '<tr style="border-bottom:1px solid var(--border)">' +
+        '<td style="padding:8px;color:var(--muted);font-size:12px">' + (idx+1) + '</td>' +
+        '<td style="padding:8px;font-weight:600">' + esc(item.item_name) + '<br>' +
+          '<span style="font-size:11px;color:var(--muted)">' + esc(item.item_code) + '</span></td>' +
+        '<td style="padding:8px">' + item.qty + ' ' + esc(item.uom) + '</td>' +
+        '<td style="padding:8px;text-align:right">' + cur + ' ' + item.rate.toLocaleString('en-NG',{minimumFractionDigits:2}) + '</td>' +
+        '<td style="padding:8px;text-align:right;font-weight:600;color:var(--primary)">' +
+          cur + ' ' + (item.qty*item.rate).toLocaleString('en-NG',{minimumFractionDigits:2}) + '</td>' +
+      '</tr>';
+    }).join('');
+
+    openModal(
+      '<h3 style="margin:0 0 4px;font-size:17px;font-weight:600">📋 Review Order</h3>' +
+      '<p style="color:var(--muted);font-size:12px;margin-bottom:16px">Confirm the order details below before submitting.</p>' +
+      '<div style="background:var(--surface2);border-radius:8px;padding:12px 16px;margin-bottom:14px;font-size:13px;display:flex;gap:24px;flex-wrap:wrap">' +
+        '<div><span style="color:var(--muted)">Date: </span><strong>' + data.transaction_date + '</strong></div>' +
+        '<div><span style="color:var(--muted)">Delivery By: </span><strong>' + data.delivery_date + '</strong></div>' +
+        (data.po_no ? '<div><span style="color:var(--muted)">Your PO: </span><strong>' + esc(data.po_no) + '</strong></div>' : '') +
+      '</div>' +
+      '<div style="overflow-x:auto;margin-bottom:14px">' +
+        '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+          '<thead><tr style="background:var(--surface2)">' +
+            '<th style="padding:8px;text-align:left;font-size:11px;color:var(--muted);width:30px">#</th>' +
+            '<th style="padding:8px;text-align:left;font-size:11px;color:var(--muted)">Item</th>' +
+            '<th style="padding:8px;text-align:left;font-size:11px;color:var(--muted)">Qty</th>' +
+            '<th style="padding:8px;text-align:right;font-size:11px;color:var(--muted)">Rate</th>' +
+            '<th style="padding:8px;text-align:right;font-size:11px;color:var(--muted)">Amount</th>' +
+          '</tr></thead>' +
+          '<tbody>' + itemRows + '</tbody>' +
+          '<tfoot><tr><td colspan="4" style="padding:10px 8px;text-align:right;font-weight:700">Total</td>' +
+            '<td style="padding:10px 8px;text-align:right;font-weight:700;font-size:15px;color:var(--primary)">' +
+              cur + ' ' + sub.toLocaleString('en-NG',{minimumFractionDigits:2}) +
+            '</td></tr></tfoot>' +
+        '</table>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px">' +
+        '<button class="btn btn-primary" id="btn-confirm-place" onclick="_doPlaceOrder()">✓ Confirm &amp; Place Order</button>' +
+        '<button class="btn btn-outline" onclick="closeModal()">&#8592; Edit</button>' +
+      '</div>'
+    );
+    window._pendingOrderData = data;
+  }
+
+  async function _doPlaceOrder() {
+    var btn = document.getElementById('btn-confirm-place');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Placing…'; }
+    try {
+      var res = await api('ecclesia.api.customer_portal_api.place_order', {
+        order_data: JSON.stringify(window._pendingOrderData)
+      });
+      closeModal();
+      _soLastOrder = res;
+      setText('so-conf-name',     res.name || '—');
+      setText('so-conf-date',     res.transaction_date || '—');
+      setText('so-conf-delivery', res.delivery_date || '—');
+      setText('so-conf-total',    fmt(res.grand_total, res.currency));
+      setText('so-conf-status',   res.status || '—');
+      var cm = document.getElementById('so-confirm-msg');
+      if (cm) cm.textContent = res.message || 'Your order has been placed!';
+      document.getElementById('so-confirm-overlay').style.display = 'flex';
+      _loaded['orders'] = false;
+      toast(res.message || 'Order placed ✓', 'success');
+    } catch(e) {
+      if (btn) { btn.disabled = false; btn.textContent = '✓ Confirm & Place Order'; }
+      toast(e.message, 'error');
+    }
+  }
+
+  function viewConfirmedOrder() {
+    document.getElementById('so-confirm-overlay').style.display = 'none';
+    resetNewOrder();
+    go('orders', null);
+    if (_soLastOrder) {
+      setTimeout(function() { viewOrder(_soLastOrder.name); }, 700);
+    }
+  }
+  function closeOrderConfirmation() {
+    document.getElementById('so-confirm-overlay').style.display = 'none';
+    resetNewOrder();
+  }
+
+  function resetNewOrder() {
+    ['so-date','so-delivery-date','so-po-no','so-po-date','so-notes'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    ['so-payment-terms','so-taxes','so-shipping-addr'].forEach(function(id) {
+      var el = document.getElementById(id); if (el) el.selectedIndex = 0;
+    });
+    var tbody = document.getElementById('so-items-body');
+    if (tbody) tbody.innerHTML = '';
+    _soRowCount = 0; _soItemStore = {};
+    _updateTotals();
+    _soDefaults = null;
+    _loaded['new-order'] = false;
+    initNewOrder();
+  }
+
+// ── Global exports — every function called from HTML onclick/onchange must be here ──
+// Auth
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.nav-item[data-panel]').forEach(function(item) {
+    item.addEventListener('click', function() { go(this.getAttribute('data-panel'), this); });
+  });
+  document.querySelectorAll('[data-panel]').forEach(function(btn) {
+    if (btn.classList.contains('nav-item')) return;
+    btn.addEventListener('click', function() { go(this.getAttribute('data-panel'), null); });
+  });
+  document.querySelectorAll('[data-inv-tab]').forEach(function(tab) {
+    tab.addEventListener('click', function() { switchInvTab(this.getAttribute('data-inv-tab'), this); });
+  });
+  document.querySelectorAll('[data-support-tab]').forEach(function(tab) {
+    tab.addEventListener('click', function() { switchSupportTab(this.getAttribute('data-support-tab'), this); });
+  });
+  document.querySelectorAll('[data-profile-tab]').forEach(function(tab) {
+    tab.addEventListener('click', function() { switchProfileTab(this.getAttribute('data-profile-tab'), this); });
+  });
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  ['login-email','login-password'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', function(e) { if (e.key==='Enter') doLogin(); });
+  });
+
+  checkSessionAndBoot();
+});
+
+
+window.doLogin              = doLogin;
+window.doLogout             = doLogout;
+// Navigation & UI
+window.go                   = go;
+window.toast                = toast;
+window.openModal            = openModal;
+window.closeModal           = closeModal;
+window.pill                 = pill;
+window.fmt                  = fmt;
+// Tab switchers
+window.switchInvTab         = switchInvTab;
+window.switchSupportTab     = switchSupportTab;
+window.switchProfileTab     = switchProfileTab;
+// Quotations
+window.loadQuotations       = loadQuotations;
+window.viewQuotation        = viewQuotation;
+// Orders
+window.loadOrders           = loadOrders;
+window.viewOrder            = viewOrder;
+// Deliveries
+window.loadDeliveries       = loadDeliveries;
+// Invoices
+window.loadInvoices         = loadInvoices;
+window.loadOutstandingBanner= loadOutstandingBanner;
+window.viewInvoice          = viewInvoice;
+// Payments
+window.loadPayments         = loadPayments;
+// Ledger
+window.initLedgerDates      = initLedgerDates;
+window.loadLedger           = loadLedger;
+window.exportLedger         = exportLedger;
+window.resetLedgerDates     = resetLedgerDates;
+// Support / Issues
+window.loadIssues           = loadIssues;
+window.viewIssue            = viewIssue;
+window.replyToIssue         = replyToIssue;
+window.closeIssue           = closeIssue;
+window.submitNewIssue       = submitNewIssue;
+// Profile
+window.loadProfile          = loadProfile;
+window.saveContact          = saveContact;
+window.changePassword       = changePassword;
+window.renderAddresses      = renderAddresses;
+window.openAddressModal     = openAddressModal;
+window.saveAddress          = saveAddress;
+// Place New Order
+window.initNewOrder         = initNewOrder;
+window.addOrderRow          = addOrderRow;
+window.soDelRow             = soDelRow;
+window.soInput              = soInput;
+window.soFocus              = soFocus;
+window.soPick               = soPick;
+window.soUomChange          = soUomChange;
+window.soRowCalc            = soRowCalc;
+window.confirmPlaceOrder    = confirmPlaceOrder;
+window._doPlaceOrder        = _doPlaceOrder;
+window.viewConfirmedOrder   = viewConfirmedOrder;
+window.closeOrderConfirmation = closeOrderConfirmation;
+window.resetNewOrder        = resetNewOrder;
+
+
+}());
+</script>
+</body>
+</html>

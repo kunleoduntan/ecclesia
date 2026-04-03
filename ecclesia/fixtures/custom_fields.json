@@ -1,0 +1,48 @@
+[
+  {
+    "doctype": "Custom Field",
+    "name": "Communication-mail_starred",
+    "dt": "Communication",
+    "label": "Starred",
+    "fieldname": "mail_starred",
+    "fieldtype": "Check",
+    "default": "0",
+    "insert_after": "status",
+    "in_standard_filter": 1,
+    "no_copy": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Communication-mail_label",
+    "dt": "Communication",
+    "label": "Mail Labels",
+    "fieldname": "mail_label",
+    "fieldtype": "Small Text",
+    "insert_after": "mail_starred",
+    "description": "Comma-separated MailVault label names",
+    "no_copy": 0
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Communication-mail_folder",
+    "dt": "Communication",
+    "label": "Mail Folder",
+    "fieldname": "mail_folder",
+    "fieldtype": "Data",
+    "insert_after": "mail_label",
+    "description": "Custom folder classification (Archive, or user-defined)",
+    "no_copy": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Communication-read_by_current_user",
+    "dt": "Communication",
+    "label": "Read by Current User",
+    "fieldname": "read_by_current_user",
+    "fieldtype": "Check",
+    "default": "0",
+    "insert_after": "mail_folder",
+    "no_copy": 1,
+    "hidden": 0
+  }
+]

@@ -1,0 +1,258 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-04 07:10:47.132416",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_info_section",
+  "naming_series",
+  "company",
+  "column_break_doc1",
+  "posting_date",
+  "depreciation_period",
+  "column_break_doc2",
+  "finance_book",
+  "location",
+  "filters_section",
+  "from_date",
+  "to_date",
+  "column_break_filter1",
+  "asset_category",
+  "department",
+  "column_break_filter2",
+  "cost_center",
+  "section_break_button",
+  "get_assets_button",
+  "depreciation_details_section",
+  "depreciation_details",
+  "totals_section",
+  "total_depreciation_amount",
+  "column_break_tot1",
+  "total_assets",
+  "accounting_section",
+  "journal_entry",
+  "column_break_acc1",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_info_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc4 Document Information"
+  },
+  {
+   "default": "FADE-.YYYY.-.MM.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FADE-.YYYY.-.MM.-.#####\nFADE-.####",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_doc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "description": "e.g., January 2026",
+   "fieldname": "depreciation_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Depreciation Period"
+  },
+  {
+   "fieldname": "column_break_doc2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "finance_book",
+   "fieldtype": "Link",
+   "label": "Finance Book",
+   "options": "Finance Book"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Depreciation Entry",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "filters_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd0d Filters"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "To Date"
+  },
+  {
+   "fieldname": "column_break_filter1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "asset_category",
+   "fieldtype": "Data",
+   "label": "Asset Category"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "column_break_filter2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_button",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "get_assets_button",
+   "fieldtype": "Button",
+   "label": "Get Assets for Depreciation"
+  },
+  {
+   "fieldname": "depreciation_details_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Depreciation Details"
+  },
+  {
+   "fieldname": "depreciation_details",
+   "fieldtype": "Table",
+   "label": "Assets",
+   "options": "Depreciation Entry Details"
+  },
+  {
+   "fieldname": "totals_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Summary"
+  },
+  {
+   "bold": 1,
+   "fieldname": "total_depreciation_amount",
+   "fieldtype": "Currency",
+   "label": "Total Depreciation Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tot1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "total_assets",
+   "fieldtype": "Int",
+   "label": "Total Assets",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Accounting"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "no_copy": 1,
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Depreciation Entry",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Location"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-04 16:34:07.109046",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Depreciation Entry",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

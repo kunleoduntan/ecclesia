@@ -1,0 +1,838 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ECCINV-{YYYY}-{MM}-{#####}",
+ "creation": "2026-03-05 09:12:32.157759",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "investment_identity_section",
+  "investment_name",
+  "investment_ref",
+  "investment_type",
+  "asset_class",
+  "column_break_identity_1",
+  "company",
+  "posting_date",
+  "status",
+  "column_break_identity_2",
+  "ai_risk_score",
+  "ai_recommendation",
+  "counterparty_section",
+  "counterparty_name",
+  "counterparty_type",
+  "column_break_cpty_1",
+  "contact_person",
+  "email_id",
+  "phone_number",
+  "column_break_cpty_2",
+  "address",
+  "investment_details_section",
+  "investment_amount",
+  "currency",
+  "exchange_rate",
+  "investment_amount_base",
+  "column_break_det_1",
+  "start_date",
+  "tenor_type",
+  "tenure_in_days",
+  "end_date",
+  "column_break_det_2",
+  "investment_duration_category",
+  "market_asset_class",
+  "description",
+  "money_market_section",
+  "interest_rate",
+  "interest_type",
+  "interest_payment_mode",
+  "column_break_mm_1",
+  "returns",
+  "total_gross_interest",
+  "upfront_interest_amount",
+  "maturity_interest_amount",
+  "column_break_mm_2",
+  "frequency_of_income_recognition",
+  "monthly_interest_income",
+  "amount_realisable_on_liquidation",
+  "management_fee",
+  "management_fee_amount",
+  "shares_section",
+  "number_of_units",
+  "unit_price",
+  "total_share_cost",
+  "column_break_sh_1",
+  "dividend_rate",
+  "dividend_frequency",
+  "expected_dividend_income",
+  "column_break_sh_2",
+  "market_price_per_unit",
+  "market_value",
+  "unrealised_gain_loss",
+  "shares_listing_status",
+  "tax_section",
+  "wht_applicable",
+  "wht_rate",
+  "column_break_tax_1",
+  "wht_amount_periodic",
+  "wht_amount_upfront",
+  "wht_amount_maturity",
+  "wht_amount_dividend",
+  "column_break_tax_2",
+  "total_wht_amount",
+  "net_income_after_wht",
+  "accounting_section",
+  "book_investment",
+  "principal_account",
+  "bank_account",
+  "bank_gl",
+  "column_break_acc_1",
+  "interest_income_account",
+  "accrued_interest_account",
+  "upfront_interest_deferred_account",
+  "column_break_acc_2",
+  "wht_payable_account",
+  "management_fee_expense_account",
+  "column_break_acc_3",
+  "dividend_income_account",
+  "capital_gain_account",
+  "cost_center",
+  "department",
+  "cheque_no",
+  "income_recognition_section",
+  "recognise_income",
+  "amortise_income",
+  "amortise_upfront_interest",
+  "column_break_ir_1",
+  "upfront_amortisation_method",
+  "risk_section",
+  "liquidity_ratio",
+  "rate_of_inflation",
+  "column_break_risk_1",
+  "risk_profile",
+  "interest_tab",
+  "schedule_of_interest",
+  "shares_activity_tab",
+  "shares_activity_log",
+  "dividend_schedule_tab",
+  "dividend_schedule",
+  "amended_from",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "investment_identity_section",
+   "fieldtype": "Section Break",
+   "label": "Investment Identity"
+  },
+  {
+   "bold": 1,
+   "fieldname": "investment_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Investment Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "investment_ref",
+   "fieldtype": "Data",
+   "in_standard_filter": 1,
+   "label": "Reference / Certificate No"
+  },
+  {
+   "fieldname": "investment_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Investment Type",
+   "options": "\nMoney Market\nShares\nBonds\nTreasury Bills\nFixed Deposit\nCommercial Paper",
+   "reqd": 1
+  },
+  {
+   "fieldname": "asset_class",
+   "fieldtype": "Select",
+   "label": "Asset Class",
+   "options": "\nFixed Income\nEquity\nMoney Market\nAlternative"
+  },
+  {
+   "fieldname": "column_break_identity_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nActive\nMatured\nLiquidated\nPartially Liquidated\nPending"
+  },
+  {
+   "fieldname": "column_break_identity_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ai_risk_score",
+   "fieldtype": "Float",
+   "label": "AI Risk Score",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_recommendation",
+   "fieldtype": "Small Text",
+   "label": "AI Recommendation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "counterparty_section",
+   "fieldtype": "Section Break",
+   "label": "Counterparty / Issuer"
+  },
+  {
+   "bold": 1,
+   "fieldname": "counterparty_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Counterparty / Issuer Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "counterparty_type",
+   "fieldtype": "Select",
+   "label": "Counterparty Type",
+   "options": "\nBank\nCorporate\nGovernment\nNBFI\nOther"
+  },
+  {
+   "fieldname": "column_break_cpty_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_person",
+   "fieldtype": "Data",
+   "label": "Contact Person"
+  },
+  {
+   "fieldname": "email_id",
+   "fieldtype": "Data",
+   "label": "Email ID",
+   "options": "Email"
+  },
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "label": "Phone Number"
+  },
+  {
+   "fieldname": "column_break_cpty_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "investment_details_section",
+   "fieldtype": "Section Break",
+   "label": "Investment Details"
+  },
+  {
+   "fieldname": "investment_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "label": "Investment Amount (Principal)",
+   "options": "currency",
+   "reqd": 1
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "1",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "precision": "6"
+  },
+  {
+   "fieldname": "investment_amount_base",
+   "fieldtype": "Currency",
+   "label": "Investment Amount (Base Currency)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_det_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "tenor_type",
+   "fieldtype": "Select",
+   "label": "Tenor Type",
+   "options": "\nFixed\nRolling\nOpen-Ended"
+  },
+  {
+   "fieldname": "tenure_in_days",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Tenure In Days",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "Maturity Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_det_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "investment_duration_category",
+   "fieldtype": "Select",
+   "label": "Duration Category",
+   "options": "\nShort-Term (Up to 1 year)\nShort-Term (1-3 years)\nMedium-Term (3-5 years)\nLong-Term (5+ years)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "market_asset_class",
+   "fieldtype": "Select",
+   "label": "Market / Listing",
+   "options": "\nQuoted\nUnquoted\nOTC"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description / Purpose"
+  },
+  {
+   "depends_on": "eval:['Money Market','Fixed Deposit','Treasury Bills','Bonds','Commercial Paper'].includes(doc.investment_type)",
+   "fieldname": "money_market_section",
+   "fieldtype": "Section Break",
+   "label": "Money Market / Fixed Income Details"
+  },
+  {
+   "fieldname": "interest_rate",
+   "fieldtype": "Percent",
+   "label": "Interest Rate (% p.a.)",
+   "precision": "4"
+  },
+  {
+   "fieldname": "interest_type",
+   "fieldtype": "Select",
+   "label": "Interest Calculation Method",
+   "options": "\nSimple Interest\nCompound Interest\nDiscount (T-Bills)\nFlat Rate"
+  },
+  {
+   "fieldname": "interest_payment_mode",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Interest Payment Mode",
+   "options": "\nUpfront\nAt Maturity\nPeriodic\nUpfront and At Maturity\nPeriodic and At Maturity"
+  },
+  {
+   "fieldname": "column_break_mm_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "returns",
+   "fieldtype": "Currency",
+   "label": "Total Gross Interest (Calculated)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "description": "Use to override calculated interest if known from certificate",
+   "fieldname": "total_gross_interest",
+   "fieldtype": "Currency",
+   "label": "Total Gross Interest (Override)",
+   "options": "currency"
+  },
+  {
+   "depends_on": "eval:['Upfront','Upfront and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "upfront_interest_amount",
+   "fieldtype": "Currency",
+   "label": "Upfront Interest Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:['At Maturity','Upfront and At Maturity','Periodic and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "maturity_interest_amount",
+   "fieldtype": "Currency",
+   "label": "Interest Payable at Maturity",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mm_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:['Periodic','Periodic and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "frequency_of_income_recognition",
+   "fieldtype": "Select",
+   "label": "Frequency of Income Recognition",
+   "options": "\nMonthly\nQuarterly\nHalf-yearly\nYearly"
+  },
+  {
+   "depends_on": "eval:['Periodic','Periodic and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "monthly_interest_income",
+   "fieldtype": "Currency",
+   "label": "Interest Income Per Period",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_realisable_on_liquidation",
+   "fieldtype": "Currency",
+   "label": "Total Realisable at Maturity",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "management_fee",
+   "fieldtype": "Float",
+   "label": "Management Fee (%)",
+   "precision": "4"
+  },
+  {
+   "fieldname": "management_fee_amount",
+   "fieldtype": "Currency",
+   "label": "Management Fee Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.investment_type == 'Shares'",
+   "fieldname": "shares_section",
+   "fieldtype": "Section Break",
+   "label": "Shares / Equity Details"
+  },
+  {
+   "fieldname": "number_of_units",
+   "fieldtype": "Float",
+   "label": "Number of Units / Shares",
+   "precision": "4"
+  },
+  {
+   "fieldname": "unit_price",
+   "fieldtype": "Currency",
+   "label": "Cost Per Unit",
+   "options": "currency"
+  },
+  {
+   "fieldname": "total_share_cost",
+   "fieldtype": "Currency",
+   "label": "Total Cost of Shares",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sh_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dividend_rate",
+   "fieldtype": "Percent",
+   "label": "Expected Dividend Rate (%)",
+   "precision": "4"
+  },
+  {
+   "fieldname": "dividend_frequency",
+   "fieldtype": "Select",
+   "label": "Dividend Frequency",
+   "options": "\nMonthly\nQuarterly\nInterim\nFinal\nAnnual"
+  },
+  {
+   "fieldname": "expected_dividend_income",
+   "fieldtype": "Currency",
+   "label": "Expected Dividend Income",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sh_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "market_price_per_unit",
+   "fieldtype": "Currency",
+   "label": "Current Market Price Per Unit",
+   "options": "currency"
+  },
+  {
+   "fieldname": "market_value",
+   "fieldtype": "Currency",
+   "label": "Current Market Value",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "unrealised_gain_loss",
+   "fieldtype": "Currency",
+   "label": "Unrealised Gain / (Loss)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shares_listing_status",
+   "fieldtype": "Select",
+   "label": "Listing Status",
+   "options": "\nNSE Listed\nOTC\nUnlisted"
+  },
+  {
+   "fieldname": "tax_section",
+   "fieldtype": "Section Break",
+   "label": "Withholding Tax"
+  },
+  {
+   "default": "1",
+   "description": "Check if WHT applies to income from this investment",
+   "fieldname": "wht_applicable",
+   "fieldtype": "Check",
+   "label": "WHT Applicable"
+  },
+  {
+   "depends_on": "wht_applicable",
+   "description": "5% for individuals (PITA); 10% for corporate entities (CITA)",
+   "fieldname": "wht_rate",
+   "fieldtype": "Select",
+   "label": "WHT Rate",
+   "mandatory_depends_on": "wht_applicable",
+   "options": "\n5% (Individuals)\n10% (Companies)"
+  },
+  {
+   "fieldname": "column_break_tax_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:['Periodic','Periodic and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "wht_amount_periodic",
+   "fieldtype": "Currency",
+   "label": "WHT Per Period",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:['Upfront','Upfront and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "wht_amount_upfront",
+   "fieldtype": "Currency",
+   "label": "WHT on Upfront Interest",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:['At Maturity','Upfront and At Maturity','Periodic and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "wht_amount_maturity",
+   "fieldtype": "Currency",
+   "label": "WHT on Maturity Interest",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.investment_type == 'Shares'",
+   "fieldname": "wht_amount_dividend",
+   "fieldtype": "Currency",
+   "label": "WHT on Dividend",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_tax_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_wht_amount",
+   "fieldtype": "Currency",
+   "label": "Total WHT Deductions",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "net_income_after_wht",
+   "fieldtype": "Currency",
+   "label": "Net Income After WHT",
+   "read_only": 1
+  },
+  {
+   "depends_on": "book_investment",
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Configuration"
+  },
+  {
+   "default": "0",
+   "fieldname": "book_investment",
+   "fieldtype": "Check",
+   "label": "Book Investment on Submit"
+  },
+  {
+   "depends_on": "book_investment",
+   "fieldname": "principal_account",
+   "fieldtype": "Link",
+   "label": "Investment / Principal Account",
+   "mandatory_depends_on": "book_investment",
+   "options": "Account"
+  },
+  {
+   "depends_on": "book_investment",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account (Source of Funds)",
+   "mandatory_depends_on": "book_investment",
+   "options": "Bank Account"
+  },
+  {
+   "depends_on": "bank_account",
+   "fetch_from": "bank_account.account",
+   "fieldname": "bank_gl",
+   "fieldtype": "Data",
+   "label": "Bank GL Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_acc_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "interest_income_account",
+   "fieldtype": "Link",
+   "label": "Interest Income Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "accrued_interest_account",
+   "fieldtype": "Link",
+   "label": "Accrued Interest Receivable Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:['Upfront','Upfront and At Maturity'].includes(doc.interest_payment_mode)",
+   "description": "Used to park upfront interest received, amortised over tenor",
+   "fieldname": "upfront_interest_deferred_account",
+   "fieldtype": "Link",
+   "label": "Deferred Interest Income Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_acc_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "wht_payable_account",
+   "fieldtype": "Link",
+   "label": "WHT Payable Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "management_fee",
+   "fieldname": "management_fee_expense_account",
+   "fieldtype": "Link",
+   "label": "Management Fee Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_acc_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.investment_type == 'Shares'",
+   "fieldname": "dividend_income_account",
+   "fieldtype": "Link",
+   "label": "Dividend Income Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.investment_type == 'Shares'",
+   "fieldname": "capital_gain_account",
+   "fieldtype": "Link",
+   "label": "Capital Gain / Loss Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "cheque_no",
+   "fieldtype": "Data",
+   "label": "Cheque / Transfer Ref No"
+  },
+  {
+   "fieldname": "income_recognition_section",
+   "fieldtype": "Section Break",
+   "label": "Income Recognition Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "recognise_income",
+   "fieldtype": "Check",
+   "label": "Recognise Income on Submit"
+  },
+  {
+   "default": "0",
+   "fieldname": "amortise_income",
+   "fieldtype": "Check",
+   "label": "Amortise Periodic Income (Generate Schedule)"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:['Upfront','Upfront and At Maturity'].includes(doc.interest_payment_mode)",
+   "fieldname": "amortise_upfront_interest",
+   "fieldtype": "Check",
+   "label": "Amortise Upfront Interest over Tenor"
+  },
+  {
+   "fieldname": "column_break_ir_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "amortise_upfront_interest",
+   "fieldname": "upfront_amortisation_method",
+   "fieldtype": "Select",
+   "label": "Upfront Amortisation Method",
+   "options": "\nStraight-Line\nEffective Interest Rate"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "risk_section",
+   "fieldtype": "Section Break",
+   "label": "Risk Profile"
+  },
+  {
+   "fieldname": "liquidity_ratio",
+   "fieldtype": "Percent",
+   "label": "Liquidity Ratio (%)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "rate_of_inflation",
+   "fieldtype": "Percent",
+   "label": "Rate of Inflation (%)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_risk_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "risk_profile",
+   "fieldtype": "Select",
+   "label": "Risk Profile",
+   "options": "\nLow Risk\nModerate Risk\nHigh Risk\nSpeculative"
+  },
+  {
+   "fieldname": "interest_tab",
+   "fieldtype": "Tab Break",
+   "label": "Interest Schedule",
+   "show_dashboard": 1
+  },
+  {
+   "fieldname": "schedule_of_interest",
+   "fieldtype": "Table",
+   "label": "Schedule of Interest",
+   "options": "Ecclesia Interest Schedule"
+  },
+  {
+   "fieldname": "shares_activity_tab",
+   "fieldtype": "Tab Break",
+   "label": "Shares Activity"
+  },
+  {
+   "fieldname": "shares_activity_log",
+   "fieldtype": "Table",
+   "label": "Shares Activity Log",
+   "options": "Ecclesia Shares Activity"
+  },
+  {
+   "fieldname": "dividend_schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dividend Schedule"
+  },
+  {
+   "fieldname": "dividend_schedule",
+   "fieldtype": "Table",
+   "label": "Dividend Schedule",
+   "options": "Ecclesia Dividend Schedule"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Ecclesia Investment",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Ecclesia Investment",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-05 09:12:32.157759",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Ecclesia Investment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

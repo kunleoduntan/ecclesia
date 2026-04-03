@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-03-12 19:53:03.099701",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "version_number",
+  "changed_on",
+  "changed_by",
+  "change_summary",
+  "document_file"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "version_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Version",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "changed_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Changed On",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "changed_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Changed By",
+   "options": "User",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "columns": 5,
+   "description": "Brief description of what changed in this version",
+   "fieldname": "change_summary",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Change Summary",
+   "read_only": 1
+  },
+  {
+   "description": "Archived copy of the policy content at this version",
+   "fieldname": "document_file",
+   "fieldtype": "Attach",
+   "label": "Content Snapshot",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-12 19:53:03.099701",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Policy Version History",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

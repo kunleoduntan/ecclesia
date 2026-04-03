@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2026-03-03 08:36:57.435136",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-03-03 08:36:57.435136",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "ecc-pos",
+ "owner": "Administrator",
+ "page_name": "ecc-pos",
+ "roles": [
+  {
+   "role": "Administrator"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Ecclesia POS"
+}

@@ -1,0 +1,450 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-19 21:29:50.218916",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "date",
+  "subject",
+  "audience_group",
+  "message_type",
+  "column_break_top1",
+  "status",
+  "sent",
+  "send_email",
+  "priority",
+  "from_name",
+  "from_email",
+  "section_break_scheduling",
+  "schedule",
+  "schedule_time",
+  "expiry_date",
+  "column_break_sched2",
+  "is_test",
+  "test_email",
+  "test_phone_number",
+  "section_break_audience",
+  "segment_by",
+  "filter_department",
+  "filter_designation",
+  "filter_branch",
+  "filter_employment_type",
+  "filter_gender",
+  "filter_company",
+  "column_break_aud2",
+  "total_recipients",
+  "sent_count",
+  "failed_count",
+  "pending_count",
+  "recipients_tab",
+  "recipients",
+  "message_tab",
+  "option",
+  "include_attachments",
+  "column_break_msg2",
+  "track_opens",
+  "unsubscribe_link",
+  "summary",
+  "message_purpose",
+  "section_break_body",
+  "message_body",
+  "message_tx_html",
+  "whatsapp_message_body",
+  "sms_message_body",
+  "settings_tab",
+  "whatsapp_image_url",
+  "footer_text",
+  "column_break_sett2",
+  "reply_to_email",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "MBLAST-.DD.-.MM.-.YY.-.####"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Subject / Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audience_group",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Audience Group",
+   "options": "\nCustomer\nContact\nSupplier\nEmployee\nLead\nImported",
+   "reqd": 1
+  },
+  {
+   "fieldname": "message_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Channel",
+   "options": "\nEmail\nWhatsApp\nSMS\nEmail + WhatsApp\nEmail + SMS",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_top1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nScheduled\nSending\nSent\nPartially Sent\nFailed\nCancelled",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sent",
+   "fieldtype": "Check",
+   "label": "Fully Sent",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "send_email",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Send via Email"
+  },
+  {
+   "default": "Normal",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "\nNormal\nHigh\nUrgent"
+  },
+  {
+   "description": "Sender display name shown to recipients e.g. Acme Corp",
+   "fieldname": "from_name",
+   "fieldtype": "Data",
+   "label": "From Name"
+  },
+  {
+   "description": "Sender email address",
+   "fieldname": "from_email",
+   "fieldtype": "Data",
+   "label": "From Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "section_break_scheduling",
+   "fieldtype": "Section Break",
+   "label": "Scheduling"
+  },
+  {
+   "default": "0",
+   "fieldname": "schedule",
+   "fieldtype": "Check",
+   "label": "Schedule for Later"
+  },
+  {
+   "depends_on": "eval:doc.schedule == 1",
+   "fieldname": "schedule_time",
+   "fieldtype": "Datetime",
+   "label": "Send At",
+   "mandatory_depends_on": "eval:doc.schedule == 1"
+  },
+  {
+   "description": "Scheduler will skip this blast if it has passed the expiry date",
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "column_break_sched2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_test",
+   "fieldtype": "Check",
+   "label": "Test Mode"
+  },
+  {
+   "depends_on": "eval:doc.is_test == 1 && (doc.message_type == 'Email' || doc.message_type == 'Email + WhatsApp' || doc.message_type == 'Email + SMS')",
+   "fieldname": "test_email",
+   "fieldtype": "Data",
+   "label": "Test Email",
+   "options": "Email"
+  },
+  {
+   "depends_on": "eval:doc.is_test == 1 && (doc.message_type == 'WhatsApp' || doc.message_type == 'SMS' || doc.message_type == 'Email + WhatsApp' || doc.message_type == 'Email + SMS')",
+   "fieldname": "test_phone_number",
+   "fieldtype": "Phone",
+   "label": "Test Phone Number"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_audience",
+   "fieldtype": "Section Break",
+   "label": "Audience Filters"
+  },
+  {
+   "depends_on": "eval:doc.audience_group == 'Employee'",
+   "fieldname": "segment_by",
+   "fieldtype": "Select",
+   "label": "Segment By",
+   "options": "\nAll Employees\nDepartment\nDesignation\nBranch\nEmployment Type\nGender\nCompany"
+  },
+  {
+   "depends_on": "eval:doc.segment_by == 'Department'",
+   "fieldname": "filter_department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "depends_on": "eval:doc.segment_by == 'Designation'",
+   "fieldname": "filter_designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation"
+  },
+  {
+   "depends_on": "eval:doc.segment_by == 'Branch'",
+   "fieldname": "filter_branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "depends_on": "eval:doc.segment_by == 'Employment Type'",
+   "fieldname": "filter_employment_type",
+   "fieldtype": "Select",
+   "label": "Employment Type",
+   "options": "\nFull-time\nPart-time\nContract\nIntern"
+  },
+  {
+   "depends_on": "eval:doc.segment_by == 'Gender'",
+   "fieldname": "filter_gender",
+   "fieldtype": "Link",
+   "label": "Gender",
+   "options": "Gender"
+  },
+  {
+   "depends_on": "eval:doc.segment_by == 'Company'",
+   "fieldname": "filter_company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "column_break_aud2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_recipients",
+   "fieldtype": "Int",
+   "label": "Total Recipients",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "sent_count",
+   "fieldtype": "Int",
+   "label": "Sent",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "failed_count",
+   "fieldtype": "Int",
+   "label": "Failed",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "pending_count",
+   "fieldtype": "Int",
+   "label": "Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recipients_tab",
+   "fieldtype": "Tab Break",
+   "label": "Recipients"
+  },
+  {
+   "fieldname": "recipients",
+   "fieldtype": "Table",
+   "label": "Recipients",
+   "options": "Message Blast Recipient",
+   "reqd": 1
+  },
+  {
+   "fieldname": "message_tab",
+   "fieldtype": "Tab Break",
+   "label": "Message"
+  },
+  {
+   "depends_on": "eval:doc.message_type == 'Email' || doc.message_type == 'Email + WhatsApp' || doc.message_type == 'Email + SMS'",
+   "fieldname": "option",
+   "fieldtype": "Select",
+   "label": "Email Format",
+   "options": "\nHTML\nText"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_attachments",
+   "fieldtype": "Check",
+   "label": "Include Attachments"
+  },
+  {
+   "fieldname": "column_break_msg2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "track_opens",
+   "fieldtype": "Check",
+   "label": "Track Opens"
+  },
+  {
+   "default": "1",
+   "fieldname": "unsubscribe_link",
+   "fieldtype": "Check",
+   "label": "Include Unsubscribe Link"
+  },
+  {
+   "description": "Brief preview text shown in email clients before the message body",
+   "fieldname": "summary",
+   "fieldtype": "Small Text",
+   "label": "Summary",
+   "max_height": "60px"
+  },
+  {
+   "description": "Internal notes about this blast \u2014 not sent to recipients",
+   "fieldname": "message_purpose",
+   "fieldtype": "Small Text",
+   "label": "Internal Notes",
+   "max_height": "80px"
+  },
+  {
+   "fieldname": "section_break_body",
+   "fieldtype": "Section Break",
+   "label": "Message Content"
+  },
+  {
+   "depends_on": "eval:(doc.message_type == 'Email' || doc.message_type == 'Email + WhatsApp' || doc.message_type == 'Email + SMS') && doc.option == 'Text'",
+   "fieldname": "message_body",
+   "fieldtype": "Text Editor",
+   "label": "Email Body (Text)"
+  },
+  {
+   "depends_on": "eval:(doc.message_type == 'Email' || doc.message_type == 'Email + WhatsApp' || doc.message_type == 'Email + SMS') && doc.option == 'HTML'",
+   "fieldname": "message_tx_html",
+   "fieldtype": "HTML Editor",
+   "label": "Email Body (HTML)"
+  },
+  {
+   "depends_on": "eval:doc.message_type == 'WhatsApp' || doc.message_type == 'Email + WhatsApp'",
+   "description": "Merge tags: {{full_name}}, {{salutation}}, {{company}}",
+   "fieldname": "whatsapp_message_body",
+   "fieldtype": "Text",
+   "label": "WhatsApp Message"
+  },
+  {
+   "depends_on": "eval:doc.message_type == 'SMS' || doc.message_type == 'Email + SMS'",
+   "description": "Merge tags: {{full_name}}. Keep under 160 characters for a single SMS.",
+   "fieldname": "sms_message_body",
+   "fieldtype": "Small Text",
+   "label": "SMS Message"
+  },
+  {
+   "fieldname": "settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Advanced Settings"
+  },
+  {
+   "depends_on": "eval:doc.message_type == 'WhatsApp' || doc.message_type == 'Email + WhatsApp'",
+   "fieldname": "whatsapp_image_url",
+   "fieldtype": "Data",
+   "label": "WhatsApp Media URL"
+  },
+  {
+   "description": "Overrides the system default footer for this blast only",
+   "fieldname": "footer_text",
+   "fieldtype": "Small Text",
+   "label": "Custom Email Footer"
+  },
+  {
+   "fieldname": "column_break_sett2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reply_to_email",
+   "fieldtype": "Data",
+   "label": "Reply-To Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Message Blast",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Message Blast",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-19 21:30:22.851257",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Message Blast",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

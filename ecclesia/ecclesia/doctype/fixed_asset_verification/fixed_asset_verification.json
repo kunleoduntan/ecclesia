@@ -1,0 +1,321 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-04 07:26:01.713247",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_info_section",
+  "naming_series",
+  "company",
+  "column_break_doc1",
+  "verification_date",
+  "verification_type",
+  "column_break_doc2",
+  "verification_period",
+  "scope_section",
+  "asset_category",
+  "location",
+  "column_break_scope1",
+  "department",
+  "cost_center",
+  "section_break_button",
+  "get_assets_button",
+  "verification_details_section",
+  "verification_details",
+  "summary_section",
+  "total_assets_to_verify",
+  "assets_verified",
+  "column_break_sum1",
+  "assets_missing",
+  "assets_with_discrepancies",
+  "column_break_sum2",
+  "verification_completion_percentage",
+  "team_section",
+  "verification_team_leader",
+  "column_break_team1",
+  "team_members",
+  "followup_section",
+  "follow_up_actions_required",
+  "follow_up_notes",
+  "column_break_follow1",
+  "follow_up_assigned_to",
+  "follow_up_deadline",
+  "status_section",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_info_section",
+   "fieldtype": "Section Break",
+   "label": "Document Information"
+  },
+  {
+   "default": "FAV-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FAV-.YYYY.-.#####\nFAV-.####",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_doc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "verification_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Verification Date",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "verification_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Verification Type",
+   "options": "Annual Audit\nQuarterly Check\nRandom Verification\nLocation-based\nDepartment-based",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_doc2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "verification_period",
+   "fieldtype": "Data",
+   "label": "Verification Period"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Verification",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "scope_section",
+   "fieldtype": "Section Break",
+   "label": "Verification Scope"
+  },
+  {
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "label": "Asset Category",
+   "options": "Fixed Asset Category"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Link",
+   "label": "Location",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "column_break_scope1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "section_break_button",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "get_assets_button",
+   "fieldtype": "Button",
+   "label": "Get Assets for Verification"
+  },
+  {
+   "fieldname": "verification_details_section",
+   "fieldtype": "Section Break",
+   "label": "Verification Details"
+  },
+  {
+   "fieldname": "verification_details",
+   "fieldtype": "Table",
+   "label": "Assets",
+   "options": "Asset Verification Details"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Verification Summary"
+  },
+  {
+   "bold": 1,
+   "fieldname": "total_assets_to_verify",
+   "fieldtype": "Int",
+   "label": "Total Assets to Verify",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "assets_verified",
+   "fieldtype": "Int",
+   "label": "Assets Verified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sum1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "assets_missing",
+   "fieldtype": "Int",
+   "label": "Assets Missing",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "assets_with_discrepancies",
+   "fieldtype": "Int",
+   "label": "Assets with Discrepancies",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sum2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "verification_completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Verification Completion %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "team_section",
+   "fieldtype": "Section Break",
+   "label": "Verification Team"
+  },
+  {
+   "fieldname": "verification_team_leader",
+   "fieldtype": "Link",
+   "label": "Team Leader",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_team1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "team_members",
+   "fieldtype": "Table",
+   "label": "Team Members",
+   "options": "Verification Team Members"
+  },
+  {
+   "fieldname": "followup_section",
+   "fieldtype": "Section Break",
+   "label": "Follow-up Actions"
+  },
+  {
+   "default": "0",
+   "fieldname": "follow_up_actions_required",
+   "fieldtype": "Check",
+   "label": "Follow-up Actions Required"
+  },
+  {
+   "fieldname": "follow_up_notes",
+   "fieldtype": "Text",
+   "label": "Follow-up Notes"
+  },
+  {
+   "fieldname": "column_break_follow1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "follow_up_assigned_to",
+   "fieldtype": "Link",
+   "label": "Follow-up Assigned To",
+   "options": "User"
+  },
+  {
+   "fieldname": "follow_up_deadline",
+   "fieldtype": "Date",
+   "label": "Follow-up Deadline"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nIn Progress\nCompleted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Verification",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-04 17:53:45.497980",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Verification",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

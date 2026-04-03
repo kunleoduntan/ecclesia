@@ -1,0 +1,304 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-01 08:13:53.498412",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "chat",
+  "sender",
+  "sender_name",
+  "message_type",
+  "col_break_1",
+  "timestamp",
+  "is_edited",
+  "edited_at",
+  "is_deleted",
+  "deleted_at",
+  "content_section",
+  "body",
+  "body_html",
+  "mentions",
+  "media_section",
+  "attachments",
+  "location_lat",
+  "location_lng",
+  "location_name",
+  "poll_question",
+  "poll_options",
+  "poll_votes",
+  "reply_thread_section",
+  "reply_to",
+  "thread_parent",
+  "reply_count",
+  "is_pinned",
+  "pinned_by",
+  "reactions_section",
+  "reactions",
+  "document_ref_section",
+  "ref_doctype",
+  "ref_docname",
+  "system_event"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "bold": 1,
+   "fieldname": "chat",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Chat",
+   "options": "WA Internal Chat",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sender",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sender",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "sender.full_name",
+   "fieldname": "sender_name",
+   "fieldtype": "Data",
+   "label": "Sender Name",
+   "read_only": 1
+  },
+  {
+   "default": "text",
+   "fieldname": "message_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "text\nimage\nvideo\naudio\ndocument\nsticker\nlocation\npoll\nsystem",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "label": "Timestamp",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_edited",
+   "fieldtype": "Check",
+   "label": "Edited",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_edited==1",
+   "fieldname": "edited_at",
+   "fieldtype": "Datetime",
+   "label": "Edited At",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_deleted",
+   "fieldtype": "Check",
+   "label": "Deleted",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.is_deleted==1",
+   "fieldname": "deleted_at",
+   "fieldtype": "Datetime",
+   "label": "Deleted At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "Content"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='text'",
+   "fieldname": "body",
+   "fieldtype": "Long Text",
+   "label": "Message Body"
+  },
+  {
+   "description": "Rich text with bold, italic, mentions, code blocks",
+   "fieldname": "body_html",
+   "fieldtype": "Text Editor",
+   "label": "Formatted Body"
+  },
+  {
+   "description": "[{\"user\": \"john@company.com\", \"name\": \"John\"}]",
+   "fieldname": "mentions",
+   "fieldtype": "Small Text",
+   "label": "Mentions (JSON)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.message_type!='text'",
+   "fieldname": "media_section",
+   "fieldtype": "Section Break",
+   "label": "Media / Attachments"
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Table",
+   "label": "Attachments",
+   "options": "WA Internal Chat Attachment"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='location'",
+   "fieldname": "location_lat",
+   "fieldtype": "Float",
+   "label": "Latitude"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='location'",
+   "fieldname": "location_lng",
+   "fieldtype": "Float",
+   "label": "Longitude"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='location'",
+   "fieldname": "location_name",
+   "fieldtype": "Data",
+   "label": "Location Name"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='poll'",
+   "fieldname": "poll_question",
+   "fieldtype": "Data",
+   "label": "Poll Question"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='poll'",
+   "fieldname": "poll_options",
+   "fieldtype": "Small Text",
+   "label": "Poll Options (JSON)"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='poll'",
+   "fieldname": "poll_votes",
+   "fieldtype": "Small Text",
+   "label": "Poll Votes (JSON)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "reply_thread_section",
+   "fieldtype": "Section Break",
+   "label": "Thread / Reply"
+  },
+  {
+   "fieldname": "reply_to",
+   "fieldtype": "Link",
+   "label": "Reply To Message",
+   "options": "WA Internal Chat Message"
+  },
+  {
+   "description": "Top-level message this is a thread reply to",
+   "fieldname": "thread_parent",
+   "fieldtype": "Link",
+   "label": "Thread Parent",
+   "options": "WA Internal Chat Message"
+  },
+  {
+   "default": "0",
+   "fieldname": "reply_count",
+   "fieldtype": "Int",
+   "label": "Reply Count",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pinned",
+   "fieldtype": "Check",
+   "label": "Pinned"
+  },
+  {
+   "depends_on": "eval:doc.is_pinned==1",
+   "fieldname": "pinned_by",
+   "fieldtype": "Link",
+   "label": "Pinned By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "reactions_section",
+   "fieldtype": "Section Break",
+   "label": "Reactions"
+  },
+  {
+   "description": "{\"\ud83d\udc4d\": [\"user1\",\"user2\"], \"\u2764\ufe0f\": [\"user3\"]}",
+   "fieldname": "reactions",
+   "fieldtype": "Small Text",
+   "label": "Reactions (JSON)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "document_ref_section",
+   "fieldtype": "Section Break",
+   "label": "ERPNext Document Reference"
+  },
+  {
+   "fieldname": "ref_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "ref_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Document",
+   "options": "ref_doctype"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='system'",
+   "description": "e.g. member_added, member_removed, chat_created",
+   "fieldname": "system_event",
+   "fieldtype": "Data",
+   "label": "System Event",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-01 20:28:26.417371",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WA Internal Chat Message",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

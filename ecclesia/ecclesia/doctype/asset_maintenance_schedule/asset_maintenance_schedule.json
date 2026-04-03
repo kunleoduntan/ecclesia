@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-04 06:46:13.898019",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "maintenance_type",
+  "frequency",
+  "frequency_in_days",
+  "column_break_1",
+  "last_maintenance_date",
+  "last_completion_date",
+  "next_maintenance_date",
+  "next_due_date",
+  "column_break_2",
+  "maintenance_cost",
+  "is_active",
+  "description"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "maintenance_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Maintenance Type",
+   "options": "Preventive\nCorrective\nInspection\nServicing\nCalibration",
+   "reqd": 1
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Frequency",
+   "options": "Monthly\nQuarterly\nHalf-Yearly\nYearly\nBi-Annual",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_maintenance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Last Maintenance"
+  },
+  {
+   "bold": 1,
+   "fieldname": "next_maintenance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next Due"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Cost"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "frequency_in_days",
+   "fieldtype": "Int",
+   "label": "Frequency (Days)"
+  },
+  {
+   "fieldname": "last_completion_date",
+   "fieldtype": "Date",
+   "label": "Last Completed"
+  },
+  {
+   "fieldname": "next_due_date",
+   "fieldtype": "Date",
+   "label": "Next Due Date"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-07 11:01:49.341704",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Asset Maintenance Schedule",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

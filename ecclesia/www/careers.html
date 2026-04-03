@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Careers — Ecclesia</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1e;--ink2:#1e2740;--muted:#6b7a99;--surface:#fff;--sf2:#f4f6fb;--sf3:#e8ecf5;
+  --border:#dde3f0;--accent:#2563eb;--green:#059669;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;
+  --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+  --r:14px;--sh:0 2px 12px rgba(10,15,30,.08);--sh-lg:0 8px 40px rgba(10,15,30,.15);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--sf2);color:var(--ink);min-height:100vh}
+/* ── nav ── */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--sh)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 28px;height:66px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-mark{width:36px;height:36px;background:var(--ink);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.brand-name{font-size:16px;font-weight:700;letter-spacing:-.4px}
+.brand-sub{font-size:11px;color:var(--muted)}
+.nav-tabs{display:flex;gap:4px}
+.nav-tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:var(--font);transition:.15s}
+.nav-tab:hover{background:var(--sf2);color:var(--ink)}
+.nav-tab.active{background:var(--sf3);color:var(--ink);font-weight:600}
+/* ── hero ── */
+.hero{background:var(--surface);border-bottom:1px solid var(--border);padding:64px 0 52px}
+.hero-inner{max-width:1200px;margin:0 auto;padding:0 28px;display:grid;grid-template-columns:1fr 380px;gap:48px;align-items:center}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:var(--sf3);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:20px;text-transform:uppercase;letter-spacing:.3px}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:48px;font-weight:800;line-height:1.07;letter-spacing:-2px;margin-bottom:16px}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:28px}
+.hero-actions{display:flex;gap:12px}
+.hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hero-stat{background:var(--sf2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.hero-stat-val{font-size:34px;font-weight:800;letter-spacing:-1.5px;margin-bottom:3px}
+.hero-stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+/* ── buttons ── */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.15s;text-decoration:none}
+.btn-dark{background:var(--ink);color:#fff}.btn-dark:hover{background:var(--ink2)}
+.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--ink)}.btn-ghost:hover{border-color:var(--ink)}
+.btn-accent{background:var(--accent);color:#fff}.btn-accent:hover{background:#1d4ed8}
+.btn-sm{padding:7px 14px;font-size:12px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+/* ── layout ── */
+.main{max-width:1200px;margin:0 auto;padding:36px 28px;display:grid;grid-template-columns:268px 1fr;gap:28px;align-items:start}
+/* ── filters ── */
+.filter-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;position:sticky;top:80px;box-shadow:var(--sh)}
+.fp-head{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.fp-title{font-size:13px;font-weight:700}
+.fp-clear{font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;border:none;background:none;font-family:var(--font)}
+.fp-sec{padding:14px 18px;border-bottom:1px solid var(--border)}
+.fp-label{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;margin-bottom:10px}
+.fp-input{width:100%;background:var(--sf2);border:1.5px solid var(--border);border-radius:8px;padding:8px 11px;font-size:13px;font-family:var(--font);color:var(--ink);outline:none;transition:.15s}
+.fp-input:focus{border-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:5px 11px;border-radius:16px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);transition:.15s}
+.chip:hover,.chip.on{border-color:var(--ink);background:var(--ink);color:#fff}
+/* ── job cards ── */
+.jobs-area{display:flex;flex-direction:column}
+.jobs-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.jobs-count{font-size:14px;font-weight:600}
+.jobs-count span{font-weight:400;color:var(--muted)}
+.sort-sel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-size:12px;font-family:var(--font);color:var(--ink);outline:none;cursor:pointer}
+.jcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px 26px;margin-bottom:10px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.jcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:.2s}
+.jcard:hover{border-color:var(--ink2);box-shadow:var(--sh-lg);transform:translateY(-1px)}
+.jcard:hover::before{background:var(--accent)}
+.jcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.jcard-dept{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:5px}
+.jcard-title{font-size:18px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px;line-height:1.2}
+.jcard-meta{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--muted);margin-bottom:12px}
+.jcard-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.tag{background:var(--sf2);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);letter-spacing:.2px}
+.badge-new{background:var(--green);color:#fff;font-size:9px;font-weight:800;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.5px}
+.badge-deadline{color:var(--red);font-size:10px;font-weight:700;display:flex;align-items:center;gap:3px}
+.salary-badge{background:linear-gradient(135deg,#e0f2fe,#dbeafe);color:#1d4ed8;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;font-family:var(--mono);white-space:nowrap}
+.remote-badge{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0;padding:4px 9px;border-radius:5px;font-size:10px;font-weight:700}
+/* ── skeleton ── */
+.skel{background:linear-gradient(90deg,var(--sf2) 25%,var(--sf3) 50%,var(--sf2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* ── empty ── */
+.empty{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:56px 28px;text-align:center}
+.empty-icon{font-size:44px;margin-bottom:14px}
+.empty h3{font-size:17px;font-weight:700;margin-bottom:8px}
+.empty p{color:var(--muted);font-size:13px}
+/* ── overlay + drawer ── */
+#overlay{display:none;position:fixed;inset:0;background:rgba(10,15,30,.55);z-index:1000;backdrop-filter:blur(4px)}
+.drawer{position:fixed;right:0;top:0;bottom:0;width:min(680px,97vw);background:var(--surface);z-index:1001;display:flex;flex-direction:column;transform:translateX(101%);transition:transform .32s cubic-bezier(.4,0,.2,1);box-shadow:-20px 0 60px rgba(10,15,30,.2)}
+.drawer.open{transform:translateX(0)}
+.dh{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0}
+.db{flex:1;overflow-y:auto;padding:24px 28px}
+.df{padding:18px 28px;border-top:1px solid var(--border);flex-shrink:0;display:flex;gap:10px}
+.close-btn{background:var(--sf2);border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;transition:.15s}
+.close-btn:hover{background:var(--sf3)}
+/* ── multi-step form ── */
+.steps-row{display:flex;gap:0;margin-bottom:28px;position:relative}
+.steps-row::before{content:'';position:absolute;top:14px;left:0;right:0;height:2px;background:var(--border);z-index:0}
+.step-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:.3s;flex-shrink:0}
+.step-item.done .step-dot{background:var(--green);border-color:var(--green);color:#fff}
+.step-item.active .step-dot{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.15)}
+.step-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);text-align:center;white-space:nowrap}
+.step-item.active .step-label,.step-item.done .step-label{color:var(--ink)}
+.progress-rail{height:4px;background:var(--sf3);border-radius:2px;margin-bottom:28px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--purple));transition:width .4s ease}
+/* ── form elements ── */
+.form-sec{margin-bottom:24px}
+.form-sec-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{margin-bottom:14px}
+.flabel{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.req{color:var(--red)}
+.finput{width:100%;background:var(--sf2);border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--ink);outline:none;transition:.15s}
+.finput:focus{border-color:var(--accent);background:var(--surface)}
+.ftextarea{resize:vertical;min-height:80px}
+/* ── job history builder ── */
+.job-hist-item{background:var(--sf2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;position:relative}
+.job-hist-del{position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:15px;transition:.15s}
+.job-hist-del:hover{color:var(--red)}
+/* ── screening question cards ── */
+.sq-card{background:var(--sf2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.sq-num{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px;font-family:var(--mono)}
+.sq-q{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:12px;line-height:1.5}
+.sq-ko{display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:var(--red);font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;margin-left:8px}
+.radio-grp{display:flex;flex-direction:column;gap:7px}
+.radio-opt{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:7px;cursor:pointer;border:1.5px solid transparent;transition:.15s;font-size:13px}
+.radio-opt:hover{background:var(--surface);border-color:var(--border)}
+.radio-opt input{width:15px;height:15px;cursor:pointer;accent-color:var(--accent)}
+.rating-row{display:flex;gap:7px}
+.rstar{width:34px;height:34px;border-radius:7px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;font-family:var(--font);color:var(--muted)}
+.rstar.on,.rstar:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+/* ── track page ── */
+.track-wrap{max-width:620px;margin:56px auto;padding:0 20px}
+.track-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--sh-lg)}
+.track-hero{background:linear-gradient(135deg,var(--ink),#1e2740);padding:28px 28px 24px;color:#fff}
+.pipeline-list{padding:28px}
+.pl-step{display:flex;gap:14px;position:relative;padding-bottom:20px}
+.pl-step::after{content:'';position:absolute;left:14px;top:30px;bottom:0;width:1.5px;background:var(--border)}
+.pl-step:last-child::after{display:none}
+.pl-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;z-index:1;transition:.3s}
+.pl-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.pl-dot.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 0 0 4px rgba(37,99,235,.18)}
+.pl-dot.ko{background:var(--red);border-color:var(--red);color:#fff}
+.pl-content{padding-bottom:0}
+.pl-label{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3}
+.pl-sub{font-size:11px;color:var(--muted);margin-top:2px}
+/* ── score ring ── */
+.score-ring-wrap{display:flex;align-items:center;gap:20px;background:var(--sf2);border-radius:12px;padding:18px 22px;margin-bottom:20px}
+/* ── pages ── */
+.page{display:none}
+.page.active{display:block;animation:fadeUp .22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* ── toast ── */
+#toast{position:fixed;bottom:24px;right:20px;z-index:9999;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 18px;font-size:13px;box-shadow:var(--sh-lg);display:none;max-width:360px;line-height:1.5}
+@media(max-width:768px){.hero-inner,.main{grid-template-columns:1fr}.filter-panel{position:static}.hero-stats,.hero h1{font-size:32px}.form-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="overlay" onclick="closeDrawer()"></div>
+
+<!-- Drawer -->
+<div class="drawer" id="drawer">
+  <div class="dh">
+    <div>
+      <div id="d-dept" style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px"></div>
+      <div id="d-title" style="font-size:19px;font-weight:700;letter-spacing:-.4px"></div>
+    </div>
+    <button class="close-btn" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="db" id="d-body"></div>
+  <div class="df" id="d-footer">
+    <button class="btn btn-dark" id="d-apply-btn" onclick="startApply()">Apply for this Role →</button>
+    <button class="btn btn-ghost" onclick="closeDrawer()">Close</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <div class="brand-mark">🏛</div>
+      <div>
+        <div class="brand-name">Ecclesia</div>
+        <div class="brand-sub">Careers</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPage('jobs',this)">Open Roles</button>
+      <button class="nav-tab" onclick="showPage('track',this)">Track Application</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ JOBS PAGE ══ -->
+<div id="page-jobs" class="page active">
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge"><span class="hero-dot"></span> We're Hiring</div>
+        <h1>Find your next<br><em>great role</em><br>here.</h1>
+        <p class="hero-sub">Join our growing team. Every applicant is scored fairly and transparently on 10 professional criteria — no black boxes.</p>
+        <div class="hero-actions">
+          <button class="btn btn-dark" onclick="document.querySelector('.main').scrollIntoView({behavior:'smooth'})">See All Roles</button>
+          <button class="btn btn-ghost" onclick="showPage('track',null)">Track Application</button>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hero-stat-val" id="hs-open">—</div><div class="hero-stat-label">Open Positions</div></div>
+        <div class="hero-stat"><div class="hero-stat-val" id="hs-depts">—</div><div class="hero-stat-label">Departments</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">10</div><div class="hero-stat-label">Scoring Criteria</div></div>
+        <div class="hero-stat"><div class="hero-stat-val">⚡</div><div class="hero-stat-label">Instant Scoring</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="main">
+    <aside class="filter-panel">
+      <div class="fp-head"><span class="fp-title">Filter Roles</span><button class="fp-clear" onclick="clearFilters()">Clear all</button></div>
+      <div class="fp-sec">
+        <div class="fp-label">Search</div>
+        <input class="fp-input" id="fi-search" placeholder="Title, skill, keyword…" oninput="applyFilters()">
+      </div>
+      <div class="fp-sec">
+        <div class="fp-label">Department</div>
+        <div class="chips" id="fi-depts"></div>
+      </div>
+      <div class="fp-sec">
+        <div class="fp-label">Work Mode</div>
+        <div class="chips">
+          <div class="chip" data-mode="Remote"  onclick="filterMode(this,'Remote')">Remote</div>
+          <div class="chip" data-mode="Hybrid"  onclick="filterMode(this,'Hybrid')">Hybrid</div>
+          <div class="chip" data-mode="On-site" onclick="filterMode(this,'On-site')">On-site</div>
+        </div>
+      </div>
+      <div class="fp-sec">
+        <div class="fp-label">Experience</div>
+        <div class="chips">
+          <div class="chip" data-exp="0" onclick="filterExp(this,0)">Any</div>
+          <div class="chip" data-exp="2" onclick="filterExp(this,2)">2+ yrs</div>
+          <div class="chip" data-exp="5" onclick="filterExp(this,5)">5+ yrs</div>
+          <div class="chip" data-exp="8" onclick="filterExp(this,8)">8+ yrs</div>
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="jobs-bar">
+        <div class="jobs-count" id="jcount">Loading…</div>
+        <select class="sort-sel" id="sort-sel" onchange="sortJobs()">
+          <option value="recent">Most Recent</option>
+          <option value="exp">Experience Level</option>
+        </select>
+      </div>
+      <div id="jobs-list">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:10px">
+          <div class="skel" style="height:12px;width:100px;margin-bottom:12px"></div>
+          <div class="skel" style="height:20px;width:260px;margin-bottom:14px"></div>
+          <div class="skel" style="height:11px;width:200px"></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:10px">
+          <div class="skel" style="height:12px;width:80px;margin-bottom:12px"></div>
+          <div class="skel" style="height:20px;width:220px;margin-bottom:14px"></div>
+          <div class="skel" style="height:11px;width:170px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TRACK PAGE ══ -->
+<div id="page-track" class="page">
+  <div class="track-wrap">
+    <div style="text-align:center;margin-bottom:28px">
+      <h2 style="font-size:26px;font-weight:800;letter-spacing:-1px;margin-bottom:8px">Track Your Application</h2>
+      <p style="color:var(--muted);font-size:14px">Enter the token you received after applying.</p>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:28px">
+      <input id="track-input" class="finput" placeholder="Your tracking token…" style="flex:1;font-family:var(--mono)" onkeydown="if(event.key==='Enter')trackApp()">
+      <button class="btn btn-dark" onclick="trackApp()">Track →</button>
+    </div>
+    <div id="track-result"></div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   GLOBALS
+════════════════════════════════════════════════════════════ */
+var ALL_JOBS=[],FILTERED=[],CURRENT_JOB=null;
+var F_DEPT='',F_MODE='',F_EXP=0;
+var A={};         // apply data
+var STEP=0;       // current wizard step (1-based)
+var STEPS=[];     // [{key,label,icon}]
+
+/* ════════════════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════════════════ */
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  t.innerHTML={'success':'✅ ','error':'❌ ','warn':'⚠️ ','info':'ℹ️ '}[type||'info']+msg;
+  t.style.display='block';
+  t.style.borderLeft='4px solid var(--'+(({success:'green',error:'red',warn:'amber'}[type])||'accent')+')';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},5000);
+}
+function csrf(){var m=document.cookie.match(/csrf_token=([^;]+)/);return m?decodeURIComponent(m[1]):'';}
+function api(method,args){
+  return fetch('/api/method/'+method,{
+    method:'POST',headers:{'Content-Type':'application/json','X-Frappe-CSRF-Token':csrf()},
+    body:JSON.stringify(args||{})
+  }).then(function(r){return r.json();}).then(function(r){
+    if(r.exc){var raw=r._server_messages||r.exc;var msg;try{msg=JSON.parse(JSON.parse(raw)[0]).message;}catch(e){msg=String(raw).split('\n').pop();}throw new Error(msg||'Server error');}
+    return r.message;
+  });
+}
+function fmt(n){return Number(n||0).toLocaleString();}
+function days(d){return Math.floor((new Date()-new Date(d))/86400000);}
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  var p=document.getElementById('page-'+id);if(p)p.classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(function(n){n.classList.remove('active');});
+  if(el)el.classList.add('active');
+  else document.querySelectorAll('.nav-tab').forEach(function(n){if((n.getAttribute('onclick')||'').indexOf("'"+id+"'")>-1)n.classList.add('active');});
+}
+
+/* ════════════════════════════════════════════════════════════
+   JOB LISTING
+════════════════════════════════════════════════════════════ */
+function loadJobs(){
+  api('ecclesia.api.recruitment_portal_jobs.get_jobs',{page:1,page_size:100})
+  .then(function(res){
+    ALL_JOBS=res.data||[];FILTERED=ALL_JOBS.slice();
+    document.getElementById('hs-open').textContent=ALL_JOBS.length;
+    renderJobs();loadDepts();
+  }).catch(function(e){
+    document.getElementById('jobs-list').innerHTML='<div class="empty"><div class="empty-icon">🔭</div><h3>Could not load jobs</h3><p>'+e.message+'</p></div>';
+  });
+}
+function loadDepts(){
+  api('ecclesia.api.recruitment_portal_jobs.get_departments',{})
+  .then(function(ds){
+    document.getElementById('hs-depts').textContent=ds.length;
+    document.getElementById('fi-depts').innerHTML=ds.map(function(d){
+      return '<div class="chip" onclick="filterDept(this,\''+d.replace(/'/g,"\\'")+'\')" >'+d+'</div>';
+    }).join('');
+  }).catch(function(){});
+}
+function renderJobs(){
+  var el=document.getElementById('jobs-list');
+  var cnt=document.getElementById('jcount');
+  if(!FILTERED.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><h3>No matching roles</h3><p>Try adjusting your filters.</p></div>';
+    cnt.textContent='0 roles';return;
+  }
+  cnt.innerHTML='<strong>'+FILTERED.length+'</strong> <span>open role'+(FILTERED.length===1?'':'s')+'</span>';
+  el.innerHTML=FILTERED.map(function(j){
+    var d=days(j.posted_on),isNew=d<7;
+    var skills=(j.ec_skills_required||'').split(',').slice(0,5).filter(Boolean);
+    var mode=j.ec_location_mode||'';
+    return '<div class="jcard" onclick="openJob(\''+j.name+'\')">'
+      +'<div class="jcard-top">'
+      +'<div style="flex:1">'
+      +(j.department?'<div class="jcard-dept">'+j.department+(j.designation?' · '+j.designation:'')+'</div>':'')
+      +'<div class="jcard-title">'+j.job_title+'</div>'
+      +'<div class="jcard-meta">'
+      +(j.location?'<span>📍 '+j.location+'</span>':'')
+      +(j.ec_experience_years_min?'<span>⏱ '+j.ec_experience_years_min+'+ yrs</span>':'')
+      +(j.ec_education_level?'<span>🎓 '+j.ec_education_level+'</span>':'')
+      +'<span>📅 '+(d===0?'Today':d+' days ago')+'</span>'
+      +'</div>'
+      +'<div class="jcard-tags">'
+      +skills.map(function(s){return '<span class="tag">'+s.trim()+'</span>';}).join('')
+      +(isNew?'<span class="badge-new">New</span>':'')
+      +(mode==='Remote'?'<span class="remote-badge">🌐 Remote</span>':mode==='Hybrid'?'<span class="remote-badge" style="background:#fef9c3;color:#92400e;border-color:#fde68a">⚡ Hybrid</span>':'')
+      +(j.ec_application_deadline?'<span class="badge-deadline">⏰ '+j.ec_application_deadline+'</span>':'')
+      +'</div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">'
+      +((j.ec_salary_min||j.ec_salary_max)?'<span class="salary-badge">₦'+fmt(j.ec_salary_min)+(j.ec_salary_max?' – ₦'+fmt(j.ec_salary_max):'')+'</span>':'')
+      +'<button class="btn btn-dark btn-sm" onclick="event.stopPropagation();openAndApply(\''+j.name+'\')">Apply →</button>'
+      +'</div>'
+      +'</div></div>';
+  }).join('');
+}
+function applyFilters(){
+  var q=(document.getElementById('fi-search').value||'').toLowerCase();
+  FILTERED=ALL_JOBS.filter(function(j){
+    return (!q||(j.job_title||'').toLowerCase().includes(q)||(j.ec_skills_required||'').toLowerCase().includes(q)||(j.department||'').toLowerCase().includes(q))
+      &&(!F_DEPT||j.department===F_DEPT)
+      &&(!F_MODE||j.ec_location_mode===F_MODE)
+      &&(!F_EXP||(j.ec_experience_years_min||0)>=F_EXP);
+  });
+  renderJobs();
+}
+function filterDept(el,v){F_DEPT=el.classList.contains('on')?'':v;document.querySelectorAll('#fi-depts .chip').forEach(function(c){c.classList.remove('on');});if(F_DEPT)el.classList.add('on');applyFilters();}
+function filterMode(el,v){F_MODE=el.classList.contains('on')?'':v;document.querySelectorAll('[data-mode]').forEach(function(c){c.classList.remove('on');});if(F_MODE)el.classList.add('on');applyFilters();}
+function filterExp(el,v){F_EXP=el.classList.contains('on')?0:v;document.querySelectorAll('[data-exp]').forEach(function(c){c.classList.remove('on');});if(F_EXP)el.classList.add('on');applyFilters();}
+function clearFilters(){document.getElementById('fi-search').value='';F_DEPT='';F_MODE='';F_EXP=0;document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on');});FILTERED=ALL_JOBS.slice();renderJobs();}
+function sortJobs(){
+  var s=document.getElementById('sort-sel').value;
+  if(s==='exp')FILTERED.sort(function(a,b){return (b.ec_experience_years_min||0)-(a.ec_experience_years_min||0);});
+  else FILTERED.sort(function(a,b){return new Date(b.posted_on)-new Date(a.posted_on);});
+  renderJobs();
+}
+
+/* ════════════════════════════════════════════════════════════
+   DRAWER
+════════════════════════════════════════════════════════════ */
+function openJob(name){
+  var drawer=document.getElementById('drawer');
+  document.getElementById('overlay').style.display='block';
+  document.getElementById('d-title').textContent='Loading…';
+  document.getElementById('d-dept').textContent='';
+  document.getElementById('d-body').innerHTML='<div style="padding:24px;text-align:center;color:var(--muted)">Loading…</div>';
+  document.getElementById('d-apply-btn').style.display='';
+  document.getElementById('d-footer').style.display='flex';
+  drawer.classList.add('open');
+  api('ecclesia.api.recruitment_portal_jobs.get_job_detail',{name:name})
+  .then(function(job){
+    CURRENT_JOB=job;STEP=0;A={};
+    document.getElementById('d-dept').textContent=(job.department||'')+(job.designation?' · '+job.designation:'');
+    document.getElementById('d-title').textContent=job.job_title;
+    renderJobDetail(job);
+  }).catch(function(e){toast(e.message,'error');});
+}
+function openAndApply(name){openJob(name);setTimeout(startApply,500);}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('overlay').style.display='none';STEP=0;A={};}
+function renderJobDetail(job){
+  var skills=(job.ec_skills_required||'').split(',').filter(Boolean);
+  var nthSkills=(job.ec_nice_to_have_skills||'').split(',').filter(Boolean);
+  document.getElementById('d-body').innerHTML=
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">'
+    +(job.ec_location_mode?'<span class="remote-badge" style="'+(job.ec_location_mode==='Remote'?'':'background:#fef9c3;color:#92400e;border-color:#fde68a')+'">'+job.ec_location_mode+'</span>':'')
+    +((job.ec_salary_min||job.ec_salary_max)?'<span class="salary-badge">₦'+fmt(job.ec_salary_min)+(job.ec_salary_max?' – ₦'+fmt(job.ec_salary_max):'')+'</span>':'')
+    +(job.ec_application_deadline?'<span class="badge-deadline">⏰ Deadline: '+job.ec_application_deadline+'</span>':'')
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);margin-bottom:20px">'
+    +(job.location?'<span>📍 '+job.location+'</span>':'')
+    +(job.ec_experience_years_min?'<span>⏱ '+job.ec_experience_years_min+'+ yrs exp</span>':'')
+    +(job.ec_education_level?'<span>🎓 Min: '+job.ec_education_level+'</span>':'')
+    +(job.ec_required_industry?'<span>🏭 '+job.ec_required_industry+'</span>':'')
+    +(job.ec_required_location_country?'<span>🌍 '+job.ec_required_location_country+'</span>':'')
+    +'</div>'
+    +(skills.length?'<div style="margin-bottom:18px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">Required Skills</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+skills.map(function(s){return '<span class="tag" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5">'+s.trim()+'</span>';}).join('')+'</div></div>':'')
+    +(nthSkills.length?'<div style="margin-bottom:18px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">Nice-to-Have Skills</div><div style="display:flex;flex-wrap:wrap;gap:5px">'+nthSkills.map(function(s){return '<span class="tag" style="background:#e0f2fe;color:#0369a1;border-color:#bae6fd">'+s.trim()+'</span>';}).join('')+'</div></div>':'')
+    +(job.ec_required_certifications?'<div style="margin-bottom:18px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">Required Certifications</div><div style="font-size:13px;color:var(--ink)">'+job.ec_required_certifications+'</div></div>':'')
+    +'<div style="font-size:13px;color:var(--muted);line-height:1.75;white-space:pre-line">'+(job.description||'No description provided.')+'</div>';
+}
+
+/* ════════════════════════════════════════════════════════════
+   APPLICATION WIZARD — 5 steps
+   1: Personal & Education
+   2: Experience & Stability
+   3: Skills, Certs, Industry, Location, Languages, Portfolio
+   4: Screening Q&A
+   5: Review
+════════════════════════════════════════════════════════════ */
+var WIZARD_STEPS=[
+  {key:'personal',  label:'Personal',   icon:'👤'},
+  {key:'experience',label:'Experience', icon:'💼'},
+  {key:'profile',   label:'Profile',    icon:'🧠'},
+  {key:'screening', label:'Screening',  icon:'📝'},
+  {key:'review',    label:'Review',     icon:'✅'},
+];
+
+function startApply(){
+  if(!CURRENT_JOB)return;
+  STEP=1;A={};
+  var hasScreening=CURRENT_JOB.has_screening;
+  WIZARD_STEPS[3].skip=!hasScreening;
+  document.getElementById('d-apply-btn').style.display='none';
+  renderStep();
+}
+
+function renderStep(){
+  var db=document.getElementById('d-body');
+  var df=document.getElementById('d-footer');
+  var visibleSteps=WIZARD_STEPS.filter(function(s){return !s.skip;});
+  var visIdx=visibleSteps.findIndex(function(s,i){return WIZARD_STEPS.indexOf(s)+1===STEP;})||0;
+  // recalculate logical step index
+  var logStep=WIZARD_STEPS.slice(0,STEP-1).filter(function(s){return !s.skip;}).length+1;
+  var total=visibleSteps.length;
+  var pct=Math.round((logStep/(total+1))*100);
+
+  // Steps row
+  var stepsHtml='<div class="steps-row">'
+    +visibleSteps.map(function(s,i){
+      var state=i+1<logStep?'done':i+1===logStep?'active':'';
+      return '<div class="step-item '+state+'"><div class="step-dot">'+(i+1<logStep?'✓':i+1)+'</div><div class="step-label">'+s.label+'</div></div>';
+    }).join('')+'</div>'
+    +'<div class="progress-rail"><div class="progress-fill" style="width:'+pct+'%"></div></div>';
+
+  var content='';
+  var skey=WIZARD_STEPS[STEP-1]?WIZARD_STEPS[STEP-1].key:'review';
+
+  if(skey==='personal')    content=buildPersonal();
+  else if(skey==='experience')content=buildExperience();
+  else if(skey==='profile') content=buildProfile();
+  else if(skey==='screening')content=buildScreening();
+  else                      content=buildReview();
+
+  db.innerHTML=stepsHtml+content;
+
+  // Footer
+  var isLast=(logStep===total);
+  df.innerHTML=(STEP>1?'<button class="btn btn-ghost" onclick="prevStep()">← Back</button>':'<button class="btn btn-ghost" onclick="closeDrawer()">Cancel</button>')
+    +(isLast
+      ?'<button class="btn btn-accent" id="submit-btn" onclick="submitApp()">Submit Application 🚀</button>'
+      :'<button class="btn btn-dark" onclick="nextStep()">Continue →</button>');
+}
+
+/* ── Step builders ─────────────────────────────────────────── */
+function buildPersonal(){
+  return '<div class="form-sec">'
+    +'<div class="form-sec-title">👤 Personal Information</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Full Name <span class="req">*</span></label><input class="finput" id="f-name" value="'+(A.name||'')+'" placeholder="Jane Doe"></div>'
+    +'<div class="fg"><label class="flabel">Email Address <span class="req">*</span></label><input class="finput" type="email" id="f-email" value="'+(A.email||'')+'" placeholder="jane@example.com"></div>'
+    +'</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Phone Number</label><input class="finput" id="f-phone" value="'+(A.phone||'')+'" placeholder="+234…"></div>'
+    +'<div class="fg"><label class="flabel">Current / Last Role</label><input class="finput" id="f-role" value="'+(A.current_role||'')+'" placeholder="Senior Engineer"></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">🎓 Education</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Highest Education Level <span class="req">*</span></label>'
+    +'<select class="finput" id="f-edu">'
+    +'<option value="">Select…</option>'
+    +["High School","OND / NCE","HND","Bachelor's Degree","Postgraduate Diploma","Master's Degree","Doctorate / PhD"].map(function(e){return '<option'+(A.edu===e?' selected':'')+'>'+e+'</option>';}).join('')
+    +'</select></div>'
+    +'<div class="fg"><label class="flabel">Field of Study <span class="req">*</span></label><input class="finput" id="f-fos" value="'+(A.field_of_study||'')+'" placeholder="Computer Science, Finance…"></div>'
+    +'</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">University / Institution</label><input class="finput" id="f-uni" value="'+(A.university||'')+'" placeholder="University of Lagos"></div>'
+    +'<div class="fg"><label class="flabel">Graduation Year</label><input class="finput" type="number" id="f-gradyr" value="'+(A.gradyr||'')+'" placeholder="e.g. 2019" min="1970" max="2030"></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">📄 Cover Letter & CV</div>'
+    +'<div class="fg"><label class="flabel">Cover Letter <span class="req">*</span></label><textarea class="finput ftextarea" id="f-cover" style="min-height:100px" placeholder="Tell us why you\'re the right fit for this role…">'+(A.cover||'')+'</textarea></div>'
+    +'</div>';
+}
+
+function buildExperience(){
+  var hist=A.history||[];
+  return '<div class="form-sec">'
+    +'<div class="form-sec-title">💼 Experience Overview</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Total Years of Experience <span class="req">*</span></label><input class="finput" type="number" id="f-exp" value="'+(A.exp||'')+'" min="0" step="0.5" placeholder="e.g. 4"></div>'
+    +'<div class="fg"><label class="flabel">Primary Industry</label><input class="finput" id="f-industry" value="'+(A.industry||'')+'" placeholder="Finance, Healthcare, Technology…"></div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">🏢 Employment History <span style="font-size:11px;color:var(--muted);font-weight:400">(helps calculate stability score)</span>'
+    +'<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="addHistEntry()">+ Add Role</button>'
+    +'</div>'
+    +'<p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">List your past roles to demonstrate employment stability. Longer average tenures score higher.</p>'
+    +'<div id="hist-list">'
+    +(hist.length?hist.map(function(h,i){return histEntryHtml(i,h);}).join(''):
+      '<p style="text-align:center;color:var(--muted);font-size:13px;padding:20px">No history added yet. Click "+ Add Role" above.</p>')
+    +'</div>'
+    +'</div>';
+}
+
+function histEntryHtml(i,h){
+  h=h||{};
+  return '<div class="job-hist-item" id="he-'+i+'">'
+    +'<button class="job-hist-del" onclick="removeHist('+i+')">✕</button>'
+    +'<div class="form-row" style="margin-bottom:10px">'
+    +'<div class="fg" style="margin:0"><label class="flabel">Company</label><input class="finput he-co" data-i="'+i+'" value="'+(h.company||'')+'" placeholder="Acme Corp"></div>'
+    +'<div class="fg" style="margin:0"><label class="flabel">Role</label><input class="finput he-ro" data-i="'+i+'" value="'+(h.role||'')+'" placeholder="Software Engineer"></div>'
+    +'</div>'
+    +'<div class="form-row">'
+    +'<div class="fg" style="margin:0"><label class="flabel">From (YYYY-MM)</label><input class="finput he-fr" data-i="'+i+'" value="'+(h.from||'')+'" placeholder="2020-03"></div>'
+    +'<div class="fg" style="margin:0"><label class="flabel">To (YYYY-MM or "Present")</label><input class="finput he-to" data-i="'+i+'" value="'+(h.to||'')+'" placeholder="2023-08"></div>'
+    +'</div>'
+    +'<div class="fg" style="margin-top:10px;margin-bottom:0"><label class="flabel">Industry</label><input class="finput he-in" data-i="'+i+'" value="'+(h.industry||'')+'" placeholder="Finance"></div>'
+    +'</div>';
+}
+
+var HIST_COUNT=0;
+function addHistEntry(){
+  if(!A.history)A.history=[];
+  A.history.push({});HIST_COUNT++;
+  var list=document.getElementById('hist-list');
+  if(list){
+    // Remove empty state text
+    var p=list.querySelector('p');if(p)p.remove();
+    var div=document.createElement('div');
+    div.innerHTML=histEntryHtml(A.history.length-1,{});
+    list.appendChild(div.firstChild);
+  }
+}
+function removeHist(i){
+  var el=document.getElementById('he-'+i);if(el)el.remove();
+  if(A.history)A.history[i]=null;
+}
+function gatherHistory(){
+  var result=[];
+  document.querySelectorAll('.job-hist-item').forEach(function(el){
+    var i=parseInt(el.id.replace('he-',''));
+    var co=(el.querySelector('.he-co')||{}).value||'';
+    var ro=(el.querySelector('.he-ro')||{}).value||'';
+    var fr=(el.querySelector('.he-fr')||{}).value||'';
+    var to=(el.querySelector('.he-to')||{}).value||'';
+    var ind=(el.querySelector('.he-in')||{}).value||'';
+    if(co||ro)result.push({company:co,role:ro,from:fr,to:to,industry:ind});
+  });
+  return result;
+}
+
+function buildProfile(){
+  return '<div class="form-sec">'
+    +'<div class="form-sec-title">🧠 Skills</div>'
+    +'<div class="fg"><label class="flabel">Your Skills <span class="req">*</span></label><input class="finput" id="f-skills" value="'+(A.skills||'')+'" placeholder="Python, Project Management, SQL, React…"></div>'
+    +'<p style="font-size:11px;color:var(--muted);margin-top:4px">Comma-separated. Be thorough — skills are matched against required and nice-to-have lists.</p>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">📜 Certifications</div>'
+    +'<div class="fg"><label class="flabel">Certifications Held</label><input class="finput" id="f-certs" value="'+(A.certifications||'')+'" placeholder="PMP, AWS Solutions Architect, CISSP…"></div>'
+    +'<p style="font-size:11px;color:var(--muted);margin-top:4px">Comma-separated. Include acronym and full name where possible.</p>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">🌍 Location & Work Eligibility</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Current City</label><input class="finput" id="f-city" value="'+(A.city||'')+'" placeholder="Lagos"></div>'
+    +'<div class="fg"><label class="flabel">Current Country</label><input class="finput" id="f-country" value="'+(A.country||'')+'" placeholder="Nigeria"></div>'
+    +'</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Work Permit / Eligibility</label><input class="finput" id="f-permit" value="'+(A.permit||'')+'" placeholder="Nigerian Citizen / UK Work Visa"></div>'
+    +'<div class="fg" style="display:flex;align-items:center;gap:10px;padding-top:22px">'
+    +'<input type="checkbox" id="f-relocate" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)"'+(A.relocate?' checked':'')+'>'
+    +'<label for="f-relocate" style="font-size:13px;cursor:pointer">I am willing to relocate</label>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">🗣️ Languages</div>'
+    +'<div class="fg"><label class="flabel">Languages Spoken</label><input class="finput" id="f-langs" value="'+(A.languages||'')+'" placeholder="English, French, Hausa…"></div>'
+    +'<p style="font-size:11px;color:var(--muted);margin-top:4px">Comma-separated. Proficiency is assumed from your listed languages.</p>'
+    +'</div>'
+    +'<div class="form-sec">'
+    +'<div class="form-sec-title">🧩 Portfolio & Projects</div>'
+    +'<div class="form-row">'
+    +'<div class="fg"><label class="flabel">Portfolio / Website URL</label><input class="finput" type="url" id="f-portfolio" value="'+(A.portfolio||'')+'" placeholder="https://myportfolio.com"></div>'
+    +'<div class="fg"><label class="flabel">GitHub / LinkedIn URL</label><input class="finput" type="url" id="f-github" value="'+(A.github||'')+'" placeholder="https://github.com/username"></div>'
+    +'</div>'
+    +'<p style="font-size:11px;color:var(--muted);margin-top:4px">Adding these earns bonus points in the scoring even if not required.</p>'
+    +'</div>';
+}
+
+function buildScreening(){
+  var questions=CURRENT_JOB.screening_questions||[];
+  if(!questions.length)return '<p style="color:var(--muted);text-align:center;padding:32px">No screening questions for this role.</p>';
+  return '<div class="form-sec">'
+    +'<div class="form-sec-title">📝 Screening Questions</div>'
+    +'<p style="font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.7">Answer all questions honestly. Some questions are <span style="background:#fee2e2;color:var(--red);padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700">KNOCK-OUT</span> — an incorrect answer will automatically disqualify your application.</p>'
+    +questions.map(function(q,i){
+      var saved=A.answers&&A.answers[i]?A.answers[i].answer:'';
+      var koTag=q.knockout?'<span class="sq-ko">⚡ Knock-out</span>':'';
+      var body='';
+      if(q.type==='yesno'){
+        body='<div class="radio-grp">'+['Yes','No'].map(function(o){
+          return '<label class="radio-opt"><input type="radio" name="sq'+i+'" class="sq-r" data-qi="'+i+'" value="'+o+'"'+(saved===o?' checked':'')+'>'+o+'</label>';
+        }).join('')+'</div>';
+      }else if(q.type==='mcq'&&q.options&&q.options.length){
+        body='<div class="radio-grp">'+q.options.map(function(o){
+          return '<label class="radio-opt"><input type="radio" name="sq'+i+'" class="sq-r" data-qi="'+i+'" value="'+o+'"'+(saved===o?' checked':'')+'>'+o+'</label>';
+        }).join('')+'</div>';
+      }else if(q.type==='rating'){
+        var max=q.max_rating||5;
+        body='<div class="rating-row">'
+          +Array.from({length:max},function(_,ri){
+            return '<button type="button" class="rstar'+(saved==ri+1?' on':'')+'" onclick="setRating('+i+','+(ri+1)+',this)">'+(ri+1)+'</button>';
+          }).join('')+'</div>'
+          +'<input type="hidden" id="sq-rating-'+i+'" value="'+(saved||'')+'">';
+      }else{
+        body='<textarea class="finput ftextarea sq-ta" data-qi="'+i+'" style="min-height:70px" placeholder="Your answer…">'+(saved||'')+'</textarea>';
+      }
+      return '<div class="sq-card"><div class="sq-num">Question '+(i+1)+' of '+questions.length+'</div>'
+        +'<div class="sq-q">'+q.question+(q.required?'<span class="req"> *</span>':'')+koTag+'</div>'+body+'</div>';
+    }).join('')+'</div>';
+}
+function setRating(qi,val,btn){
+  document.getElementById('sq-rating-'+qi).value=val;
+  var row=btn.closest('.rating-row');
+  if(row)row.querySelectorAll('.rstar').forEach(function(b,i){b.classList.toggle('on',i<val);});
+}
+
+function buildReview(){
+  var rows=[
+    ['Position',CURRENT_JOB.job_title],
+    ['Full Name',A.name||'—'],
+    ['Email',A.email||'—'],
+    ['Education',A.edu||'—'],
+    ['Field of Study',A.field_of_study||'—'],
+    ['Experience',A.exp?A.exp+' years':'—'],
+    ['Skills',A.skills||'—'],
+    ['Certifications',A.certifications||'—'],
+    ['Location',(A.city||'')+(A.country?', '+A.country:'') || '—'],
+    ['Languages',A.languages||'—'],
+    ['Portfolio',A.portfolio||'—'],
+    ['GitHub',A.github||'—'],
+    ['Employment History',(A.history||[]).filter(Boolean).length+' role(s) provided'],
+  ];
+  return '<div class="form-sec">'
+    +'<div class="form-sec-title">✅ Review Your Application</div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:13px">'
+    +rows.map(function(r,i){return '<tr style="border-top:'+(i?'1px solid var(--border)':'none')+'"><td style="padding:9px 0;color:var(--muted);width:140px">'+r[0]+'</td><td style="padding:9px 0;font-weight:500">'+r[1]+'</td></tr>';}).join('')
+    +'</table>'
+    +'<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:14px 16px;margin-top:20px;font-size:12px;color:#0369a1;line-height:1.6">'
+    +'⚡ Your application will be automatically scored across <strong>10 criteria</strong>. You will receive a unique tracking token immediately after submission to follow your application status in real time.</div>'
+    +'</div>';
+}
+
+/* ── Navigation ─────────────────────────────────────────────── */
+function nextStep(){
+  var skey=WIZARD_STEPS[STEP-1]?WIZARD_STEPS[STEP-1].key:'';
+  // Validate + gather current step
+  if(skey==='personal'){
+    var name=(document.getElementById('f-name')||{}).value||'';
+    var email=(document.getElementById('f-email')||{}).value||'';
+    var edu=(document.getElementById('f-edu')||{}).value||'';
+    var fos=(document.getElementById('f-fos')||{}).value||'';
+    var cover=(document.getElementById('f-cover')||{}).value||'';
+    if(!name.trim()||!email.trim()||!edu){toast('Please fill all required fields','warn');return;}
+    if(!cover.trim()||cover.trim().length<50){toast('Cover letter must be at least 50 characters','warn');return;}
+    A.name=name.trim();A.email=email.trim();A.phone=(document.getElementById('f-phone')||{}).value||'';
+    A.current_role=(document.getElementById('f-role')||{}).value||'';
+    A.edu=edu;A.field_of_study=fos;
+    A.university=(document.getElementById('f-uni')||{}).value||'';
+    A.gradyr=(document.getElementById('f-gradyr')||{}).value||'';
+    A.cover=cover;
+  }
+  if(skey==='experience'){
+    var exp=(document.getElementById('f-exp')||{}).value||'';
+    if(!exp||isNaN(parseFloat(exp))){toast('Please enter your years of experience','warn');return;}
+    A.exp=parseFloat(exp);
+    A.industry=(document.getElementById('f-industry')||{}).value||'';
+    A.history=gatherHistory();
+  }
+  if(skey==='profile'){
+    var skills=(document.getElementById('f-skills')||{}).value||'';
+    if(!skills.trim()){toast('Please enter at least one skill','warn');return;}
+    A.skills=skills;
+    A.certifications=(document.getElementById('f-certs')||{}).value||'';
+    A.city=(document.getElementById('f-city')||{}).value||'';
+    A.country=(document.getElementById('f-country')||{}).value||'';
+    A.permit=(document.getElementById('f-permit')||{}).value||'';
+    A.relocate=document.getElementById('f-relocate')&&document.getElementById('f-relocate').checked?1:0;
+    A.languages=(document.getElementById('f-langs')||{}).value||'';
+    A.portfolio=(document.getElementById('f-portfolio')||{}).value||'';
+    A.github=(document.getElementById('f-github')||{}).value||'';
+  }
+  if(skey==='screening'){
+    var questions=CURRENT_JOB.screening_questions||[];
+    var answers=[];var valid=true;
+    questions.forEach(function(q,i){
+      var answer='';
+      if(q.type==='yesno'||q.type==='mcq'){var r=document.querySelector('input[name="sq'+i+'"]:checked');answer=r?r.value:'';}
+      else if(q.type==='rating'){answer=(document.getElementById('sq-rating-'+i)||{}).value||'';}
+      else{var t=document.querySelector('.sq-ta[data-qi="'+i+'"]');answer=t?t.value.trim():'';}
+      if(q.required&&!answer)valid=false;
+      answers.push({id:q.id||i,question:q.question,answer:answer});
+    });
+    if(!valid){toast('Please answer all required questions','warn');return;}
+    A.answers=answers;
+  }
+  // Advance (skip hidden steps)
+  do{STEP++;}while(STEP<=WIZARD_STEPS.length&&WIZARD_STEPS[STEP-1]&&WIZARD_STEPS[STEP-1].skip);
+  renderStep();
+}
+function prevStep(){
+  do{STEP--;}while(STEP>1&&WIZARD_STEPS[STEP-1]&&WIZARD_STEPS[STEP-1].skip);
+  renderStep();
+}
+
+/* ── Submit ─────────────────────────────────────────────────── */
+function submitApp(){
+  var btn=document.getElementById('submit-btn');
+  if(btn){btn.disabled=true;btn.textContent='Submitting…';}
+  var hist=(A.history||[]).filter(Boolean);
+  var args={
+    job_opening:        CURRENT_JOB.name,
+    applicant_name:     A.name,
+    email_id:           A.email,
+    phone_number:       A.phone||null,
+    education_level:    A.edu||null,
+    field_of_study:     A.field_of_study||null,
+    university_name:    A.university||null,
+    graduation_year:    A.gradyr||null,
+    experience_years:   A.exp||0,
+    current_role:       A.current_role||null,
+    employment_history: hist.length?JSON.stringify(hist):null,
+    skills:             A.skills||null,
+    certifications:     A.certifications||null,
+    industry_experience:A.industry||null,
+    current_city:       A.city||null,
+    current_country:    A.country||null,
+    willing_to_relocate:A.relocate||0,
+    work_permit:        A.permit||null,
+    languages:          A.languages||null,
+    portfolio_url:      A.portfolio||null,
+    github_url:         A.github||null,
+    screening_answers:  A.answers?JSON.stringify(A.answers):null,
+    cover_letter:       A.cover||null,
+  };
+  api('ecclesia.api.recruitment_portal_apply.submit_application',args)
+  .then(function(res){
+    document.getElementById('d-body').innerHTML=
+      '<div style="text-align:center;padding:36px 20px">'
+      +'<div style="font-size:52px;margin-bottom:18px">🎉</div>'
+      +'<h3 style="font-size:21px;font-weight:700;letter-spacing:-.4px;margin-bottom:10px">Application Submitted!</h3>'
+      +'<p style="color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.7">Your application for <strong>'+CURRENT_JOB.job_title+'</strong> has been received. Our scoring engine is evaluating it across 10 criteria right now.</p>'
+      +'<div style="background:var(--sf2);border:1px solid var(--border);border-radius:10px;padding:18px;text-align:left;margin-bottom:24px">'
+      +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px">Your Tracking Token</div>'
+      +'<div style="font-family:var(--mono);font-size:17px;font-weight:700;color:var(--ink);letter-spacing:2px;word-break:break-all">'+res.tracking_token+'</div>'
+      +'<div style="font-size:11px;color:var(--muted);margin-top:6px">Save this token to check your application status at any time</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:10px;justify-content:center">'
+      +'<button class="btn btn-dark" onclick="prefillTrack(\''+res.tracking_token+'\')">Track Status →</button>'
+      +'<button class="btn btn-ghost" onclick="closeDrawer()">Close</button>'
+      +'</div></div>';
+    document.getElementById('d-footer').innerHTML='';
+    toast('Application submitted! ✓','success');
+  }).catch(function(e){
+    if(btn){btn.disabled=false;btn.textContent='Submit Application 🚀';}
+    toast(e.message,'error');
+  });
+}
+function prefillTrack(token){
+  closeDrawer();
+  showPage('track',null);
+  var inp=document.getElementById('track-input');
+  if(inp){inp.value=token;trackApp();}
+}
+
+/* ════════════════════════════════════════════════════════════
+   TRACK APPLICATION
+════════════════════════════════════════════════════════════ */
+function trackApp(){
+  var token=(document.getElementById('track-input')||{}).value||'';
+  if(!token.trim()){toast('Please enter your tracking token','warn');return;}
+  var container=document.getElementById('track-result');
+  container.innerHTML='<div style="text-align:center;padding:32px;color:var(--muted)">Looking up your application…</div>';
+  api('ecclesia.api.recruitment_portal_jobs.get_application_status',{token:token.trim()})
+  .then(function(d){renderTrack(d,container);})
+  .catch(function(e){
+    container.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><h3>Not Found</h3><p>'+e.message+'</p></div>';
+  });
+}
+
+function renderTrack(d,container){
+  var stages=d.stages||[];
+  var current=d.stage_index||0;
+  var isKO=d.status==='Rejected'&&d.knockout_failed;
+  var isDup=d.is_duplicate;
+
+  // Score ring
+  var scoreHtml='';
+  if(d.scoring_complete&&!isKO&&!isDup){
+    var s=Math.round(d.ec_total_score||0);
+    var r=36;var circ=2*Math.PI*r;var dash=(s/100)*circ;
+    var col=s>=70?'var(--green)':s>=50?'var(--amber)':'var(--red)';
+    scoreHtml='<div class="score-ring-wrap">'
+      +'<svg width="90" height="90" viewBox="0 0 90 90" style="transform:rotate(-90deg);flex-shrink:0">'
+      +'<circle cx="45" cy="45" r="'+r+'" fill="none" stroke="var(--sf3)" stroke-width="9"/>'
+      +'<circle cx="45" cy="45" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="9" stroke-dasharray="'+dash+' '+(circ-dash)+'" stroke-linecap="round" style="transition:stroke-dasharray .8s ease"/>'
+      +'<text x="45" y="51" text-anchor="middle" font-size="18" font-weight="800" fill="var(--ink)" font-family="Sora" transform="rotate(90,45,45)">'+s+'</text>'
+      +'</svg>'
+      +'<div>'
+      +'<div style="font-size:16px;font-weight:700;margin-bottom:3px">Match Score</div>'
+      +'<div style="font-size:12px;color:var(--muted)">Scored across 10 criteria</div>'
+      +'<div style="font-size:12px;margin-top:6px;font-weight:600;color:'+col+'">'+(s>=70?'✓ Above shortlist threshold':s>=50?'⚠ Near threshold':'✗ Below threshold')+'</div>'
+      +'</div></div>';
+  }
+
+  // Special states
+  var statusBanner='';
+  if(isKO)statusBanner='<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--red);line-height:1.6"><strong>⚡ Application Not Progressed</strong><br>'+( d.knockout_reason||'A knock-out question was answered incorrectly.')+'</div>';
+  if(isDup)statusBanner='<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:13px;color:#92400e;line-height:1.6"><strong>⚠ Duplicate Application</strong><br>We already have an active application from this email for this position.</div>';
+
+  // Interview
+  var intvwHtml='';
+  if(d.interview){
+    intvwHtml='<div style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:9px;padding:14px 18px;margin-bottom:18px">'
+      +'<div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:8px">📅 Interview Scheduled</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:#0c4a6e">'
+      +'<span>Date: <strong>'+(d.interview.scheduled_on||'TBD')+'</strong></span>'
+      +(d.interview.from_time?'<span>Time: <strong>'+d.interview.from_time+(d.interview.to_time?' – '+d.interview.to_time:'')+'</strong></span>':'')
+      +(d.interview.ec_meeting_link?'<span style="grid-column:1/-1"><a href="'+d.interview.ec_meeting_link+'" style="color:var(--accent);font-weight:600">Join Meeting →</a></span>':'')
+      +'</div></div>';
+  }
+
+  // Pipeline
+  var pipeHtml=stages.map(function(s,i){
+    var state=isKO&&s.key==='Rejected'?'ko':i<current?'done':i===current?'active':'';
+    var dot=state==='done'?'✓':state==='ko'?'⚡':i+1;
+    return '<div class="pl-step">'
+      +'<div class="pl-dot '+state+'">'+dot+'</div>'
+      +'<div class="pl-content"><div class="pl-label" style="font-weight:'+(state==='active'?700:500)+';color:'+(state?'var(--ink)':'var(--muted)')+'">'+s.label+'</div>'
+      +(i===current&&!isKO?'<div class="pl-sub">Current status</div>':'')
+      +'</div></div>';
+  }).join('');
+
+  container.innerHTML='<div class="track-card">'
+    +'<div class="track-hero">'
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,255,255,.5);margin-bottom:5px">'+d.job_title+'</div>'
+    +'<div style="font-size:20px;font-weight:700;margin-bottom:3px">'+d.applicant_name+'</div>'
+    +'<div style="font-size:12px;color:rgba(255,255,255,.55)">Applied '+d.applied_on+'</div>'
+    +'</div>'
+    +'<div class="pipeline-list">'
+    +statusBanner+scoreHtml+intvwHtml
+    +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:14px">Application Pipeline</div>'
+    +pipeHtml
+    +'</div></div>';
+}
+
+/* ════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',function(){
+  loadJobs();
+  var p=new URLSearchParams(window.location.search);
+  if(p.get('token')){
+    showPage('track',null);
+    var inp=document.getElementById('track-input');
+    if(inp){inp.value=p.get('token');setTimeout(trackApp,300);}
+  }
+});
+</script>
+</body>
+</html>

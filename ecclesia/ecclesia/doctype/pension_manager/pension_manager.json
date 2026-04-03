@@ -1,0 +1,425 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:pfa_code",
+ "creation": "2026-03-23 15:54:42.395974",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "pfa_name",
+  "pfa_code",
+  "pencom_registration_number",
+  "status",
+  "column_break_1",
+  "pfc_name",
+  "pfc_registration_number",
+  "licence_status",
+  "licence_expiry_date",
+  "sb_contact",
+  "head_office_address",
+  "city",
+  "state",
+  "country",
+  "column_break_2",
+  "primary_phone",
+  "alternate_phone",
+  "email",
+  "website",
+  "sb_persons",
+  "relationship_manager_name",
+  "relationship_manager_phone",
+  "relationship_manager_email",
+  "column_break_3",
+  "compliance_officer_name",
+  "compliance_officer_phone",
+  "compliance_officer_email",
+  "sb_contribution",
+  "employee_contribution_rate",
+  "employer_contribution_rate",
+  "contribution_basis",
+  "column_break_4",
+  "voluntary_contribution_allowed",
+  "remittance_due_day",
+  "penalty_rate_per_annum",
+  "sb_rsa",
+  "rsa_pin_prefix",
+  "default_fund_type",
+  "micro_pension_enabled",
+  "fund_types",
+  "sb_banking",
+  "bank_name",
+  "bank_account_number",
+  "account_name",
+  "sort_code",
+  "column_break_5",
+  "currency",
+  "remittance_file_format",
+  "sb_accounting",
+  "employee_pension_payable_account",
+  "employer_pension_expense_account",
+  "column_break_6",
+  "employer_pension_payable_account",
+  "cost_center",
+  "sb_other",
+  "notes",
+  "pencom_licence_document",
+  "agreement_document"
+ ],
+ "fields": [
+  {
+   "fieldname": "pfa_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "PFA Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pfa_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "PFA Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "pencom_registration_number",
+   "fieldtype": "Data",
+   "label": "PenCom Registration Number",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nInactive\nSuspended"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pfc_name",
+   "fieldtype": "Data",
+   "label": "PFC Name"
+  },
+  {
+   "fieldname": "pfc_registration_number",
+   "fieldtype": "Data",
+   "label": "PFC Registration Number"
+  },
+  {
+   "fieldname": "licence_status",
+   "fieldtype": "Select",
+   "label": "Licence Status",
+   "options": "\nLicensed\nProvisional\nRevoked\nSuspended"
+  },
+  {
+   "fieldname": "licence_expiry_date",
+   "fieldtype": "Date",
+   "label": "Licence Expiry Date"
+  },
+  {
+   "fieldname": "sb_contact",
+   "fieldtype": "Section Break",
+   "label": "Contact & Address"
+  },
+  {
+   "fieldname": "head_office_address",
+   "fieldtype": "Small Text",
+   "label": "Head Office Address",
+   "reqd": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "state",
+   "fieldtype": "Select",
+   "label": "State",
+   "options": "\nAbia\nAdamawa\nAkwa Ibom\nAnambra\nBauchi\nBayelsa\nBenue\nBorno\nCross River\nDelta\nEbonyi\nEdo\nEkiti\nEnugu\nFCT\nGombe\nImo\nJigawa\nKaduna\nKano\nKatsina\nKebbi\nKogi\nKwara\nLagos\nNasarawa\nNiger\nOgun\nOndo\nOsun\nOyo\nPlateau\nRivers\nSokoto\nTaraba\nYobe\nZamfara"
+  },
+  {
+   "default": "Nigeria",
+   "fieldname": "country",
+   "fieldtype": "Link",
+   "label": "Country",
+   "options": "Country"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "primary_phone",
+   "fieldtype": "Data",
+   "label": "Primary Phone",
+   "reqd": 1
+  },
+  {
+   "fieldname": "alternate_phone",
+   "fieldtype": "Data",
+   "label": "Alternate Phone"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email",
+   "reqd": 1
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website"
+  },
+  {
+   "fieldname": "sb_persons",
+   "fieldtype": "Section Break",
+   "label": "Contact Persons"
+  },
+  {
+   "fieldname": "relationship_manager_name",
+   "fieldtype": "Data",
+   "label": "Relationship Manager Name"
+  },
+  {
+   "fieldname": "relationship_manager_phone",
+   "fieldtype": "Data",
+   "label": "Relationship Manager Phone"
+  },
+  {
+   "fieldname": "relationship_manager_email",
+   "fieldtype": "Data",
+   "label": "Relationship Manager Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "compliance_officer_name",
+   "fieldtype": "Data",
+   "label": "Compliance Officer Name"
+  },
+  {
+   "fieldname": "compliance_officer_phone",
+   "fieldtype": "Data",
+   "label": "Compliance Officer Phone"
+  },
+  {
+   "fieldname": "compliance_officer_email",
+   "fieldtype": "Data",
+   "label": "Compliance Officer Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "sb_contribution",
+   "fieldtype": "Section Break",
+   "label": "Contribution Rules (PenCom)"
+  },
+  {
+   "default": "8",
+   "fieldname": "employee_contribution_rate",
+   "fieldtype": "Float",
+   "label": "Employee Contribution Rate (%)",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "default": "10",
+   "fieldname": "employer_contribution_rate",
+   "fieldtype": "Float",
+   "label": "Employer Contribution Rate (%)",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "default": "Basic + Housing + Transport",
+   "fieldname": "contribution_basis",
+   "fieldtype": "Select",
+   "label": "Contribution Basis",
+   "options": "Basic + Housing + Transport\nGross"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "voluntary_contribution_allowed",
+   "fieldtype": "Check",
+   "label": "Allow Voluntary Contribution (AVC)"
+  },
+  {
+   "default": "7",
+   "fieldname": "remittance_due_day",
+   "fieldtype": "Int",
+   "label": "Remittance Due Day (of month)"
+  },
+  {
+   "default": "2",
+   "fieldname": "penalty_rate_per_annum",
+   "fieldtype": "Float",
+   "label": "Late Payment Penalty Rate (% p.a.)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "sb_rsa",
+   "fieldtype": "Section Break",
+   "label": "RSA & Fund Details"
+  },
+  {
+   "fieldname": "rsa_pin_prefix",
+   "fieldtype": "Data",
+   "label": "RSA PIN Prefix"
+  },
+  {
+   "default": "Fund II",
+   "fieldname": "default_fund_type",
+   "fieldtype": "Select",
+   "label": "Default Fund Type",
+   "options": "\nFund I\nFund II\nFund III\nFund IV\nFund V\nFund VI"
+  },
+  {
+   "default": "0",
+   "fieldname": "micro_pension_enabled",
+   "fieldtype": "Check",
+   "label": "Micro Pension Plan Enabled"
+  },
+  {
+   "fieldname": "fund_types",
+   "fieldtype": "Table",
+   "label": "Fund Types",
+   "options": "Pension Fund Type"
+  },
+  {
+   "fieldname": "sb_banking",
+   "fieldtype": "Section Break",
+   "label": "Banking & Remittance"
+  },
+  {
+   "fieldname": "bank_name",
+   "fieldtype": "Link",
+   "label": "Bank Name",
+   "options": "Bank"
+  },
+  {
+   "fieldname": "bank_account_number",
+   "fieldtype": "Data",
+   "label": "Bank Account Number"
+  },
+  {
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "label": "Account Name"
+  },
+  {
+   "fieldname": "sort_code",
+   "fieldtype": "Data",
+   "label": "Sort Code"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "remittance_file_format",
+   "fieldtype": "Select",
+   "label": "Remittance File Format",
+   "options": "\nPenCom CPFA Format\nExcel\nCSV\nNIBSS"
+  },
+  {
+   "fieldname": "sb_accounting",
+   "fieldtype": "Section Break",
+   "label": "Accounting Integration"
+  },
+  {
+   "fieldname": "employee_pension_payable_account",
+   "fieldtype": "Link",
+   "label": "Employee Pension Payable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "employer_pension_expense_account",
+   "fieldtype": "Link",
+   "label": "Employer Pension Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employer_pension_payable_account",
+   "fieldtype": "Link",
+   "label": "Employer Pension Payable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "sb_other",
+   "fieldtype": "Section Break",
+   "label": "Other"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "pencom_licence_document",
+   "fieldtype": "Attach",
+   "label": "PenCom Licence Document"
+  },
+  {
+   "fieldname": "agreement_document",
+   "fieldtype": "Attach",
+   "label": "Agreement Document"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-23 15:55:01.540944",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Pension Manager",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

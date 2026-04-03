@@ -1,0 +1,204 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PCYC-{YYYY}-{#####}",
+ "creation": "2026-03-13 17:27:24.353619",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "cycle_type",
+  "year",
+  "col1",
+  "status",
+  "applicable_to",
+  "scope",
+  "sec_deadlines",
+  "goal_setting_deadline",
+  "self_appraisal_deadline",
+  "peer_review_deadline",
+  "manager_review_deadline",
+  "calibration_deadline",
+  "sec_weights",
+  "kpi_weight",
+  "manager_weight",
+  "col2",
+  "peer_weight",
+  "self_weight",
+  "sec_rating",
+  "rating_scale",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Cycle Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "cycle_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Cycle Type",
+   "options": "Annual\nMid-Year\nQuarterly\nProbation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "year",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nGoal Setting\nSelf Appraisal\nPeer Review\nManager Review\nCalibration\nResults Released\nClosed",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "All Employees",
+   "fieldname": "applicable_to",
+   "fieldtype": "Select",
+   "label": "Applicable To",
+   "options": "All Employees\nDepartment\nDesignation\nEmployee Group"
+  },
+  {
+   "fieldname": "scope",
+   "fieldtype": "Table",
+   "label": "Scope Targets",
+   "options": "Policy Scope"
+  },
+  {
+   "fieldname": "sec_deadlines",
+   "fieldtype": "Section Break",
+   "label": "Phase Deadlines"
+  },
+  {
+   "fieldname": "goal_setting_deadline",
+   "fieldtype": "Date",
+   "label": "Goal Setting Deadline",
+   "reqd": 1
+  },
+  {
+   "fieldname": "self_appraisal_deadline",
+   "fieldtype": "Date",
+   "label": "Self-Appraisal Deadline",
+   "reqd": 1
+  },
+  {
+   "fieldname": "peer_review_deadline",
+   "fieldtype": "Date",
+   "label": "Peer Review Deadline",
+   "reqd": 1
+  },
+  {
+   "fieldname": "manager_review_deadline",
+   "fieldtype": "Date",
+   "label": "Manager Review Deadline",
+   "reqd": 1
+  },
+  {
+   "fieldname": "calibration_deadline",
+   "fieldtype": "Date",
+   "label": "Calibration Deadline",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_weights",
+   "fieldtype": "Section Break",
+   "label": "Score Weights"
+  },
+  {
+   "default": "40",
+   "fieldname": "kpi_weight",
+   "fieldtype": "Float",
+   "label": "KPI Weight (%)",
+   "reqd": 1
+  },
+  {
+   "default": "35",
+   "fieldname": "manager_weight",
+   "fieldtype": "Float",
+   "label": "Manager Weight (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "15",
+   "fieldname": "peer_weight",
+   "fieldtype": "Float",
+   "label": "Peer Weight (%)",
+   "reqd": 1
+  },
+  {
+   "default": "10",
+   "fieldname": "self_weight",
+   "fieldtype": "Float",
+   "label": "Self-Appraisal Weight (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_rating",
+   "fieldtype": "Section Break",
+   "label": "Rating Scale"
+  },
+  {
+   "fieldname": "rating_scale",
+   "fieldtype": "Table",
+   "label": "Rating Labels",
+   "options": "Performance Rating Scale"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Performance Cycle",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-18 16:12:04.635965",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Performance Cycle",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

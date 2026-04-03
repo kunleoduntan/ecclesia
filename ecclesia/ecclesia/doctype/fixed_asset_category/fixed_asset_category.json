@@ -1,0 +1,514 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:category_name",
+ "creation": "2026-02-04 18:18:32.412889",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "category_info_section",
+  "category_name",
+  "category_code",
+  "item_linked_code",
+  "column_break_cat1",
+  "parent_category",
+  "is_group",
+  "column_break_cat2",
+  "description",
+  "disabled",
+  "asset_code_section",
+  "asset_code_prefix",
+  "asset_code_series_start",
+  "column_break_code1",
+  "asset_code_format",
+  "next_asset_number",
+  "depreciation_section",
+  "enable_depreciation",
+  "depreciation_rate",
+  "depreciation_method",
+  "useful_life_years",
+  "column_break_dep1",
+  "useful_life_months",
+  "rate_of_depreciation",
+  "total_number_of_depreciations",
+  "column_break_dep2",
+  "frequency_of_depreciation",
+  "residual_value_percentage",
+  "advanced_depreciation_section",
+  "allow_depreciation_start_date_override",
+  "calculate_depreciation_on_pro_rata_basis",
+  "column_break_adv1",
+  "depreciation_start_from",
+  "auto_create_depreciation_schedule",
+  "accounting_section",
+  "fixed_asset_account",
+  "accumulated_depreciation_account",
+  "column_break_acc1",
+  "depreciation_expense_account",
+  "capital_work_in_progress_account",
+  "disposal_accounts_section",
+  "asset_disposal_account",
+  "gain_on_disposal_account",
+  "column_break_disp1",
+  "loss_on_disposal_account",
+  "revaluation_accounts_section",
+  "revaluation_reserve_account",
+  "revaluation_surplus_account",
+  "column_break_reval1",
+  "revaluation_loss_account",
+  "additional_settings_section",
+  "enable_component_tracking",
+  "enable_maintenance_tracking",
+  "column_break_add1",
+  "typical_useful_life_years",
+  "warranty_period_months",
+  "column_break_add2",
+  "insurance_required",
+  "minimum_insurance_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "category_info_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc1 Category Information"
+  },
+  {
+   "bold": 1,
+   "description": "Unique name for this asset category",
+   "fieldname": "category_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Category Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "Short code for the category (e.g., COMP, VEH, FURN)",
+   "fieldname": "category_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Category Code",
+   "unique": 1
+  },
+  {
+   "fieldname": "column_break_cat1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "For hierarchical category structure",
+   "fieldname": "parent_category",
+   "fieldtype": "Link",
+   "label": "Parent Category",
+   "options": "Fixed Asset Category"
+  },
+  {
+   "default": "0",
+   "description": "Check if this is a parent category",
+   "fieldname": "is_group",
+   "fieldtype": "Check",
+   "label": "Is Group"
+  },
+  {
+   "fieldname": "column_break_cat2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Brief description of the asset category",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "max_height": "120px"
+  },
+  {
+   "fieldname": "asset_code_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd22 Asset Code Generation"
+  },
+  {
+   "bold": 1,
+   "description": "Prefix for auto-generated asset codes (e.g., COMP-, VEH-, FURN-)",
+   "fieldname": "asset_code_prefix",
+   "fieldtype": "Data",
+   "label": "Asset Code Prefix",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Starting number for asset code series (e.g., 1001)",
+   "fieldname": "asset_code_series_start",
+   "fieldtype": "Int",
+   "label": "Series Start Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_code1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "PREFIX-#####",
+   "description": "Format for asset code generation",
+   "fieldname": "asset_code_format",
+   "fieldtype": "Select",
+   "label": "Code Format",
+   "options": "PREFIX-####\nPREFIX-#####\nPREFIX-######\nPREFIX-YYYY-####\nPREFIX-YYYY-#####"
+  },
+  {
+   "default": "1",
+   "description": "Auto-incremented number for next asset",
+   "fieldname": "next_asset_number",
+   "fieldtype": "Int",
+   "label": "Next Asset Number",
+   "read_only": 1
+  },
+  {
+   "fieldname": "depreciation_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc9 Depreciation Settings"
+  },
+  {
+   "bold": 1,
+   "default": "1",
+   "fieldname": "enable_depreciation",
+   "fieldtype": "Check",
+   "label": "Enable Depreciation"
+  },
+  {
+   "default": "Straight Line",
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "fieldname": "depreciation_method",
+   "fieldtype": "Select",
+   "label": "Depreciation Method",
+   "mandatory_depends_on": "eval:doc.enable_depreciation==1",
+   "options": "Straight Line\nWritten Down Value\nDouble Declining Balance\nSum of Years Digits\nUnits of Production",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_dep1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "description": "Total depreciation periods (months/quarters/years)",
+   "fieldname": "total_number_of_depreciations",
+   "fieldtype": "Int",
+   "label": "Total Number of Depreciations",
+   "mandatory_depends_on": "eval:doc.enable_depreciation==1"
+  },
+  {
+   "fieldname": "column_break_dep2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "description": "Depreciation frequency in months (1=Monthly, 3=Quarterly, 6=Half-yearly, 12=Yearly)",
+   "fieldname": "frequency_of_depreciation",
+   "fieldtype": "Select",
+   "label": "Frequency of Depreciation",
+   "mandatory_depends_on": "eval:doc.enable_depreciation==1",
+   "options": "1\n3\n6\n12"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "description": "Percentage of original cost retained as residual/salvage value",
+   "fieldname": "residual_value_percentage",
+   "fieldtype": "Percent",
+   "label": "Residual Value (%)",
+   "precision": "2"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "fieldname": "advanced_depreciation_section",
+   "fieldtype": "Section Break",
+   "label": "\u2699\ufe0f Advanced Depreciation Options"
+  },
+  {
+   "default": "0",
+   "description": "Allow users to override depreciation start date per asset",
+   "fieldname": "allow_depreciation_start_date_override",
+   "fieldtype": "Check",
+   "label": "Allow Start Date Override"
+  },
+  {
+   "default": "1",
+   "description": "Calculate depreciation proportionally for partial periods",
+   "fieldname": "calculate_depreciation_on_pro_rata_basis",
+   "fieldtype": "Check",
+   "label": "Calculate Pro-rata Depreciation"
+  },
+  {
+   "fieldname": "column_break_adv1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Purchase Date",
+   "description": "When to start depreciation calculation",
+   "fieldname": "depreciation_start_from",
+   "fieldtype": "Select",
+   "label": "Depreciation Starts From",
+   "options": "Purchase Date\nAvailable for Use Date\nNext Month from Purchase"
+  },
+  {
+   "default": "1",
+   "description": "Automatically create depreciation schedule on asset submission",
+   "fieldname": "auto_create_depreciation_schedule",
+   "fieldtype": "Check",
+   "label": "Auto-create Depreciation Schedule"
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Accounting - Asset & Depreciation Accounts"
+  },
+  {
+   "description": "Account for capitalized asset value (Balance Sheet)",
+   "fieldname": "fixed_asset_account",
+   "fieldtype": "Link",
+   "label": "Fixed Asset Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "description": "Contra asset account for accumulated depreciation",
+   "fieldname": "accumulated_depreciation_account",
+   "fieldtype": "Link",
+   "label": "Accumulated Depreciation Account",
+   "mandatory_depends_on": "eval:doc.enable_depreciation==1",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.enable_depreciation==1",
+   "description": "Expense account for depreciation charges (P&L)",
+   "fieldname": "depreciation_expense_account",
+   "fieldtype": "Link",
+   "label": "Depreciation Expense Account",
+   "mandatory_depends_on": "eval:doc.enable_depreciation==1",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "description": "Account for assets under construction/not yet in use",
+   "fieldname": "capital_work_in_progress_account",
+   "fieldtype": "Link",
+   "label": "Capital Work in Progress Account",
+   "options": "Account"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "disposal_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd04 Disposal Accounts"
+  },
+  {
+   "description": "Clearing account for asset disposal transactions",
+   "fieldname": "asset_disposal_account",
+   "fieldtype": "Link",
+   "label": "Asset Disposal Account",
+   "options": "Account"
+  },
+  {
+   "description": "Income account for profit on asset disposal",
+   "fieldname": "gain_on_disposal_account",
+   "fieldtype": "Link",
+   "label": "Gain on Disposal Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_disp1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Expense account for loss on asset disposal",
+   "fieldname": "loss_on_disposal_account",
+   "fieldtype": "Link",
+   "label": "Loss on Disposal Account",
+   "options": "Account"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "revaluation_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Revaluation Accounts"
+  },
+  {
+   "description": "Reserve account for asset revaluation (Balance Sheet)",
+   "fieldname": "revaluation_reserve_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Reserve Account",
+   "options": "Account"
+  },
+  {
+   "description": "Account for revaluation gains",
+   "fieldname": "revaluation_surplus_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Surplus Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_reval1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Account for revaluation losses",
+   "fieldname": "revaluation_loss_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Loss Account",
+   "options": "Account"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "additional_settings_section",
+   "fieldtype": "Section Break",
+   "label": "\u26a1 Additional Settings"
+  },
+  {
+   "default": "0",
+   "description": "Track individual components/parts of complex assets",
+   "fieldname": "enable_component_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Component Tracking"
+  },
+  {
+   "default": "1",
+   "description": "Track maintenance schedules and costs for this category",
+   "fieldname": "enable_maintenance_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Maintenance Tracking"
+  },
+  {
+   "fieldname": "column_break_add1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Average useful life for assets in this category",
+   "fieldname": "typical_useful_life_years",
+   "fieldtype": "Int",
+   "label": "Typical Useful Life (Years)"
+  },
+  {
+   "description": "Standard warranty period for new assets",
+   "fieldname": "warranty_period_months",
+   "fieldtype": "Int",
+   "label": "Default Warranty Period (Months)"
+  },
+  {
+   "fieldname": "column_break_add2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Require insurance coverage for assets in this category",
+   "fieldname": "insurance_required",
+   "fieldtype": "Check",
+   "label": "Insurance Required"
+  },
+  {
+   "depends_on": "eval:doc.insurance_required==1",
+   "description": "Minimum insurance coverage required",
+   "fieldname": "minimum_insurance_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Insurance Amount",
+   "precision": "2"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Is Disabled"
+  },
+  {
+   "fieldname": "item_linked_code",
+   "fieldtype": "Link",
+   "label": "Item Linked Code",
+   "options": "Item",
+   "unique": 1
+  },
+  {
+   "fieldname": "useful_life_months",
+   "fieldtype": "Int",
+   "label": "Useful Life (Months)",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.enable_depreciation==1 && ['Written Down Value', 'Double Declining Balance'].includes(doc.depreciation_method)",
+   "description": "Annual depreciation rate for reducing balance methods",
+   "fieldname": "rate_of_depreciation",
+   "fieldtype": "Percent",
+   "label": "Depreciation Rate (%)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "depreciation_rate",
+   "fieldtype": "Percent",
+   "label": "Depreciation Rate (%)",
+   "precision": "0"
+  },
+  {
+   "fieldname": "useful_life_years",
+   "fieldtype": "Int",
+   "label": "Useful Life (Years)",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-09 08:05:31.513015",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Category",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

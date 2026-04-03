@@ -1,0 +1,427 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-05 19:38:13.915954",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_tab",
+  "naming_series",
+  "company",
+  "asset",
+  "asset_name",
+  "column_break_1",
+  "maintenance_date",
+  "maintenance_type",
+  "status",
+  "schedule_tab",
+  "is_scheduled",
+  "scheduled_date",
+  "frequency",
+  "column_break_schedule1",
+  "next_maintenance_date",
+  "maintenance_reminder_days",
+  "details_tab",
+  "maintenance_description",
+  "maintenance_provider",
+  "provider_type",
+  "column_break_details1",
+  "technician_name",
+  "technician_contact",
+  "cost_tab",
+  "maintenance_cost",
+  "parts_cost",
+  "labor_cost",
+  "column_break_cost1",
+  "total_cost",
+  "payment_status",
+  "payment_reference",
+  "completion_tab",
+  "completion_date",
+  "completed_by",
+  "column_break_completion1",
+  "work_performed",
+  "parts_replaced",
+  "section_break_post_maintenance",
+  "post_maintenance_condition",
+  "downtime_hours",
+  "column_break_post1",
+  "warranty_extended",
+  "new_warranty_expiry",
+  "attachments_tab",
+  "maintenance_invoice",
+  "before_maintenance_image",
+  "after_maintenance_image",
+  "accounting_tab",
+  "create_journal_entry",
+  "journal_entry",
+  "expense_account",
+  "column_break_accounting1",
+  "cost_center",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "Basic Information"
+  },
+  {
+   "default": "FAM-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "FAM-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fixed Asset",
+   "options": "Fixed Asset",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "maintenance_date",
+   "fieldtype": "Date",
+   "label": "Maintenance Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "maintenance_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Maintenance Type",
+   "options": "Preventive\nCorrective\nPredictive\nRoutine\nEmergency\nOverhaul\nCalibration\nInspection",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "Scheduled",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Scheduled\nIn Progress\nCompleted\nPending Parts\nCancelled"
+  },
+  {
+   "fieldname": "schedule_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcc5 Scheduling"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_scheduled",
+   "fieldtype": "Check",
+   "label": "Recurring Maintenance"
+  },
+  {
+   "fieldname": "scheduled_date",
+   "fieldtype": "Date",
+   "label": "Originally Scheduled Date"
+  },
+  {
+   "depends_on": "is_scheduled",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Maintenance Frequency",
+   "options": "Weekly\nBi-Weekly\nMonthly\nQuarterly\nHalf-Yearly\nAnnual\nBi-Annual"
+  },
+  {
+   "fieldname": "column_break_schedule1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "is_scheduled",
+   "fieldname": "next_maintenance_date",
+   "fieldtype": "Date",
+   "label": "Next Maintenance Date"
+  },
+  {
+   "default": "7",
+   "depends_on": "is_scheduled",
+   "description": "Send reminder this many days before maintenance is due",
+   "fieldname": "maintenance_reminder_days",
+   "fieldtype": "Int",
+   "label": "Reminder Days Before"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udd27 Details"
+  },
+  {
+   "fieldname": "maintenance_description",
+   "fieldtype": "Text Editor",
+   "label": "Maintenance Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "maintenance_provider",
+   "fieldtype": "Link",
+   "label": "Maintenance Provider",
+   "options": "Supplier"
+  },
+  {
+   "default": "In-House",
+   "fieldname": "provider_type",
+   "fieldtype": "Select",
+   "label": "Provider Type",
+   "options": "In-House\nExternal Contractor\nManufacturer\nAuthorized Service Center"
+  },
+  {
+   "fieldname": "column_break_details1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "technician_name",
+   "fieldtype": "Data",
+   "label": "Technician Name"
+  },
+  {
+   "fieldname": "technician_contact",
+   "fieldtype": "Data",
+   "label": "Technician Contact"
+  },
+  {
+   "fieldname": "cost_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcb0 Cost"
+  },
+  {
+   "fieldname": "maintenance_cost",
+   "fieldtype": "Currency",
+   "label": "Service Cost"
+  },
+  {
+   "fieldname": "parts_cost",
+   "fieldtype": "Currency",
+   "label": "Parts Cost"
+  },
+  {
+   "fieldname": "labor_cost",
+   "fieldtype": "Currency",
+   "label": "Labor Cost"
+  },
+  {
+   "fieldname": "column_break_cost1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "label": "Total Maintenance Cost",
+   "read_only": 1
+  },
+  {
+   "default": "Unpaid",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "label": "Payment Status",
+   "options": "Unpaid\nPartially Paid\nPaid\nUnder Warranty"
+  },
+  {
+   "fieldname": "payment_reference",
+   "fieldtype": "Data",
+   "label": "Payment Reference"
+  },
+  {
+   "fieldname": "completion_tab",
+   "fieldtype": "Tab Break",
+   "label": "\u2705 Completion"
+  },
+  {
+   "fieldname": "completion_date",
+   "fieldtype": "Datetime",
+   "label": "Completion Date"
+  },
+  {
+   "fieldname": "completed_by",
+   "fieldtype": "Link",
+   "label": "Completed By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_completion1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "work_performed",
+   "fieldtype": "Text Editor",
+   "label": "Work Performed"
+  },
+  {
+   "fieldname": "parts_replaced",
+   "fieldtype": "Text Editor",
+   "label": "Parts Replaced"
+  },
+  {
+   "fieldname": "section_break_post_maintenance",
+   "fieldtype": "Section Break",
+   "label": "Post-Maintenance Assessment"
+  },
+  {
+   "fieldname": "post_maintenance_condition",
+   "fieldtype": "Select",
+   "label": "Asset Condition After Maintenance",
+   "options": "Excellent\nGood\nFair\nRequires Further Attention"
+  },
+  {
+   "fieldname": "downtime_hours",
+   "fieldtype": "Float",
+   "label": "Downtime (Hours)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_post1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "warranty_extended",
+   "fieldtype": "Check",
+   "label": "Warranty Extended"
+  },
+  {
+   "depends_on": "warranty_extended",
+   "fieldname": "new_warranty_expiry",
+   "fieldtype": "Date",
+   "label": "New Warranty Expiry Date"
+  },
+  {
+   "fieldname": "attachments_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcce Attachments"
+  },
+  {
+   "fieldname": "maintenance_invoice",
+   "fieldtype": "Attach",
+   "label": "Maintenance Invoice/Receipt"
+  },
+  {
+   "fieldname": "before_maintenance_image",
+   "fieldtype": "Attach Image",
+   "label": "Before Maintenance"
+  },
+  {
+   "fieldname": "after_maintenance_image",
+   "fieldtype": "Attach Image",
+   "label": "After Maintenance"
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcda Accounting"
+  },
+  {
+   "default": "0",
+   "fieldname": "create_journal_entry",
+   "fieldtype": "Check",
+   "label": "Create Journal Entry for Maintenance Cost"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "depends_on": "create_journal_entry",
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Maintenance Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_accounting1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "create_journal_entry",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Additional Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Maintenance",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Maintenance",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-05 19:38:49.705076",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Maintenance",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

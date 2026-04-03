@@ -1,0 +1,116 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 16:03:16.211422",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "posting_date",
+  "debit_amount",
+  "credit_amount",
+  "account_currency",
+  "voucher_no",
+  "remarks",
+  "column_break_amfa",
+  "column_break_lbjr",
+  "column_break_zxyp",
+  "rec",
+  "cheque_no",
+  "amount",
+  "party"
+ ],
+ "fields": [
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "debit_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Debit Amount",
+   "precision": "2"
+  },
+  {
+   "fieldname": "credit_amount",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Credit Amount"
+  },
+  {
+   "fieldname": "account_currency",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Account Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "voucher_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Voucher No"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_amfa",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_lbjr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_zxyp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "rec",
+   "fieldtype": "Check",
+   "label": "Rec"
+  },
+  {
+   "fieldname": "cheque_no",
+   "fieldtype": "Data",
+   "label": "Cheque No",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "Amount"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Data",
+   "label": "Party Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-02 16:03:16.211422",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bank Account Entry",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

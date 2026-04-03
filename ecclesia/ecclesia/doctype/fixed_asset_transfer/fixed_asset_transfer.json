@@ -1,0 +1,347 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-06 09:01:52.351377",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_tab",
+  "naming_series",
+  "company",
+  "transfer_date",
+  "column_break_1",
+  "transfer_type",
+  "status",
+  "reference_number",
+  "source_tab",
+  "from_location",
+  "from_department",
+  "from_custodian",
+  "column_break_from1",
+  "from_cost_center",
+  "from_employee",
+  "destination_tab",
+  "to_location",
+  "to_department",
+  "to_custodian",
+  "column_break_to1",
+  "to_cost_center",
+  "to_employee",
+  "assets_tab",
+  "transfer_items",
+  "section_break_totals",
+  "total_assets",
+  "total_book_value",
+  "workflow_tab",
+  "approved_by",
+  "approval_date",
+  "column_break_approval1",
+  "delivered_by",
+  "delivery_date",
+  "section_break_receipt",
+  "received_by",
+  "receipt_date",
+  "column_break_receipt1",
+  "remarks",
+  "attachments_tab",
+  "transfer_document",
+  "delivery_receipt_image",
+  "column_break_attach1",
+  "additional_attachments",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "Basic Information"
+  },
+  {
+   "default": "FAT-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "FAT-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "transfer_date",
+   "fieldtype": "Date",
+   "label": "Transfer Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transfer_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transfer Type",
+   "options": "Location Change\nDepartment Change\nCustodian Change\nCost Center Change\nComplete Transfer",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nPending Approval\nApproved\nIn Transit\nDelivered\nReceived\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_number",
+   "fieldtype": "Data",
+   "label": "Reference Number"
+  },
+  {
+   "fieldname": "source_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udce4 Transfer From"
+  },
+  {
+   "fieldname": "from_location",
+   "fieldtype": "Link",
+   "label": "From Location",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "from_department",
+   "fieldtype": "Link",
+   "label": "From Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "from_custodian",
+   "fieldtype": "Link",
+   "label": "From Custodian",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_from1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_cost_center",
+   "fieldtype": "Link",
+   "label": "From Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "from_employee",
+   "fieldtype": "Link",
+   "label": "From Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "destination_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udce5 Transfer To"
+  },
+  {
+   "fieldname": "to_location",
+   "fieldtype": "Link",
+   "label": "To Location",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "to_department",
+   "fieldtype": "Link",
+   "label": "To Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "to_custodian",
+   "fieldtype": "Link",
+   "label": "To Custodian",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_to1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_cost_center",
+   "fieldtype": "Link",
+   "label": "To Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "to_employee",
+   "fieldtype": "Link",
+   "label": "To Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "assets_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udff7\ufe0f Assets"
+  },
+  {
+   "fieldname": "transfer_items",
+   "fieldtype": "Table",
+   "label": "Transfer Items",
+   "options": "Fixed Asset Transfer Item",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_totals",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "total_assets",
+   "fieldtype": "Int",
+   "label": "Total Assets",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_book_value",
+   "fieldtype": "Currency",
+   "label": "Total Book Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "workflow_tab",
+   "fieldtype": "Tab Break",
+   "label": "\u2705 Workflow"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Datetime",
+   "label": "Approval Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_approval1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "delivered_by",
+   "fieldtype": "Link",
+   "label": "Delivered By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "delivery_date",
+   "fieldtype": "Datetime",
+   "label": "Delivery Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_receipt",
+   "fieldtype": "Section Break",
+   "label": "Receipt Details"
+  },
+  {
+   "fieldname": "received_by",
+   "fieldtype": "Link",
+   "label": "Received By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "receipt_date",
+   "fieldtype": "Datetime",
+   "label": "Receipt Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_receipt1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text Editor",
+   "label": "Transfer Remarks"
+  },
+  {
+   "fieldname": "attachments_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcce Attachments"
+  },
+  {
+   "fieldname": "transfer_document",
+   "fieldtype": "Attach",
+   "label": "Transfer Document"
+  },
+  {
+   "fieldname": "delivery_receipt_image",
+   "fieldtype": "Attach Image",
+   "label": "Delivery Receipt Image"
+  },
+  {
+   "fieldname": "column_break_attach1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_attachments",
+   "fieldtype": "Table",
+   "label": "Additional Attachments",
+   "options": "Asset Document Attachment"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Transfer",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-06 09:02:14.214644",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Transfer",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

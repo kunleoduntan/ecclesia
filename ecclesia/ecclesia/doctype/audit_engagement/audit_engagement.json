@@ -1,0 +1,360 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-28 15:02:54.561011",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_header",
+  "naming_series",
+  "engagement_title",
+  "engagement_type",
+  "annual_audit_plan",
+  "column_break_1",
+  "status",
+  "lead_auditor",
+  "audit_team",
+  "section_scope",
+  "from_date",
+  "to_date",
+  "column_break_2",
+  "scope_description",
+  "scope_doctypes",
+  "section_materiality",
+  "overall_materiality",
+  "performance_materiality",
+  "trivial_threshold",
+  "column_break_3",
+  "materiality_basis",
+  "basis_amount",
+  "materiality_percentage",
+  "section_ai",
+  "ai_risk_overview",
+  "ai_priority_areas",
+  "total_anomalies_detected",
+  "column_break_4",
+  "high_risk_transactions",
+  "gl_exceptions_detected",
+  "total_population_value",
+  "section_findings",
+  "critical_findings",
+  "high_findings",
+  "medium_findings",
+  "low_findings",
+  "column_break_5",
+  "total_findings",
+  "open_findings",
+  "audit_opinion",
+  "section_report",
+  "executive_summary",
+  "audit_conclusion",
+  "report_date",
+  "column_break_6",
+  "issued_to",
+  "distribution_list",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_header",
+   "fieldtype": "Section Break",
+   "label": "Engagement Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "bold": 1,
+   "fieldname": "engagement_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Engagement Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "engagement_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Engagement Type",
+   "options": "Scheduled Audit\nSpecial Investigation\nFollow-up Audit\nContinuous Monitoring\nForensic Audit\nCompliance Review",
+   "reqd": 1
+  },
+  {
+   "fieldname": "annual_audit_plan",
+   "fieldtype": "Link",
+   "label": "Annual Audit Plan",
+   "options": "Annual Audit Plan"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nPlanning\nFieldwork\nReview\nReporting\nClosed\nCancelled"
+  },
+  {
+   "fieldname": "lead_auditor",
+   "fieldtype": "Link",
+   "label": "Lead Auditor",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_team",
+   "fieldtype": "Table",
+   "label": "Audit Team",
+   "options": "Audit Team Member"
+  },
+  {
+   "fieldname": "section_scope",
+   "fieldtype": "Section Break",
+   "label": "Scope & Period"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Audit Period From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "Audit Period To",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scope_description",
+   "fieldtype": "Text Editor",
+   "label": "Scope Description"
+  },
+  {
+   "fieldname": "scope_doctypes",
+   "fieldtype": "Table",
+   "label": "DocTypes in Scope",
+   "options": "Audit Scope DocType"
+  },
+  {
+   "fieldname": "section_materiality",
+   "fieldtype": "Section Break",
+   "label": "Materiality (ISA 320)"
+  },
+  {
+   "fieldname": "overall_materiality",
+   "fieldtype": "Currency",
+   "label": "Overall Materiality",
+   "reqd": 1
+  },
+  {
+   "fieldname": "performance_materiality",
+   "fieldtype": "Currency",
+   "label": "Performance Materiality (75%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "trivial_threshold",
+   "fieldtype": "Currency",
+   "label": "Trivial Threshold (5%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "materiality_basis",
+   "fieldtype": "Select",
+   "label": "Materiality Basis",
+   "options": "\nTotal Revenue\nTotal Assets\nProfit Before Tax\nTotal Expenses"
+  },
+  {
+   "fieldname": "basis_amount",
+   "fieldtype": "Currency",
+   "label": "Basis Amount"
+  },
+  {
+   "fieldname": "materiality_percentage",
+   "fieldtype": "Percent",
+   "label": "Materiality %"
+  },
+  {
+   "fieldname": "section_ai",
+   "fieldtype": "Section Break",
+   "label": "AI Intelligence"
+  },
+  {
+   "fieldname": "ai_risk_overview",
+   "fieldtype": "Text Editor",
+   "label": "AI Risk Overview",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_priority_areas",
+   "fieldtype": "Text Editor",
+   "label": "AI Priority Areas",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_anomalies_detected",
+   "fieldtype": "Int",
+   "label": "Total AI Anomalies Detected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "high_risk_transactions",
+   "fieldtype": "Int",
+   "label": "High Risk Transactions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "gl_exceptions_detected",
+   "fieldtype": "Int",
+   "label": "GL Exceptions Detected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_population_value",
+   "fieldtype": "Currency",
+   "label": "Total Population Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_findings",
+   "fieldtype": "Section Break",
+   "label": "Findings Summary"
+  },
+  {
+   "fieldname": "critical_findings",
+   "fieldtype": "Int",
+   "label": "Critical",
+   "read_only": 1
+  },
+  {
+   "fieldname": "high_findings",
+   "fieldtype": "Int",
+   "label": "High",
+   "read_only": 1
+  },
+  {
+   "fieldname": "medium_findings",
+   "fieldtype": "Int",
+   "label": "Medium",
+   "read_only": 1
+  },
+  {
+   "fieldname": "low_findings",
+   "fieldtype": "Int",
+   "label": "Low",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_findings",
+   "fieldtype": "Int",
+   "label": "Total Findings",
+   "read_only": 1
+  },
+  {
+   "fieldname": "open_findings",
+   "fieldtype": "Int",
+   "label": "Open Findings",
+   "read_only": 1
+  },
+  {
+   "fieldname": "audit_opinion",
+   "fieldtype": "Select",
+   "label": "Audit Opinion",
+   "options": "\nUnqualified\nQualified\nAdverse\nDisclaimer"
+  },
+  {
+   "fieldname": "section_report",
+   "fieldtype": "Section Break",
+   "label": "Report"
+  },
+  {
+   "fieldname": "executive_summary",
+   "fieldtype": "Text Editor",
+   "label": "Executive Summary"
+  },
+  {
+   "fieldname": "audit_conclusion",
+   "fieldtype": "Text Editor",
+   "label": "Audit Conclusion"
+  },
+  {
+   "fieldname": "report_date",
+   "fieldtype": "Date",
+   "label": "Report Date"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issued_to",
+   "fieldtype": "Data",
+   "label": "Issued To"
+  },
+  {
+   "fieldname": "distribution_list",
+   "fieldtype": "Small Text",
+   "label": "Distribution List"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Audit Engagement",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-02 11:34:21.975390",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Engagement",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

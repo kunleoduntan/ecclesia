@@ -1,0 +1,250 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Social Media Settings",
+ "creation": "2026-03-18 18:34:51.459531",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "general_settings_section",
+  "company_name",
+  "default_timezone",
+  "post_approval_required",
+  "auto_publish_enabled",
+  "default_content_optimization",
+  "column_break_5",
+  "ai_content_suggestions",
+  "auto_hashtag_generation",
+  "sentiment_analysis_enabled",
+  "competitor_tracking_enabled",
+  "platform_accounts_section",
+  "platform_accounts",
+  "api_settings_section",
+  "api_timeout_seconds",
+  "max_retry_attempts",
+  "global_rate_limit",
+  "webhook_base_url",
+  "column_break_10",
+  "enable_webhooks",
+  "webhook_secret_token",
+  "notification_settings_section",
+  "notify_on_new_comment",
+  "notify_on_new_message",
+  "notify_on_post_failure",
+  "notification_recipients",
+  "column_break_13",
+  "email_notifications",
+  "desktop_notifications",
+  "slack_webhook_url",
+  "global_analytics_tab",
+  "global_analytics_html"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_settings_section",
+   "fieldtype": "Section Break",
+   "label": "General Settings"
+  },
+  {
+   "default": "My Company",
+   "fieldname": "company_name",
+   "fieldtype": "Data",
+   "label": "Company Name"
+  },
+  {
+   "default": "UTC",
+   "fieldname": "default_timezone",
+   "fieldtype": "Select",
+   "label": "Default Timezone",
+   "options": "\nUTC\nAmerica/New_York\nAmerica/Chicago\nAmerica/Denver\nAmerica/Los_Angeles\nEurope/London\nEurope/Paris\nAsia/Dubai\nAsia/Singapore\nAsia/Tokyo\nAustralia/Sydney"
+  },
+  {
+   "default": "1",
+   "fieldname": "post_approval_required",
+   "fieldtype": "Check",
+   "label": "Post Approval Required"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_publish_enabled",
+   "fieldtype": "Check",
+   "label": "Auto-Publish Enabled"
+  },
+  {
+   "default": "1",
+   "fieldname": "default_content_optimization",
+   "fieldtype": "Check",
+   "label": "Enable Default Content Optimization"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "ai_content_suggestions",
+   "fieldtype": "Check",
+   "label": "AI Content Suggestions"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_hashtag_generation",
+   "fieldtype": "Check",
+   "label": "Auto Hashtag Generation"
+  },
+  {
+   "default": "1",
+   "fieldname": "sentiment_analysis_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Sentiment Analysis"
+  },
+  {
+   "default": "0",
+   "fieldname": "competitor_tracking_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Competitor Tracking"
+  },
+  {
+   "fieldname": "platform_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Platform Accounts"
+  },
+  {
+   "fieldname": "platform_accounts",
+   "fieldtype": "Table",
+   "label": "Connected Platform Accounts",
+   "options": "Social Media Platform Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "api_settings_section",
+   "fieldtype": "Section Break",
+   "label": "API Settings"
+  },
+  {
+   "default": "30",
+   "fieldname": "api_timeout_seconds",
+   "fieldtype": "Int",
+   "label": "API Timeout (Seconds)"
+  },
+  {
+   "default": "3",
+   "fieldname": "max_retry_attempts",
+   "fieldtype": "Int",
+   "label": "Max Retry Attempts"
+  },
+  {
+   "default": "60",
+   "fieldname": "global_rate_limit",
+   "fieldtype": "Int",
+   "label": "Global Rate Limit (Requests per Minute)"
+  },
+  {
+   "description": "Your ERPNext site URL for webhooks",
+   "fieldname": "webhook_base_url",
+   "fieldtype": "Data",
+   "label": "Webhook Base URL"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_webhooks",
+   "fieldtype": "Check",
+   "label": "Enable Webhooks for Real-time Updates"
+  },
+  {
+   "fieldname": "webhook_secret_token",
+   "fieldtype": "Password",
+   "label": "Webhook Secret Token"
+  },
+  {
+   "fieldname": "notification_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Notification Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "notify_on_new_comment",
+   "fieldtype": "Check",
+   "label": "Notify on New Comment"
+  },
+  {
+   "default": "1",
+   "fieldname": "notify_on_new_message",
+   "fieldtype": "Check",
+   "label": "Notify on New Direct Message"
+  },
+  {
+   "default": "1",
+   "fieldname": "notify_on_post_failure",
+   "fieldtype": "Check",
+   "label": "Notify on Post Failure"
+  },
+  {
+   "fieldname": "notification_recipients",
+   "fieldtype": "Table MultiSelect",
+   "label": "Notification Recipients",
+   "options": "Social Media Notification Recipient"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "email_notifications",
+   "fieldtype": "Check",
+   "label": "Email Notifications"
+  },
+  {
+   "default": "1",
+   "fieldname": "desktop_notifications",
+   "fieldtype": "Check",
+   "label": "Desktop Notifications"
+  },
+  {
+   "fieldname": "slack_webhook_url",
+   "fieldtype": "Data",
+   "label": "Slack Webhook URL"
+  },
+  {
+   "fieldname": "global_analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcca Global Analytics"
+  },
+  {
+   "fieldname": "global_analytics_html",
+   "fieldtype": "HTML",
+   "label": "Global Performance Dashboard"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-03-18 18:34:51.459531",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Social Media Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

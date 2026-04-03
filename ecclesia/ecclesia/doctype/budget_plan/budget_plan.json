@@ -1,0 +1,637 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-06 13:24:56.669797",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "budget_configuration_section",
+  "naming_series",
+  "company",
+  "fiscal_year",
+  "start_date",
+  "end_date",
+  "column_break_3",
+  "budget_against",
+  "cost_center",
+  "branch",
+  "project",
+  "budget_status",
+  "column_break_config_2",
+  "budget_type",
+  "budget_category",
+  "is_group_budget",
+  "parent_budget",
+  "currency",
+  "exchange_rate",
+  "projection_settings_section",
+  "enable_projection",
+  "projection_method",
+  "projection_base_period",
+  "column_break_proj_1",
+  "projection_percentage",
+  "growth_rate_percentage",
+  "inflation_rate",
+  "column_break_proj_2",
+  "use_historical_data",
+  "historical_years_for_analysis",
+  "seasonality_adjustment",
+  "ai_ml_analysis_section",
+  "enable_ai_analysis",
+  "ai_prediction_model",
+  "confidence_level",
+  "column_break_ai_1",
+  "scenario_analysis_enabled",
+  "best_case_percentage",
+  "worst_case_percentage",
+  "column_break_ai_2",
+  "anomaly_detection",
+  "auto_recommendations",
+  "risk_assessment_score",
+  "variance_analysis_section",
+  "enable_variance_tracking",
+  "variance_threshold_percentage",
+  "variance_alert_level",
+  "column_break_var_1",
+  "enable_variance_alerts",
+  "alert_recipients",
+  "column_break_var_2",
+  "comparison_budget",
+  "benchmark_industry",
+  "splitting_distribution_section",
+  "allow_branch_split",
+  "branch_distribution_method",
+  "column_break_split_1",
+  "allow_cost_center_split",
+  "cost_center_distribution_method",
+  "approval_workflow_section",
+  "requires_approval",
+  "approval_status",
+  "approver",
+  "column_break_appr_1",
+  "submitted_by",
+  "submitted_date",
+  "approved_date",
+  "notes_attachments_section",
+  "budget_notes",
+  "assumptions",
+  "column_break_notes_1",
+  "strategic_objectives",
+  "key_initiatives",
+  "section_break_21",
+  "monthly_budget",
+  "total_budget_amount",
+  "scenario_analysis_tab",
+  "scenario_budgets",
+  "branch_allocation_tab",
+  "branch_allocations",
+  "cost_center_allocation_tab",
+  "cost_center_allocations",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "budget_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Budget Configuration"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "BP-.YYYY.-.####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Cost Center",
+   "fieldname": "budget_against",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Budget Against",
+   "options": "\nCost Center\nProject\nBranch\nDepartment",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.budget_against == 'Cost Center'",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_standard_filter": 1,
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == 'Branch'",
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "depends_on": "eval:doc.budget_against == 'Project'",
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "budget_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Budget Status",
+   "options": "\nDraft\nPending Approval\nApproved\nActive\nLocked\nClosed"
+  },
+  {
+   "fieldname": "column_break_config_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Operational",
+   "fieldname": "budget_type",
+   "fieldtype": "Select",
+   "label": "Budget Type",
+   "options": "\nOperational\nCapital\nProject-Based\nDepartmental"
+  },
+  {
+   "default": "Expense",
+   "fieldname": "budget_category",
+   "fieldtype": "Select",
+   "label": "Budget Category",
+   "options": "\nRevenue\nExpense\nCapEx\nOpEx"
+  },
+  {
+   "default": "0",
+   "description": "Enable to split into branch/cost center budgets",
+   "fieldname": "is_group_budget",
+   "fieldtype": "Check",
+   "label": "Is Group Budget"
+  },
+  {
+   "depends_on": "eval:doc.is_group_budget == 0",
+   "fieldname": "parent_budget",
+   "fieldtype": "Link",
+   "label": "Parent Budget",
+   "options": "Budget Plan"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "default": "1.0",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "projection_settings_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Projection & Forecasting"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_projection",
+   "fieldtype": "Check",
+   "label": "Enable Auto Projection"
+  },
+  {
+   "depends_on": "eval:doc.enable_projection == 1",
+   "fieldname": "projection_method",
+   "fieldtype": "Select",
+   "label": "Projection Method",
+   "options": "\nHistorical Average\nLinear Trend\nExponential Growth\nMoving Average"
+  },
+  {
+   "depends_on": "eval:doc.enable_projection == 1",
+   "fieldname": "projection_base_period",
+   "fieldtype": "Select",
+   "label": "Base Period",
+   "options": "\nLast Year\nLast 2 Years\nLast 3 Years"
+  },
+  {
+   "fieldname": "column_break_proj_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "projection_percentage",
+   "fieldtype": "Percent",
+   "label": "Overall Projection %"
+  },
+  {
+   "fieldname": "growth_rate_percentage",
+   "fieldtype": "Percent",
+   "label": "Growth Rate %"
+  },
+  {
+   "fieldname": "inflation_rate",
+   "fieldtype": "Percent",
+   "label": "Inflation Rate %"
+  },
+  {
+   "fieldname": "column_break_proj_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_historical_data",
+   "fieldtype": "Check",
+   "label": "Use Historical Data"
+  },
+  {
+   "default": "3",
+   "depends_on": "eval:doc.use_historical_data == 1",
+   "fieldname": "historical_years_for_analysis",
+   "fieldtype": "Int",
+   "label": "Historical Years"
+  },
+  {
+   "default": "0",
+   "fieldname": "seasonality_adjustment",
+   "fieldtype": "Check",
+   "label": "Seasonality Adjustment"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "ai_ml_analysis_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83e\udd16 AI Analysis & Scenarios"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_ai_analysis",
+   "fieldtype": "Check",
+   "label": "Enable AI Analysis"
+  },
+  {
+   "depends_on": "eval:doc.enable_ai_analysis == 1",
+   "fieldname": "ai_prediction_model",
+   "fieldtype": "Select",
+   "label": "AI Model",
+   "options": "\nTime Series\nRegression\nNeural Network"
+  },
+  {
+   "default": "95",
+   "depends_on": "eval:doc.enable_ai_analysis == 1",
+   "fieldname": "confidence_level",
+   "fieldtype": "Percent",
+   "label": "Confidence Level"
+  },
+  {
+   "fieldname": "column_break_ai_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "scenario_analysis_enabled",
+   "fieldtype": "Check",
+   "label": "Enable Scenarios"
+  },
+  {
+   "default": "20",
+   "depends_on": "eval:doc.scenario_analysis_enabled == 1",
+   "fieldname": "best_case_percentage",
+   "fieldtype": "Percent",
+   "label": "Best Case %"
+  },
+  {
+   "default": "20",
+   "depends_on": "eval:doc.scenario_analysis_enabled == 1",
+   "fieldname": "worst_case_percentage",
+   "fieldtype": "Percent",
+   "label": "Worst Case %"
+  },
+  {
+   "fieldname": "column_break_ai_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "anomaly_detection",
+   "fieldtype": "Check",
+   "label": "Anomaly Detection"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_recommendations",
+   "fieldtype": "Check",
+   "label": "AI Recommendations"
+  },
+  {
+   "fieldname": "risk_assessment_score",
+   "fieldtype": "Float",
+   "label": "Risk Score",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "variance_analysis_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Variance Analysis"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_variance_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Variance Tracking"
+  },
+  {
+   "default": "10",
+   "depends_on": "eval:doc.enable_variance_tracking == 1",
+   "fieldname": "variance_threshold_percentage",
+   "fieldtype": "Percent",
+   "label": "Alert Threshold %"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "variance_alert_level",
+   "fieldtype": "Select",
+   "label": "Alert Level",
+   "options": "\nLow\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "column_break_var_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_variance_alerts",
+   "fieldtype": "Check",
+   "label": "Enable Alerts"
+  },
+  {
+   "depends_on": "eval:doc.enable_variance_alerts == 1",
+   "fieldname": "alert_recipients",
+   "fieldtype": "Small Text",
+   "label": "Alert Recipients (Emails)"
+  },
+  {
+   "fieldname": "column_break_var_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "comparison_budget",
+   "fieldtype": "Link",
+   "label": "Compare With",
+   "options": "Budget Plan"
+  },
+  {
+   "fieldname": "benchmark_industry",
+   "fieldtype": "Data",
+   "label": "Industry Benchmark"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "splitting_distribution_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd00 Budget Distribution"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_branch_split",
+   "fieldtype": "Check",
+   "label": "Allow Branch Split"
+  },
+  {
+   "depends_on": "eval:doc.allow_branch_split == 1",
+   "fieldname": "branch_distribution_method",
+   "fieldtype": "Select",
+   "label": "Branch Method",
+   "options": "\nEqual Distribution\nProportional (Revenue)\nProportional (Headcount)\nCustom"
+  },
+  {
+   "fieldname": "column_break_split_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_cost_center_split",
+   "fieldtype": "Check",
+   "label": "Allow Cost Center Split"
+  },
+  {
+   "depends_on": "eval:doc.allow_cost_center_split == 1",
+   "fieldname": "cost_center_distribution_method",
+   "fieldtype": "Select",
+   "label": "Cost Center Method",
+   "options": "\nEqual Distribution\nProportional (Budget Size)\nCustom"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "approval_workflow_section",
+   "fieldtype": "Section Break",
+   "label": "\u2705 Approval Workflow"
+  },
+  {
+   "default": "0",
+   "fieldname": "requires_approval",
+   "fieldtype": "Check",
+   "label": "Requires Approval"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nPending\nApproved\nRejected"
+  },
+  {
+   "fieldname": "approver",
+   "fieldtype": "Link",
+   "label": "Approver",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_appr_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Submitted By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submitted_date",
+   "fieldtype": "Datetime",
+   "label": "Submitted Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_date",
+   "fieldtype": "Datetime",
+   "label": "Approved Date",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "notes_attachments_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcdd Notes & Context"
+  },
+  {
+   "fieldname": "budget_notes",
+   "fieldtype": "Text Editor",
+   "label": "Budget Notes"
+  },
+  {
+   "fieldname": "assumptions",
+   "fieldtype": "Text Editor",
+   "label": "Key Assumptions"
+  },
+  {
+   "fieldname": "column_break_notes_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "strategic_objectives",
+   "fieldtype": "Text Editor",
+   "label": "Strategic Objectives"
+  },
+  {
+   "fieldname": "key_initiatives",
+   "fieldtype": "Text Editor",
+   "label": "Key Initiatives"
+  },
+  {
+   "fieldname": "section_break_21",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Monthly Budget Details"
+  },
+  {
+   "fieldname": "monthly_budget",
+   "fieldtype": "Table",
+   "label": "Monthly Budget",
+   "options": "Monthly Budget"
+  },
+  {
+   "fieldname": "total_budget_amount",
+   "fieldtype": "Currency",
+   "label": "Total Budget Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scenario_analysis_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udfaf Scenarios"
+  },
+  {
+   "fieldname": "scenario_budgets",
+   "fieldtype": "Table",
+   "label": "Scenario Budgets",
+   "options": "Budget Scenario"
+  },
+  {
+   "fieldname": "branch_allocation_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udfe2 Branch Allocation"
+  },
+  {
+   "fieldname": "branch_allocations",
+   "fieldtype": "Table",
+   "label": "Branch Allocations",
+   "options": "Budget Branch Allocation"
+  },
+  {
+   "fieldname": "cost_center_allocation_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udfaf Cost Center Allocation"
+  },
+  {
+   "fieldname": "cost_center_allocations",
+   "fieldtype": "Table",
+   "label": "Cost Center Allocations",
+   "options": "Budget Cost Center Allocation"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Budget Plan",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Budget Plan",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-02 19:33:00.017225",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Budget Plan",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

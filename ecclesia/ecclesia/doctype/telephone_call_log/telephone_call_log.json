@@ -1,0 +1,252 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "EC-TCL-.YYYY.-.#####",
+ "creation": "2026-02-28 08:17:51.071851",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "call_details_section",
+  "caller_user",
+  "caller_name",
+  "direction",
+  "call_type",
+  "status",
+  "column_break_core",
+  "receiver_number",
+  "receiver_name",
+  "provider",
+  "call_sid",
+  "timing_section",
+  "started_at",
+  "answered_at",
+  "ended_at",
+  "column_break_timing",
+  "duration",
+  "duration_formatted",
+  "crm_links_section",
+  "lead",
+  "contact",
+  "customer",
+  "column_break_crm",
+  "opportunity",
+  "employee",
+  "notes_section",
+  "call_notes",
+  "follow_up_date",
+  "follow_up_note",
+  "column_break_notes",
+  "recording_url",
+  "transcription"
+ ],
+ "fields": [
+  {
+   "fieldname": "call_details_section",
+   "fieldtype": "Section Break",
+   "label": "Call Details"
+  },
+  {
+   "fieldname": "caller_user",
+   "fieldtype": "Link",
+   "label": "Caller (User)",
+   "options": "User"
+  },
+  {
+   "fieldname": "caller_name",
+   "fieldtype": "Data",
+   "label": "Caller Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "label": "Direction",
+   "options": "Outbound\nInbound",
+   "reqd": 1
+  },
+  {
+   "fieldname": "call_type",
+   "fieldtype": "Select",
+   "label": "Call Type",
+   "options": "Internal\nExternal",
+   "reqd": 1
+  },
+  {
+   "default": "Initiated",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Initiated\nRinging\nAnswered\nMissed\nFailed\nBusy\nDeclined",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_core",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "receiver_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Receiver Number / Extension",
+   "reqd": 1
+  },
+  {
+   "fieldname": "receiver_name",
+   "fieldtype": "Data",
+   "label": "Receiver Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Provider",
+   "options": "WebRTC\nTwilio\nVonage\nPlivo\nAsterisk"
+  },
+  {
+   "fieldname": "call_sid",
+   "fieldtype": "Data",
+   "label": "Provider Call SID / Reference",
+   "read_only": 1
+  },
+  {
+   "fieldname": "timing_section",
+   "fieldtype": "Section Break",
+   "label": "Timing"
+  },
+  {
+   "fieldname": "started_at",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Started At"
+  },
+  {
+   "fieldname": "answered_at",
+   "fieldtype": "Datetime",
+   "label": "Answered At"
+  },
+  {
+   "fieldname": "ended_at",
+   "fieldtype": "Datetime",
+   "label": "Ended At"
+  },
+  {
+   "fieldname": "column_break_timing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "duration",
+   "fieldtype": "Int",
+   "label": "Duration (seconds)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "duration_formatted",
+   "fieldtype": "Data",
+   "label": "Duration (formatted)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "crm_links_section",
+   "fieldtype": "Section Break",
+   "label": "CRM Links"
+  },
+  {
+   "fieldname": "lead",
+   "fieldtype": "Link",
+   "label": "Lead",
+   "options": "Lead"
+  },
+  {
+   "fieldname": "contact",
+   "fieldtype": "Link",
+   "label": "Contact",
+   "options": "Contact"
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_crm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "opportunity",
+   "fieldtype": "Link",
+   "label": "Opportunity",
+   "options": "Opportunity"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes & Recording"
+  },
+  {
+   "fieldname": "call_notes",
+   "fieldtype": "Text Editor",
+   "label": "Call Notes"
+  },
+  {
+   "fieldname": "follow_up_date",
+   "fieldtype": "Date",
+   "label": "Follow-up Date"
+  },
+  {
+   "fieldname": "follow_up_note",
+   "fieldtype": "Small Text",
+   "label": "Follow-up Note"
+  },
+  {
+   "fieldname": "column_break_notes",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recording_url",
+   "fieldtype": "Data",
+   "label": "Recording URL"
+  },
+  {
+   "fieldname": "transcription",
+   "fieldtype": "Long Text",
+   "label": "Transcription"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-28 08:18:13.559000",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Telephone Call Log",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

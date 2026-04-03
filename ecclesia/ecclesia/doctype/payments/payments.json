@@ -1,0 +1,1053 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-02 15:09:03.799909",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "transaction_header_section",
+  "transaction_date",
+  "payee_name",
+  "supplier_name",
+  "customer_name",
+  "column_break_txn1",
+  "trans_type",
+  "column_break_txn2",
+  "company",
+  "column_break_txn3",
+  "naming_series",
+  "payee_id",
+  "customer_id",
+  "payment_status",
+  "transaction_options_section",
+  "create_accounting_entries",
+  "column_break_opt1",
+  "deduct_wht",
+  "amortize",
+  "column_break_opt3",
+  "is_multi_line",
+  "column_break_opt4",
+  "is_shared_cost",
+  "column_break_opt5",
+  "is_related_coy_trans",
+  "accounting_and_dimension",
+  "branch",
+  "nature_of_expense",
+  "column_break_stmx",
+  "cost_center",
+  "column_break_xwvb",
+  "department",
+  "column_break_d3fe",
+  "project",
+  "column_break_a0ha",
+  "project_name",
+  "currency_exchange_section",
+  "payment_currency",
+  "column_break_curr1",
+  "exchange_rate",
+  "column_break_curr2",
+  "bank_account_currency",
+  "amount_section",
+  "amount_paid",
+  "amount_paid_in_fc",
+  "column_break_amt1",
+  "local_currency_amount",
+  "column_break_amt2",
+  "amount_in_words",
+  "transactions_detail_section",
+  "mode_of_payment",
+  "reference_no",
+  "column_break_ynk5s",
+  "account_to_debit",
+  "column_break_e1fvs",
+  "transaction_purposes",
+  "section_break_r9iee",
+  "whtax_rate",
+  "wht_account",
+  "column_break_shg1q",
+  "wht_amount",
+  "column_break_yz1kq",
+  "net_amount",
+  "supplier_invoice_tab",
+  "supplier_invoice_detail_section",
+  "invoice_allocation_info",
+  "column_break_inv1",
+  "get_outstanding_invoices",
+  "ai_smart_allocation",
+  "preview_allocation",
+  "section_break_inv2",
+  "payments_reference",
+  "total_outstanding_invoice",
+  "allocation_summary_section",
+  "allocation_summary_html",
+  "multi_line_transactions_section",
+  "multi_line_info",
+  "section_break_ml1",
+  "payments_item_line",
+  "multi_line_totals_section",
+  "total_multi_line_amount",
+  "related_company_transactions_section",
+  "related_company_info",
+  "section_break_rc1",
+  "related_company_payments",
+  "total_rcoy",
+  "amortization_tab",
+  "amortization_parameter_section",
+  "frequency",
+  "no_of_days",
+  "charge_amount",
+  "column_break_zh9k0",
+  "start_date",
+  "end_date",
+  "column_break_pnig6",
+  "deferred_expense_account",
+  "expense_account",
+  "section_break_amort1",
+  "amortization_schedule",
+  "amortization_summary_section",
+  "total_amortized",
+  "amortization_status",
+  "accounting_tab",
+  "banking_detail_section",
+  "remittance_bank",
+  "remittance_bank_gl",
+  "column_break_zpm14",
+  "cashflow_type",
+  "column_break_bank1",
+  "approval_doc",
+  "cost_center_distribution_section",
+  "cost_center_distribution",
+  "total_percentage",
+  "section_break_acc1",
+  "accounting_entries_html",
+  "approval_workflow_tab",
+  "signature_section",
+  "column_break_dpr3j",
+  "issued_by",
+  "column_break_jivy",
+  "name_of_issued_by",
+  "column_break_jw19",
+  "date",
+  "section_break_zxle",
+  "authorised_by",
+  "column_break_iqgv",
+  "name_of_authorised_by",
+  "column_break_yvxr",
+  "auth_date",
+  "section_break_sjoi",
+  "approved_by",
+  "column_break_rrqz",
+  "name_of_approver",
+  "column_break_uwdf",
+  "app_date",
+  "workflow_status_section",
+  "workflow_state",
+  "approval_notes",
+  "connections_tab",
+  "connections_section",
+  "linked_documents_html",
+  "beneficiary_information_section",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "transaction_header_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Information"
+  },
+  {
+   "default": "Today",
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_txn1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "trans_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Type",
+   "options": "\nSupplier Payment\nExpense Payment\nTransfer Out\nSupplier Refunds\nPayment Request\nMaintenance Request",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_txn2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_txn3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "PAY-.YY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "PAY-.YY.-.#####\nPAY-.MM.-.YY.-.####"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "payment_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payment Status",
+   "options": "\nDraft\nPending\nApproved\nProcessing\nCompleted\nCancelled\nRejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payee_id",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Supplier ID",
+   "options": "Supplier"
+  },
+  {
+   "depends_on": "eval:in_list(['Expense Payment', 'Transfer Out'], doc.trans_type)",
+   "fieldname": "payee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Beneficiary"
+  },
+  {
+   "depends_on": "payee_id",
+   "fetch_from": "payee_id.supplier_name",
+   "fieldname": "supplier_name",
+   "fieldtype": "Data",
+   "label": "Supplier Name",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.nature_of_expense == 'For Customer'",
+   "fieldname": "customer_id",
+   "fieldtype": "Link",
+   "label": "Customer ID",
+   "mandatory_depends_on": "eval: doc.nature_of_expense == 'For Customer'",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "customer_id",
+   "fetch_from": "customer_id.customer_name",
+   "fieldname": "customer_name",
+   "fieldtype": "Data",
+   "label": "Customer Name",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "transaction_options_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Options"
+  },
+  {
+   "default": "1",
+   "fieldname": "create_accounting_entries",
+   "fieldtype": "Check",
+   "label": "Create Accounting Entries"
+  },
+  {
+   "fieldname": "column_break_opt1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "deduct_wht",
+   "fieldtype": "Check",
+   "label": "Deduct WHT"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.trans_type == 'Expense Payment'",
+   "fieldname": "amortize",
+   "fieldtype": "Check",
+   "label": "Amortize Expense"
+  },
+  {
+   "fieldname": "column_break_opt3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_multi_line",
+   "fieldtype": "Check",
+   "label": "Multiple Line Items"
+  },
+  {
+   "fieldname": "column_break_opt4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_shared_cost",
+   "fieldtype": "Check",
+   "label": "Shared Cost Allocation"
+  },
+  {
+   "fieldname": "column_break_opt5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_related_coy_trans",
+   "fieldtype": "Check",
+   "label": "Inter-Company Transaction"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "accounting_and_dimension",
+   "fieldtype": "Section Break",
+   "label": "Accounting Dimensions"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'Expense Payment'",
+   "fieldname": "nature_of_expense",
+   "fieldtype": "Select",
+   "label": "Nature of Expense",
+   "options": "\nInternal\nFor Customer"
+  },
+  {
+   "fieldname": "column_break_stmx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "mandatory_depends_on": "eval: doc.trans_type == 'Expense Payment'",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "column_break_xwvb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "column_break_d3fe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_a0ha",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "currency_exchange_section",
+   "fieldtype": "Section Break",
+   "label": "Currency & Exchange"
+  },
+  {
+   "fieldname": "payment_currency",
+   "fieldtype": "Link",
+   "label": "Payment Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_curr1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.payment_currency != 'NGN'",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "mandatory_depends_on": "eval:doc.payment_currency != 'NGN'",
+   "precision": "4"
+  },
+  {
+   "fieldname": "column_break_curr2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "remittance_bank.account_currency",
+   "fieldname": "bank_account_currency",
+   "fieldtype": "Data",
+   "label": "Bank Account Currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Amount"
+  },
+  {
+   "depends_on": "eval:doc.payment_currency == 'NGN'",
+   "fieldname": "amount_paid",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Amount Paid (NGN)",
+   "mandatory_depends_on": "eval:doc.payment_currency == 'NGN'",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "depends_on": "eval:doc.payment_currency != 'NGN'",
+   "fieldname": "amount_paid_in_fc",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Amount Paid (Foreign Currency)",
+   "mandatory_depends_on": "eval:doc.payment_currency != 'NGN'",
+   "options": "payment_currency",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_amt1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "local_currency_amount",
+   "fieldtype": "Currency",
+   "label": "Amount in Local Currency",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_amt2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "amount_in_words",
+   "fieldtype": "Small Text",
+   "label": "Amount In Words",
+   "read_only": 1
+  },
+  {
+   "fieldname": "transactions_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Details"
+  },
+  {
+   "fieldname": "mode_of_payment",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "options": "Mode of Payment",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Cheque / Reference No",
+   "length": 7,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ynk5s",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'Expense Payment' || doc.trans_type == 'Transfer Out'",
+   "description": "Enter Expense Account if payment is not amortised, else enter Deferred Expense Account",
+   "fieldname": "account_to_debit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Account To Debit",
+   "mandatory_depends_on": "eval: doc.trans_type == 'Expense Payment' || doc.trans_type == 'Transfer Out'",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_e1fvs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_purposes",
+   "fieldtype": "Small Text",
+   "label": "Transaction Purpose / Description",
+   "reqd": 1
+  },
+  {
+   "depends_on": "deduct_wht",
+   "fieldname": "section_break_r9iee",
+   "fieldtype": "Section Break",
+   "label": "Withholding Tax Calculation"
+  },
+  {
+   "depends_on": "deduct_wht",
+   "fieldname": "whtax_rate",
+   "fieldtype": "Percent",
+   "label": "WHT Rate (%)"
+  },
+  {
+   "fieldname": "wht_account",
+   "fieldtype": "Link",
+   "label": "WHT Account",
+   "mandatory_depends_on": "deduct_wht",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_shg1q",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "wht_amount",
+   "fieldtype": "Currency",
+   "label": "WHT Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_yz1kq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount (After WHT)",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.trans_type == 'Supplier Payment'",
+   "fieldname": "supplier_invoice_tab",
+   "fieldtype": "Tab Break",
+   "label": "Supplier Invoices"
+  },
+  {
+   "depends_on": "eval:doc.trans_type == 'Supplier Payment'",
+   "fieldname": "supplier_invoice_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Invoice Allocation"
+  },
+  {
+   "fieldname": "invoice_allocation_info",
+   "fieldtype": "HTML",
+   "label": "Invoice Allocation Info",
+   "options": "<div class=\"alert alert-info\"><strong>Smart Allocation:</strong> Use AI-powered allocation to automatically match and allocate payment to outstanding invoices based on priority, due dates, and payment terms.</div>"
+  },
+  {
+   "fieldname": "column_break_inv1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "get_outstanding_invoices",
+   "fieldtype": "Button",
+   "label": "Get Outstanding Invoices"
+  },
+  {
+   "fieldname": "ai_smart_allocation",
+   "fieldtype": "Button",
+   "label": "AI Smart Allocation"
+  },
+  {
+   "fieldname": "preview_allocation",
+   "fieldtype": "Button",
+   "label": "Preview Allocation"
+  },
+  {
+   "fieldname": "section_break_inv2",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payments_reference",
+   "fieldtype": "Table",
+   "label": "Invoice References",
+   "options": "Payments Reference"
+  },
+  {
+   "fieldname": "total_outstanding_invoice",
+   "fieldtype": "Currency",
+   "label": "Total Allocated Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "payments_reference",
+   "fieldname": "allocation_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Allocation Summary"
+  },
+  {
+   "fieldname": "allocation_summary_html",
+   "fieldtype": "HTML",
+   "label": "Allocation Summary"
+  },
+  {
+   "depends_on": "is_multi_line",
+   "fieldname": "multi_line_transactions_section",
+   "fieldtype": "Tab Break",
+   "label": "Multi-Line Items"
+  },
+  {
+   "fieldname": "multi_line_info",
+   "fieldtype": "HTML",
+   "options": "<div class=\"alert alert-info\"><strong>Multi-Line Transactions:</strong> Use this section to split payment across multiple expense accounts, cost centers, or projects.</div>"
+  },
+  {
+   "fieldname": "section_break_ml1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "payments_item_line",
+   "fieldtype": "Table",
+   "label": "Payment Line Items",
+   "options": "Payments Item Line"
+  },
+  {
+   "fieldname": "multi_line_totals_section",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_multi_line_amount",
+   "fieldtype": "Currency",
+   "label": "Total Multi-Line Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "depends_on": "is_related_coy_trans",
+   "fieldname": "related_company_transactions_section",
+   "fieldtype": "Tab Break",
+   "label": "Related Company"
+  },
+  {
+   "fieldname": "related_company_info",
+   "fieldtype": "HTML",
+   "options": "<div class=\"alert alert-info\"><strong>Inter-Company Transactions:</strong> Record payments made on behalf of related companies or inter-company fund transfers.</div>"
+  },
+  {
+   "fieldname": "section_break_rc1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "related_company_payments",
+   "fieldtype": "Table",
+   "label": "Related Company Payments",
+   "options": "Related Company Payments"
+  },
+  {
+   "fieldname": "total_rcoy",
+   "fieldtype": "Currency",
+   "label": "Total Related Company Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "depends_on": "amortize",
+   "fieldname": "amortization_tab",
+   "fieldtype": "Tab Break",
+   "label": "Amortization"
+  },
+  {
+   "depends_on": "eval:doc.amortize == 1",
+   "fieldname": "amortization_parameter_section",
+   "fieldtype": "Section Break",
+   "label": "Amortization Parameters"
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Frequency",
+   "mandatory_depends_on": "amortize",
+   "options": "\nMonthly\nQuarterly\nYearly"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "no_of_days",
+   "fieldtype": "Int",
+   "label": "Number of Days",
+   "mandatory_depends_on": "frequency"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "charge_amount",
+   "fieldtype": "Currency",
+   "label": "Charge Per Period",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zh9k0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "label": "Start Date",
+   "mandatory_depends_on": "frequency"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "label": "End Date",
+   "mandatory_depends_on": "frequency"
+  },
+  {
+   "fieldname": "column_break_pnig6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "deferred_expense_account",
+   "fieldtype": "Link",
+   "label": "Deferred Expense Account",
+   "mandatory_depends_on": "frequency",
+   "options": "Account"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "label": "Expense Account",
+   "mandatory_depends_on": "frequency",
+   "options": "Account"
+  },
+  {
+   "fieldname": "section_break_amort1",
+   "fieldtype": "Section Break",
+   "label": "Amortization Schedule"
+  },
+  {
+   "fieldname": "amortization_schedule",
+   "fieldtype": "Table",
+   "label": "Schedule",
+   "options": "Schedule of Prepayments",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amortization_summary_section",
+   "fieldtype": "Section Break",
+   "label": "Amortization Summary"
+  },
+  {
+   "fieldname": "total_amortized",
+   "fieldtype": "Currency",
+   "label": "Total Amortized",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "default": "Not Started",
+   "fieldname": "amortization_status",
+   "fieldtype": "Select",
+   "label": "Amortization Status",
+   "options": "\nNot Started\nIn Progress\nCompleted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounting Details"
+  },
+  {
+   "fieldname": "banking_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Bank Details"
+  },
+  {
+   "fieldname": "remittance_bank",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "remittance_bank.account",
+   "fieldname": "remittance_bank_gl",
+   "fieldtype": "Link",
+   "label": "Bank GL Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_zpm14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cashflow_type",
+   "fieldtype": "Select",
+   "label": "Cash Flow Classification",
+   "options": "Supplier payments\nSalary payments\nRent & utilities\nOffice expenses\nOperating costs\nTax Payment\nEquipment purchases\nProperty acquisitions\nInvestment purchases\nCapital expenditures\nLoan repayments\nDividend payments\nInterest on loans\nCapital withdrawals",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_bank1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approval_doc",
+   "fieldtype": "Data",
+   "label": "Approval Document Reference"
+  },
+  {
+   "depends_on": "is_shared_cost",
+   "fieldname": "cost_center_distribution_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Center Distribution"
+  },
+  {
+   "fieldname": "cost_center_distribution",
+   "fieldtype": "Table",
+   "label": "Distribution",
+   "options": "Cost Center Distribution"
+  },
+  {
+   "fieldname": "total_percentage",
+   "fieldtype": "Percent",
+   "label": "Total Distribution %",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_acc1",
+   "fieldtype": "Section Break",
+   "label": "Linked Accounting Entries"
+  },
+  {
+   "fieldname": "accounting_entries_html",
+   "fieldtype": "HTML",
+   "label": "Accounting Entries"
+  },
+  {
+   "fieldname": "approval_workflow_tab",
+   "fieldtype": "Tab Break",
+   "label": "Approval & Signatures"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "signature_section",
+   "fieldtype": "Section Break",
+   "label": "Issued By"
+  },
+  {
+   "fieldname": "column_break_dpr3j",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issued_by",
+   "fieldtype": "Link",
+   "label": "Issued By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_jivy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "issued_by.full_name",
+   "fieldname": "name_of_issued_by",
+   "fieldtype": "Data",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_jw19",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "label": "Issue Date"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_zxle",
+   "fieldtype": "Section Break",
+   "label": "Authorised By"
+  },
+  {
+   "fieldname": "authorised_by",
+   "fieldtype": "Link",
+   "label": "Authorised By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_iqgv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "authorised_by.full_name",
+   "fieldname": "name_of_authorised_by",
+   "fieldtype": "Data",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_yvxr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auth_date",
+   "fieldtype": "Date",
+   "label": "Authorization Date"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_sjoi",
+   "fieldtype": "Section Break",
+   "label": "Approved By"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_rrqz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "approved_by.full_name",
+   "fieldname": "name_of_approver",
+   "fieldtype": "Data",
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_uwdf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "app_date",
+   "fieldtype": "Date",
+   "label": "Approval Date"
+  },
+  {
+   "fieldname": "workflow_status_section",
+   "fieldtype": "Section Break",
+   "label": "Workflow Status"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "label": "Workflow State",
+   "options": "Workflow State",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_notes",
+   "fieldtype": "Text Editor",
+   "label": "Approval Notes / Comments"
+  },
+  {
+   "fieldname": "connections_tab",
+   "fieldtype": "Tab Break",
+   "label": "Connections"
+  },
+  {
+   "fieldname": "connections_section",
+   "fieldtype": "Section Break",
+   "label": "Linked Documents"
+  },
+  {
+   "fieldname": "linked_documents_html",
+   "fieldtype": "HTML",
+   "label": "Linked Documents"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payments",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "beneficiary_information_section",
+   "fieldtype": "Section Break",
+   "label": "Beneficiary Information"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payments",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-15 19:50:00.605773",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Payments",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

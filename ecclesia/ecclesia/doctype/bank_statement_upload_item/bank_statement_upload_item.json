@@ -1,0 +1,386 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-29 08:24:15.414541",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "transaction_date",
+  "bank_account",
+  "column_break_1",
+  "raw_narration",
+  "cleaned_description",
+  "column_break_2",
+  "debit_amount",
+  "credit_amount",
+  "local_currency_amount",
+  "column_break_3",
+  "payment_currency",
+  "exchange_rate",
+  "column_break_4",
+  "reference_no",
+  "running_balance",
+  "coding_section",
+  "doc_type",
+  "trans_type",
+  "column_break_c1",
+  "column_break_c2",
+  "account_to_debit",
+  "account_to_credit",
+  "column_break_c3",
+  "cost_center",
+  "department",
+  "column_break_c4",
+  "cashflow_type",
+  "project",
+  "wht_section",
+  "apply_wht",
+  "wht_rate",
+  "column_break_w1",
+  "wht_amount",
+  "net_amount",
+  "ai_section",
+  "ai_confidence",
+  "ai_reasoning",
+  "column_break_a1",
+  "anomaly_flag",
+  "anomaly_note",
+  "hash_fingerprint",
+  "status_section",
+  "row_status",
+  "failure_reason",
+  "column_break_st1",
+  "created_doc_type",
+  "created_doc_name",
+  "is_duplicate",
+  "party_type",
+  "party_id",
+  "coding_method",
+  "pay_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "raw_narration",
+   "fieldtype": "Small Text",
+   "label": "Raw Narration"
+  },
+  {
+   "fieldname": "cleaned_description",
+   "fieldtype": "Small Text",
+   "label": "Cleaned Description"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "debit_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Debit Amount",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "credit_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Credit Amount",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "local_currency_amount",
+   "fieldtype": "Currency",
+   "label": "Local Currency Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "payment_currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "1",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "precision": "4"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "Reference No"
+  },
+  {
+   "fieldname": "running_balance",
+   "fieldtype": "Currency",
+   "label": "Running Balance",
+   "options": "Company:company:default_currency"
+  },
+  {
+   "fieldname": "coding_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Coding"
+  },
+  {
+   "fieldname": "doc_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "\nPayments\nReceipts"
+  },
+  {
+   "fieldname": "trans_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "\nSupplier Payment\nExpense Payment\nTransfer Out\nSupplier Refunds\nPayment Request\nCustomer Receipt\nReceive from One-Off\nRevenue Receipt\nMember Tithe\nPledges\nCustomer Refund\nTransfer In"
+  },
+  {
+   "fieldname": "column_break_c1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_c2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.doc_type == 'Payments'",
+   "fieldname": "account_to_debit",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account to Debit",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.doc_type == 'Receipts'",
+   "fieldname": "account_to_credit",
+   "fieldtype": "Link",
+   "label": "Account to Credit",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_c3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "column_break_c4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cashflow_type",
+   "fieldtype": "Data",
+   "label": "Cash Flow Type"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "wht_section",
+   "fieldtype": "Section Break",
+   "label": "Withholding Tax"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_wht",
+   "fieldtype": "Check",
+   "label": "Apply WHT"
+  },
+  {
+   "depends_on": "apply_wht",
+   "fieldname": "wht_rate",
+   "fieldtype": "Percent",
+   "label": "WHT Rate (%)"
+  },
+  {
+   "fieldname": "column_break_w1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "apply_wht",
+   "fieldname": "wht_amount",
+   "fieldtype": "Currency",
+   "label": "WHT Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount",
+   "options": "Company:company:default_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_section",
+   "fieldtype": "Section Break",
+   "label": "AI Analysis"
+  },
+  {
+   "fieldname": "ai_confidence",
+   "fieldtype": "Percent",
+   "label": "AI Confidence Score",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_reasoning",
+   "fieldtype": "Small Text",
+   "label": "AI Reasoning",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_a1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "anomaly_flag",
+   "fieldtype": "Check",
+   "label": "Anomaly Flagged",
+   "read_only": 1
+  },
+  {
+   "fieldname": "anomaly_note",
+   "fieldtype": "Small Text",
+   "label": "Anomaly Note",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hash_fingerprint",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Hash Fingerprint",
+   "read_only": 1
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "row_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nPending\nReady\nReview\nCreated\nFailed\nSkipped"
+  },
+  {
+   "fieldname": "failure_reason",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Failure Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_st1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "created_doc_type",
+   "fieldtype": "Link",
+   "label": "Created DocType",
+   "options": "DocType",
+   "read_only": 1
+  },
+  {
+   "fieldname": "created_doc_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Created Document",
+   "options": "created_doc_type",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_duplicate",
+   "fieldtype": "Check",
+   "label": "Is Duplicate",
+   "read_only": 1
+  },
+  {
+   "description": "Auto-detected. Never mandatory.",
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Party Type",
+   "options": "\nSupplier\nCustomer\nEmployee\nMember"
+  },
+  {
+   "depends_on": "party_type",
+   "fieldname": "party_id",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Party",
+   "options": "party_type"
+  },
+  {
+   "description": "Alias / Party match / CoA rule / Payroll rule",
+   "fieldname": "coding_method",
+   "fieldtype": "Small Text",
+   "label": "Coding Method",
+   "read_only": 1
+  },
+  {
+   "description": "Universal payee/payer name \u2014 used when no supplier/customer matched",
+   "fieldname": "pay_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Pay Name"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-29 08:24:15.414541",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bank Statement Upload Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

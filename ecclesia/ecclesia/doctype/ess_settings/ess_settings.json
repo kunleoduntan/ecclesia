@@ -1,0 +1,274 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-07 11:34:10.695672",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "portal_tab",
+  "section_portal",
+  "portal_base_url",
+  "portal_title",
+  "col_p",
+  "require_login",
+  "col_p2",
+  "show_demo_data",
+  "demo_note",
+  "attendance_tab",
+  "section_att",
+  "checkin_start_hour",
+  "checkin_start_minute",
+  "col_a1",
+  "checkin_end_hour",
+  "checkin_end_minute",
+  "col_a2",
+  "checkout_start_hour",
+  "checkout_end_hour",
+  "geofence_tab",
+  "section_geo",
+  "office_latitude",
+  "office_longitude",
+  "col_g",
+  "geo_fence_radius",
+  "geo_note",
+  "face_tab",
+  "section_face",
+  "face_tolerance",
+  "face_note",
+  "loan_tab",
+  "section_loan",
+  "max_active_loans",
+  "col_l",
+  "require_manager_approval_for_loan",
+  "note_tab",
+  "detailed_note"
+ ],
+ "fields": [
+  {
+   "fieldname": "portal_tab",
+   "fieldtype": "Tab Break",
+   "label": "Portal"
+  },
+  {
+   "fieldname": "section_portal",
+   "fieldtype": "Section Break",
+   "label": "General"
+  },
+  {
+   "description": "e.g. https://ess.ecclesia.ng \u2014 used in QR links",
+   "fieldname": "portal_base_url",
+   "fieldtype": "Data",
+   "label": "Portal Base URL"
+  },
+  {
+   "default": "Ecclesia ESS Portal",
+   "fieldname": "portal_title",
+   "fieldtype": "Data",
+   "label": "Portal Title"
+  },
+  {
+   "fieldname": "col_p",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "require_login",
+   "fieldtype": "Check",
+   "label": "Require Login"
+  },
+  {
+   "fieldname": "col_p2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "When enabled the ESS portal displays sample data. Turn OFF to show real live data from ERPNext.",
+   "fieldname": "show_demo_data",
+   "fieldtype": "Check",
+   "label": "Show Demo / Sample Data"
+  },
+  {
+   "fieldname": "demo_note",
+   "fieldtype": "HTML",
+   "options": "<div class=\"alert alert-warning\" style=\"margin-top: 8px;\"><b>&#9888; Demo Mode:</b> While <i>Show Demo / Sample Data</i> is ON, employees see fictional data. Switch it OFF once your ERPNext data (employees, leave allocations, loan types, etc.) is ready.</div>"
+  },
+  {
+   "fieldname": "attendance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Attendance"
+  },
+  {
+   "fieldname": "section_att",
+   "fieldtype": "Section Break",
+   "label": "Clock-In / Clock-Out Windows"
+  },
+  {
+   "default": "6",
+   "fieldname": "checkin_start_hour",
+   "fieldtype": "Int",
+   "label": "Clock-In Start (Hour 24hr)"
+  },
+  {
+   "default": "0",
+   "fieldname": "checkin_start_minute",
+   "fieldtype": "Int",
+   "label": "Clock-In Start (Min)"
+  },
+  {
+   "fieldname": "col_a1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "11",
+   "fieldname": "checkin_end_hour",
+   "fieldtype": "Int",
+   "label": "Clock-In End (Hour)"
+  },
+  {
+   "default": "0",
+   "fieldname": "checkin_end_minute",
+   "fieldtype": "Int",
+   "label": "Clock-In End (Min)"
+  },
+  {
+   "fieldname": "col_a2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "15",
+   "fieldname": "checkout_start_hour",
+   "fieldtype": "Int",
+   "label": "Clock-Out Start (Hour)"
+  },
+  {
+   "default": "23",
+   "fieldname": "checkout_end_hour",
+   "fieldtype": "Int",
+   "label": "Clock-Out End (Hour)"
+  },
+  {
+   "fieldname": "geofence_tab",
+   "fieldtype": "Tab Break",
+   "label": "Geo-fence"
+  },
+  {
+   "fieldname": "section_geo",
+   "fieldtype": "Section Break",
+   "label": "Default Office Location (fallback)"
+  },
+  {
+   "fieldname": "office_latitude",
+   "fieldtype": "Float",
+   "label": "Latitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "office_longitude",
+   "fieldtype": "Float",
+   "label": "Longitude",
+   "precision": "6"
+  },
+  {
+   "fieldname": "col_g",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "100",
+   "fieldname": "geo_fence_radius",
+   "fieldtype": "Int",
+   "label": "Radius (metres)"
+  },
+  {
+   "fieldname": "geo_note",
+   "fieldtype": "HTML",
+   "options": "<p class=\"help-box text-muted\">For multi-branch: create <b>ESS Office Location</b> records \u2014 they take priority over this fallback.</p>"
+  },
+  {
+   "fieldname": "face_tab",
+   "fieldtype": "Tab Break",
+   "label": "Face ID"
+  },
+  {
+   "fieldname": "section_face",
+   "fieldtype": "Section Break",
+   "label": "Face Recognition"
+  },
+  {
+   "default": "0.5",
+   "description": "0.4=strict, 0.6=lenient",
+   "fieldname": "face_tolerance",
+   "fieldtype": "Float",
+   "label": "Match Tolerance"
+  },
+  {
+   "fieldname": "face_note",
+   "fieldtype": "HTML",
+   "options": "<p class=\"help-box text-muted\">Install: <code>pip install face_recognition numpy --break-system-packages</code></p>"
+  },
+  {
+   "fieldname": "loan_tab",
+   "fieldtype": "Tab Break",
+   "label": "Loan"
+  },
+  {
+   "fieldname": "section_loan",
+   "fieldtype": "Section Break",
+   "label": "Loan Settings"
+  },
+  {
+   "default": "1",
+   "description": "0 = no limit",
+   "fieldname": "max_active_loans",
+   "fieldtype": "Int",
+   "label": "Max Active Loans per Employee"
+  },
+  {
+   "fieldname": "col_l",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "require_manager_approval_for_loan",
+   "fieldtype": "Check",
+   "label": "Require Manager Approval"
+  },
+  {
+   "fieldname": "note_tab",
+   "fieldtype": "Tab Break",
+   "label": "Note"
+  },
+  {
+   "default": "You need to link a Contact to a Supplier in ERPNext. Here's exactly how:\n\nStep-by-Step: Link a User to the Supplier Portal\nStep 1 \u2014 Make sure the user exists\nGo to Settings \u2192 User and confirm the person has an ERPNext login account. Note their exact email address (e.g. john@acme.com).\n\nStep 2 \u2014 Open or create their Contact record\nGo to CRM \u2192 Contact (or search \"Contact\" in the search bar).\nEither find an existing contact for this person, or click New.\nFill in:\n\nFirst Name / Last Name\nEmail ID \u2014 must be the exact same email as their ERPNext login\n\n\nStep 3 \u2014 Add the Dynamic Link (the critical step)\nStill on the Contact form, scroll down to the Links table (sometimes labeled \"Links\" or \"Reference Doctype\").\nClick Add Row:\nFieldValueLink TypeSupplierLink NameSelect the supplier record (e.g. Acme Supplies Ltd)\nSave the Contact.\n\nStep 4 \u2014 Assign the portal role\nGo back to Settings \u2192 User, open that user's account, and in the Roles table add:\n\nSupplier Portal User\n\nSave.\n\nStep 5 \u2014 Test\nLog in as that user and visit /supplier-portal. The portal will now resolve:\njohn@acme.com \u2192 Contact \u2192 Dynamic Link \u2192 Acme Supplies Ltd \u2713\n\nQuick way to verify the link is set correctly\nRun this in ERPNext \u2192 Settings \u2192 System Console (Python tab):\npythonuser = \"john@acme.com\"  # change this\n\ncontact = frappe.db.get_value(\"Contact\", {\"email_id\": user})\nprint(\"Contact:\", contact)\n\nif contact:\n    link = frappe.db.get_value(\"Dynamic Link\", {\n        \"parenttype\": \"Contact\",\n        \"parent\": contact,\n        \"link_doctype\": \"Supplier\"\n    }, \"link_name\")\n    print(\"Supplier:\", link)\nelse:\n    print(\"No contact found for this email\")\nIf it prints a Supplier name, the portal will work. If it prints None, the Dynamic Link row is missing.\n\nSame process for Customer Portal\nIdentical steps \u2014 just use Link Type = Customer instead of Supplier, and assign the Customer Portal User role.",
+   "fieldname": "detailed_note",
+   "fieldtype": "Text Editor",
+   "label": "Detailed Note",
+   "options": "You need to link a Contact to a Supplier in ERPNext. Here's exactly how:\n\nStep-by-Step: Link a User to the Supplier Portal\nStep 1 \u2014 Make sure the user exists\nGo to Settings \u2192 User and confirm the person has an ERPNext login account. Note their exact email address (e.g. john@acme.com).\n\nStep 2 \u2014 Open or create their Contact record\nGo to CRM \u2192 Contact (or search \"Contact\" in the search bar).\nEither find an existing contact for this person, or click New.\nFill in:\n\nFirst Name / Last Name\nEmail ID \u2014 must be the exact same email as their ERPNext login\n\n\nStep 3 \u2014 Add the Dynamic Link (the critical step)\nStill on the Contact form, scroll down to the Links table (sometimes labeled \"Links\" or \"Reference Doctype\").\nClick Add Row:\nFieldValueLink TypeSupplierLink NameSelect the supplier record (e.g. Acme Supplies Ltd)\nSave the Contact.\n\nStep 4 \u2014 Assign the portal role\nGo back to Settings \u2192 User, open that user's account, and in the Roles table add:\n\nSupplier Portal User\n\nSave.\n\nStep 5 \u2014 Test\nLog in as that user and visit /supplier-portal. The portal will now resolve:\njohn@acme.com \u2192 Contact \u2192 Dynamic Link \u2192 Acme Supplies Ltd \u2713\n\nQuick way to verify the link is set correctly\nRun this in ERPNext \u2192 Settings \u2192 System Console (Python tab):\npythonuser = \"john@acme.com\"  # change this\n\ncontact = frappe.db.get_value(\"Contact\", {\"email_id\": user})\nprint(\"Contact:\", contact)\n\nif contact:\n    link = frappe.db.get_value(\"Dynamic Link\", {\n        \"parenttype\": \"Contact\",\n        \"parent\": contact,\n        \"link_doctype\": \"Supplier\"\n    }, \"link_name\")\n    print(\"Supplier:\", link)\nelse:\n    print(\"No contact found for this email\")\nIf it prints a Supplier name, the portal will work. If it prints None, the Dynamic Link row is missing.\n\nSame process for Customer Portal\nIdentical steps \u2014 just use Link Type = Customer instead of Supplier, and assign the Customer Portal User role. Sonnet 4.6"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-03-08 08:30:47.558488",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "ESS Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

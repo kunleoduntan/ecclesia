@@ -1,0 +1,384 @@
+{
+ "actions": [],
+ "allow_events_in_timeline": 1,
+ "allow_rename": 1,
+ "autoname": "prompt",
+ "creation": "2026-02-03 10:03:23.874955",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "detail_section",
+  "title",
+  "posting_date",
+  "from_date",
+  "to_date",
+  "column_break_46lt",
+  "bank_account",
+  "bank_gl",
+  "account_currency",
+  "column_break_qejv",
+  "statement_ending_balance",
+  "cashbook_ending_balance",
+  "company",
+  "column_break_krkl",
+  "status",
+  "balance_per_cash_book",
+  "balance_diff",
+  "reconcile_rp",
+  "transaction_section",
+  "bank_account_entry",
+  "section_break_n2rf",
+  "total_debit",
+  "column_break_bmlj",
+  "total_credit",
+  "statements_tab",
+  "section_break_4xog",
+  "match",
+  "bank_statement",
+  "reconciling_item_tab",
+  "unpresented_transactions_section",
+  "get_unpre",
+  "unpresented_cheques",
+  "section_break_pgjr",
+  "total_unpresented_cheque",
+  "uncredited_transactions_section",
+  "get_uncre",
+  "uncredited_cheques",
+  "section_break_ndzu",
+  "total_uncredited_cheque",
+  "non_reconciling_item_tab",
+  "direct_withdrawal_transactions_section",
+  "get_dw",
+  "direct_withdrawal",
+  "section_break_raqj",
+  "total_direct_withdrawal",
+  "direct_lodgments_transactions_section",
+  "get_dl",
+  "direct_lodgment",
+  "section_break_x7jk",
+  "total_direct_lodgment",
+  "file_section",
+  "file",
+  "file_url",
+  "user_manual_tab",
+  "user_manual_section",
+  "user_manual_html"
+ ],
+ "fields": [
+  {
+   "fieldname": "detail_section",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation Overview"
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Title"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "column_break_46lt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Reconciliation Status",
+   "options": "\nReconciled\nNot Reconciled"
+  },
+  {
+   "default": "0",
+   "fieldname": "reconcile_rp",
+   "fieldtype": "Check",
+   "label": "Reconcile Receipts & Payments"
+  },
+  {
+   "fieldname": "column_break_qejv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fetch_from": "bank_account.account",
+   "fieldname": "bank_gl",
+   "fieldtype": "Data",
+   "label": "Bank GL Account"
+  },
+  {
+   "fetch_from": "bank_account.account_currency",
+   "fieldname": "account_currency",
+   "fieldtype": "Data",
+   "label": "Account Currency"
+  },
+  {
+   "fieldname": "statement_ending_balance",
+   "fieldtype": "Float",
+   "label": "Statement Ending Balance"
+  },
+  {
+   "fieldname": "cashbook_ending_balance",
+   "fieldtype": "Float",
+   "label": "Cashbook Ending Balance"
+  },
+  {
+   "fieldname": "column_break_krkl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "balance_per_cash_book",
+   "fieldtype": "Float",
+   "label": "Balance Per Cash Book"
+  },
+  {
+   "fieldname": "balance_diff",
+   "fieldtype": "Float",
+   "label": "Balance Difference"
+  },
+  {
+   "fieldname": "transaction_section",
+   "fieldtype": "Section Break",
+   "label": "Ledger Transactions Under Review"
+  },
+  {
+   "fieldname": "bank_account_entry",
+   "fieldtype": "Table",
+   "label": "Bank Account Entries",
+   "options": "Bank Account Entry"
+  },
+  {
+   "fieldname": "section_break_n2rf",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_debit",
+   "fieldtype": "Float",
+   "label": "Total Debit (Inflow)"
+  },
+  {
+   "fieldname": "column_break_bmlj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_credit",
+   "fieldtype": "Float",
+   "label": "Total Credit (Outflow)"
+  },
+  {
+   "fieldname": "statements_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcc4 Bank Statements & Matching"
+  },
+  {
+   "fieldname": "section_break_4xog",
+   "fieldtype": "Section Break",
+   "label": "Imported Bank Statements"
+  },
+  {
+   "fieldname": "match",
+   "fieldtype": "Button",
+   "label": "AI Smart Match"
+  },
+  {
+   "fieldname": "bank_statement",
+   "fieldtype": "Table",
+   "label": "Bank Statement",
+   "options": "Bank Statement"
+  },
+  {
+   "fieldname": "reconciling_item_tab",
+   "fieldtype": "Tab Break",
+   "label": "\u23f3 Reconciling Items (Timing Differences)"
+  },
+  {
+   "fieldname": "unpresented_transactions_section",
+   "fieldtype": "Section Break",
+   "label": "Unpresented Cheques"
+  },
+  {
+   "fieldname": "get_unpre",
+   "fieldtype": "Button",
+   "label": "Fetch Unpresented Cheques"
+  },
+  {
+   "fieldname": "unpresented_cheques",
+   "fieldtype": "Table",
+   "label": "Unpresented Cheques",
+   "options": "Unpresented Cheque"
+  },
+  {
+   "fieldname": "section_break_pgjr",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_unpresented_cheque",
+   "fieldtype": "Float",
+   "label": "Total Unpresented Amount"
+  },
+  {
+   "fieldname": "uncredited_transactions_section",
+   "fieldtype": "Section Break",
+   "label": "Uncredited Deposits"
+  },
+  {
+   "fieldname": "get_uncre",
+   "fieldtype": "Button",
+   "label": "Fetch Uncredited Deposits"
+  },
+  {
+   "fieldname": "uncredited_cheques",
+   "fieldtype": "Table",
+   "label": "Uncredited Deposits",
+   "options": "Uncredited Cheque"
+  },
+  {
+   "fieldname": "section_break_ndzu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_uncredited_cheque",
+   "fieldtype": "Float",
+   "label": "Total Uncredited Amount"
+  },
+  {
+   "fieldname": "non_reconciling_item_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udfe6 Direct Bank Transactions"
+  },
+  {
+   "fieldname": "direct_withdrawal_transactions_section",
+   "fieldtype": "Section Break",
+   "label": "Direct Withdrawals (Bank Charges, Standing Orders)"
+  },
+  {
+   "fieldname": "get_dw",
+   "fieldtype": "Button",
+   "label": "Fetch Direct Withdrawals"
+  },
+  {
+   "fieldname": "direct_withdrawal",
+   "fieldtype": "Table",
+   "label": "Direct Withdrawals",
+   "options": "Direct Withdrawal"
+  },
+  {
+   "fieldname": "section_break_raqj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_direct_withdrawal",
+   "fieldtype": "Float",
+   "label": "Total Direct Withdrawals"
+  },
+  {
+   "fieldname": "direct_lodgments_transactions_section",
+   "fieldtype": "Section Break",
+   "label": "Direct Lodgments"
+  },
+  {
+   "fieldname": "get_dl",
+   "fieldtype": "Button",
+   "label": "Fetch Direct Lodgments"
+  },
+  {
+   "fieldname": "direct_lodgment",
+   "fieldtype": "Table",
+   "label": "Direct Lodgments",
+   "options": "Direct Lodgment"
+  },
+  {
+   "fieldname": "section_break_x7jk",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "total_direct_lodgment",
+   "fieldtype": "Float",
+   "label": "Total Direct Lodgments"
+  },
+  {
+   "fieldname": "file_section",
+   "fieldtype": "Section Break",
+   "label": "Supporting Documents"
+  },
+  {
+   "fieldname": "file",
+   "fieldtype": "Link",
+   "label": "Attachment",
+   "options": "File"
+  },
+  {
+   "fetch_from": "file.file_url",
+   "fieldname": "file_url",
+   "fieldtype": "Data",
+   "label": "File URL"
+  },
+  {
+   "fieldname": "user_manual_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcd8 User Manual & Help Guide"
+  },
+  {
+   "fieldname": "user_manual_section",
+   "fieldtype": "Section Break",
+   "label": "How to Perform Bank Reconciliation"
+  },
+  {
+   "fieldname": "user_manual_html",
+   "fieldtype": "HTML",
+   "label": "User Manual"
+  }
+ ],
+ "hide_toolbar": 1,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-03 10:24:32.250172",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bank Reconciliation",
+ "naming_rule": "Set by user",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

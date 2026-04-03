@@ -1,0 +1,11 @@
+{
+    "js/telephone.js": [
+        "public/js/telephone.js"
+    ],
+    "js/group_call.js": [
+        "public/js/group_call.js"
+    ],
+    "css/telephone.css": [
+        "public/css/telephone.css"
+    ]
+}

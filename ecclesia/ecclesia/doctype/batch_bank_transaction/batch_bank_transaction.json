@@ -1,0 +1,240 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2023-06-21 19:06:14.002575",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "batch_detail_section",
+  "naming_series",
+  "batch_date",
+  "bank_account",
+  "bank_account_currency",
+  "column_break_nrytw",
+  "bank_gl",
+  "opening_balance",
+  "column_break_t0jxq",
+  "company",
+  "batch_owner",
+  "post_batch",
+  "transaction_line_section",
+  "transaction_entry",
+  "total_section",
+  "column_break_5vro",
+  "column_break_poey",
+  "total_inflow",
+  "column_break_2h5qr",
+  "total_outflow",
+  "column_break_gb3jf",
+  "balance",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "batch_date",
+   "fieldtype": "Date",
+   "label": "Batch Date"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "fieldname": "batch_owner",
+   "fieldtype": "Link",
+   "label": "Batch Owner",
+   "options": "User"
+  },
+  {
+   "fieldname": "transaction_line_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Line"
+  },
+  {
+   "description": "Transfer To = Transfer to the account selected in Party Column from Bank GL A/c (DR (Party A/c) IN and CR (Bank GL) - OUT...)\nTransfer From = Transfer from the account selected in Party Column to Bank GL A/c - (DR (Bank GL) IN and CR (Party A/c) OUT...)",
+   "fieldname": "transaction_entry",
+   "fieldtype": "Table",
+   "label": "Transaction Entry",
+   "options": "Transaction Entry"
+  },
+  {
+   "fieldname": "total_inflow",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Total Inflow",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_outflow",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Total Outflow",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Batch Bank Transaction",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_nrytw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_section",
+   "fieldtype": "Section Break",
+   "label": "Total"
+  },
+  {
+   "fieldname": "column_break_2h5qr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Naming Series"
+  },
+  {
+   "fieldname": "batch_detail_section",
+   "fieldtype": "Section Break",
+   "label": "Batch Detail"
+  },
+  {
+   "fieldname": "column_break_gb3jf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "bank_account.account",
+   "fieldname": "bank_gl",
+   "fieldtype": "Data",
+   "label": "Bank GL"
+  },
+  {
+   "fieldname": "column_break_t0jxq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "bank_account.account_currency",
+   "fieldname": "bank_account_currency",
+   "fieldtype": "Data",
+   "label": "Bank Account Currency"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "default": "0",
+   "fieldname": "post_batch",
+   "fieldtype": "Check",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Post Batch "
+  },
+  {
+   "fieldname": "column_break_poey",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_5vro",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "balance",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Balance",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "opening_balance",
+   "fieldtype": "Float",
+   "label": "Opening Balance",
+   "precision": "2"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-12-22 19:50:20.432628",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Batch Bank Transaction",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1,
+ "track_views": 1
+}

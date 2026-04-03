@@ -1,0 +1,110 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:KPI-{#####}",
+ "creation": "2026-03-13 17:16:21.815289",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "kpi_name",
+  "category",
+  "col1",
+  "department",
+  "measurement_unit",
+  "frequency",
+  "is_active",
+  "sec_desc",
+  "description",
+  "scoring_guide"
+ ],
+ "fields": [
+  {
+   "fieldname": "kpi_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "KPI Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "\nFinancial\nCustomer\nProcess\nLearning & Growth\nBehavioural\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "measurement_unit",
+   "fieldtype": "Select",
+   "label": "Measurement Unit",
+   "options": "Number\nPercentage\nCurrency\nYes/No\nRating (1-5)\nText"
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Measurement Frequency",
+   "options": "Annual\nQuarterly\nMonthly"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_desc",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "description": "How to translate actuals into a 1-5 score",
+   "fieldname": "scoring_guide",
+   "fieldtype": "Text Editor",
+   "label": "Scoring Guide"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-13 17:28:37.427447",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "KPI Library",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

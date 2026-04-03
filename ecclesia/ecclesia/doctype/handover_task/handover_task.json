@@ -1,0 +1,103 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-03-12 20:40:35.564146",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "task_description",
+  "acting_officer",
+  "acting_officer_name",
+  "priority",
+  "due_date",
+  "status",
+  "reference_doctype",
+  "reference_name",
+  "completion_note"
+ ],
+ "fields": [
+  {
+   "columns": 4,
+   "fieldname": "task_description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Task Description",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "description": "Overrides the default acting officer for this task only",
+   "fieldname": "acting_officer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Acting Officer",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "acting_officer.employee_name",
+   "fieldname": "acting_officer_name",
+   "fieldtype": "Data",
+   "label": "Officer Name",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "columns": 2,
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nIn Progress\nCompleted\nEscalated\nDeferred"
+  },
+  {
+   "description": "Optional link to a related document (e.g. Sales Order, Task, Issue)",
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_doctype"
+  },
+  {
+   "description": "Filled by acting officer on completion or deferral",
+   "fieldname": "completion_note",
+   "fieldtype": "Small Text",
+   "label": "Completion Note"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-12 20:40:35.564146",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Handover Task",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

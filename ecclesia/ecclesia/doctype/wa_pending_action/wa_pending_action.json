@@ -1,0 +1,212 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-01 08:26:31.515531",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "phone_number",
+  "action_type",
+  "status",
+  "col_break_1",
+  "linked_doctype",
+  "linked_docname",
+  "sent_message_id",
+  "expires_at",
+  "options_section",
+  "option_1_key",
+  "option_1_label",
+  "option_1_action",
+  "option_2_key",
+  "option_2_label",
+  "option_2_action",
+  "option_3_key",
+  "option_3_label",
+  "option_3_action",
+  "response_section",
+  "responded_at",
+  "response_text",
+  "actioned_by_user",
+  "error_details"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "bold": 1,
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Action Type",
+   "options": "PO Approval\nSO Confirmation\nLeave Approval\nPayment Confirmation\nQuote Acceptance\nCustom",
+   "reqd": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nApproved\nRejected\nExpired\nError",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "linked_doctype",
+   "fieldtype": "Link",
+   "label": "Linked DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "linked_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Linked Document",
+   "options": "linked_doctype",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sent_message_id",
+   "fieldtype": "Data",
+   "label": "Sent WA Message ID"
+  },
+  {
+   "fieldname": "expires_at",
+   "fieldtype": "Datetime",
+   "label": "Expires At"
+  },
+  {
+   "fieldname": "options_section",
+   "fieldtype": "Section Break",
+   "label": "Reply Options"
+  },
+  {
+   "default": "1",
+   "fieldname": "option_1_key",
+   "fieldtype": "Data",
+   "label": "Option 1 Key"
+  },
+  {
+   "default": "Approve",
+   "fieldname": "option_1_label",
+   "fieldtype": "Data",
+   "label": "Option 1 Label"
+  },
+  {
+   "fieldname": "option_1_action",
+   "fieldtype": "Select",
+   "label": "Option 1 Action",
+   "options": "Approve\nConfirm\nAccept\nCustom"
+  },
+  {
+   "default": "2",
+   "fieldname": "option_2_key",
+   "fieldtype": "Data",
+   "label": "Option 2 Key"
+  },
+  {
+   "default": "Reject",
+   "fieldname": "option_2_label",
+   "fieldtype": "Data",
+   "label": "Option 2 Label"
+  },
+  {
+   "fieldname": "option_2_action",
+   "fieldtype": "Select",
+   "label": "Option 2 Action",
+   "options": "Reject\nDecline\nCancel\nCustom"
+  },
+  {
+   "default": "3",
+   "fieldname": "option_3_key",
+   "fieldtype": "Data",
+   "label": "Option 3 Key"
+  },
+  {
+   "default": "Details",
+   "fieldname": "option_3_label",
+   "fieldtype": "Data",
+   "label": "Option 3 Label"
+  },
+  {
+   "fieldname": "option_3_action",
+   "fieldtype": "Select",
+   "label": "Option 3 Action",
+   "options": "View Details\nCustom"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "response_section",
+   "fieldtype": "Section Break",
+   "label": "Response Info"
+  },
+  {
+   "fieldname": "responded_at",
+   "fieldtype": "Datetime",
+   "label": "Responded At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "response_text",
+   "fieldtype": "Data",
+   "label": "Raw Response",
+   "read_only": 1
+  },
+  {
+   "fieldname": "actioned_by_user",
+   "fieldtype": "Link",
+   "label": "Actioned By User",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_details",
+   "fieldtype": "Small Text",
+   "label": "Error Details",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 11:31:24.963360",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WA Pending Action",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

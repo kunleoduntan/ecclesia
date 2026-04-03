@@ -1,0 +1,106 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-14 19:39:54.531486",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "column_number",
+  "column_label",
+  "column_code",
+  "column_break_1",
+  "column_type",
+  "calculation_formula",
+  "column_break_lr6rt",
+  "column_width",
+  "number_format",
+  "is_hidden"
+ ],
+ "fields": [
+  {
+   "description": "10, 20, 30... for sorting",
+   "fieldname": "column_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Column #",
+   "reqd": 1
+  },
+  {
+   "description": "e.g., 'Jan', 'Q1', 'Var %' (auto-generated from code)",
+   "fieldname": "column_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Column Label"
+  },
+  {
+   "description": "M1, M2, Q1, -M1 (last year), M1_BUD (budget)",
+   "fieldname": "column_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Column Code",
+   "reqd": 1
+  },
+  {
+   "default": "Period Actual",
+   "description": "Auto-detected from code, can be overridden",
+   "fieldname": "column_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Column Type",
+   "options": "\nPeriod Actual\nPeriod Budget\nPeriod Last Year\nYTD Actual\nYTD Budget\nYTD Last Year\nCalculated\nStatic"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.column_type=='Calculated'",
+   "description": "Use column codes: M1 + M2 + M3, Q1 - Q1_BUD, (M1 - (-M1)) / (-M1) * 100",
+   "fieldname": "calculation_formula",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Formula"
+  },
+  {
+   "default": "120",
+   "description": "Column width in pixels",
+   "fieldname": "column_width",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Width (px)"
+  },
+  {
+   "default": "Currency",
+   "fieldname": "number_format",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Number Format",
+   "options": "Currency\nPercent\nInteger\nDecimal"
+  },
+  {
+   "default": "0",
+   "description": "Hide this column from display",
+   "fieldname": "is_hidden",
+   "fieldtype": "Check",
+   "label": "Hidden"
+  },
+  {
+   "fieldname": "column_break_lr6rt",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-14 21:17:52.014714",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Financial Report Column",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

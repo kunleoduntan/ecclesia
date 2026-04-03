@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include ecclesia *.css
+recursive-include ecclesia *.csv
+recursive-include ecclesia *.html
+recursive-include ecclesia *.ico
+recursive-include ecclesia *.js
+recursive-include ecclesia *.json
+recursive-include ecclesia *.md
+recursive-include ecclesia *.png
+recursive-include ecclesia *.py
+recursive-include ecclesia *.svg
+recursive-include ecclesia *.txt
+recursive-exclude ecclesia *.pyc

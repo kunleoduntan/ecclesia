@@ -1,0 +1,415 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SOC-POST-.YYYY.-.MM.-.#####",
+ "creation": "2026-03-18 18:37:32.786528",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "content_tab",
+  "post_title",
+  "content",
+  "content_type",
+  "media_attachments",
+  "link_url",
+  "column_break_5",
+  "primary_hashtags",
+  "mentions",
+  "location",
+  "campaign",
+  "platform_config_tab",
+  "platform_configs",
+  "publishing_section",
+  "publish_strategy",
+  "global_schedule",
+  "use_ai_optimized_times",
+  "priority_platform",
+  "column_break_10",
+  "status",
+  "requires_approval",
+  "approved_by",
+  "approval_date",
+  "rejection_reason",
+  "post_dashboard_tab",
+  "post_dashboard_html",
+  "performance_metrics_section",
+  "total_likes",
+  "total_comments",
+  "total_shares",
+  "total_reach",
+  "total_engagement_rate",
+  "column_break_15",
+  "total_views",
+  "total_clicks",
+  "total_conversions",
+  "revenue_generated",
+  "roi_percentage",
+  "platform_breakdown_section",
+  "platform_performance",
+  "comments_tab",
+  "comments",
+  "insights_tab",
+  "audience_insights",
+  "demographic_breakdown",
+  "geographic_breakdown",
+  "age_gender_breakdown",
+  "column_break_20",
+  "peak_engagement_times",
+  "top_commenters",
+  "sentiment_summary",
+  "ai_recommendations",
+  "attachments_tab",
+  "post_attachments",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "content_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcdd Content"
+  },
+  {
+   "fieldname": "post_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Post Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Text Editor",
+   "label": "Main Content / Caption",
+   "reqd": 1
+  },
+  {
+   "default": "Image",
+   "fieldname": "content_type",
+   "fieldtype": "Select",
+   "label": "Content Type",
+   "options": "\nImage\nVideo\nCarousel\nReel\nStory\nText Only\nLink\nPoll\nArticle\nLive Video"
+  },
+  {
+   "fieldname": "media_attachments",
+   "fieldtype": "Table",
+   "label": "Media Attachments",
+   "options": "Social Post Media"
+  },
+  {
+   "fieldname": "link_url",
+   "fieldtype": "Data",
+   "label": "Link URL"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "primary_hashtags",
+   "fieldtype": "Data",
+   "label": "Primary Hashtags"
+  },
+  {
+   "fieldname": "mentions",
+   "fieldtype": "Data",
+   "label": "Mentions"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "fieldname": "campaign",
+   "fieldtype": "Link",
+   "label": "Campaign",
+   "options": "Campaign"
+  },
+  {
+   "fieldname": "platform_config_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udf10 Platform Configuration"
+  },
+  {
+   "description": "Configure how this post appears on each platform",
+   "fieldname": "platform_configs",
+   "fieldtype": "Table",
+   "label": "Platform-Specific Configurations",
+   "options": "Social Post Platform Config",
+   "reqd": 1
+  },
+  {
+   "fieldname": "publishing_section",
+   "fieldtype": "Section Break",
+   "label": "Publishing Settings"
+  },
+  {
+   "default": "Publish Now",
+   "fieldname": "publish_strategy",
+   "fieldtype": "Select",
+   "label": "Publish Strategy",
+   "options": "\nPublish Now\nSchedule Global\nSchedule Per Platform\nOptimize AI (Smart Schedule)"
+  },
+  {
+   "depends_on": "eval:doc.publish_strategy == 'Schedule Global'",
+   "fieldname": "global_schedule",
+   "fieldtype": "Datetime",
+   "label": "Global Schedule Time"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.publish_strategy == 'Optimize AI'",
+   "fieldname": "use_ai_optimized_times",
+   "fieldtype": "Check",
+   "label": "Use AI-Optimized Times"
+  },
+  {
+   "description": "Post to this platform first, then others",
+   "fieldname": "priority_platform",
+   "fieldtype": "Link",
+   "label": "Priority Platform",
+   "options": "Social Media Platform Account"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Overall Status",
+   "options": "\nDraft\nPending Approval\nApproved\nRejected\nScheduled\nPublishing\nPublished\nPartially Published\nFailed\nDeleted"
+  },
+  {
+   "default": "0",
+   "fieldname": "requires_approval",
+   "fieldtype": "Check",
+   "label": "Requires Approval"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Datetime",
+   "label": "Approval Date"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason"
+  },
+  {
+   "fieldname": "post_dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcca Post Performance Dashboard"
+  },
+  {
+   "fieldname": "post_dashboard_html",
+   "fieldtype": "HTML",
+   "label": "Performance Dashboard"
+  },
+  {
+   "fieldname": "performance_metrics_section",
+   "fieldtype": "Section Break",
+   "label": "Aggregated Metrics"
+  },
+  {
+   "fieldname": "total_likes",
+   "fieldtype": "Int",
+   "label": "Total Likes",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_comments",
+   "fieldtype": "Int",
+   "label": "Total Comments",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_shares",
+   "fieldtype": "Int",
+   "label": "Total Shares / Retweets",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_reach",
+   "fieldtype": "Int",
+   "label": "Total Reach",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_engagement_rate",
+   "fieldtype": "Percent",
+   "label": "Total Engagement Rate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_views",
+   "fieldtype": "Int",
+   "label": "Total Views",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_clicks",
+   "fieldtype": "Int",
+   "label": "Total Link Clicks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_conversions",
+   "fieldtype": "Int",
+   "label": "Total Conversions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "revenue_generated",
+   "fieldtype": "Currency",
+   "label": "Revenue Generated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "roi_percentage",
+   "fieldtype": "Percent",
+   "label": "ROI %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "platform_breakdown_section",
+   "fieldtype": "Section Break",
+   "label": "Platform Breakdown"
+  },
+  {
+   "fieldname": "platform_performance",
+   "fieldtype": "Table",
+   "label": "Platform Performance",
+   "options": "Social Platform Performance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "comments_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcac Comments"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Table",
+   "label": "Comments",
+   "options": "Social Post Comment"
+  },
+  {
+   "fieldname": "insights_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcc8 Insights"
+  },
+  {
+   "fieldname": "audience_insights",
+   "fieldtype": "Text",
+   "label": "Audience Insights"
+  },
+  {
+   "fieldname": "demographic_breakdown",
+   "fieldtype": "JSON",
+   "label": "Demographic Breakdown"
+  },
+  {
+   "fieldname": "geographic_breakdown",
+   "fieldtype": "JSON",
+   "label": "Geographic Breakdown"
+  },
+  {
+   "fieldname": "age_gender_breakdown",
+   "fieldtype": "JSON",
+   "label": "Age & Gender Breakdown"
+  },
+  {
+   "fieldname": "column_break_20",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "peak_engagement_times",
+   "fieldtype": "JSON",
+   "label": "Peak Engagement Times"
+  },
+  {
+   "fieldname": "top_commenters",
+   "fieldtype": "JSON",
+   "label": "Top Commenters"
+  },
+  {
+   "fieldname": "sentiment_summary",
+   "fieldtype": "JSON",
+   "label": "Sentiment Summary"
+  },
+  {
+   "fieldname": "ai_recommendations",
+   "fieldtype": "Text",
+   "label": "AI Recommendations"
+  },
+  {
+   "fieldname": "attachments_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcce Attachments"
+  },
+  {
+   "fieldname": "post_attachments",
+   "fieldtype": "Table",
+   "label": "Post Attachments",
+   "options": "Evidence Attachments"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Social Post",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Social Post",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-18 19:20:39.307039",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Social Post",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

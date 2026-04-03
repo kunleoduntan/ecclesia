@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-04 12:57:26.368719",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_code",
+  "asset_name",
+  "column_break_1",
+  "current_location",
+  "current_custodian",
+  "column_break_2",
+  "current_book_value",
+  "condition_at_transfer",
+  "notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Fixed Asset",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "asset.asset_code",
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset.current_location",
+   "fieldname": "current_location",
+   "fieldtype": "Data",
+   "label": "Current Location",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.custodian",
+   "fieldname": "current_custodian",
+   "fieldtype": "Data",
+   "label": "Current Custodian",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset.current_value",
+   "fieldname": "current_book_value",
+   "fieldtype": "Currency",
+   "label": "Current Book Value",
+   "read_only": 1
+  },
+  {
+   "default": "Good",
+   "fieldname": "condition_at_transfer",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Condition at Transfer",
+   "options": "\nExcellent\nGood\nFair\nPoor\nRequires Repair",
+   "reqd": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Transfer Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-06 09:54:11.351773",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Transfer Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

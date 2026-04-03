@@ -1,0 +1,158 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:rule_name",
+ "creation": "2026-03-01 07:57:40.337289",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "rule_name",
+  "is_active",
+  "document_section",
+  "document_type",
+  "filter_condition",
+  "col_break_1",
+  "trigger_field",
+  "check_frequency",
+  "auto_action_section",
+  "auto_action_type",
+  "auto_action_assign_to",
+  "auto_action_field",
+  "auto_action_value",
+  "auto_action_script",
+  "levels_section",
+  "escalation_levels"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "label": "Rule Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "document_section",
+   "fieldtype": "Section Break",
+   "label": "Target Document"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "description": "Which docs to evaluate. e.g. doc.status=='Open' and doc.docstatus==1",
+   "fieldname": "filter_condition",
+   "fieldtype": "Code",
+   "label": "Filter Condition (Python)",
+   "options": "Python"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Field to measure elapsed time from. e.g. creation, due_date, transaction_date",
+   "fieldname": "trigger_field",
+   "fieldtype": "Data",
+   "label": "Time Reference Field",
+   "reqd": 1
+  },
+  {
+   "default": "Every Hour",
+   "fieldname": "check_frequency",
+   "fieldtype": "Select",
+   "label": "Check Frequency",
+   "options": "Every Hour\nEvery 2 Hours\nEvery 6 Hours\nDaily"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "auto_action_section",
+   "fieldtype": "Section Break",
+   "label": "Auto-Action on Final Escalation"
+  },
+  {
+   "fieldname": "auto_action_type",
+   "fieldtype": "Select",
+   "label": "Action",
+   "options": "\nAssign to User\nSet Field Value\nSubmit\nCancel\nCustom Script"
+  },
+  {
+   "depends_on": "eval:doc.auto_action_type=='Assign to User'",
+   "fieldname": "auto_action_assign_to",
+   "fieldtype": "Link",
+   "label": "Assign To User",
+   "options": "User"
+  },
+  {
+   "depends_on": "eval:doc.auto_action_type=='Set Field Value'",
+   "fieldname": "auto_action_field",
+   "fieldtype": "Data",
+   "label": "Field Name"
+  },
+  {
+   "depends_on": "eval:doc.auto_action_type=='Set Field Value'",
+   "fieldname": "auto_action_value",
+   "fieldtype": "Data",
+   "label": "Field Value"
+  },
+  {
+   "depends_on": "eval:doc.auto_action_type=='Custom Script'",
+   "fieldname": "auto_action_script",
+   "fieldtype": "Code",
+   "label": "Custom Script",
+   "options": "Python"
+  },
+  {
+   "fieldname": "levels_section",
+   "fieldtype": "Section Break",
+   "label": "Escalation Levels"
+  },
+  {
+   "fieldname": "escalation_levels",
+   "fieldtype": "Table",
+   "label": "Levels",
+   "options": "Escalation Rule Level",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 11:33:23.552829",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Escalation Rule",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

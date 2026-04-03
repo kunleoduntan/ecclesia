@@ -1,0 +1,75 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-23 15:52:10.730200",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "plan_name",
+  "coverage_level",
+  "column_break_1",
+  "monthly_premium",
+  "annual_premium",
+  "currency",
+  "dependants_covered"
+ ],
+ "fields": [
+  {
+   "fieldname": "plan_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plan Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "coverage_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Coverage Level",
+   "options": "Basic\nStandard\nComprehensive\nExecutive"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_premium",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Monthly Premium (NGN)"
+  },
+  {
+   "fieldname": "annual_premium",
+   "fieldtype": "Currency",
+   "label": "Annual Premium (NGN)"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "0",
+   "fieldname": "dependants_covered",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "No. of Dependants Covered"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-23 15:52:10.730200",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "HMO Plan Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

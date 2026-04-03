@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2026-03-13 08:35:57.164064",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-03-13 11:41:43.444158",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "mail_hub",
+ "owner": "Administrator",
+ "page_name": "mail_hub",
+ "roles": [
+  {
+   "role": "All"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "MailVault"
+}

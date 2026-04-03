@@ -1,0 +1,358 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-28 15:08:28.830284",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_identity",
+  "naming_series",
+  "finding_title",
+  "transaction_code",
+  "audit_engagement",
+  "source",
+  "column_break_1",
+  "status",
+  "risk_rating",
+  "finding_type",
+  "materiality_level",
+  "section_reference",
+  "reference_doctype",
+  "reference_name",
+  "reference_field",
+  "column_break_2",
+  "transaction_date",
+  "transaction_amount",
+  "financial_impact",
+  "section_gl",
+  "gl_account",
+  "financial_statement_line",
+  "column_break_3",
+  "gl_entry_reference",
+  "observed_gl_amount",
+  "expected_gl_amount",
+  "section_5c",
+  "criteria",
+  "condition",
+  "column_break_4",
+  "cause",
+  "consequence",
+  "corrective_action_suggested",
+  "section_shortform",
+  "observation",
+  "coso_component",
+  "section_response",
+  "management_response",
+  "action_owner",
+  "due_date",
+  "column_break_5",
+  "actual_closure_date",
+  "closure_evidence",
+  "auditor_closure_remarks",
+  "section_cap",
+  "corrective_action_plan",
+  "re_audit_required",
+  "re_audit_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_identity",
+   "fieldtype": "Section Break",
+   "label": "Finding Identity"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "AFD-"
+  },
+  {
+   "bold": 1,
+   "fieldname": "finding_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Finding Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Transaction Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "audit_engagement",
+   "fieldtype": "Link",
+   "label": "Audit Engagement",
+   "options": "Audit Engagement"
+  },
+  {
+   "default": "Auditor",
+   "fieldname": "source",
+   "fieldtype": "Select",
+   "label": "Source",
+   "options": "Auditor\nAI Auto-Detection\nContinuous Monitoring\nWhistleblower\nExternal Audit"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nManagement Response Pending\nClosed - Resolved\nClosed - Accepted Risk\nEscalated"
+  },
+  {
+   "fieldname": "risk_rating",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Risk Rating",
+   "options": "Critical\nHigh\nMedium\nLow",
+   "reqd": 1
+  },
+  {
+   "fieldname": "finding_type",
+   "fieldtype": "Select",
+   "label": "Finding Type",
+   "options": "Control Deficiency\nSegregation of Duties\nUnauthorized Transaction\nPolicy Non-Compliance\nGL Posting Error\nCutoff Error\nDuplicate Transaction\nMissing Documentation\nApproval Bypass\nFraud Indicator\nStatistical Outlier\nOther"
+  },
+  {
+   "fieldname": "materiality_level",
+   "fieldtype": "Select",
+   "label": "Materiality Level",
+   "options": "Material\nSignificant\nManagement Letter\nTrivial",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_reference",
+   "fieldtype": "Section Break",
+   "label": "Document Reference"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Document",
+   "options": "reference_doctype",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reference_field",
+   "fieldtype": "Data",
+   "label": "Field in Question"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "label": "Transaction Date"
+  },
+  {
+   "fieldname": "transaction_amount",
+   "fieldtype": "Currency",
+   "label": "Transaction Amount"
+  },
+  {
+   "fieldname": "financial_impact",
+   "fieldtype": "Currency",
+   "label": "Financial Impact / Misstatement"
+  },
+  {
+   "fieldname": "section_gl",
+   "fieldtype": "Section Break",
+   "label": "GL / Financial Statement Dimension"
+  },
+  {
+   "fieldname": "gl_account",
+   "fieldtype": "Link",
+   "label": "GL Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "financial_statement_line",
+   "fieldtype": "Select",
+   "label": "Financial Statement Line",
+   "options": "\nBalance Sheet - Asset\nBalance Sheet - Liability\nBalance Sheet - Equity\nIncome Statement - Revenue\nIncome Statement - Cost of Sales\nIncome Statement - Operating Expense\nCash Flow - Operating\nCash Flow - Investing\nNot Applicable"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gl_entry_reference",
+   "fieldtype": "Link",
+   "label": "GL Entry",
+   "options": "GL Entry"
+  },
+  {
+   "fieldname": "observed_gl_amount",
+   "fieldtype": "Currency",
+   "label": "Observed GL Amount"
+  },
+  {
+   "fieldname": "expected_gl_amount",
+   "fieldtype": "Currency",
+   "label": "Expected GL Amount"
+  },
+  {
+   "fieldname": "section_5c",
+   "fieldtype": "Section Break",
+   "label": "The 5Cs of Audit Findings"
+  },
+  {
+   "description": "The standard, policy, or benchmark against which the finding is measured",
+   "fieldname": "criteria",
+   "fieldtype": "Text Editor",
+   "label": "1. Criteria (What should be)"
+  },
+  {
+   "description": "The actual situation or deficiency observed during the audit",
+   "fieldname": "condition",
+   "fieldtype": "Text Editor",
+   "label": "2. Condition (What is)"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Root cause of the deficiency",
+   "fieldname": "cause",
+   "fieldtype": "Text Editor",
+   "label": "3. Cause (Why it happened)"
+  },
+  {
+   "description": "The risk or impact if the condition is not corrected",
+   "fieldname": "consequence",
+   "fieldtype": "Text Editor",
+   "label": "4. Consequence (Effect/Risk)"
+  },
+  {
+   "description": "Specific, actionable recommendation to address the finding",
+   "fieldname": "corrective_action_suggested",
+   "fieldtype": "Text Editor",
+   "label": "5. Corrective Action (Recommendation)"
+  },
+  {
+   "fieldname": "section_shortform",
+   "fieldtype": "Section Break",
+   "label": "Quick Observation (Auto-generated)"
+  },
+  {
+   "fieldname": "observation",
+   "fieldtype": "Text Editor",
+   "label": "Observation"
+  },
+  {
+   "fieldname": "coso_component",
+   "fieldtype": "Select",
+   "label": "COSO Component",
+   "options": "\nControl Environment\nRisk Assessment\nControl Activities\nInformation & Communication\nMonitoring"
+  },
+  {
+   "fieldname": "section_response",
+   "fieldtype": "Section Break",
+   "label": "Management Response"
+  },
+  {
+   "fieldname": "management_response",
+   "fieldtype": "Text Editor",
+   "label": "Management Response"
+  },
+  {
+   "fieldname": "action_owner",
+   "fieldtype": "Link",
+   "label": "Action Owner",
+   "options": "User"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Remediation Due Date"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "actual_closure_date",
+   "fieldtype": "Date",
+   "label": "Actual Closure Date"
+  },
+  {
+   "fieldname": "closure_evidence",
+   "fieldtype": "Text Editor",
+   "label": "Closure Evidence"
+  },
+  {
+   "fieldname": "auditor_closure_remarks",
+   "fieldtype": "Text Editor",
+   "label": "Auditor Closure Remarks"
+  },
+  {
+   "fieldname": "section_cap",
+   "fieldtype": "Section Break",
+   "label": "Corrective Action Plan"
+  },
+  {
+   "fieldname": "corrective_action_plan",
+   "fieldtype": "Link",
+   "label": "CAP Reference",
+   "options": "Corrective Action Plan"
+  },
+  {
+   "default": "0",
+   "fieldname": "re_audit_required",
+   "fieldtype": "Check",
+   "label": "Re-audit Required"
+  },
+  {
+   "fieldname": "re_audit_date",
+   "fieldtype": "Date",
+   "label": "Re-audit Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 20:55:34.243663",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Finding",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

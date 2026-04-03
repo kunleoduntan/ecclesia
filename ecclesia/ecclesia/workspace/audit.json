@@ -1,0 +1,295 @@
+{
+ "doctype": "Workspace",
+ "module": "Ecclesia",
+ "name": "Audit",
+ "label": "Audit",
+ "icon": "octicon octicon-shield",
+ "colour": "var(--orange)",
+ "is_standard": 1,
+ "restrict_to_domain": "",
+ "roles": [
+  {
+   "role": "Audit Manager",
+   "idx": 1
+  },
+  {
+   "role": "Senior Auditor",
+   "idx": 2
+  },
+  {
+   "role": "Auditor",
+   "idx": 3
+  },
+  {
+   "role": "Auditee",
+   "idx": 4
+  },
+  {
+   "role": "Audit Committee",
+   "idx": 5
+  }
+ ],
+ "shortcuts": [
+  {
+   "type": "Page",
+   "label": "Risk Dashboard",
+   "link_to": "audit-dashboard",
+   "color": "#c0392b",
+   "format": "Icon",
+   "idx": 1,
+   "restrict_to_domain": ""
+  },
+  {
+   "type": "Page",
+   "label": "GL Analytical Review",
+   "link_to": "gl-analytical-review",
+   "color": "#2980b9",
+   "format": "Icon",
+   "idx": 2,
+   "restrict_to_domain": ""
+  },
+  {
+   "type": "DocType",
+   "label": "Audit Engagements",
+   "link_to": "Audit Engagement",
+   "color": "#8e44ad",
+   "format": "Icon",
+   "idx": 3,
+   "restrict_to_domain": ""
+  },
+  {
+   "type": "DocType",
+   "label": "Open Findings",
+   "link_to": "Audit Finding",
+   "color": "#e74c3c",
+   "format": "Icon",
+   "idx": 4,
+   "restrict_to_domain": ""
+  },
+  {
+   "type": "DocType",
+   "label": "Open CAPs",
+   "link_to": "Corrective Action Plan",
+   "color": "#e67e22",
+   "format": "Icon",
+   "idx": 5,
+   "restrict_to_domain": ""
+  },
+  {
+   "type": "DocType",
+   "label": "Audit Universe",
+   "link_to": "Audit Universe",
+   "color": "#27ae60",
+   "format": "Icon",
+   "idx": 6,
+   "restrict_to_domain": ""
+  }
+ ],
+ "links": [
+  {
+   "label": "Dashboards",
+   "type": "Card Break",
+   "hidden": 0,
+   "idx": 1,
+   "is_query_report": 0,
+   "onboard": 0,
+   "description": "",
+   "link_to": "",
+   "link_count": 0
+  },
+  {
+   "label": "Risk Dashboard",
+   "type": "Page",
+   "link_to": "audit-dashboard",
+   "description": "Live KPIs, open findings, CAP status, GL monitoring summary",
+   "idx": 2,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "GL Analytical Review",
+   "type": "Page",
+   "link_to": "gl-analytical-review",
+   "description": "ISA 520 period-comparison, suspense accounts, JE risk analysis",
+   "idx": 3,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Planning",
+   "type": "Card Break",
+   "hidden": 0,
+   "idx": 4,
+   "is_query_report": 0,
+   "onboard": 0,
+   "description": "",
+   "link_to": "",
+   "link_count": 0
+  },
+  {
+   "label": "Annual Audit Plan",
+   "type": "DocType",
+   "link_to": "Annual Audit Plan",
+   "description": "Organisation-wide audit plan with materiality and AI prioritisation",
+   "idx": 5,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Audit Universe",
+   "type": "DocType",
+   "link_to": "Audit Universe",
+   "description": "Auditable entities with risk scores and coverage tracking",
+   "idx": 6,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Auditable DocType Registry",
+   "type": "DocType",
+   "link_to": "Auditable DocType Registry",
+   "description": "Register DocTypes for continuous audit coverage",
+   "idx": 7,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Execution",
+   "type": "Card Break",
+   "hidden": 0,
+   "idx": 8,
+   "is_query_report": 0,
+   "onboard": 0,
+   "description": "",
+   "link_to": "",
+   "link_count": 0
+  },
+  {
+   "label": "Audit Engagement",
+   "type": "DocType",
+   "link_to": "Audit Engagement",
+   "description": "Individual audit engagements with scope, team, and materiality",
+   "idx": 9,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Audit Checklist",
+   "type": "DocType",
+   "link_to": "Audit Checklist",
+   "description": "IIA/COSO-aligned test checklists generated per engagement",
+   "idx": 10,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Audit Checklist Template",
+   "type": "DocType",
+   "link_to": "Audit Checklist Template",
+   "description": "Reusable test procedure templates per DocType classification",
+   "idx": 11,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Audit Sample",
+   "type": "DocType",
+   "link_to": "Audit Sample",
+   "description": "ISA 530 MUS and statistical samples with AI-flagged inclusions",
+   "idx": 12,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Findings & Reporting",
+   "type": "Card Break",
+   "hidden": 0,
+   "idx": 13,
+   "is_query_report": 0,
+   "onboard": 0,
+   "description": "",
+   "link_to": "",
+   "link_count": 0
+  },
+  {
+   "label": "Audit Finding",
+   "type": "DocType",
+   "link_to": "Audit Finding",
+   "description": "5C-structured findings with materiality, COSO mapping, and CAP linkage",
+   "idx": 14,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Corrective Action Plan",
+   "type": "DocType",
+   "link_to": "Corrective Action Plan",
+   "description": "Management action plans with milestones and overdue tracking",
+   "idx": 15,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "Audit Report",
+   "type": "DocType",
+   "link_to": "Audit Report",
+   "description": "AI-generated reports with opinion, FS impact, and distribution",
+   "idx": 16,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  },
+  {
+   "label": "GL Monitoring",
+   "type": "Card Break",
+   "hidden": 0,
+   "idx": 17,
+   "is_query_report": 0,
+   "onboard": 0,
+   "description": "",
+   "link_to": "",
+   "link_count": 0
+  },
+  {
+   "label": "GL Audit Log",
+   "type": "DocType",
+   "link_to": "GL Audit Log",
+   "description": "Immutable log of every GL event \u2014 cancellations, amendments, variances",
+   "idx": 18,
+   "hidden": 0,
+   "is_query_report": 0,
+   "onboard": 0,
+   "link_count": 0
+  }
+ ],
+ "content": "[{\"id\":\"sect_dash\",\"type\":\"section\",\"data\":{\"text\":\"Dashboards\",\"col\":12},\"blocks\":[]},{\"id\":\"c_dash1\",\"type\":\"col\",\"data\":{\"col\":6},\"blocks\":[{\"id\":\"l_dash\",\"type\":\"shortcut\",\"data\":{\"label\":\"Risk Dashboard\",\"format\":\"List\",\"link_to\":\"audit-dashboard\",\"icon\":\"fa fa-tachometer\",\"col\":12}}]},{\"id\":\"c_dash2\",\"type\":\"col\",\"data\":{\"col\":6},\"blocks\":[{\"id\":\"l_gl\",\"type\":\"shortcut\",\"data\":{\"label\":\"GL Analytical Review\",\"format\":\"List\",\"link_to\":\"gl-analytical-review\",\"icon\":\"fa fa-line-chart\",\"col\":12}}]},{\"id\":\"sect_plan\",\"type\":\"section\",\"data\":{\"text\":\"Planning\",\"col\":12},\"blocks\":[]},{\"id\":\"c_plan1\",\"type\":\"col\",\"data\":{\"col\":4},\"blocks\":[{\"id\":\"l_plan\",\"type\":\"shortcut\",\"data\":{\"label\":\"Annual Audit Plan\",\"format\":\"List\",\"link_to\":\"Annual Audit Plan\",\"icon\":\"fa fa-calendar\",\"col\":12}}]},{\"id\":\"c_plan2\",\"type\":\"col\",\"data\":{\"col\":4},\"blocks\":[{\"id\":\"l_univ\",\"type\":\"shortcut\",\"data\":{\"label\":\"Audit Universe\",\"format\":\"List\",\"link_to\":\"Audit Universe\",\"icon\":\"fa fa-globe\",\"col\":12}}]},{\"id\":\"c_plan3\",\"type\":\"col\",\"data\":{\"col\":4},\"blocks\":[{\"id\":\"l_reg\",\"type\":\"shortcut\",\"data\":{\"label\":\"DocType Registry\",\"format\":\"List\",\"link_to\":\"Auditable DocType Registry\",\"icon\":\"fa fa-database\",\"col\":12}}]},{\"id\":\"sect_exec\",\"type\":\"section\",\"data\":{\"text\":\"Execution\",\"col\":12},\"blocks\":[]},{\"id\":\"c_exec1\",\"type\":\"col\",\"data\":{\"col\":3},\"blocks\":[{\"id\":\"l_eng\",\"type\":\"shortcut\",\"data\":{\"label\":\"Engagements\",\"format\":\"List\",\"link_to\":\"Audit Engagement\",\"icon\":\"fa fa-shield\",\"col\":12}}]},{\"id\":\"c_exec2\",\"type\":\"col\",\"data\":{\"col\":3},\"blocks\":[{\"id\":\"l_ck\",\"type\":\"shortcut\",\"data\":{\"label\":\"Checklists\",\"format\":\"List\",\"link_to\":\"Audit Checklist\",\"icon\":\"fa fa-check-square\",\"col\":12}}]},{\"id\":\"c_exec3\",\"type\":\"col\",\"data\":{\"col\":3},\"blocks\":[{\"id\":\"l_samp\",\"type\":\"shortcut\",\"data\":{\"label\":\"Samples\",\"format\":\"List\",\"link_to\":\"Audit Sample\",\"icon\":\"fa fa-filter\",\"col\":12}}]},{\"id\":\"c_exec4\",\"type\":\"col\",\"data\":{\"col\":3},\"blocks\":[{\"id\":\"l_ckt\",\"type\":\"shortcut\",\"data\":{\"label\":\"Templates\",\"format\":\"List\",\"link_to\":\"Audit Checklist Template\",\"icon\":\"fa fa-list-alt\",\"col\":12}}]},{\"id\":\"sect_find\",\"type\":\"section\",\"data\":{\"text\":\"Findings & Reporting\",\"col\":12},\"blocks\":[]},{\"id\":\"c_find1\",\"type\":\"col\",\"data\":{\"col\":4},\"blocks\":[{\"id\":\"l_fnd\",\"type\":\"shortcut\",\"data\":{\"label\":\"Findings\",\"format\":\"List\",\"link_to\":\"Audit Finding\",\"icon\":\"fa fa-exclamation-triangle\",\"col\":12}}]},{\"id\":\"c_find2\",\"type\":\"col\",\"data\":{\"col\":4},\"blocks\":[{\"id\":\"l_cap\",\"type\":\"shortcut\",\"data\":{\"label\":\"CAPs\",\"format\":\"List\",\"link_to\":\"Corrective Action Plan\",\"icon\":\"fa fa-tasks\",\"col\":12}}]},{\"id\":\"c_find3\",\"type\":\"col\",\"data\":{\"col\":4},\"blocks\":[{\"id\":\"l_rpt\",\"type\":\"shortcut\",\"data\":{\"label\":\"Reports\",\"format\":\"List\",\"link_to\":\"Audit Report\",\"icon\":\"fa fa-file-text\",\"col\":12}}]},{\"id\":\"sect_gl\",\"type\":\"section\",\"data\":{\"text\":\"GL Monitoring\",\"col\":12},\"blocks\":[]},{\"id\":\"c_gl1\",\"type\":\"col\",\"data\":{\"col\":12},\"blocks\":[{\"id\":\"l_gll\",\"type\":\"shortcut\",\"data\":{\"label\":\"GL Audit Log\",\"format\":\"List\",\"link_to\":\"GL Audit Log\",\"icon\":\"fa fa-history\",\"col\":12}}]}]",
+ "creation": "2025-01-01 00:00:00.000000",
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "docstatus": 0,
+ "idx": 0
+}

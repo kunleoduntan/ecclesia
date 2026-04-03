@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{team_name}-{####}",
+ "creation": "2026-03-18 18:29:10.968396",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "team_name",
+  "team_role",
+  "members_section",
+  "team_members",
+  "permission_level",
+  "platform_access",
+  "notification_preferences",
+  "user"
+ ],
+ "fields": [
+  {
+   "fieldname": "team_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Team Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "team_role",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Team Role",
+   "options": "\nContent Creator\nContent Approver\nCommunity Manager\nAnalytics Viewer\nAd Manager\nFull Access"
+  },
+  {
+   "fieldname": "members_section",
+   "fieldtype": "Section Break",
+   "label": "Team Members"
+  },
+  {
+   "fieldname": "team_members",
+   "fieldtype": "Table MultiSelect",
+   "label": "Team Members",
+   "options": "Social Media Team Member",
+   "reqd": 1
+  },
+  {
+   "fieldname": "permission_level",
+   "fieldtype": "Select",
+   "label": "Permission Level",
+   "options": "\nRead Only\nComment Only\nPost with Approval\nPost without Approval\nAdmin"
+  },
+  {
+   "description": "Comma-separated platform names or 'All'",
+   "fieldname": "platform_access",
+   "fieldtype": "Small Text",
+   "label": "Platform Access"
+  },
+  {
+   "fieldname": "notification_preferences",
+   "fieldtype": "JSON",
+   "label": "Notification Preferences"
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "User",
+   "options": "User"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-18 18:29:10.968396",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Social Media Team Assignment",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

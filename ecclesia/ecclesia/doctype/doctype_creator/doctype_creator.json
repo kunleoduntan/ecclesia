@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-10-02 09:24:43.260649",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "doctype_name",
+  "module",
+  "is_submittable",
+  "track_changes",
+  "is_single",
+  "column_break_30wj",
+  "is_child",
+  "is_autoname",
+  "autoname_field_name",
+  "create_document",
+  "json_section",
+  "doctype_field_json"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Title"
+  },
+  {
+   "fieldname": "doctype_name",
+   "fieldtype": "Data",
+   "label": "Doctype Name"
+  },
+  {
+   "fieldname": "module",
+   "fieldtype": "Link",
+   "label": "Module",
+   "options": "Module Def"
+  },
+  {
+   "fieldname": "column_break_30wj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_submittable",
+   "fieldtype": "Check",
+   "label": "Is Submittable"
+  },
+  {
+   "default": "0",
+   "fieldname": "track_changes",
+   "fieldtype": "Check",
+   "label": "Track Changes"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_single",
+   "fieldtype": "Check",
+   "label": "Is Single"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_child",
+   "fieldtype": "Check",
+   "label": "Is Child"
+  },
+  {
+   "fieldname": "json_section",
+   "fieldtype": "Section Break",
+   "label": "JSON"
+  },
+  {
+   "fieldname": "doctype_field_json",
+   "fieldtype": "JSON",
+   "label": "Doctype Field Json"
+  },
+  {
+   "default": "0",
+   "fieldname": "create_document",
+   "fieldtype": "Check",
+   "label": "Create Document"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_autoname",
+   "fieldtype": "Check",
+   "label": "Is Autoname"
+  },
+  {
+   "depends_on": "is_autoname",
+   "fieldname": "autoname_field_name",
+   "fieldtype": "Data",
+   "label": "Autoname Field Name",
+   "mandatory_depends_on": "is_autoname"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-10-03 11:28:41.092351",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Doctype Creator",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

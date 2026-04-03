@@ -1,0 +1,186 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:gateway_name",
+ "creation": "2026-03-10 11:15:52.201300",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "gateway_name",
+  "provider",
+  "col1",
+  "enabled",
+  "is_default",
+  "test_mode",
+  "company",
+  "sec_credentials",
+  "public_key",
+  "col2",
+  "secret_key",
+  "webhook_secret",
+  "sec_endpoints",
+  "base_url",
+  "col3",
+  "initiate_endpoint",
+  "verify_endpoint",
+  "col4",
+  "refund_endpoint",
+  "callback_url",
+  "sec_currency",
+  "currency"
+ ],
+ "fields": [
+  {
+   "fieldname": "gateway_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Gateway Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "provider",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Provider",
+   "options": "\nPaystack\nFlutterwave\nRemita\nInterswitch\nOpay\nSquad\nStripe\nM-Pesa\nPayPal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Set as Default"
+  },
+  {
+   "default": "1",
+   "fieldname": "test_mode",
+   "fieldtype": "Check",
+   "label": "Sandbox / Test Mode"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "sec_credentials",
+   "fieldtype": "Section Break",
+   "label": "API Credentials"
+  },
+  {
+   "fieldname": "public_key",
+   "fieldtype": "Data",
+   "label": "Public Key / Client ID"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "secret_key",
+   "fieldtype": "Password",
+   "label": "Secret Key"
+  },
+  {
+   "fieldname": "webhook_secret",
+   "fieldtype": "Password",
+   "label": "Webhook Secret"
+  },
+  {
+   "collapsible": 1,
+   "description": "Auto-populated when Provider is selected. Override only if using custom/proxy URLs.",
+   "fieldname": "sec_endpoints",
+   "fieldtype": "Section Break",
+   "label": "API Endpoints"
+  },
+  {
+   "description": "e.g. https://api.paystack.co",
+   "fieldname": "base_url",
+   "fieldtype": "Data",
+   "label": "Base URL"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "e.g. /transaction/initialize",
+   "fieldname": "initiate_endpoint",
+   "fieldtype": "Data",
+   "label": "Initiate Payment Path"
+  },
+  {
+   "fieldname": "verify_endpoint",
+   "fieldtype": "Data",
+   "label": "Verify Payment Path"
+  },
+  {
+   "fieldname": "col4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "refund_endpoint",
+   "fieldtype": "Data",
+   "label": "Refund Path"
+  },
+  {
+   "description": "Give this URL to the gateway's webhook settings.",
+   "fieldname": "callback_url",
+   "fieldtype": "Data",
+   "label": "Webhook Callback URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_currency",
+   "fieldtype": "Section Break",
+   "label": "Currency"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-10 11:18:15.162661",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Payment Gateway Settings",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

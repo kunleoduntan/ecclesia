@@ -1,0 +1,285 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-28 15:28:56.354059",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_header",
+  "naming_series",
+  "plan_title",
+  "fiscal_year",
+  "plan_year",
+  "status",
+  "column_break_1",
+  "chief_audit_executive",
+  "approved_by",
+  "approval_date",
+  "total_audit_days",
+  "section_materiality",
+  "total_revenue",
+  "total_assets",
+  "profit_before_tax",
+  "column_break_2",
+  "organisation_materiality",
+  "materiality_basis_used",
+  "materiality_percentage_used",
+  "section_ai",
+  "ai_prioritisation_summary",
+  "ai_generated_on",
+  "section_scope",
+  "planned_engagements",
+  "section_summary",
+  "total_planned",
+  "total_completed",
+  "total_in_progress",
+  "column_break_3",
+  "total_findings_raised",
+  "critical_findings_ytd",
+  "open_caps",
+  "section_charter",
+  "audit_charter",
+  "strategic_objectives",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_header",
+   "fieldtype": "Section Break",
+   "label": "Plan Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "bold": 1,
+   "fieldname": "plan_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plan Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "plan_year",
+   "fieldtype": "Int",
+   "label": "Year",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nApproved\nIn Progress\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "chief_audit_executive",
+   "fieldtype": "Link",
+   "label": "Chief Audit Executive",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Approval Date"
+  },
+  {
+   "fieldname": "total_audit_days",
+   "fieldtype": "Int",
+   "label": "Total Audit Days Budgeted"
+  },
+  {
+   "fieldname": "section_materiality",
+   "fieldtype": "Section Break",
+   "label": "Organisation-wide Materiality"
+  },
+  {
+   "fieldname": "total_revenue",
+   "fieldtype": "Currency",
+   "label": "Total Revenue (Prior Year)"
+  },
+  {
+   "fieldname": "total_assets",
+   "fieldtype": "Currency",
+   "label": "Total Assets (Prior Year)"
+  },
+  {
+   "fieldname": "profit_before_tax",
+   "fieldtype": "Currency",
+   "label": "Profit Before Tax (Prior Year)"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "organisation_materiality",
+   "fieldtype": "Currency",
+   "label": "Org-wide Materiality (Auto)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "materiality_basis_used",
+   "fieldtype": "Select",
+   "label": "Materiality Basis Used",
+   "options": "\nTotal Revenue\nTotal Assets\nProfit Before Tax",
+   "read_only": 1
+  },
+  {
+   "fieldname": "materiality_percentage_used",
+   "fieldtype": "Percent",
+   "label": "Materiality % Applied",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_ai",
+   "fieldtype": "Section Break",
+   "label": "AI Risk Prioritisation"
+  },
+  {
+   "fieldname": "ai_prioritisation_summary",
+   "fieldtype": "Text Editor",
+   "label": "AI Risk Prioritisation Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_generated_on",
+   "fieldtype": "Datetime",
+   "label": "AI Analysis Generated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_scope",
+   "fieldtype": "Section Break",
+   "label": "Audit Universe in Scope"
+  },
+  {
+   "fieldname": "planned_engagements",
+   "fieldtype": "Table",
+   "label": "Planned Engagements",
+   "options": "Annual Plan Engagement Row"
+  },
+  {
+   "fieldname": "section_summary",
+   "fieldtype": "Section Break",
+   "label": "Execution Summary"
+  },
+  {
+   "fieldname": "total_planned",
+   "fieldtype": "Int",
+   "label": "Total Planned",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_completed",
+   "fieldtype": "Int",
+   "label": "Completed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_in_progress",
+   "fieldtype": "Int",
+   "label": "In Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_findings_raised",
+   "fieldtype": "Int",
+   "label": "Total Findings Raised",
+   "read_only": 1
+  },
+  {
+   "fieldname": "critical_findings_ytd",
+   "fieldtype": "Int",
+   "label": "Critical Findings YTD",
+   "read_only": 1
+  },
+  {
+   "fieldname": "open_caps",
+   "fieldtype": "Int",
+   "label": "Open CAPs",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_charter",
+   "fieldtype": "Section Break",
+   "label": "Audit Charter & Objectives"
+  },
+  {
+   "fieldname": "audit_charter",
+   "fieldtype": "Text Editor",
+   "label": "Audit Charter Summary"
+  },
+  {
+   "fieldname": "strategic_objectives",
+   "fieldtype": "Text Editor",
+   "label": "Strategic Audit Objectives for the Year"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Annual Audit Plan",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-28 17:15:57.113610",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Annual Audit Plan",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

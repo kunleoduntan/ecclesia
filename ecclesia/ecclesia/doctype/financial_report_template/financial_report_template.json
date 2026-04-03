@@ -1,0 +1,262 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:template_name",
+ "creation": "2026-02-12 00:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_configuration_section",
+  "template_name",
+  "report_type",
+  "is_default",
+  "is_active",
+  "column_break_1",
+  "description",
+  "report_title",
+  "show_comparison",
+  "enable_budget_comparison",
+  "column_definition_section",
+  "use_column_definition",
+  "report_columns",
+  "excel_settings_section",
+  "excel_header_color",
+  "excel_total_row_color",
+  "excel_subtotal_color",
+  "excel_header_row",
+  "column_break_excel",
+  "show_zero_values",
+  "decimal_places",
+  "thousands_separator",
+  "column_break_excel_2",
+  "show_percentage_column",
+  "variance_threshold_highlight",
+  "negative_values_color",
+  "report_lines_section",
+  "report_lines"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "📊 Basic Configuration"
+  },
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Template Name",
+   "reqd": 1,
+   "unique": 1,
+   "description": "e.g., 'Standard P&L', 'IFRS Balance Sheet', 'Management Report'"
+  },
+  {
+   "fieldname": "report_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Report Type",
+   "options": "\nProfit and Loss\nBalance Sheet\nCash Flow\nCustom",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Default Template",
+   "description": "Use this as default for this report type"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "report_title",
+   "fieldtype": "Data",
+   "label": "Report Title",
+   "description": "Title to display on report (e.g., 'Statement of Comprehensive Income')"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_comparison",
+   "fieldtype": "Check",
+   "label": "Enable Year-over-Year Comparison"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_budget_comparison",
+   "fieldtype": "Check",
+   "label": "Enable Budget Comparison",
+   "description": "Allow optional budget vs actual comparison"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "column_definition_section",
+   "fieldtype": "Section Break",
+   "label": "📊 Custom Column Definition"
+  },
+  {
+   "default": "0",
+   "fieldname": "use_column_definition",
+   "fieldtype": "Check",
+   "label": "Use Custom Column Definition",
+   "description": "Enable to define your own columns (M1, M2, Q1, etc). When disabled, uses standard frequency-based columns"
+  },
+  {
+   "fieldname": "report_columns",
+   "fieldtype": "Table",
+   "label": "Report Columns",
+   "options": "Financial Report Column",
+   "depends_on": "eval:doc.use_column_definition==1",
+   "description": "Define custom columns: M1 (Jan), Q1 (Q1), -M1 (Jan LY), M1_BUD (Jan Budget)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "excel_settings_section",
+   "fieldtype": "Section Break",
+   "label": "📈 Excel Export Settings"
+  },
+  {
+   "default": "#4472C4",
+   "fieldname": "excel_header_color",
+   "fieldtype": "Color",
+   "label": "Header Color"
+  },
+  {
+   "default": "#E7E6E6",
+   "fieldname": "excel_total_row_color",
+   "fieldtype": "Color",
+   "label": "Total Row Color"
+  },
+  {
+   "default": "#F2F2F2",
+   "fieldname": "excel_subtotal_color",
+   "fieldtype": "Color",
+   "label": "Subtotal Color"
+  },
+  {
+   "default": "#D9E1F2",
+   "fieldname": "excel_header_row",
+   "fieldtype": "Color",
+   "label": "Column Header Row Color"
+  },
+  {
+   "fieldname": "column_break_excel",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "show_zero_values",
+   "fieldtype": "Check",
+   "label": "Show Zero Values"
+  },
+  {
+   "default": "2",
+   "fieldname": "decimal_places",
+   "fieldtype": "Int",
+   "label": "Decimal Places"
+  },
+  {
+   "default": "1",
+   "fieldname": "thousands_separator",
+   "fieldtype": "Check",
+   "label": "Use Thousands Separator"
+  },
+  {
+   "fieldname": "column_break_excel_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "show_percentage_column",
+   "fieldtype": "Check",
+   "label": "Show % of Revenue Column"
+  },
+  {
+   "default": "10",
+   "fieldname": "variance_threshold_highlight",
+   "fieldtype": "Float",
+   "label": "Variance Threshold % for Highlight",
+   "description": "Highlight variances above this percentage"
+  },
+  {
+   "default": "#FF0000",
+   "fieldname": "negative_values_color",
+   "fieldtype": "Color",
+   "label": "Negative Values Color"
+  },
+  {
+   "fieldname": "report_lines_section",
+   "fieldtype": "Section Break",
+   "label": "📝 Report Line Items"
+  },
+  {
+   "fieldname": "report_lines",
+   "fieldtype": "Table",
+   "label": "Report Lines",
+   "options": "Financial Report Line",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-12 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Financial Report Template",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1
+  }
+ ],
+ "quick_entry": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

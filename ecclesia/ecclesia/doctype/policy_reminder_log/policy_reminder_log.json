@@ -1,0 +1,138 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:PREM-{#####}",
+ "creation": "2026-03-12 19:54:45.483134",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "policy",
+  "policy_title",
+  "policy_version",
+  "col1",
+  "employee",
+  "employee_name",
+  "sec_log",
+  "sent_on",
+  "reminder_count",
+  "col2",
+  "reminder_type",
+  "recipient_email"
+ ],
+ "fields": [
+  {
+   "fieldname": "policy",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Policy",
+   "options": "Company Policy",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "policy.title",
+   "fieldname": "policy_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Policy Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "policy_version",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Policy Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_log",
+   "fieldtype": "Section Break",
+   "label": "Log Details"
+  },
+  {
+   "fieldname": "sent_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Sent On",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "description": "Cumulative number of reminders sent to this employee for this policy version",
+   "fieldname": "reminder_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Reminder Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Scheduled Reminder",
+   "description": "Escalation is triggered when employee is past the acknowledgement deadline",
+   "fieldname": "reminder_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Reminder Type",
+   "options": "Scheduled Reminder\nEscalation to HR"
+  },
+  {
+   "fieldname": "recipient_email",
+   "fieldtype": "Data",
+   "label": "Recipient Email",
+   "options": "Email",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-12 19:54:45.483134",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Policy Reminder Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

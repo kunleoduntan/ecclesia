@@ -1,0 +1,83 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 18:23:41.621345",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_1",
+  "tax_level_description",
+  "tax_level_amount",
+  "column_break_4",
+  "tax_rate",
+  "tax_amount",
+  "column_break_7",
+  "cum_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "tax_level_description",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Tax Level Description",
+   "options": "\nFirst \u20a6800,000\nNext \u20a62,200,000\nNext \u20a69,000,000\nNext \u20a613,000,000\nNext \u20a625,000,000\nAbove \u20a650,000,000"
+  },
+  {
+   "description": "Amount of income in this bracket",
+   "fieldname": "tax_level_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Tax Level Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tax_rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Tax Rate",
+   "read_only": 1
+  },
+  {
+   "description": "Tax for this bracket",
+   "fieldname": "tax_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Tax Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Total tax up to this bracket",
+   "fieldname": "cum_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Cumulative Tax",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-02 18:23:41.621345",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Tax Slab Custom",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

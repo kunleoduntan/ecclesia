@@ -1,0 +1,243 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-31 20:04:06.426359",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "reconciliation_date",
+  "warehouse",
+  "column_break_1",
+  "fiscal_year",
+  "currency",
+  "column_break_25kwq",
+  "create_stock_entry",
+  "freeze_rate",
+  "section_break_people",
+  "prepared_by",
+  "column_break_2",
+  "approved_by",
+  "section_break_upload",
+  "upload_file",
+  "remarks",
+  "section_break_items",
+  "items",
+  "section_break_summary",
+  "total_items",
+  "column_break_3",
+  "total_adjusted_items",
+  "column_break_4",
+  "net_adjustment_amount",
+  "column_break_5",
+  "variance_percent",
+  "section_break_entry",
+  "stock_entry_reference",
+  "stock_entry_status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "SRECON-.YYYY.MM.DD.-.####",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "reconciliation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Reconciliation Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Warehouse",
+   "options": "Warehouse",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "section_break_people",
+   "fieldtype": "Section Break",
+   "label": "Prepared By"
+  },
+  {
+   "fieldname": "prepared_by",
+   "fieldtype": "Link",
+   "label": "Prepared By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_break_upload",
+   "fieldtype": "Section Break",
+   "label": "Upload"
+  },
+  {
+   "description": "Upload a CSV with columns: Item Code, Item Name, Current Qty, Current Price, Physical Count Qty, Valuation Price",
+   "fieldname": "upload_file",
+   "fieldtype": "Attach",
+   "label": "Upload CSV File"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_items",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation Lines"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Stock Reconciliation Item Line"
+  },
+  {
+   "fieldname": "section_break_summary",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "total_items",
+   "fieldtype": "Int",
+   "label": "Total Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_adjusted_items",
+   "fieldtype": "Int",
+   "label": "Adjusted Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "net_adjustment_amount",
+   "fieldtype": "Currency",
+   "label": "Net Adjustment Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "variance_percent",
+   "fieldtype": "Percent",
+   "label": "Variance %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_entry",
+   "fieldtype": "Section Break",
+   "label": "Linked Stock Entry"
+  },
+  {
+   "fieldname": "stock_entry_reference",
+   "fieldtype": "Link",
+   "label": "Stock Entry",
+   "options": "Stock Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "stock_entry_status",
+   "fieldtype": "Data",
+   "label": "Stock Entry Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Stock Balance Reconciliation",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_25kwq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "create_stock_entry",
+   "fieldtype": "Check",
+   "label": "Create Stock Entry "
+  },
+  {
+   "default": "0",
+   "fieldname": "freeze_rate",
+   "fieldtype": "Check",
+   "label": "Freeze Rate"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-01 18:10:16.691065",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Stock Balance Reconciliation",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

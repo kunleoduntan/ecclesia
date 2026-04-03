@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-03-12 19:52:34.232214",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "scope_type",
+  "scope_value"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "scope_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "\nDepartment\nDesignation\nBranch\nEmployee Group",
+   "reqd": 1
+  },
+  {
+   "columns": 4,
+   "description": "Link value resolved from Scope Type",
+   "fieldname": "scope_value",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Value",
+   "options": "scope_type",
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-12 19:52:34.232214",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Policy Scope",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

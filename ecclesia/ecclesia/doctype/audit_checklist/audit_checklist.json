@@ -1,0 +1,206 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-28 14:53:46.376346",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_header",
+  "naming_series",
+  "audit_engagement",
+  "doctype_name",
+  "transaction_code",
+  "status",
+  "column_break_1",
+  "from_date",
+  "to_date",
+  "assigned_to",
+  "reviewed_by",
+  "section_progress",
+  "total_items",
+  "items_tested",
+  "items_passed",
+  "items_failed",
+  "column_break_2",
+  "completion_percentage",
+  "overall_result",
+  "section_items",
+  "checklist_items",
+  "section_conclusion",
+  "auditor_conclusion",
+  "reviewer_remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_header",
+   "fieldtype": "Section Break",
+   "label": "Checklist Header"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "AUC-"
+  },
+  {
+   "bold": 1,
+   "fieldname": "audit_engagement",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Audit Engagement",
+   "options": "Audit Engagement",
+   "reqd": 1
+  },
+  {
+   "fieldname": "doctype_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "DocType Being Audited",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Transaction Code",
+   "read_only": 1
+  },
+  {
+   "default": "Not Started",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Not Started\nIn Progress\nCompleted\nReview Pending"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Period From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "Period To",
+   "reqd": 1
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To",
+   "options": "User"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_progress",
+   "fieldtype": "Section Break",
+   "label": "Progress"
+  },
+  {
+   "fieldname": "total_items",
+   "fieldtype": "Int",
+   "label": "Total Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "items_tested",
+   "fieldtype": "Int",
+   "label": "Items Tested",
+   "read_only": 1
+  },
+  {
+   "fieldname": "items_passed",
+   "fieldtype": "Int",
+   "label": "Passed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "items_failed",
+   "fieldtype": "Int",
+   "label": "Failed / Exception",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "completion_percentage",
+   "fieldtype": "Percent",
+   "label": "Completion %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overall_result",
+   "fieldtype": "Select",
+   "label": "Overall Result",
+   "options": "\nSatisfactory\nNeeds Improvement\nUnsatisfactory",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_items",
+   "fieldtype": "Section Break",
+   "label": "Checklist Items"
+  },
+  {
+   "fieldname": "checklist_items",
+   "fieldtype": "Table",
+   "label": "Checklist Items",
+   "options": "Audit Checklist Item"
+  },
+  {
+   "fieldname": "section_conclusion",
+   "fieldtype": "Section Break",
+   "label": "Conclusion"
+  },
+  {
+   "fieldname": "auditor_conclusion",
+   "fieldtype": "Text Editor",
+   "label": "Auditor Conclusion"
+  },
+  {
+   "fieldname": "reviewer_remarks",
+   "fieldtype": "Text Editor",
+   "label": "Reviewer Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 20:54:40.072459",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Checklist",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

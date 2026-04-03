@@ -1,0 +1,159 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-28 15:22:24.469599",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "cap_title",
+  "audit_finding",
+  "status",
+  "risk_rating",
+  "column_break_1",
+  "action_owner",
+  "due_date",
+  "completion_date",
+  "section_actions",
+  "action_plan",
+  "milestones",
+  "section_evidence",
+  "completion_evidence",
+  "re_audit_required",
+  "auditor_sign_off",
+  "sign_off_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "CAP-"
+  },
+  {
+   "bold": 1,
+   "fieldname": "cap_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CAP Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_finding",
+   "fieldtype": "Link",
+   "label": "Audit Finding",
+   "options": "Audit Finding",
+   "reqd": 1
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nCompleted\nOverdue\nAccepted Risk"
+  },
+  {
+   "fieldname": "risk_rating",
+   "fieldtype": "Select",
+   "label": "Finding Risk",
+   "options": "Critical\nHigh\nMedium\nLow",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "action_owner",
+   "fieldtype": "Link",
+   "label": "Action Owner",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "completion_date",
+   "fieldtype": "Date",
+   "label": "Actual Completion"
+  },
+  {
+   "fieldname": "section_actions",
+   "fieldtype": "Section Break",
+   "label": "Actions"
+  },
+  {
+   "fieldname": "action_plan",
+   "fieldtype": "Text Editor",
+   "label": "Action Plan"
+  },
+  {
+   "fieldname": "milestones",
+   "fieldtype": "Table",
+   "label": "Milestones",
+   "options": "CAP Milestone"
+  },
+  {
+   "fieldname": "section_evidence",
+   "fieldtype": "Section Break",
+   "label": "Evidence of Completion"
+  },
+  {
+   "fieldname": "completion_evidence",
+   "fieldtype": "Text Editor",
+   "label": "Evidence"
+  },
+  {
+   "default": "0",
+   "fieldname": "re_audit_required",
+   "fieldtype": "Check",
+   "label": "Re-audit Required"
+  },
+  {
+   "fieldname": "auditor_sign_off",
+   "fieldtype": "Link",
+   "label": "Auditor Sign-off",
+   "options": "User"
+  },
+  {
+   "fieldname": "sign_off_date",
+   "fieldtype": "Date",
+   "label": "Sign-off Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 21:01:20.894443",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Corrective Action Plan",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

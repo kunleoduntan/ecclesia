@@ -1,0 +1,106 @@
+{
+  "doctype": "Workflow",
+  "name": "eRequest Approval",
+  "workflow_name": "eRequest Approval",
+  "document_type": "eRequest",
+  "is_active": 1,
+  "override_status": 0,
+  "send_email_alert": 0,
+  "workflow_state_field": "workflow_state",
+  "states": [
+    {
+      "state": "Draft",
+      "doc_status": "0",
+      "allow_edit": "eRequest Employee",
+      "is_optional_state": 0,
+      "next_action_email_template": ""
+    },
+    {
+      "state": "Pending Manager Approval",
+      "doc_status": "1",
+      "allow_edit": "eRequest Manager",
+      "is_optional_state": 0
+    },
+    {
+      "state": "Pending Finance Approval",
+      "doc_status": "1",
+      "allow_edit": "eRequest Finance",
+      "is_optional_state": 0
+    },
+    {
+      "state": "Pending Final Approval",
+      "doc_status": "1",
+      "allow_edit": "eRequest Admin",
+      "is_optional_state": 0
+    },
+    {
+      "state": "Approved",
+      "doc_status": "1",
+      "allow_edit": "eRequest Admin",
+      "is_optional_state": 0
+    },
+    {
+      "state": "Rejected",
+      "doc_status": "2",
+      "allow_edit": "eRequest Admin",
+      "is_optional_state": 0
+    },
+    {
+      "state": "Cancelled",
+      "doc_status": "2",
+      "allow_edit": "eRequest Admin",
+      "is_optional_state": 0
+    }
+  ],
+  "transitions": [
+    {
+      "state": "Draft",
+      "action": "Submit for Approval",
+      "next_state": "Pending Manager Approval",
+      "allowed": "eRequest Employee",
+      "allow_self_approval": 1
+    },
+    {
+      "state": "Pending Manager Approval",
+      "action": "Approve (Manager)",
+      "next_state": "Pending Finance Approval",
+      "allowed": "eRequest Manager",
+      "allow_self_approval": 0
+    },
+    {
+      "state": "Pending Manager Approval",
+      "action": "Reject",
+      "next_state": "Rejected",
+      "allowed": "eRequest Manager",
+      "allow_self_approval": 0
+    },
+    {
+      "state": "Pending Finance Approval",
+      "action": "Approve (Finance)",
+      "next_state": "Pending Final Approval",
+      "allowed": "eRequest Finance",
+      "allow_self_approval": 0
+    },
+    {
+      "state": "Pending Finance Approval",
+      "action": "Reject",
+      "next_state": "Rejected",
+      "allowed": "eRequest Finance",
+      "allow_self_approval": 0
+    },
+    {
+      "state": "Pending Final Approval",
+      "action": "Final Approve",
+      "next_state": "Approved",
+      "allowed": "eRequest Admin",
+      "allow_self_approval": 0
+    },
+    {
+      "state": "Pending Final Approval",
+      "action": "Reject",
+      "next_state": "Rejected",
+      "allowed": "eRequest Admin",
+      "allow_self_approval": 0
+    }
+  ]
+}

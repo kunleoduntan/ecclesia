@@ -1,0 +1,92 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-01 07:59:32.503395",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "phone_number",
+  "name_display",
+  "email",
+  "linked_doctype",
+  "linked_docname",
+  "custom_params",
+  "status",
+  "wa_message_id",
+  "error"
+ ],
+ "fields": [
+  {
+   "fieldname": "phone_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Phone Number",
+   "reqd": 1
+  },
+  {
+   "fieldname": "name_display",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Email"
+  },
+  {
+   "fieldname": "linked_doctype",
+   "fieldtype": "Link",
+   "label": "Linked DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "linked_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Linked Doc",
+   "options": "linked_doctype"
+  },
+  {
+   "description": "Override template params for this recipient",
+   "fieldname": "custom_params",
+   "fieldtype": "Small Text",
+   "label": "Custom Params (JSON)"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nSent\nDelivered\nRead\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "wa_message_id",
+   "fieldtype": "Data",
+   "label": "WA Message ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error",
+   "fieldtype": "Data",
+   "label": "Error",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-01 07:59:32.503395",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WA Broadcast Recipient",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

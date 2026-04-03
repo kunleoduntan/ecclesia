@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-01 08:09:20.512331",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "chat_type",
+  "naming_series",
+  "chat_name",
+  "description",
+  "is_active",
+  "col_break_1",
+  "avatar_image",
+  "is_archived",
+  "is_pinned",
+  "created_by",
+  "document_link_section",
+  "linked_doctype",
+  "linked_docname",
+  "members_section",
+  "members",
+  "settings_section",
+  "only_admins_can_post",
+  "allow_reactions",
+  "allow_replies",
+  "allow_file_sharing",
+  "col_break_settings",
+  "mute_notifications",
+  "message_retention_days",
+  "stats_section",
+  "last_message_at",
+  "last_message_preview",
+  "total_messages",
+  "member_count"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "default": "Direct Message",
+   "fieldname": "chat_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Chat Type",
+   "options": "Direct Message\nGroup\nDepartment\nDocument Channel\nAnnouncement",
+   "reqd": 1
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "bold": 1,
+   "description": "Auto-set for DMs. Required for groups.",
+   "fieldname": "chat_name",
+   "fieldtype": "Data",
+   "label": "Chat Name / Topic"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Active"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.chat_type in ['Group','Department','Announcement']",
+   "fieldname": "avatar_image",
+   "fieldtype": "Attach Image",
+   "label": "Group Avatar"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_archived",
+   "fieldtype": "Check",
+   "label": "Archived"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pinned",
+   "fieldtype": "Check",
+   "label": "Pinned"
+  },
+  {
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.chat_type=='Document Channel'",
+   "fieldname": "document_link_section",
+   "fieldtype": "Section Break",
+   "label": "Document Channel"
+  },
+  {
+   "depends_on": "eval:doc.chat_type=='Document Channel'",
+   "fieldname": "linked_doctype",
+   "fieldtype": "Link",
+   "label": "Linked DocType",
+   "options": "DocType"
+  },
+  {
+   "depends_on": "eval:doc.chat_type=='Document Channel'",
+   "fieldname": "linked_docname",
+   "fieldtype": "Dynamic Link",
+   "label": "Linked Document",
+   "options": "linked_doctype"
+  },
+  {
+   "fieldname": "members_section",
+   "fieldtype": "Section Break",
+   "label": "Members"
+  },
+  {
+   "fieldname": "members",
+   "fieldtype": "Table",
+   "label": "Members",
+   "options": "WA Internal Chat Member"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "settings_section",
+   "fieldtype": "Section Break",
+   "label": "Chat Settings"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.chat_type in ['Announcement','Department']",
+   "fieldname": "only_admins_can_post",
+   "fieldtype": "Check",
+   "label": "Only Admins Can Post"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_reactions",
+   "fieldtype": "Check",
+   "label": "Allow Reactions"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_replies",
+   "fieldtype": "Check",
+   "label": "Allow Threaded Replies"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_file_sharing",
+   "fieldtype": "Check",
+   "label": "Allow File Sharing"
+  },
+  {
+   "fieldname": "col_break_settings",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "mute_notifications",
+   "fieldtype": "Check",
+   "label": "Mute Notifications"
+  },
+  {
+   "description": "0 = use global setting",
+   "fieldname": "message_retention_days",
+   "fieldtype": "Int",
+   "label": "Message Retention (Days)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "stats_section",
+   "fieldtype": "Section Break",
+   "label": "Stats"
+  },
+  {
+   "fieldname": "last_message_at",
+   "fieldtype": "Datetime",
+   "label": "Last Message At",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_message_preview",
+   "fieldtype": "Data",
+   "label": "Last Message",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_messages",
+   "fieldtype": "Int",
+   "label": "Total Messages",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "member_count",
+   "fieldtype": "Int",
+   "label": "Member Count",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-01 20:27:06.794980",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WA Internal Chat",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,95 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-01 07:57:17.598123",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "level",
+  "label",
+  "after_hours",
+  "notify_role",
+  "notify_user",
+  "notify_field",
+  "channels",
+  "wa_template",
+  "message_body"
+ ],
+ "fields": [
+  {
+   "fieldname": "level",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Level",
+   "reqd": 1
+  },
+  {
+   "description": "e.g. Agent, Manager, Director, CEO",
+   "fieldname": "label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Label"
+  },
+  {
+   "fieldname": "after_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Trigger After (hours)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "notify_role",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Notify Role",
+   "options": "Role"
+  },
+  {
+   "fieldname": "notify_user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Notify User",
+   "options": "User"
+  },
+  {
+   "description": "e.g. owner, assigned_user",
+   "fieldname": "notify_field",
+   "fieldtype": "Data",
+   "label": "Notify Field (from doc)"
+  },
+  {
+   "default": "WhatsApp",
+   "fieldname": "channels",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Channels",
+   "options": "WhatsApp\nWhatsApp + Email\nWhatsApp + SMS + Email\nEmail\nSMS"
+  },
+  {
+   "fieldname": "wa_template",
+   "fieldtype": "Link",
+   "label": "WhatsApp Template",
+   "options": "WA Template"
+  },
+  {
+   "description": "Jinja2 template. Use {{ doc.field_name }}",
+   "fieldname": "message_body",
+   "fieldtype": "Small Text",
+   "label": "Custom Message"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-01 07:57:17.598123",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Escalation Rule Level",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

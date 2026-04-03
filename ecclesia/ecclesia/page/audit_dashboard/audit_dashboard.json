@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2026-02-28 15:38:51.880986",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-02-28 17:06:31.247808",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "audit-dashboard",
+ "owner": "Administrator",
+ "page_name": "audit-dashboard",
+ "roles": [
+  {
+   "role": "Auditor"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": " Audit Risk Dashboard"
+}

@@ -1,0 +1,314 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-03-01 08:22:06.938841",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "conversation",
+  "direction",
+  "message_type",
+  "timestamp",
+  "col_break_1",
+  "wa_message_id",
+  "sender_user",
+  "sender_phone",
+  "delivery_status",
+  "content_section",
+  "body",
+  "caption",
+  "media_section",
+  "media_id",
+  "media_url",
+  "media_file",
+  "media_mime_type",
+  "media_sha256",
+  "media_file_size",
+  "media_filename",
+  "location_section",
+  "location_latitude",
+  "location_longitude",
+  "location_name",
+  "location_address",
+  "reply_section",
+  "reply_to_message",
+  "replied_wa_message_id",
+  "forwarded",
+  "reactions_section",
+  "reactions",
+  "template_section",
+  "wa_template",
+  "template_params_values",
+  "error_section",
+  "error_code",
+  "error_message",
+  "retry_count"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series"
+  },
+  {
+   "bold": 1,
+   "fieldname": "conversation",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Conversation",
+   "options": "WA Conversation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "direction",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Direction",
+   "options": "Inbound\nOutbound",
+   "reqd": 1
+  },
+  {
+   "default": "text",
+   "fieldname": "message_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "text\nimage\nvideo\naudio\ndocument\nsticker\nlocation\ncontacts\ntemplate\nreaction\ninteractive\nsystem",
+   "reqd": 1
+  },
+  {
+   "fieldname": "timestamp",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Timestamp",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "wamid.xxx from Meta API",
+   "fieldname": "wa_message_id",
+   "fieldtype": "Data",
+   "label": "WhatsApp Message ID",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.direction=='Outbound'",
+   "fieldname": "sender_user",
+   "fieldtype": "Link",
+   "label": "Sender (ERPNext User)",
+   "options": "User"
+  },
+  {
+   "depends_on": "eval:doc.direction=='Inbound'",
+   "fieldname": "sender_phone",
+   "fieldtype": "Data",
+   "label": "Sender Phone"
+  },
+  {
+   "default": "queued",
+   "fieldname": "delivery_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Delivery Status",
+   "options": "queued\nsent\ndelivered\nread\nfailed"
+  },
+  {
+   "fieldname": "content_section",
+   "fieldtype": "Section Break",
+   "label": "Content"
+  },
+  {
+   "depends_on": "eval:doc.message_type=='text'||doc.message_type=='template'",
+   "fieldname": "body",
+   "fieldtype": "Long Text",
+   "label": "Message Body"
+  },
+  {
+   "depends_on": "eval:['image','video','document','audio'].includes(doc.message_type)",
+   "fieldname": "caption",
+   "fieldtype": "Data",
+   "label": "Caption"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:['image','video','document','audio','sticker'].includes(doc.message_type)",
+   "fieldname": "media_section",
+   "fieldtype": "Section Break",
+   "label": "Media"
+  },
+  {
+   "fieldname": "media_id",
+   "fieldtype": "Data",
+   "label": "Media ID (WhatsApp)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "media_url",
+   "fieldtype": "Data",
+   "label": "Media URL"
+  },
+  {
+   "fieldname": "media_file",
+   "fieldtype": "Attach",
+   "label": "Stored File"
+  },
+  {
+   "fieldname": "media_mime_type",
+   "fieldtype": "Data",
+   "label": "MIME Type"
+  },
+  {
+   "fieldname": "media_sha256",
+   "fieldtype": "Data",
+   "label": "SHA256 Hash"
+  },
+  {
+   "fieldname": "media_file_size",
+   "fieldtype": "Int",
+   "label": "File Size (bytes)"
+  },
+  {
+   "fieldname": "media_filename",
+   "fieldtype": "Data",
+   "label": "Filename"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.message_type=='location'",
+   "fieldname": "location_section",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "location_latitude",
+   "fieldtype": "Float",
+   "label": "Latitude"
+  },
+  {
+   "fieldname": "location_longitude",
+   "fieldtype": "Float",
+   "label": "Longitude"
+  },
+  {
+   "fieldname": "location_name",
+   "fieldtype": "Data",
+   "label": "Location Name"
+  },
+  {
+   "fieldname": "location_address",
+   "fieldtype": "Data",
+   "label": "Address"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "reply_section",
+   "fieldtype": "Section Break",
+   "label": "Reply & Context"
+  },
+  {
+   "description": "Quoted/replied-to message",
+   "fieldname": "reply_to_message",
+   "fieldtype": "Link",
+   "label": "Reply To",
+   "options": "WA Message"
+  },
+  {
+   "fieldname": "replied_wa_message_id",
+   "fieldtype": "Data",
+   "label": "Replied WA Message ID (raw)"
+  },
+  {
+   "default": "0",
+   "fieldname": "forwarded",
+   "fieldtype": "Check",
+   "label": "Forwarded Message"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "reactions_section",
+   "fieldtype": "Section Break",
+   "label": "Reactions"
+  },
+  {
+   "fieldname": "reactions",
+   "fieldtype": "Table",
+   "label": "Reactions",
+   "options": "WA Message Reaction"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.message_type=='template'",
+   "fieldname": "template_section",
+   "fieldtype": "Section Break",
+   "label": "Template Info"
+  },
+  {
+   "fieldname": "wa_template",
+   "fieldtype": "Link",
+   "label": "Template Used",
+   "options": "WA Template"
+  },
+  {
+   "description": "Resolved param values at time of sending",
+   "fieldname": "template_params_values",
+   "fieldtype": "Small Text",
+   "label": "Param Values (JSON)"
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.delivery_status=='failed'",
+   "fieldname": "error_section",
+   "fieldtype": "Section Break",
+   "label": "Error Info"
+  },
+  {
+   "fieldname": "error_code",
+   "fieldtype": "Data",
+   "label": "Error Code"
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message"
+  },
+  {
+   "default": "0",
+   "fieldname": "retry_count",
+   "fieldtype": "Int",
+   "label": "Retry Count"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-02 11:31:58.194703",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WA Message",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "hash",
+ "creation": "2026-03-13 17:21:01.102729",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "performance_record",
+  "employee_name",
+  "composite_score",
+  "system_rating",
+  "proposed_rating",
+  "calibrated_rating",
+  "calibration_notes",
+  "is_locked"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "performance_record",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Performance Record",
+   "options": "Employee Performance Record",
+   "reqd": 1
+  },
+  {
+   "columns": 3,
+   "fetch_from": "performance_record.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fetch_from": "performance_record.composite_score",
+   "fieldname": "composite_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Composite Score",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fetch_from": "performance_record.final_rating",
+   "fieldname": "system_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "System Rating",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "proposed_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Proposed Rating"
+  },
+  {
+   "columns": 2,
+   "fieldname": "calibrated_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Calibrated Rating"
+  },
+  {
+   "fieldname": "calibration_notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_locked",
+   "fieldtype": "Check",
+   "label": "Locked",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-13 17:31:32.530778",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Calibration Entry",
+ "naming_rule": "Random",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

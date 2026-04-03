@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 18:34:05.455634",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_1",
+  "company",
+  "tax_year",
+  "column_break_2",
+  "effective_from",
+  "effective_to",
+  "section_break_5",
+  "pension_rate",
+  "nhf_rate",
+  "nhis_rate",
+  "column_break_8",
+  "life_insurance_cap",
+  "rent_relief_rate",
+  "rent_relief_cap",
+  "section_break_11",
+  "tax_brackets"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "tax_year",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tax Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From"
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To"
+  },
+  {
+   "fieldname": "section_break_5",
+   "fieldtype": "Section Break",
+   "label": "Statutory Deduction Rates"
+  },
+  {
+   "default": "8",
+   "fieldname": "pension_rate",
+   "fieldtype": "Float",
+   "label": "Pension Contribution Rate (%)",
+   "precision": "2"
+  },
+  {
+   "default": "2.5",
+   "fieldname": "nhf_rate",
+   "fieldtype": "Float",
+   "label": "NHF Contribution Rate (%)",
+   "precision": "2"
+  },
+  {
+   "default": "1.75",
+   "fieldname": "nhis_rate",
+   "fieldtype": "Float",
+   "label": "NHIS Contribution Rate (%)",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "100000",
+   "fieldname": "life_insurance_cap",
+   "fieldtype": "Currency",
+   "label": "Life Insurance Premium Cap"
+  },
+  {
+   "default": "20",
+   "fieldname": "rent_relief_rate",
+   "fieldtype": "Float",
+   "label": "Rent Relief Rate (%)",
+   "precision": "2"
+  },
+  {
+   "default": "500000",
+   "fieldname": "rent_relief_cap",
+   "fieldtype": "Currency",
+   "label": "Rent Relief Cap"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break",
+   "label": "Tax Brackets (Optional - for future use)"
+  },
+  {
+   "fieldname": "tax_brackets",
+   "fieldtype": "Table",
+   "label": "Tax Brackets",
+   "options": "Tax Bracket Item"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-02-02 18:34:05.455634",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Tax Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

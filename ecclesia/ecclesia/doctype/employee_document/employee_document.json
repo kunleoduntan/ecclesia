@@ -1,0 +1,252 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ESSDOC-{YYYY}-{#####}",
+ "creation": "2026-03-06 18:44:27.928369",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_core",
+  "employee",
+  "document_title",
+  "document_category",
+  "col1",
+  "document_type",
+  "file_url",
+  "file_name",
+  "section_assign",
+  "assigned_by",
+  "assigned_by_name",
+  "assigned_on",
+  "col2",
+  "uploaded_on",
+  "uploaded_by",
+  "section_action",
+  "action_required",
+  "action_type",
+  "action_status",
+  "col3",
+  "action_completed_on",
+  "actioned_by",
+  "signature_image",
+  "section_meta",
+  "linked_doctype",
+  "linked_docname",
+  "col4",
+  "expiry_date",
+  "is_expired",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_core",
+   "fieldtype": "Section Break",
+   "label": "Document"
+  },
+  {
+   "bold": 1,
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "document_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "options": "personal\nhr_letter\npayroll\ncompliance\nqualification\ntax\nother"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Select",
+   "in_standard_filter": 1,
+   "label": "Type",
+   "options": "Employee Upload\nHR Assigned\nSystem Generated"
+  },
+  {
+   "fieldname": "file_url",
+   "fieldtype": "Attach",
+   "label": "File"
+  },
+  {
+   "fieldname": "file_name",
+   "fieldtype": "Data",
+   "label": "File Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_assign",
+   "fieldtype": "Section Break",
+   "label": "Assignment"
+  },
+  {
+   "fieldname": "assigned_by",
+   "fieldtype": "Link",
+   "label": "Assigned By",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "assigned_by.employee_name",
+   "fieldname": "assigned_by_name",
+   "fieldtype": "Data",
+   "label": "Assigned By Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "assigned_on",
+   "fieldtype": "Date",
+   "label": "Assigned On"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "uploaded_on",
+   "fieldtype": "Date",
+   "label": "Uploaded On"
+  },
+  {
+   "fieldname": "uploaded_by",
+   "fieldtype": "Link",
+   "label": "Uploaded By",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_action",
+   "fieldtype": "Section Break",
+   "label": "Action"
+  },
+  {
+   "default": "0",
+   "fieldname": "action_required",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Action Required"
+  },
+  {
+   "depends_on": "eval:doc.action_required==1",
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Action Type",
+   "options": "\nSignature\nAcknowledge\nView Only"
+  },
+  {
+   "default": "Not Required",
+   "fieldname": "action_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Not Required\nPending\nCompleted"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "action_completed_on",
+   "fieldtype": "Datetime",
+   "label": "Actioned On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "actioned_by",
+   "fieldtype": "Link",
+   "label": "Actioned By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.action_type=='Signature'",
+   "fieldname": "signature_image",
+   "fieldtype": "Attach Image",
+   "label": "Signature",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_meta",
+   "fieldtype": "Section Break",
+   "label": "Metadata"
+  },
+  {
+   "fieldname": "linked_doctype",
+   "fieldtype": "Data",
+   "label": "Linked DocType"
+  },
+  {
+   "fieldname": "linked_docname",
+   "fieldtype": "Data",
+   "label": "Linked Document",
+   "options": "linked_doctype"
+  },
+  {
+   "fieldname": "col4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expired",
+   "fieldtype": "Check",
+   "label": "Expired",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-06 18:47:56.609432",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Employee Document",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

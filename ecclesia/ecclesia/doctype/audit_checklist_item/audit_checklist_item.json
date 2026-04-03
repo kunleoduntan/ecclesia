@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-28 14:50:16.579915",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_number",
+  "control_area",
+  "test_procedure",
+  "risk_level",
+  "result",
+  "coso_component",
+  "iia_standard",
+  "auditor_note",
+  "evidence_description",
+  "exception_detail",
+  "linked_finding",
+  "tested_by",
+  "test_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "item_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "#"
+  },
+  {
+   "fieldname": "control_area",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Control Area"
+  },
+  {
+   "fieldname": "test_procedure",
+   "fieldtype": "Text",
+   "in_list_view": 1,
+   "label": "Test Procedure"
+  },
+  {
+   "fieldname": "risk_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Risk",
+   "options": "Critical\nHigh\nMedium\nLow"
+  },
+  {
+   "default": "Not Tested",
+   "fieldname": "result",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Result",
+   "options": "Not Tested\nPass\nFail\nException\nN/A"
+  },
+  {
+   "fieldname": "coso_component",
+   "fieldtype": "Data",
+   "label": "COSO Component"
+  },
+  {
+   "fieldname": "iia_standard",
+   "fieldtype": "Data",
+   "label": "IIA Standard"
+  },
+  {
+   "fieldname": "auditor_note",
+   "fieldtype": "Text",
+   "label": "Auditor Note / Work Done"
+  },
+  {
+   "fieldname": "evidence_description",
+   "fieldtype": "Small Text",
+   "label": "Evidence Description"
+  },
+  {
+   "fieldname": "exception_detail",
+   "fieldtype": "Text",
+   "label": "Exception Detail (if Fail/Exception)"
+  },
+  {
+   "fieldname": "linked_finding",
+   "fieldtype": "Link",
+   "label": "Linked Finding",
+   "options": "Audit Finding"
+  },
+  {
+   "fieldname": "tested_by",
+   "fieldtype": "Link",
+   "label": "Tested By",
+   "options": "User"
+  },
+  {
+   "fieldname": "test_date",
+   "fieldtype": "Date",
+   "label": "Test Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-28 14:50:16.579915",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Checklist Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

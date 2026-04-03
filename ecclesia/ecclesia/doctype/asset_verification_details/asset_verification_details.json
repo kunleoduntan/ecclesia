@@ -1,0 +1,164 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-04 06:53:17.808467",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_code",
+  "asset_name",
+  "column_break_1",
+  "expected_location",
+  "actual_location",
+  "section_break_verification",
+  "physical_condition",
+  "qr_code_scanned",
+  "column_break_verify1",
+  "scan_timestamp",
+  "verified",
+  "section_break_discrepancy",
+  "discrepancy",
+  "discrepancy_type",
+  "column_break_disc1",
+  "remarks",
+  "section_break_evidence",
+  "image",
+  "verified_by"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Fixed Asset",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expected_location",
+   "fieldtype": "Data",
+   "label": "Expected Location",
+   "read_only": 1
+  },
+  {
+   "fieldname": "actual_location",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Actual Location",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "section_break_verification",
+   "fieldtype": "Section Break",
+   "label": "\u2705 Verification"
+  },
+  {
+   "fieldname": "physical_condition",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Physical Condition",
+   "options": "Excellent\nGood\nFair\nPoor\nMissing\nDamaged",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "qr_code_scanned",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "QR Code Scanned"
+  },
+  {
+   "fieldname": "column_break_verify1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scan_timestamp",
+   "fieldtype": "Datetime",
+   "label": "Scan Time"
+  },
+  {
+   "bold": 1,
+   "default": "0",
+   "fieldname": "verified",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Verified"
+  },
+  {
+   "fieldname": "section_break_discrepancy",
+   "fieldtype": "Section Break",
+   "label": "\u26a0\ufe0f Discrepancy"
+  },
+  {
+   "default": "0",
+   "fieldname": "discrepancy",
+   "fieldtype": "Check",
+   "label": "Has Discrepancy"
+  },
+  {
+   "depends_on": "discrepancy",
+   "fieldname": "discrepancy_type",
+   "fieldtype": "Select",
+   "label": "Discrepancy Type",
+   "options": "Location Mismatch\nMissing\nDamaged\nUnrecorded Asset Found\nCondition Issue\nOther"
+  },
+  {
+   "fieldname": "column_break_disc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_evidence",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "image",
+   "fieldtype": "Attach Image",
+   "label": "Photo Evidence"
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verified By",
+   "options": "User"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-04 06:53:17.808467",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Asset Verification Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

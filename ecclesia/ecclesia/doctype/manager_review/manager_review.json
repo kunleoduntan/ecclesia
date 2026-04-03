@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:MRV-{#####}",
+ "creation": "2026-03-13 17:24:13.063130",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "performance_record",
+  "employee",
+  "employee_name",
+  "col1",
+  "manager",
+  "overall_score",
+  "recommended_rating",
+  "status",
+  "sec_narrative",
+  "strengths",
+  "areas_for_improvement",
+  "development_plan",
+  "sec_goals_review",
+  "goals_commentary",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "performance_record",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Performance Record",
+   "options": "Employee Performance Record",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "performance_record.employee",
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "performance_record.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "manager",
+   "fieldtype": "Link",
+   "label": "Reviewing Manager",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "overall_score",
+   "fieldtype": "Float",
+   "label": "Overall Score (1-5)",
+   "precision": "1",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recommended_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Recommended Rating"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_narrative",
+   "fieldtype": "Section Break",
+   "label": "Manager Narrative"
+  },
+  {
+   "fieldname": "strengths",
+   "fieldtype": "Text Editor",
+   "label": "Key Strengths",
+   "reqd": 1
+  },
+  {
+   "fieldname": "areas_for_improvement",
+   "fieldtype": "Text Editor",
+   "label": "Areas for Improvement",
+   "reqd": 1
+  },
+  {
+   "fieldname": "development_plan",
+   "fieldtype": "Text Editor",
+   "label": "Development Plan"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_goals_review",
+   "fieldtype": "Section Break",
+   "label": "Goal Review"
+  },
+  {
+   "fieldname": "goals_commentary",
+   "fieldtype": "Table",
+   "label": "Goals Commentary",
+   "options": "Manager Goal Comment"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Manager Review",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-13 17:30:47.835953",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Manager Review",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

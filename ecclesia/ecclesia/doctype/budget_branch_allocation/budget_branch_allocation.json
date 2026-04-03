@@ -1,0 +1,244 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-03 16:42:31.547381",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "branch_details_section",
+  "branch",
+  "branch_name",
+  "allocation_percentage",
+  "column_break_1",
+  "allocated_amount",
+  "manual_override",
+  "status",
+  "financial_details_section",
+  "revenue_share",
+  "headcount",
+  "historical_spend",
+  "column_break_2",
+  "square_footage",
+  "units_produced",
+  "custom_weight",
+  "distribution_section",
+  "distribution_method",
+  "priority_level",
+  "column_break_3",
+  "is_locked",
+  "lock_reason",
+  "tracking_section",
+  "child_budget_created",
+  "child_budget_link",
+  "column_break_4",
+  "created_date",
+  "last_modified",
+  "notes_section",
+  "notes",
+  "allocation_rationale"
+ ],
+ "fields": [
+  {
+   "fieldname": "branch_details_section",
+   "fieldtype": "Section Break",
+   "label": "Branch Details"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Branch",
+   "options": "Branch",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "branch.branch",
+   "fieldname": "branch_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Branch Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "allocation_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Allocation %",
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "allocated_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Allocated Amount",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "description": "Check if allocation was manually adjusted",
+   "fieldname": "manual_override",
+   "fieldtype": "Check",
+   "label": "Manual Override"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nPending\nActive\nLocked\nRevised\nCancelled"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "financial_details_section",
+   "fieldtype": "Section Break",
+   "label": "Allocation Basis"
+  },
+  {
+   "description": "Branch revenue for proportional allocation",
+   "fieldname": "revenue_share",
+   "fieldtype": "Currency",
+   "label": "Revenue Share"
+  },
+  {
+   "description": "Number of employees at branch",
+   "fieldname": "headcount",
+   "fieldtype": "Int",
+   "label": "Headcount"
+  },
+  {
+   "description": "Previous year actual spend",
+   "fieldname": "historical_spend",
+   "fieldtype": "Currency",
+   "label": "Historical Spend"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Physical space allocation basis",
+   "fieldname": "square_footage",
+   "fieldtype": "Float",
+   "label": "Square Footage"
+  },
+  {
+   "description": "Production or sales volume",
+   "fieldname": "units_produced",
+   "fieldtype": "Float",
+   "label": "Units Produced/Sold"
+  },
+  {
+   "default": "1.0",
+   "description": "Custom weighting for allocation",
+   "fieldname": "custom_weight",
+   "fieldtype": "Float",
+   "label": "Custom Weight Factor"
+  },
+  {
+   "fieldname": "distribution_section",
+   "fieldtype": "Section Break",
+   "label": "Distribution Settings"
+  },
+  {
+   "fieldname": "distribution_method",
+   "fieldtype": "Select",
+   "label": "Distribution Method Used",
+   "options": "\nEqual Distribution\nProportional (Revenue)\nProportional (Headcount)\nProportional (Historical Spend)\nProportional (Square Footage)\nActivity-Based\nCustom Allocation",
+   "read_only": 1
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority_level",
+   "fieldtype": "Select",
+   "label": "Priority Level",
+   "options": "\nCritical\nHigh\nMedium\nLow"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_locked",
+   "fieldtype": "Check",
+   "label": "Is Locked"
+  },
+  {
+   "depends_on": "eval:doc.is_locked == 1",
+   "fieldname": "lock_reason",
+   "fieldtype": "Small Text",
+   "label": "Lock Reason"
+  },
+  {
+   "fieldname": "tracking_section",
+   "fieldtype": "Section Break",
+   "label": "Tracking"
+  },
+  {
+   "default": "0",
+   "fieldname": "child_budget_created",
+   "fieldtype": "Check",
+   "label": "Child Budget Created",
+   "read_only": 1
+  },
+  {
+   "fieldname": "child_budget_link",
+   "fieldtype": "Link",
+   "label": "Child Budget",
+   "options": "Annual Budget",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "created_date",
+   "fieldtype": "Datetime",
+   "label": "Created Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_modified",
+   "fieldtype": "Datetime",
+   "label": "Last Modified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes_section",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "description": "Explanation for allocation methodology and amounts",
+   "fieldname": "allocation_rationale",
+   "fieldtype": "Text Editor",
+   "label": "Allocation Rationale"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-03 16:42:31.547381",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Budget Branch Allocation",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

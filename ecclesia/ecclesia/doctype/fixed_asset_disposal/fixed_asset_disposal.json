@@ -1,0 +1,608 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-04 07:16:48.716333",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "document_info_section",
+  "naming_series",
+  "company",
+  "column_break_doc1",
+  "disposal_date",
+  "finance_book",
+  "column_break_doc2",
+  "asset_details_section",
+  "asset",
+  "asset_code",
+  "column_break_asset1",
+  "asset_name",
+  "asset_category",
+  "asset_location",
+  "disposal_information_section",
+  "disposal_type",
+  "disposal_method",
+  "column_break_disp1",
+  "reason_for_disposal",
+  "approved_by",
+  "column_break_disp2",
+  "approval_reference",
+  "check_profit_button",
+  "financial_summary_section",
+  "original_purchase_value",
+  "accumulated_depreciation_to_date",
+  "net_book_value_at_disposal",
+  "column_break_fin1",
+  "disposal_sale_proceeds",
+  "disposal_costs",
+  "column_break_fin2",
+  "net_disposal_proceeds",
+  "gain_loss_on_disposal",
+  "sale_transfer_tab",
+  "sale_details_section",
+  "customer_buyer",
+  "buyer_contact",
+  "column_break_sale1",
+  "buyer_address",
+  "sales_invoice",
+  "payment_section",
+  "payment_received",
+  "payment_mode",
+  "column_break_pay1",
+  "payment_date",
+  "scrap_details_section",
+  "scrap_value_received",
+  "column_break_scrap1",
+  "scrap_yard_vendor",
+  "accounting_tab",
+  "accounting_details_section",
+  "asset_account",
+  "accumulated_depreciation_account",
+  "column_break_acc1",
+  "disposal_clearing_account",
+  "gain_on_disposal_account",
+  "column_break_acc2",
+  "loss_on_disposal_account",
+  "cash_bank_account",
+  "dimensions_section",
+  "cost_center",
+  "dimension_1",
+  "column_break_dim1",
+  "dimension_2",
+  "dimension_3",
+  "condition_tab",
+  "asset_condition_section",
+  "condition_at_disposal",
+  "physical_verification_done",
+  "column_break_cond1",
+  "verified_by",
+  "verification_date",
+  "condition_notes",
+  "status_section",
+  "status",
+  "column_break_stat1",
+  "journal_entry",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "document_info_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc4 Document Information"
+  },
+  {
+   "default": "FAD-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FAD-.YYYY.-.#####\nFAD-.####",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_doc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "disposal_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Disposal Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "finance_book",
+   "fieldtype": "Link",
+   "label": "Finance Book",
+   "options": "Finance Book"
+  },
+  {
+   "fieldname": "column_break_doc2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Disposal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_details_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83c\udff7\ufe0f Asset Details"
+  },
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Asset",
+   "options": "Fixed Asset",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fetch_from": "asset.asset_code",
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_asset1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.asset_category",
+   "fieldname": "asset_category",
+   "fieldtype": "Data",
+   "label": "Asset Category",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.current_location",
+   "fieldname": "asset_location",
+   "fieldtype": "Data",
+   "label": "Asset Location",
+   "read_only": 1
+  },
+  {
+   "fieldname": "disposal_information_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\uddd1\ufe0f Disposal Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "disposal_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Disposal Type",
+   "options": "Sale\nScrap\nDonation\nTransfer to Another Entity\nWrite-off\nTrade-in",
+   "reqd": 1
+  },
+  {
+   "fieldname": "disposal_method",
+   "fieldtype": "Select",
+   "label": "Disposal Method",
+   "options": "Auction\nDirect Sale\nTender\nNegotiation\nOther"
+  },
+  {
+   "fieldname": "column_break_disp1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reason_for_disposal",
+   "fieldtype": "Text",
+   "label": "Reason for Disposal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_disp2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approval_reference",
+   "fieldtype": "Data",
+   "label": "Approval Reference"
+  },
+  {
+   "fieldname": "check_profit_button",
+   "fieldtype": "Button",
+   "label": "\ud83d\udca1 Check Profit/Loss on Disposal"
+  },
+  {
+   "fieldname": "financial_summary_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Financial Summary"
+  },
+  {
+   "bold": 1,
+   "fetch_from": "asset.current_gross_value",
+   "fieldname": "original_purchase_value",
+   "fieldtype": "Currency",
+   "label": "Original Purchase Value",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fetch_from": "asset.current_accumulated_depreciation",
+   "fieldname": "accumulated_depreciation_to_date",
+   "fieldtype": "Currency",
+   "label": "Accumulated Depreciation",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "description": "Purchase Value - Accumulated Depreciation",
+   "fieldname": "net_book_value_at_disposal",
+   "fieldtype": "Currency",
+   "label": "Net Book Value at Disposal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fin1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Amount received from disposal",
+   "fieldname": "disposal_sale_proceeds",
+   "fieldtype": "Currency",
+   "label": "Disposal/Sale Proceeds"
+  },
+  {
+   "description": "Transportation, cleaning, etc.",
+   "fieldname": "disposal_costs",
+   "fieldtype": "Currency",
+   "label": "Disposal Costs"
+  },
+  {
+   "fieldname": "column_break_fin2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "description": "Sale Proceeds - Disposal Costs",
+   "fieldname": "net_disposal_proceeds",
+   "fieldtype": "Currency",
+   "label": "Net Disposal Proceeds",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "description": "Net Proceeds - Net Book Value",
+   "fieldname": "gain_loss_on_disposal",
+   "fieldtype": "Currency",
+   "label": "Gain/Loss on Disposal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sale_transfer_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcbc Sale/Transfer Details"
+  },
+  {
+   "fieldname": "sale_details_section",
+   "fieldtype": "Section Break",
+   "label": "Buyer Information"
+  },
+  {
+   "fieldname": "customer_buyer",
+   "fieldtype": "Link",
+   "label": "Customer/Buyer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "buyer_contact",
+   "fieldtype": "Data",
+   "label": "Buyer Contact"
+  },
+  {
+   "fieldname": "column_break_sale1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "buyer_address",
+   "fieldtype": "Small Text",
+   "label": "Buyer Address"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice"
+  },
+  {
+   "fieldname": "payment_section",
+   "fieldtype": "Section Break",
+   "label": "Payment Details"
+  },
+  {
+   "fieldname": "payment_received",
+   "fieldtype": "Currency",
+   "label": "Payment Received"
+  },
+  {
+   "fieldname": "payment_mode",
+   "fieldtype": "Link",
+   "label": "Payment Mode",
+   "options": "Mode of Payment"
+  },
+  {
+   "fieldname": "column_break_pay1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "payment_date",
+   "fieldtype": "Date",
+   "label": "Payment Date"
+  },
+  {
+   "depends_on": "eval:doc.disposal_type=='Scrap'",
+   "fieldname": "scrap_details_section",
+   "fieldtype": "Section Break",
+   "label": "Scrap Details"
+  },
+  {
+   "fieldname": "scrap_value_received",
+   "fieldtype": "Currency",
+   "label": "Scrap Value Received"
+  },
+  {
+   "fieldname": "column_break_scrap1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "scrap_yard_vendor",
+   "fieldtype": "Data",
+   "label": "Scrap Yard/Vendor"
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcca Accounting"
+  },
+  {
+   "fieldname": "accounting_details_section",
+   "fieldtype": "Section Break",
+   "label": "Account Mapping"
+  },
+  {
+   "fetch_from": "asset.asset_account",
+   "fieldname": "asset_account",
+   "fieldtype": "Link",
+   "label": "Asset Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.accumulated_depreciation_account",
+   "fieldname": "accumulated_depreciation_account",
+   "fieldtype": "Link",
+   "label": "Accumulated Depreciation Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "disposal_clearing_account",
+   "fieldtype": "Link",
+   "label": "Disposal Clearing Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "gain_on_disposal_account",
+   "fieldtype": "Link",
+   "label": "Gain on Disposal Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_acc2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loss_on_disposal_account",
+   "fieldtype": "Link",
+   "label": "Loss on Disposal Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cash_bank_account",
+   "fieldtype": "Link",
+   "label": "Cash/Bank Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "dimensions_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Dimensions"
+  },
+  {
+   "fetch_from": "asset.cost_center",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "dimension_1",
+   "fieldtype": "Data",
+   "label": "Dimension 1"
+  },
+  {
+   "fieldname": "column_break_dim1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dimension_2",
+   "fieldtype": "Data",
+   "label": "Dimension 2"
+  },
+  {
+   "fieldname": "dimension_3",
+   "fieldtype": "Data",
+   "label": "Dimension 3"
+  },
+  {
+   "fieldname": "condition_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udd0d Asset Condition"
+  },
+  {
+   "fieldname": "asset_condition_section",
+   "fieldtype": "Section Break",
+   "label": "Physical Condition"
+  },
+  {
+   "default": "Good",
+   "fieldname": "condition_at_disposal",
+   "fieldtype": "Select",
+   "label": "Condition at Disposal",
+   "options": "Excellent\nGood\nFair\nPoor\nScrap"
+  },
+  {
+   "default": "0",
+   "fieldname": "physical_verification_done",
+   "fieldtype": "Check",
+   "label": "Physical Verification Done"
+  },
+  {
+   "fieldname": "column_break_cond1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verified By",
+   "options": "User"
+  },
+  {
+   "fieldname": "verification_date",
+   "fieldtype": "Date",
+   "label": "Verification Date"
+  },
+  {
+   "fieldname": "condition_notes",
+   "fieldtype": "Text",
+   "label": "Condition Notes"
+  },
+  {
+   "fieldname": "status_section",
+   "fieldtype": "Section Break",
+   "label": "Status"
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_stat1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "no_copy": 1,
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Disposal",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-18 16:21:44.017513",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Disposal",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

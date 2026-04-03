@@ -1,0 +1,120 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:TMPL-{doctype_name}-{#####}",
+ "creation": "2026-03-04 17:16:12.062702",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "template_name",
+  "doctype_name",
+  "column_break_1",
+  "is_default",
+  "created_by",
+  "section_break_mapping",
+  "field_mapping",
+  "section_break_options",
+  "duplicate_action",
+  "date_format",
+  "encoding"
+ ],
+ "fields": [
+  {
+   "fieldname": "template_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Template Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "doctype_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "DocType",
+   "options": "DocType",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "Set as Default for this DocType"
+  },
+  {
+   "default": "__user",
+   "fieldname": "created_by",
+   "fieldtype": "Link",
+   "label": "Created By",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_break_mapping",
+   "fieldtype": "Section Break",
+   "label": "Field Mapping"
+  },
+  {
+   "description": "Stored as JSON: { source_col: target_fieldname, ... }",
+   "fieldname": "field_mapping",
+   "fieldtype": "Long Text",
+   "label": "Mapping JSON"
+  },
+  {
+   "fieldname": "section_break_options",
+   "fieldtype": "Section Break",
+   "label": "Import Options"
+  },
+  {
+   "default": "Skip",
+   "fieldname": "duplicate_action",
+   "fieldtype": "Select",
+   "label": "Duplicate Action",
+   "options": "Skip\nUpdate\nCreate New"
+  },
+  {
+   "default": "YYYY-MM-DD",
+   "fieldname": "date_format",
+   "fieldtype": "Select",
+   "label": "Date Format",
+   "options": "YYYY-MM-DD\nDD/MM/YYYY\nMM/DD/YYYY\nDD-MM-YYYY"
+  },
+  {
+   "default": "UTF-8",
+   "fieldname": "encoding",
+   "fieldtype": "Select",
+   "label": "File Encoding",
+   "options": "UTF-8\nUTF-16\nLatin-1"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-04 17:16:51.804107",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bulk Import Template",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

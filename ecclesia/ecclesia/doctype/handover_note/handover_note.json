@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:HNT-{#####}",
+ "creation": "2026-03-12 20:42:02.692042",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "department",
+  "col1",
+  "leave_application",
+  "leave_type",
+  "leave_from",
+  "leave_to",
+  "sec_officers",
+  "supervisor",
+  "default_acting_officer",
+  "col2",
+  "status",
+  "return_status",
+  "sec_tasks",
+  "tasks",
+  "sec_delegations",
+  "delegations",
+  "sec_notes",
+  "handover_notes",
+  "return_notes",
+  "rejection_reason",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "leave_application",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Leave Application",
+   "options": "Leave Application",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "leave_application.leave_type",
+   "fieldname": "leave_type",
+   "fieldtype": "Data",
+   "label": "Leave Type",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "leave_application.from_date",
+   "fieldname": "leave_from",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Leave From",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "leave_application.to_date",
+   "fieldname": "leave_to",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Leave To",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_officers",
+   "fieldtype": "Section Break",
+   "label": "Acting Officers"
+  },
+  {
+   "description": "Employee who reviews and approves this handover",
+   "fieldname": "supervisor",
+   "fieldtype": "Link",
+   "label": "Supervisor / Approver",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "description": "Covers all tasks not individually reassigned",
+   "fieldname": "default_acting_officer",
+   "fieldtype": "Link",
+   "label": "Default Acting Officer",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Handover Status",
+   "options": "Draft\nPending Approval\nApproved\nActive\nReturn Pending\nClosed\nRejected",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "default": "Not Returned",
+   "fieldname": "return_status",
+   "fieldtype": "Select",
+   "label": "Return Status",
+   "options": "\nNot Returned\nReturned\nHandover Closed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_tasks",
+   "fieldtype": "Section Break",
+   "label": "Pending Tasks"
+  },
+  {
+   "description": "Minimum one task required before submission",
+   "fieldname": "tasks",
+   "fieldtype": "Table",
+   "label": "Tasks",
+   "options": "Handover Task",
+   "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_delegations",
+   "fieldtype": "Section Break",
+   "label": "Role Delegations"
+  },
+  {
+   "description": "System roles temporarily delegated to acting officers during the leave",
+   "fieldname": "delegations",
+   "fieldtype": "Table",
+   "label": "Delegations",
+   "options": "Handover Delegation"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_notes",
+   "fieldtype": "Section Break",
+   "label": "Handover Notes"
+  },
+  {
+   "description": "Context, ongoing projects, access credentials locations, or anything the acting officer needs to know",
+   "fieldname": "handover_notes",
+   "fieldtype": "Text Editor",
+   "label": "General Notes"
+  },
+  {
+   "depends_on": "eval:['Return Pending','Closed'].includes(doc.status)",
+   "description": "Employee's notes on return \u2014 summarise task outcomes and anything that needs follow-up",
+   "fieldname": "return_notes",
+   "fieldtype": "Text Editor",
+   "label": "Return Notes"
+  },
+  {
+   "depends_on": "eval:doc.status == 'Rejected'",
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Handover Note",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-12 21:05:03.958750",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Handover Note",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

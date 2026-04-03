@@ -1,0 +1,245 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:POL-{#####}",
+ "creation": "2026-03-12 19:56:10.844333",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "policy_code",
+  "title",
+  "col1",
+  "category",
+  "policy_type",
+  "sec_version",
+  "version",
+  "status",
+  "col2",
+  "effective_date",
+  "expiry_date",
+  "owner_role",
+  "version_change_summary",
+  "sec_scope",
+  "applicable_to",
+  "scope",
+  "sec_ack",
+  "requires_acknowledgement",
+  "acknowledgement_deadline_days",
+  "col3",
+  "reminder_interval_days",
+  "acknowledgement_status",
+  "sec_content",
+  "content",
+  "attachment",
+  "sec_history",
+  "version_history"
+ ],
+ "fields": [
+  {
+   "description": "Unique identifier e.g. HR-001, IT-SOP-003",
+   "fieldname": "policy_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Policy Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Category",
+   "options": "\nHR Policy\nIT Policy\nFinance Policy\nHealth & Safety\nOperations SOP\nCompliance\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "policy_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Type",
+   "options": "\nPolicy\nSOP\nGuideline\nCode of Conduct",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_version",
+   "fieldtype": "Section Break",
+   "label": "Version & Status"
+  },
+  {
+   "default": "1",
+   "fieldname": "version",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Version",
+   "read_only": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nUnder Review\nApproved\nPublished\nSuperseded\nRetired",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "effective_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Effective Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date"
+  },
+  {
+   "description": "Role responsible for maintaining this policy",
+   "fieldname": "owner_role",
+   "fieldtype": "Link",
+   "label": "Policy Owner Role",
+   "options": "Role"
+  },
+  {
+   "description": "Briefly describe what changed in this version (used in version history)",
+   "fieldname": "version_change_summary",
+   "fieldtype": "Small Text",
+   "label": "Version Change Summary"
+  },
+  {
+   "fieldname": "sec_scope",
+   "fieldtype": "Section Break",
+   "label": "Scope"
+  },
+  {
+   "default": "All Employees",
+   "fieldname": "applicable_to",
+   "fieldtype": "Select",
+   "label": "Apply To",
+   "options": "All Employees\nDepartment\nDesignation\nBranch\nEmployee Group",
+   "reqd": 1
+  },
+  {
+   "description": "Required when Apply To is not 'All Employees'",
+   "fieldname": "scope",
+   "fieldtype": "Table",
+   "label": "Scope Targets",
+   "options": "Policy Scope"
+  },
+  {
+   "fieldname": "sec_ack",
+   "fieldtype": "Section Break",
+   "label": "Acknowledgement Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "requires_acknowledgement",
+   "fieldtype": "Check",
+   "label": "Requires Acknowledgement"
+  },
+  {
+   "default": "7",
+   "depends_on": "eval:doc.requires_acknowledgement == 1",
+   "description": "Number of days employees have to acknowledge after publication",
+   "fieldname": "acknowledgement_deadline_days",
+   "fieldtype": "Int",
+   "label": "Acknowledgement Deadline (Days)"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "2",
+   "depends_on": "eval:doc.requires_acknowledgement == 1",
+   "description": "How often reminders are sent to unacknowledged employees",
+   "fieldname": "reminder_interval_days",
+   "fieldtype": "Int",
+   "label": "Reminder Interval (Days)"
+  },
+  {
+   "depends_on": "eval:doc.requires_acknowledgement == 1",
+   "fieldname": "acknowledgement_status",
+   "fieldtype": "Select",
+   "label": "Acknowledgement Status",
+   "options": "\nPending\nPartially Acknowledged\nFully Acknowledged",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_content",
+   "fieldtype": "Section Break",
+   "label": "Content"
+  },
+  {
+   "fieldname": "content",
+   "fieldtype": "Text Editor",
+   "label": "Policy Content",
+   "reqd": 1
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment (PDF / DOCX)"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_history",
+   "fieldtype": "Section Break",
+   "label": "Version History"
+  },
+  {
+   "fieldname": "version_history",
+   "fieldtype": "Table",
+   "label": "Version History",
+   "options": "Policy Version History",
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-03-12 19:56:35.156044",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Company Policy",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

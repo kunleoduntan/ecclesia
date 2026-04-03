@@ -1,0 +1,67 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{user}-{team}",
+ "creation": "2026-03-18 18:27:56.343211",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "user_name",
+  "user_email",
+  "role_in_team",
+  "is_team_lead"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "user.full_name",
+   "fieldname": "user_name",
+   "fieldtype": "Data",
+   "label": "User Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "user.email",
+   "fieldname": "user_email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "read_only": 1
+  },
+  {
+   "fieldname": "role_in_team",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Role in Team",
+   "options": "\nMember\nLead\nManager\nReviewer"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_team_lead",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Team Lead"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-18 18:27:56.343211",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Social Media Team Member",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

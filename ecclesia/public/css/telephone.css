@@ -1,0 +1,709 @@
+/* ============================================================
+   ecclesia/public/css/telephone.css
+   All Ecclesia Telephone UI Styles
+   ============================================================ */
+
+/* ── CSS Variables ─────────────────────────────────────────── */
+:root {
+    --ec-primary:       #2490EF;
+    --ec-call-green:    #28a745;
+    --ec-hangup-red:    #dc3545;
+    --ec-warn-orange:   #fd7e14;
+    --ec-bg:            #ffffff;
+    --ec-bg-secondary:  #f5f7fa;
+    --ec-border:        #e2e6ea;
+    --ec-text:          #1a1a2e;
+    --ec-text-muted:    #6c757d;
+    --ec-shadow:        0 8px 32px rgba(0,0,0,0.14);
+    --ec-radius:        16px;
+    --ec-radius-sm:     8px;
+    --ec-font:          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --ec-transition:    all 0.2s ease;
+    --ec-widget-width:  300px;
+}
+
+.ec-theme-dark {
+    --ec-bg:            #1e2130;
+    --ec-bg-secondary:  #262b3d;
+    --ec-border:        #3a3f55;
+    --ec-text:          #e8eaf6;
+    --ec-text-muted:    #9095ad;
+    --ec-shadow:        0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* ── Widget Container ──────────────────────────────────────── */
+.ec-widget {
+    position:    fixed;
+    z-index:     9999;
+    font-family: var(--ec-font);
+    display:     flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+/* ── Toggle Button ─────────────────────────────────────────── */
+.ec-toggle-btn {
+    width:           52px;
+    height:          52px;
+    border-radius:   50%;
+    background:      var(--ec-primary);
+    border:          none;
+    color:           #fff;
+    font-size:       22px;
+    cursor:          pointer;
+    box-shadow:      var(--ec-shadow);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    position:        relative;
+    transition:      var(--ec-transition);
+    margin-top:      8px;
+}
+
+.ec-toggle-btn:hover {
+    transform:  scale(1.08);
+    background: #1a7ed4;
+}
+
+/* ── Missed Call Badge ─────────────────────────────────────── */
+.ec-call-badge {
+    position:        absolute;
+    top:             -4px;
+    right:           -4px;
+    background:      var(--ec-hangup-red);
+    color:           #fff;
+    border-radius:   50%;
+    font-size:       10px;
+    font-weight:     700;
+    min-width:       18px;
+    height:          18px;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    padding:         0 4px;
+}
+
+/* ── Panel ─────────────────────────────────────────────────── */
+.ec-panel {
+    width:          var(--ec-widget-width);
+    background:     var(--ec-bg);
+    border-radius:  var(--ec-radius);
+    box-shadow:     var(--ec-shadow);
+    overflow:       hidden;
+    margin-bottom:  8px;
+    border:         1px solid var(--ec-border);
+    animation:      ec-slide-up 0.2s ease;
+}
+
+@keyframes ec-slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Header ────────────────────────────────────────────────── */
+.ec-header {
+    background:      var(--ec-primary);
+    color:           #fff;
+    padding:         12px 16px;
+    display:         flex;
+    justify-content: space-between;
+    align-items:     center;
+}
+
+.ec-header-title { font-weight: 600; font-size: 15px; letter-spacing: 0.3px; }
+
+.ec-header-actions { display: flex; gap: 6px; }
+
+.ec-icon-btn {
+    background:  transparent;
+    border:      none;
+    color:       rgba(255,255,255,0.85);
+    font-size:   15px;
+    cursor:      pointer;
+    padding:     2px 5px;
+    border-radius: 4px;
+    transition:  var(--ec-transition);
+}
+.ec-icon-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+/* ── Tabs ──────────────────────────────────────────────────── */
+.ec-tabs {
+    display:    flex;
+    background: var(--ec-bg-secondary);
+    border-bottom: 1px solid var(--ec-border);
+}
+
+.ec-tab {
+    flex:        1;
+    padding:     9px;
+    border:      none;
+    background:  transparent;
+    color:       var(--ec-text-muted);
+    font-size:   13px;
+    font-weight: 500;
+    cursor:      pointer;
+    transition:  var(--ec-transition);
+    border-bottom: 2px solid transparent;
+}
+
+.ec-tab:hover    { color: var(--ec-primary); }
+.ec-tab-active   {
+    color:         var(--ec-primary) !important;
+    border-bottom: 2px solid var(--ec-primary);
+    background:    var(--ec-bg);
+}
+
+/* ── Tab Content ───────────────────────────────────────────── */
+.ec-tab-content { padding: 12px; }
+
+/* ── Number Display ────────────────────────────────────────── */
+.ec-number-display {
+    display:       flex;
+    align-items:   center;
+    gap:           6px;
+    margin-bottom: 10px;
+}
+
+#ec-number-input {
+    flex:         1;
+    padding:      10px 12px;
+    border:       1px solid var(--ec-border);
+    border-radius: var(--ec-radius-sm);
+    background:   var(--ec-bg-secondary);
+    color:        var(--ec-text);
+    font-size:    18px;
+    letter-spacing: 1px;
+    outline:      none;
+    transition:   var(--ec-transition);
+}
+
+#ec-number-input:focus {
+    border-color: var(--ec-primary);
+    box-shadow:   0 0 0 3px rgba(36,144,239,0.12);
+}
+
+/* ── Status Bar ────────────────────────────────────────────── */
+.ec-status-bar {
+    text-align:    center;
+    font-size:     12px;
+    font-weight:   600;
+    padding:       6px 10px;
+    border-radius: var(--ec-radius-sm);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+}
+
+.ec-status-dialing  { background: #e8f4fd; color: var(--ec-primary);     }
+.ec-status-ringing  { background: #fff8e1; color: #f59f00;               }
+.ec-status-connected{ background: #e8f5e9; color: var(--ec-call-green);  }
+.ec-status-incoming { background: #fff3cd; color: #856404;               }
+.ec-status-ended    { background: #f8d7da; color: var(--ec-hangup-red);  }
+
+/* ── Keypad ────────────────────────────────────────────────── */
+.ec-keypad {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:                   8px;
+    margin-bottom:         12px;
+}
+
+.ec-key {
+    background:    var(--ec-bg-secondary);
+    border:        1px solid var(--ec-border);
+    border-radius: var(--ec-radius-sm);
+    padding:       10px 0;
+    cursor:        pointer;
+    display:       flex;
+    flex-direction: column;
+    align-items:   center;
+    gap:           2px;
+    transition:    var(--ec-transition);
+}
+
+.ec-key:hover  { background: var(--ec-primary); border-color: var(--ec-primary); color: #fff; }
+.ec-key:active { transform: scale(0.93); }
+
+.ec-key-digit {
+    font-size:   18px;
+    font-weight: 600;
+    color:       var(--ec-text);
+    line-height: 1;
+}
+.ec-key:hover .ec-key-digit { color: #fff; }
+
+.ec-key-sub {
+    font-size:   8px;
+    font-weight: 600;
+    color:       var(--ec-text-muted);
+    letter-spacing: 1px;
+}
+.ec-key:hover .ec-key-sub { color: rgba(255,255,255,0.75); }
+
+/* ── Call Controls ─────────────────────────────────────────── */
+.ec-call-controls {
+    display:         flex;
+    justify-content: center;
+    gap:             12px;
+    margin-bottom:   10px;
+}
+
+.ec-btn {
+    width:           52px;
+    height:          52px;
+    border-radius:   50%;
+    border:          none;
+    font-size:       20px;
+    cursor:          pointer;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    transition:      var(--ec-transition);
+    box-shadow:      0 2px 8px rgba(0,0,0,0.12);
+}
+
+.ec-btn:hover  { transform: scale(1.08); }
+.ec-btn:active { transform: scale(0.94); }
+
+.ec-btn-call   { background: var(--ec-call-green); color: #fff; }
+.ec-btn-hangup { background: var(--ec-hangup-red); color: #fff; }
+
+.ec-btn-mute,
+.ec-btn-hold {
+    background:   var(--ec-bg-secondary);
+    border:       1px solid var(--ec-border);
+    color:        var(--ec-text);
+    width:        42px;
+    height:       42px;
+    font-size:    17px;
+    align-self:   center;
+}
+
+.ec-btn-active { background: var(--ec-warn-orange) !important; color: #fff !important; border-color: transparent !important; }
+
+/* ── Call Timer ────────────────────────────────────────────── */
+.ec-call-timer {
+    text-align:  center;
+    font-size:   22px;
+    font-weight: 700;
+    color:       var(--ec-call-green);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 8px;
+}
+
+/* ── Notes Area ────────────────────────────────────────────── */
+.ec-notes-area { margin-top: 6px; }
+
+#ec-call-notes {
+    width:         100%;
+    border:        1px solid var(--ec-border);
+    border-radius: var(--ec-radius-sm);
+    background:    var(--ec-bg-secondary);
+    color:         var(--ec-text);
+    font-size:     13px;
+    padding:       8px;
+    resize:        vertical;
+    outline:       none;
+    font-family:   var(--ec-font);
+}
+
+#ec-call-notes:focus { border-color: var(--ec-primary); }
+
+.ec-btn-link {
+    background:  none;
+    border:      none;
+    color:       var(--ec-primary);
+    cursor:      pointer;
+    font-size:   12px;
+    padding:     4px 0;
+    display:     block;
+    margin-top:  4px;
+}
+
+/* ── History Tab ───────────────────────────────────────────── */
+.ec-history-list { display: flex; flex-direction: column; gap: 4px; max-height: 360px; overflow-y: auto; }
+
+.ec-history-item {
+    display:       flex;
+    align-items:   center;
+    gap:           10px;
+    padding:       8px 10px;
+    border-radius: var(--ec-radius-sm);
+    cursor:        pointer;
+    transition:    var(--ec-transition);
+    border:        1px solid transparent;
+}
+.ec-history-item:hover { background: var(--ec-bg-secondary); border-color: var(--ec-border); }
+
+.ec-hist-icon  { font-size: 18px; }
+
+.ec-hist-body  { flex: 1; min-width: 0; }
+.ec-hist-name  { font-size: 13px; font-weight: 600; color: var(--ec-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ec-hist-sub   { font-size: 11px; color: var(--ec-text-muted); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+.ec-hist-date  { font-size: 10px; color: var(--ec-text-muted); margin-top: 2px; }
+
+.ec-hist-recall-btn {
+    background:  transparent;
+    border:      1px solid var(--ec-border);
+    border-radius: 50%;
+    width:       30px;
+    height:      30px;
+    cursor:      pointer;
+    font-size:   13px;
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    transition:  var(--ec-transition);
+    flex-shrink: 0;
+}
+.ec-hist-recall-btn:hover { background: var(--ec-call-green); border-color: var(--ec-call-green); }
+
+.ec-empty, .ec-loading {
+    text-align: center;
+    color:      var(--ec-text-muted);
+    font-size:  13px;
+    padding:    24px;
+}
+
+/* ── Incoming Call Card ────────────────────────────────────── */
+.ec-incoming-card {
+    position:      fixed;
+    top:           20px;
+    right:         24px;
+    width:         300px;
+    background:    var(--ec-bg);
+    border-radius: var(--ec-radius);
+    box-shadow:    var(--ec-shadow);
+    border:        2px solid var(--ec-call-green);
+    z-index:       99999;
+    padding:       20px;
+    animation:     ec-incoming-pulse 0.8s ease infinite alternate, ec-slide-up 0.25s ease;
+    font-family:   var(--ec-font);
+}
+
+@keyframes ec-incoming-pulse {
+    from { box-shadow: var(--ec-shadow), 0 0 0 0 rgba(40,167,69,0.4); }
+    to   { box-shadow: var(--ec-shadow), 0 0 0 10px rgba(40,167,69,0);  }
+}
+
+.ec-incoming-header {
+    font-size:   11px;
+    font-weight: 700;
+    color:       var(--ec-call-green);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.ec-incoming-name {
+    font-size:   16px;
+    font-weight: 700;
+    color:       var(--ec-text);
+    margin-bottom: 4px;
+}
+.ec-incoming-name a { color: inherit; text-decoration: none; }
+.ec-incoming-name a:hover { text-decoration: underline; }
+
+.ec-incoming-number {
+    font-size:     13px;
+    color:         var(--ec-text-muted);
+    margin-bottom: 16px;
+}
+
+.ec-incoming-actions { display: flex; gap: 10px; }
+
+.ec-incoming-actions .ec-btn {
+    flex:    1;
+    width:   auto;
+    height:  auto;
+    padding: 10px;
+    border-radius: var(--ec-radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ── Status Pills ──────────────────────────────────────────── */
+.ec-status-pill {
+    display:       inline-block;
+    padding:       1px 7px;
+    border-radius: 20px;
+    font-size:     10px;
+    font-weight:   700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.ec-pill-green,
+.ec-pill-answered   { background: #d4edda; color: #155724; }
+.ec-pill-gray,
+.ec-pill-missed,
+.ec-pill-declined   { background: #e9ecef; color: #495057; }
+.ec-pill-red,
+.ec-pill-failed     { background: #f8d7da; color: #721c24; }
+.ec-pill-orange,
+.ec-pill-busy       { background: #fff3cd; color: #856404; }
+.ec-pill-blue,
+.ec-pill-initiated  { background: #cce5ff; color: #004085; }
+.ec-pill-yellow,
+.ec-pill-ringing    { background: #fff3cd; color: #856404; }
+
+/* ── CRM Inline Call Log Table ─────────────────────────────── */
+.ec-crm-call-log {
+    margin-top:  20px;
+    border-top:  1px solid var(--ec-border);
+    padding-top: 12px;
+}
+
+.ec-crm-section-title {
+    font-size:     13px;
+    font-weight:   700;
+    color:         var(--ec-text-muted);
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.ec-crm-table {
+    width:           100%;
+    border-collapse: collapse;
+    font-size:       12px;
+    color:           var(--ec-text);
+}
+
+.ec-crm-table th {
+    font-weight: 600;
+    color:       var(--ec-text-muted);
+    padding:     4px 8px;
+    text-align:  left;
+    border-bottom: 1px solid var(--ec-border);
+}
+
+.ec-crm-table td {
+    padding:     6px 8px;
+    border-bottom: 1px solid var(--ec-border);
+    vertical-align: middle;
+}
+
+.ec-crm-table tbody tr:hover { background: var(--ec-bg-secondary); }
+
+/* ── Inline Call Button (next to phone fields) ─────────────── */
+.ec-inline-call-btn {
+    background:    var(--ec-primary);
+    color:         #fff;
+    border:        none;
+    border-radius: var(--ec-radius-sm);
+    padding:       4px 8px;
+    font-size:     13px;
+    cursor:        pointer;
+    margin-left:   6px;
+    transition:    var(--ec-transition);
+    vertical-align: middle;
+}
+
+.ec-inline-call-btn:hover  { background: #1a7ed4; }
+.ec-inline-call-btn:active { transform: scale(0.95); }
+
+/* ── Utility ───────────────────────────────────────────────── */
+.ec-hidden { display: none !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   CALL PROGRESS BAR (inside dialpad panel)
+═══════════════════════════════════════════════════════════════ */
+.ec-call-progress {
+    padding: 10px 8px 4px;
+    margin-bottom: 8px;
+}
+.ec-progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.ec-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--ec-text-muted);
+    font-weight: 500;
+}
+.ec-step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ec-border);
+    border: 2px solid var(--ec-border);
+    transition: all 0.3s ease;
+}
+.ec-step-current .ec-step-dot {
+    background: var(--ec-primary);
+    border-color: var(--ec-primary);
+    box-shadow: 0 0 0 3px rgba(36,144,239,0.2);
+    animation: ec-pulse-dot 1s infinite;
+}
+.ec-step-done .ec-step-dot {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+.ec-step-current span { color: var(--ec-primary); font-weight: 700; }
+.ec-step-done span    { color: #22c55e; font-weight: 600; }
+.ec-step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--ec-border);
+    margin: 0 4px;
+    margin-bottom: 14px;
+    transition: background 0.4s ease;
+}
+.ec-progress-track {
+    height: 6px;
+    background: var(--ec-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+.ec-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ec-primary), #22c55e);
+    border-radius: 3px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+}
+.ec-status-message {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 0 4px;
+}
+.ec-msg-dialing   { color: var(--ec-primary); }
+.ec-msg-ringing   { color: #f59f00; }
+.ec-msg-connected { color: #22c55e; }
+.ec-msg-ended     { color: var(--ec-text-muted); }
+.ec-msg-failed    { color: var(--ec-hangup-red); }
+
+@keyframes ec-pulse-dot {
+    0%   { box-shadow: 0 0 0 0   rgba(36,144,239,0.4); }
+    70%  { box-shadow: 0 0 0 6px rgba(36,144,239,0);   }
+    100% { box-shadow: 0 0 0 0   rgba(36,144,239,0);   }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FLOATING CALL OVERLAY (center of screen, visible from forms)
+═══════════════════════════════════════════════════════════════ */
+#ec-call-overlay {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    width: 340px;
+    background: var(--ec-bg);
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18), 0 2px 8px rgba(36,144,239,0.12);
+    padding: 16px 20px 14px;
+    border: 1.5px solid var(--ec-primary);
+    animation: ec-overlay-drop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-family: var(--ec-font);
+}
+@keyframes ec-overlay-drop {
+    from { opacity: 0; transform: translateX(-50%) translateY(-18px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0);      }
+}
+.ec-overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+.ec-overlay-number {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ec-text);
+    letter-spacing: 0.5px;
+}
+.ec-overlay-close {
+    background: none;
+    border: none;
+    color: var(--ec-text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.ec-overlay-close:hover { background: var(--ec-bg-secondary); }
+.ec-overlay-progress-steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.ec-ov-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--ec-text-muted);
+    font-weight: 500;
+    min-width: 60px;
+}
+.ec-ov-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--ec-border);
+    border: 2px solid var(--ec-border);
+    transition: all 0.3s ease;
+}
+.ec-ov-step-current .ec-ov-dot {
+    background: var(--ec-primary);
+    border-color: var(--ec-primary);
+    animation: ec-pulse-dot 1s infinite;
+}
+.ec-ov-step-done .ec-ov-dot {
+    background: #22c55e;
+    border-color: #22c55e;
+}
+.ec-ov-step-current span { color: var(--ec-primary); font-weight: 700; }
+.ec-ov-step-done span    { color: #22c55e; font-weight: 600; }
+.ec-ov-line {
+    flex: 1;
+    height: 2px;
+    background: var(--ec-border);
+    margin: 0 4px 16px;
+    transition: background 0.4s ease;
+}
+.ec-ov-line-done { background: #22c55e !important; }
+.ec-overlay-track {
+    height: 7px;
+    background: var(--ec-border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.ec-overlay-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--ec-primary), #22c55e);
+    border-radius: 4px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+}
+.ec-overlay-msg {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    min-height: 18px;
+}
+.ec-overlay-hangup {
+    width: 100%;
+    background: var(--ec-hangup-red);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--ec-transition);
+}
+.ec-overlay-hangup:hover { filter: brightness(1.1); }

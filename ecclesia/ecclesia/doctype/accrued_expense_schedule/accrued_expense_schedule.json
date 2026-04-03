@@ -1,0 +1,401 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 16:07:57.956281",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "accrued_expense_type",
+  "column_break_hvnm",
+  "start_date",
+  "end_date",
+  "column_break_2qj6",
+  "frequency",
+  "column_break_u086",
+  "gross_amount",
+  "dr_account",
+  "cr_account",
+  "is_processed",
+  "payable_to",
+  "wh_tax",
+  "periodic_charge",
+  "lc_amount",
+  "accounting_section",
+  "branch",
+  "cost_center",
+  "project",
+  "column_break_pehx",
+  "column_break_0hro",
+  "column_break_wsfd",
+  "column_break_hbao",
+  "accounting_dimension_section",
+  "column_break_f1e4",
+  "column_break_njhs",
+  "column_break_1dcw",
+  "column_break_td1r",
+  "column_break_bcqp",
+  "monetary_section",
+  "exch_rate",
+  "currency",
+  "project_name",
+  "posting_date",
+  "no_of_periods",
+  "next_schedule",
+  "wht_rate",
+  "net_amount",
+  "trans_type",
+  "option",
+  "deferred_expense_account",
+  "description",
+  "wht_account",
+  "next_posting_date",
+  "charge_wht",
+  "detail_section"
+ ],
+ "fields": [
+  {
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accrued_expense_type",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Accrual Type",
+   "options": "Accrued Expense Type"
+  },
+  {
+   "fieldname": "column_break_hvnm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Start Date"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "End Date",
+   "read_only_depends_on": "frequency"
+  },
+  {
+   "fieldname": "column_break_2qj6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Frequency",
+   "options": "\nMonthly\nWeekly\nQuarterly\nHalf-Yearly\nYearly\nFreehand\nNA"
+  },
+  {
+   "fieldname": "column_break_u086",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "accrued_expense_type.gross_amount",
+   "fieldname": "gross_amount",
+   "fieldtype": "Float",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Gross Amount",
+   "non_negative": 1,
+   "precision": "2",
+   "reqd": 1
+  },
+  {
+   "description": "Expense Account",
+   "fetch_from": "accrued_expense_type.dr_account",
+   "fieldname": "dr_account",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Dr Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "description": "Liability Account",
+   "fetch_from": "accrued_expense_type.cr_account",
+   "fieldname": "cr_account",
+   "fieldtype": "Link",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Cr Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_processed",
+   "fieldtype": "Check",
+   "label": "Is Processed"
+  },
+  {
+   "fetch_from": "accrued_expense_type.payable_to",
+   "fieldname": "payable_to",
+   "fieldtype": "Data",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Payable To"
+  },
+  {
+   "fieldname": "wh_tax",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "WH Tax",
+   "mandatory_depends_on": "gross_amount",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "periodic_charge",
+   "fieldtype": "Currency",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Periodic Charge",
+   "read_only": 1
+  },
+  {
+   "fieldname": "lc_amount",
+   "fieldtype": "Currency",
+   "label": "LC Amount",
+   "read_only": 1,
+   "read_only_depends_on": "gross_amount"
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "column_break_pehx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_0hro",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_wsfd",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_hbao",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "accounting_dimension_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Dimension"
+  },
+  {
+   "fieldname": "column_break_f1e4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_njhs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_1dcw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_td1r",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bcqp",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monetary_section",
+   "fieldtype": "Section Break",
+   "label": "Monetary"
+  },
+  {
+   "fieldname": "exch_rate",
+   "fieldtype": "Float",
+   "label": "Exch Rate",
+   "precision": "2"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "read_only_depends_on": "gross_amount"
+  },
+  {
+   "fetch_from": "project.project_name",
+   "fieldname": "project_name",
+   "fieldtype": "Data",
+   "label": "Project Name"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Posting Date"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "no_of_periods",
+   "fieldtype": "Int",
+   "label": "No of Months",
+   "mandatory_depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "read_only_depends_on": "eval: doc.frequency != 'Freehand'"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "description": "For Mth=1 ,Qtr=3 ,Hy=6, Yr=12",
+   "fieldname": "next_schedule",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Next Schedule"
+  },
+  {
+   "fieldname": "wht_rate",
+   "fieldtype": "Float",
+   "label": "WHT Rate",
+   "precision": "2"
+  },
+  {
+   "fieldname": "net_amount",
+   "fieldtype": "Currency",
+   "label": "Net Amount",
+   "read_only": 1
+  },
+  {
+   "description": "1 = Accruals and Prepayment\n2 = Accruals Only",
+   "fieldname": "trans_type",
+   "fieldtype": "Select",
+   "label": "Trans Type",
+   "options": "\nACCRUAL & PREPAY\nACCRUAL"
+  },
+  {
+   "depends_on": "trans_type",
+   "fieldname": "option",
+   "fieldtype": "Select",
+   "label": "Option",
+   "options": "\nOne-off\nRecur",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "deferred_expense_account",
+   "fieldtype": "Link",
+   "label": "Deferred Expense Acct",
+   "mandatory_depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "options": "Account"
+  },
+  {
+   "depends_on": "frequency",
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Description",
+   "mandatory_depends_on": "trans_type",
+   "max_height": "400px"
+  },
+  {
+   "description": "Withholding Tax ",
+   "fieldname": "wht_account",
+   "fieldtype": "Link",
+   "label": "WHT Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval: doc.trans_type == 'ACCRUAL & PREPAY'",
+   "fieldname": "next_posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next Posting Date",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "charge_wht",
+   "fieldtype": "Check",
+   "in_filter": 1,
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
+   "label": "Charge WHT"
+  },
+  {
+   "fieldname": "detail_section",
+   "fieldtype": "Section Break",
+   "label": "Detail"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-02 16:07:57.956281",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Accrued Expense Schedule",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

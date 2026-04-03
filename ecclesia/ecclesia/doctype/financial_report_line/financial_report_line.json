@@ -1,0 +1,213 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-14 14:36:22.518772",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "line_number",
+  "line_label",
+  "line_code",
+  "line_type",
+  "column_break_1",
+  "account_mapping_method",
+  "account_from",
+  "account_to",
+  "account_number_pattern",
+  "specific_accounts",
+  "financial_reporting_group",
+  "root_type_filter",
+  "column_break_2",
+  "calculation_formula",
+  "indent_level",
+  "is_bold",
+  "is_total_row",
+  "is_subtotal_row",
+  "column_break_3",
+  "sign_multiplier",
+  "hide_if_zero",
+  "show_percentage",
+  "border_style",
+  "row_color"
+ ],
+ "fields": [
+  {
+   "description": "10, 20, 30... for sorting",
+   "fieldname": "line_number",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Line #",
+   "reqd": 1
+  },
+  {
+   "description": "e.g., 'Revenue', 'Cost of Sales', 'Gross Profit'",
+   "fieldname": "line_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Line Label",
+   "reqd": 1
+  },
+  {
+   "description": "Unique identifier for formulas (e.g., 'REV', 'COS', 'GP')",
+   "fieldname": "line_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Line Code"
+  },
+  {
+   "default": "Account Aggregate",
+   "fieldname": "line_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Line Type",
+   "options": "\nAccount Aggregate\nCalculated\nHeader\nBlank Line",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.line_type == 'Account Aggregate'",
+   "fieldname": "account_mapping_method",
+   "fieldtype": "Select",
+   "label": "Account Mapping",
+   "options": "\nAccount Range\nAccount Numbers Pattern\nSpecific Accounts\nFinancial Reporting Group\nRoot Type"
+  },
+  {
+   "depends_on": "eval:doc.account_mapping_method == 'Account Range'",
+   "fieldname": "account_from",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account From",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.account_mapping_method == 'Account Range'",
+   "fieldname": "account_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Account To",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.account_mapping_method == 'Account Numbers Pattern'",
+   "description": "Examples: '7000-7599', '7%', '7[0-5]%'",
+   "fieldname": "account_number_pattern",
+   "fieldtype": "Data",
+   "label": "Account Number Pattern"
+  },
+  {
+   "depends_on": "eval:doc.account_mapping_method == 'Specific Accounts'",
+   "description": "Enter account names or numbers separated by commas",
+   "fieldname": "specific_accounts",
+   "fieldtype": "Small Text",
+   "label": "Specific Accounts"
+  },
+  {
+   "depends_on": "eval:doc.account_mapping_method == 'Financial Reporting Group'",
+   "fieldname": "financial_reporting_group",
+   "fieldtype": "Link",
+   "label": "Financial Reporting Group",
+   "options": "Financial Reporting Group"
+  },
+  {
+   "depends_on": "eval:doc.account_mapping_method == 'Root Type'",
+   "fieldname": "root_type_filter",
+   "fieldtype": "Select",
+   "label": "Root Type",
+   "options": "\nAsset\nLiability\nEquity\nIncome\nExpense"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.line_type == 'Calculated'",
+   "description": "Use line codes: REV - COS or REV + COS - ADMIN",
+   "fieldname": "calculation_formula",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Formula"
+  },
+  {
+   "default": "0",
+   "description": "0=No indent, 1=Level 1, 2=Level 2, etc.",
+   "fieldname": "indent_level",
+   "fieldtype": "Int",
+   "label": "Indent"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_bold",
+   "fieldtype": "Check",
+   "label": "Bold"
+  },
+  {
+   "default": "0",
+   "description": "Apply total row styling",
+   "fieldname": "is_total_row",
+   "fieldtype": "Check",
+   "label": "Total Row"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_subtotal_row",
+   "fieldtype": "Check",
+   "label": "Subtotal Row"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "1 for positive, -1 to reverse sign",
+   "fieldname": "sign_multiplier",
+   "fieldtype": "Select",
+   "label": "Sign",
+   "options": "\n1\n-1"
+  },
+  {
+   "default": "0",
+   "fieldname": "hide_if_zero",
+   "fieldtype": "Check",
+   "label": "Hide if Zero"
+  },
+  {
+   "default": "0",
+   "description": "Show this line as percentage of first line (usually Revenue)",
+   "fieldname": "show_percentage",
+   "fieldtype": "Check",
+   "label": "Show % of Revenue"
+  },
+  {
+   "default": "None",
+   "description": "Excel-style borders for calculated lines",
+   "fieldname": "border_style",
+   "fieldtype": "Select",
+   "label": "Border Style",
+   "options": "\nNone\nTop Border\nBottom Border\nTop and Bottom\nTop Single Bottom Double\nTop and Bottom Double"
+  },
+  {
+   "description": "Custom background color for this line (e.g., #FFE893 for yellow)",
+   "fieldname": "row_color",
+   "fieldtype": "Color",
+   "label": "Row Background Color"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-14 20:54:33.537488",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Financial Report Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

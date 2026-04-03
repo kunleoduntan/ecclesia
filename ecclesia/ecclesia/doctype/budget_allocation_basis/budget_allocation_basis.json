@@ -1,0 +1,218 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-03 17:52:58.240630",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basis_details_section",
+  "metric_name",
+  "metric_type",
+  "weight_percentage",
+  "column_break_1",
+  "data_source",
+  "is_active",
+  "priority",
+  "calculation_section",
+  "calculation_method",
+  "formula",
+  "column_break_2",
+  "min_value",
+  "max_value",
+  "default_value",
+  "data_fields_section",
+  "branch_field",
+  "cost_center_field",
+  "column_break_3",
+  "gl_account_field",
+  "custom_field",
+  "settings_section",
+  "auto_update",
+  "update_frequency",
+  "column_break_4",
+  "last_updated",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "basis_details_section",
+   "fieldtype": "Section Break",
+   "label": "Basis Details"
+  },
+  {
+   "description": "Name of the allocation metric (e.g., Revenue Share, Headcount)",
+   "fieldname": "metric_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Metric Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "metric_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Metric Type",
+   "options": "\nRevenue\nHeadcount\nSquare Footage\nHistorical Spend\nUnits Produced\nActivity Volume\nCost Driver\nCustom",
+   "reqd": 1
+  },
+  {
+   "default": "100",
+   "description": "Weight of this metric in allocation calculation",
+   "fieldname": "weight_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Weight %",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Manual Entry",
+   "fieldname": "data_source",
+   "fieldtype": "Select",
+   "label": "Data Source",
+   "options": "\nManual Entry\nGL Entry\nSales Invoice\nPurchase Invoice\nEmployee Master\nCustom Query\nExternal API"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "default": "1",
+   "description": "Priority order for calculation (1=highest)",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority"
+  },
+  {
+   "fieldname": "calculation_section",
+   "fieldtype": "Section Break",
+   "label": "Calculation Method"
+  },
+  {
+   "default": "Proportional",
+   "fieldname": "calculation_method",
+   "fieldtype": "Select",
+   "label": "Calculation Method",
+   "options": "\nProportional\nEqual Distribution\nWeighted Average\nCustom Formula\nLookup Table"
+  },
+  {
+   "depends_on": "eval:doc.calculation_method=='Custom Formula'",
+   "description": "Python expression for custom calculation",
+   "fieldname": "formula",
+   "fieldtype": "Code",
+   "label": "Custom Formula"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Minimum allowed value for this metric",
+   "fieldname": "min_value",
+   "fieldtype": "Float",
+   "label": "Minimum Value"
+  },
+  {
+   "description": "Maximum allowed value for this metric",
+   "fieldname": "max_value",
+   "fieldtype": "Float",
+   "label": "Maximum Value"
+  },
+  {
+   "default": "0",
+   "description": "Default value if data is not available",
+   "fieldname": "default_value",
+   "fieldtype": "Float",
+   "label": "Default Value"
+  },
+  {
+   "fieldname": "data_fields_section",
+   "fieldtype": "Section Break",
+   "label": "Data Field Mapping"
+  },
+  {
+   "description": "Field name in Branch doctype to fetch data from",
+   "fieldname": "branch_field",
+   "fieldtype": "Data",
+   "label": "Branch Field Name"
+  },
+  {
+   "description": "Field name in Cost Center doctype to fetch data from",
+   "fieldname": "cost_center_field",
+   "fieldtype": "Data",
+   "label": "Cost Center Field Name"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "GL Account to fetch financial data from",
+   "fieldname": "gl_account_field",
+   "fieldtype": "Link",
+   "label": "GL Account",
+   "options": "Account"
+  },
+  {
+   "description": "Custom field name for data extraction",
+   "fieldname": "custom_field",
+   "fieldtype": "Data",
+   "label": "Custom Field Name"
+  },
+  {
+   "fieldname": "settings_section",
+   "fieldtype": "Section Break",
+   "label": "Settings"
+  },
+  {
+   "default": "0",
+   "description": "Automatically update metric values periodically",
+   "fieldname": "auto_update",
+   "fieldtype": "Check",
+   "label": "Auto Update Values"
+  },
+  {
+   "default": "Monthly",
+   "depends_on": "eval:doc.auto_update",
+   "fieldname": "update_frequency",
+   "fieldtype": "Select",
+   "label": "Update Frequency",
+   "options": "\nDaily\nWeekly\nMonthly\nQuarterly\nManual"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_updated",
+   "fieldtype": "Datetime",
+   "label": "Last Updated",
+   "read_only": 1
+  },
+  {
+   "description": "Additional notes about this allocation metric",
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-03 17:52:58.240630",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Budget Allocation Basis",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

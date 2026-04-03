@@ -1,0 +1,151 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:doctype_name",
+ "creation": "2026-02-28 15:34:51.424804",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "doctype_name",
+  "transaction_code",
+  "doctype_classification",
+  "risk_level",
+  "risk_score",
+  "column_break_1",
+  "is_gl_posting",
+  "financial_statement_line",
+  "audit_frequency",
+  "last_audit_date",
+  "section_stats",
+  "total_transactions_ytd",
+  "open_findings",
+  "cumulative_findings",
+  "last_audit_opinion",
+  "registry_ref"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "doctype_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "DocType",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "transaction_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Transaction Code"
+  },
+  {
+   "fieldname": "doctype_classification",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Classification"
+  },
+  {
+   "fieldname": "risk_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Risk Level",
+   "options": "Critical\nHigh\nMedium\nLow"
+  },
+  {
+   "fieldname": "risk_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "AI Risk Score"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_gl_posting",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "GL Posting"
+  },
+  {
+   "fieldname": "financial_statement_line",
+   "fieldtype": "Data",
+   "label": "Financial Statement"
+  },
+  {
+   "fieldname": "audit_frequency",
+   "fieldtype": "Data",
+   "label": "Required Frequency"
+  },
+  {
+   "fieldname": "last_audit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Last Audited"
+  },
+  {
+   "fieldname": "section_stats",
+   "fieldtype": "Section Break",
+   "label": "Live Statistics"
+  },
+  {
+   "fieldname": "total_transactions_ytd",
+   "fieldtype": "Int",
+   "label": "Transactions YTD"
+  },
+  {
+   "fieldname": "open_findings",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Open Findings"
+  },
+  {
+   "fieldname": "cumulative_findings",
+   "fieldtype": "Int",
+   "label": "All-time Findings"
+  },
+  {
+   "fieldname": "last_audit_opinion",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Last Opinion",
+   "options": "\nUnqualified\nQualified\nAdverse\nDisclaimer\nNot Yet Audited"
+  },
+  {
+   "fieldname": "registry_ref",
+   "fieldtype": "Link",
+   "label": "Registry Record",
+   "options": "Auditable DocType Registry"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-28 17:14:17.201267",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Universe",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

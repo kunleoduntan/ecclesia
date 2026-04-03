@@ -1,0 +1,408 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ELA-{YYYY}-{#####}",
+ "creation": "2026-03-14 11:48:21.922711",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "department",
+  "col1",
+  "loan_type",
+  "application_date",
+  "status",
+  "sec_loan_details",
+  "principal_amount",
+  "tenure_months",
+  "loan_purpose",
+  "col2",
+  "interest_rate",
+  "annual_interest_rate",
+  "monthly_deduction",
+  "total_repayable",
+  "first_deduction_date",
+  "sec_balance",
+  "total_amount_paid",
+  "outstanding_principal",
+  "col3",
+  "outstanding_interest",
+  "installments_paid",
+  "sec_repayment",
+  "repayment_schedule",
+  "sec_guarantor",
+  "guarantor",
+  "guarantor_name",
+  "col4",
+  "guarantor_consent",
+  "sec_approvals",
+  "hr_reviewer",
+  "hr_review_date",
+  "col5",
+  "manager_approver",
+  "manager_approval_date",
+  "finance_approver",
+  "finance_approval_date",
+  "rejection_reason",
+  "sec_disbursement",
+  "disbursement_date",
+  "disbursement_journal_entry",
+  "col6",
+  "repayment_mode",
+  "loan_account_head",
+  "purpose_description",
+  "dashboard_tab",
+  "dashboard_detail",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "loan_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Loan Type",
+   "options": "Employee Loan Type",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "application_date",
+   "fieldtype": "Date",
+   "label": "Application Date",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nPending HR Review\nPending Manager Approval\nPending Finance Approval\nApproved\nDisbursed\nActive\nClosed\nRejected\nCancelled",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_loan_details",
+   "fieldtype": "Section Break",
+   "label": "Loan Details"
+  },
+  {
+   "fieldname": "principal_amount",
+   "fieldtype": "Currency",
+   "label": "Principal Amount (NGN)",
+   "options": "NGN",
+   "reqd": 1
+  },
+  {
+   "default": "12",
+   "fieldname": "tenure_months",
+   "fieldtype": "Int",
+   "label": "Tenure (months)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "loan_purpose",
+   "fieldtype": "Select",
+   "label": "Purpose",
+   "options": "\nPersonal\nMedical\nEducation\nHousing\nVehicle\nBusiness\nEmergency\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "loan_type.annual_interest_rate",
+   "fieldname": "interest_rate",
+   "fieldtype": "Float",
+   "label": "Annual Interest Rate (%)",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monthly_deduction",
+   "fieldtype": "Currency",
+   "label": "Monthly Deduction (NGN)",
+   "options": "NGN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_repayable",
+   "fieldtype": "Currency",
+   "label": "Total Repayable (NGN)",
+   "options": "NGN",
+   "read_only": 1
+  },
+  {
+   "description": "Must be the first day of a payroll month",
+   "fieldname": "first_deduction_date",
+   "fieldtype": "Date",
+   "label": "First Deduction Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "sec_balance",
+   "fieldtype": "Section Break",
+   "label": "Outstanding Balance"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_amount_paid",
+   "fieldtype": "Currency",
+   "label": "Total Paid (NGN)",
+   "options": "NGN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outstanding_principal",
+   "fieldtype": "Currency",
+   "label": "Outstanding Principal (NGN)",
+   "options": "NGN",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "outstanding_interest",
+   "fieldtype": "Currency",
+   "label": "Outstanding Interest (NGN)",
+   "options": "NGN",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "installments_paid",
+   "fieldtype": "Int",
+   "label": "Installments Paid",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_repayment",
+   "fieldtype": "Section Break",
+   "label": "Repayment Schedule"
+  },
+  {
+   "fieldname": "repayment_schedule",
+   "fieldtype": "Table",
+   "label": "Schedule",
+   "options": "Loan Repayment Schedule"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_guarantor",
+   "fieldtype": "Section Break",
+   "label": "Guarantor"
+  },
+  {
+   "description": "Required for loan types that mandate a guarantor",
+   "fieldname": "guarantor",
+   "fieldtype": "Link",
+   "label": "Guarantor",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "guarantor.employee_name",
+   "fieldname": "guarantor_name",
+   "fieldtype": "Data",
+   "label": "Guarantor Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "guarantor_consent",
+   "fieldtype": "Check",
+   "label": "Guarantor Consent Obtained"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_approvals",
+   "fieldtype": "Section Break",
+   "label": "Approval Trail"
+  },
+  {
+   "fieldname": "hr_reviewer",
+   "fieldtype": "Link",
+   "label": "HR Reviewer",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "hr_review_date",
+   "fieldtype": "Datetime",
+   "label": "HR Review Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "manager_approver",
+   "fieldtype": "Link",
+   "label": "Manager Approver",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "manager_approval_date",
+   "fieldtype": "Datetime",
+   "label": "Manager Approval Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_approver",
+   "fieldtype": "Link",
+   "label": "Finance Approver",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "finance_approval_date",
+   "fieldtype": "Datetime",
+   "label": "Finance Approval Date",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.status === 'Rejected'",
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_disbursement",
+   "fieldtype": "Section Break",
+   "label": "Disbursement"
+  },
+  {
+   "fieldname": "disbursement_date",
+   "fieldtype": "Date",
+   "label": "Disbursement Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "disbursement_journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Payroll Deduction",
+   "fieldname": "repayment_mode",
+   "fieldtype": "Select",
+   "label": "Repayment Mode",
+   "options": "Payroll Deduction\nBank Transfer\nBoth"
+  },
+  {
+   "fetch_from": "loan_type.loan_account",
+   "fieldname": "loan_account_head",
+   "fieldtype": "Link",
+   "label": "Loan Account Head",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "purpose_description",
+   "fieldtype": "Text",
+   "label": "Additional Details"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Employee Loan Application",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "annual_interest_rate",
+   "fieldtype": "Float",
+   "label": "Annual Interest Rate"
+  },
+  {
+   "fieldname": "dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "dashboard_detail",
+   "fieldtype": "HTML",
+   "label": "Dashboard Detail"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-03-14 13:13:05.019039",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Employee Loan Application",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

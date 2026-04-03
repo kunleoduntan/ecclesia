@@ -1,0 +1,475 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "Fixed Asset Settings",
+ "creation": "2026-02-04 07:00:11.067167",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "general_settings_tab",
+  "company_section",
+  "company",
+  "column_break_comp1",
+  "fiscal_year",
+  "default_cost_center",
+  "features_section",
+  "enable_qr_code_generation",
+  "enable_auto_asset_code_generation",
+  "column_break_feat1",
+  "enable_multi_location_tracking",
+  "enable_component_tracking",
+  "qr_configuration_section",
+  "qr_code_prefix",
+  "column_break_qr1",
+  "qr_code_size",
+  "account_defaults_section",
+  "default_depreciation_posting_account",
+  "default_accumulated_depreciation_account",
+  "column_break_acc1",
+  "default_disposal_gain_loss_account",
+  "default_revaluation_reserve_account",
+  "asset_categories_tab",
+  "asset_categories",
+  "revaluation_settings_tab",
+  "revaluation_section",
+  "default_revaluation_method",
+  "enable_automatic_revaluation_reminder",
+  "column_break_reval1",
+  "revaluation_frequency_months",
+  "minimum_revaluation_amount",
+  "revaluation_accounts_section",
+  "revaluation_reserve_account",
+  "revaluation_surplus_account",
+  "column_break_revacc1",
+  "revaluation_loss_account",
+  "disposal_settings_tab",
+  "disposal_section",
+  "default_disposal_type",
+  "enable_disposal_approval_workflow",
+  "column_break_disp1",
+  "minimum_asset_value_for_approval",
+  "disposal_accounts_section",
+  "asset_disposal_clearing_account",
+  "column_break_dispacc1",
+  "disposal_gain_account",
+  "disposal_loss_account",
+  "automation_tab",
+  "depreciation_automation_section",
+  "auto_create_depreciation_schedule_on_purchase",
+  "auto_post_monthly_depreciation",
+  "column_break_auto1",
+  "depreciation_posting_day",
+  "send_depreciation_notification",
+  "asset_management_section",
+  "enable_asset_transfer_between_locations",
+  "enable_asset_split",
+  "column_break_mgmt1",
+  "enable_asset_merge",
+  "enable_maintenance_tracking",
+  "notification_section",
+  "send_maintenance_reminders",
+  "maintenance_reminder_days_before",
+  "column_break_notif1",
+  "send_warranty_expiry_alerts",
+  "warranty_alert_days_before"
+ ],
+ "fields": [
+  {
+   "fieldname": "general_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "\u2699\ufe0f General Settings"
+  },
+  {
+   "fieldname": "company_section",
+   "fieldtype": "Section Break",
+   "label": "Company Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_comp1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
+  },
+  {
+   "fieldname": "default_cost_center",
+   "fieldtype": "Link",
+   "label": "Default Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "features_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83c\udfaf Features"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_qr_code_generation",
+   "fieldtype": "Check",
+   "label": "Enable QR Code Generation"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_auto_asset_code_generation",
+   "fieldtype": "Check",
+   "label": "Auto Generate Asset Codes"
+  },
+  {
+   "fieldname": "column_break_feat1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_multi_location_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Multi-Location Tracking"
+  },
+  {
+   "default": "0",
+   "description": "Track individual components of complex assets",
+   "fieldname": "enable_component_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Component Tracking"
+  },
+  {
+   "fieldname": "qr_configuration_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcf1 QR Code Configuration"
+  },
+  {
+   "default": "FA-",
+   "description": "Prefix for QR code generation",
+   "fieldname": "qr_code_prefix",
+   "fieldtype": "Data",
+   "label": "QR Code Prefix"
+  },
+  {
+   "fieldname": "column_break_qr1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "qr_code_size",
+   "fieldtype": "Select",
+   "label": "QR Code Size",
+   "options": "Small\nMedium\nLarge"
+  },
+  {
+   "fieldname": "account_defaults_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcb0 Default Accounts"
+  },
+  {
+   "fieldname": "default_depreciation_posting_account",
+   "fieldtype": "Link",
+   "label": "Depreciation Posting Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_accumulated_depreciation_account",
+   "fieldtype": "Link",
+   "label": "Accumulated Depreciation Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "default_disposal_gain_loss_account",
+   "fieldtype": "Link",
+   "label": "Disposal Gain/Loss Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "default_revaluation_reserve_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Reserve Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "asset_categories_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcc1 Asset Categories"
+  },
+  {
+   "fieldname": "asset_categories",
+   "fieldtype": "Table",
+   "label": "Asset Categories",
+   "options": "Asset Category Details",
+   "reqd": 1
+  },
+  {
+   "fieldname": "revaluation_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcca Revaluation Settings"
+  },
+  {
+   "fieldname": "revaluation_section",
+   "fieldtype": "Section Break",
+   "label": "Revaluation Configuration"
+  },
+  {
+   "default": "Market Value",
+   "fieldname": "default_revaluation_method",
+   "fieldtype": "Select",
+   "label": "Default Revaluation Method",
+   "options": "Market Value\nReplacement Cost\nFair Value\nIndexed Cost\nProfessional Valuation"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_automatic_revaluation_reminder",
+   "fieldtype": "Check",
+   "label": "Enable Automatic Revaluation Reminders"
+  },
+  {
+   "fieldname": "column_break_reval1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "12",
+   "description": "How often to remind for revaluation",
+   "fieldname": "revaluation_frequency_months",
+   "fieldtype": "Int",
+   "label": "Revaluation Frequency (Months)"
+  },
+  {
+   "description": "Minimum value change to trigger revaluation",
+   "fieldname": "minimum_revaluation_amount",
+   "fieldtype": "Currency",
+   "label": "Minimum Revaluation Amount"
+  },
+  {
+   "fieldname": "revaluation_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Revaluation Accounts"
+  },
+  {
+   "fieldname": "revaluation_reserve_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Reserve Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "revaluation_surplus_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Surplus Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_revacc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "revaluation_loss_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Loss Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "disposal_settings_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\uddd1\ufe0f Disposal Settings"
+  },
+  {
+   "fieldname": "disposal_section",
+   "fieldtype": "Section Break",
+   "label": "Disposal Configuration"
+  },
+  {
+   "default": "Sale",
+   "fieldname": "default_disposal_type",
+   "fieldtype": "Select",
+   "label": "Default Disposal Type",
+   "options": "Sale\nScrap\nDonation\nTransfer\nWrite-off"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_disposal_approval_workflow",
+   "fieldtype": "Check",
+   "label": "Enable Disposal Approval Workflow"
+  },
+  {
+   "fieldname": "column_break_disp1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Assets above this value need approval for disposal",
+   "fieldname": "minimum_asset_value_for_approval",
+   "fieldtype": "Currency",
+   "label": "Minimum Value for Approval"
+  },
+  {
+   "fieldname": "disposal_accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Disposal Accounts"
+  },
+  {
+   "fieldname": "asset_disposal_clearing_account",
+   "fieldtype": "Link",
+   "label": "Disposal Clearing Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_dispacc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "disposal_gain_account",
+   "fieldtype": "Link",
+   "label": "Gain on Disposal Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "disposal_loss_account",
+   "fieldtype": "Link",
+   "label": "Loss on Disposal Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "automation_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83e\udd16 Automation"
+  },
+  {
+   "fieldname": "depreciation_automation_section",
+   "fieldtype": "Section Break",
+   "label": "Depreciation Automation"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_create_depreciation_schedule_on_purchase",
+   "fieldtype": "Check",
+   "label": "Auto Create Depreciation Schedule"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_post_monthly_depreciation",
+   "fieldtype": "Check",
+   "label": "Auto Post Monthly Depreciation"
+  },
+  {
+   "fieldname": "column_break_auto1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "description": "Day of month to post depreciation (1-31)",
+   "fieldname": "depreciation_posting_day",
+   "fieldtype": "Int",
+   "label": "Depreciation Posting Day"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_depreciation_notification",
+   "fieldtype": "Check",
+   "label": "Send Depreciation Notifications"
+  },
+  {
+   "fieldname": "asset_management_section",
+   "fieldtype": "Section Break",
+   "label": "Asset Management Features"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_asset_transfer_between_locations",
+   "fieldtype": "Check",
+   "label": "Enable Asset Transfer"
+  },
+  {
+   "default": "0",
+   "description": "Allow splitting one asset into multiple",
+   "fieldname": "enable_asset_split",
+   "fieldtype": "Check",
+   "label": "Enable Asset Split"
+  },
+  {
+   "fieldname": "column_break_mgmt1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Allow merging multiple assets into one",
+   "fieldname": "enable_asset_merge",
+   "fieldtype": "Check",
+   "label": "Enable Asset Merge"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_maintenance_tracking",
+   "fieldtype": "Check",
+   "label": "Enable Maintenance Tracking"
+  },
+  {
+   "fieldname": "notification_section",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udce7 Notifications"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_maintenance_reminders",
+   "fieldtype": "Check",
+   "label": "Send Maintenance Reminders"
+  },
+  {
+   "default": "7",
+   "fieldname": "maintenance_reminder_days_before",
+   "fieldtype": "Int",
+   "label": "Days Before Maintenance"
+  },
+  {
+   "fieldname": "column_break_notif1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "send_warranty_expiry_alerts",
+   "fieldtype": "Check",
+   "label": "Send Warranty Expiry Alerts"
+  },
+  {
+   "default": "30",
+   "fieldname": "warranty_alert_days_before",
+   "fieldtype": "Int",
+   "label": "Days Before Warranty Expiry"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-02-04 07:00:11.067167",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

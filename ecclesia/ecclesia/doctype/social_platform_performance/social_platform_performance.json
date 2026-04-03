@@ -1,0 +1,100 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:{platform}-{parent}",
+ "creation": "2026-03-18 18:27:02.868855",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "platform",
+  "account_name",
+  "likes",
+  "comments",
+  "shares",
+  "reach",
+  "column_break_5",
+  "views",
+  "clicks",
+  "engagement_rate",
+  "sentiment_score",
+  "platform_icon"
+ ],
+ "fields": [
+  {
+   "fieldname": "platform",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Platform"
+  },
+  {
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "label": "Account"
+  },
+  {
+   "fieldname": "likes",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Likes"
+  },
+  {
+   "fieldname": "comments",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Comments"
+  },
+  {
+   "fieldname": "shares",
+   "fieldtype": "Int",
+   "label": "Shares"
+  },
+  {
+   "fieldname": "reach",
+   "fieldtype": "Int",
+   "label": "Reach"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "views",
+   "fieldtype": "Int",
+   "label": "Views"
+  },
+  {
+   "fieldname": "clicks",
+   "fieldtype": "Int",
+   "label": "Clicks"
+  },
+  {
+   "fieldname": "engagement_rate",
+   "fieldtype": "Percent",
+   "label": "Engagement Rate"
+  },
+  {
+   "fieldname": "sentiment_score",
+   "fieldtype": "Float",
+   "label": "Sentiment Score"
+  },
+  {
+   "fieldname": "platform_icon",
+   "fieldtype": "Data",
+   "label": "Platform Icon"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-03-18 18:27:02.868855",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Social Platform Performance",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

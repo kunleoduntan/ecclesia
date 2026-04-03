@@ -1,0 +1,38 @@
+<!-- policy_acknowledgement.html -->
+{% if already_acknowledged %}
+    <div class="alert alert-success">
+        You acknowledged this policy on {{ ack.acknowledged_on }}.
+    </div>
+{% else %}
+    <h2>{{ policy.title }} — Version {{ policy.version }}</h2>
+    <div class="policy-content">{{ policy.content }}</div>
+    {% if policy.attachment %}
+        <a href="{{ policy.attachment }}" target="_blank">Download full document</a>
+    {% endif %}
+    <hr>
+    <form id="ack-form">
+        <div class="form-group">
+            <label>Remarks (optional)</label>
+            <textarea name="remarks" class="form-control" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            I have read and understood this policy
+        </button>
+    </form>
+    <script>
+    document.getElementById("ack-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const remarks = e.target.remarks.value;
+        const res = await fetch("/api/method/your_app.policy_acknowledgement.acknowledge_policy", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Frappe-CSRF-Token": frappe.csrf_token },
+            body: JSON.stringify({ policy: "{{ policy.name }}", employee: "{{ employee.name }}", remarks })
+        });
+        const data = await res.json();
+        if (data.message) {
+            document.querySelector(".policy-content").closest("div").innerHTML =
+                `<div class="alert alert-success">Thank you — acknowledgement recorded.</div>`;
+        }
+    });
+    </script>
+{% endif %}

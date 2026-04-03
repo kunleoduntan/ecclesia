@@ -1,0 +1,80 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-02 18:18:41.187420",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "benefit_type",
+  "description",
+  "column_break_2",
+  "basis_amount",
+  "valuation_rate",
+  "column_break_5",
+  "taxable_value",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "benefit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Benefit Type",
+   "options": "\nRent-Free Accommodation\nEmployer-Provided Vehicle\nEmployer-Provided Assets\nClub Membership\nUtility Bills\nDriver/Domestic Staff\nOther Benefit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Market value or cost of benefit",
+   "fieldname": "basis_amount",
+   "fieldtype": "Currency",
+   "label": "Basis Amount"
+  },
+  {
+   "description": "20% for accommodation, 5% for assets",
+   "fieldname": "valuation_rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Valuation Rate %"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "taxable_value",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Taxable Value",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-02 18:18:41.187420",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Benefit in Kind Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

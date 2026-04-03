@@ -1,0 +1,331 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-06 07:06:20.544685",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_tab",
+  "naming_series",
+  "company",
+  "revaluation_date",
+  "column_break_doc1",
+  "finance_book",
+  "revaluation_status",
+  "asset_details_tab",
+  "asset",
+  "asset_code",
+  "asset_name",
+  "column_break_asset1",
+  "asset_category",
+  "current_location",
+  "department",
+  "valuation_tab",
+  "revaluation_method",
+  "valuer_appraiser",
+  "column_break_val1",
+  "valuation_report_reference",
+  "reason_for_revaluation",
+  "financial_impact_tab",
+  "current_gross_value",
+  "current_accumulated_depreciation",
+  "current_net_book_value",
+  "column_break_fin1",
+  "new_gross_value",
+  "revaluation_amount",
+  "percentage_change",
+  "column_break_fin2",
+  "revaluation_type",
+  "accounting_tab",
+  "revaluation_reserve_account",
+  "revaluation_surplus_loss_account",
+  "column_break_acc1",
+  "cost_center",
+  "journal_entry",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "Basic Information"
+  },
+  {
+   "default": "FAR-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "FAR-.YYYY.-.#####\nFAR-.####",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "Today",
+   "fieldname": "revaluation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Revaluation Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_doc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "finance_book",
+   "fieldtype": "Link",
+   "label": "Finance Book",
+   "options": "Finance Book"
+  },
+  {
+   "fieldname": "revaluation_status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Draft\nSubmitted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83c\udff7\ufe0f Asset Details"
+  },
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Asset",
+   "options": "Fixed Asset",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "asset.asset_code",
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_asset1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset.asset_category",
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "label": "Asset Category",
+   "options": "Fixed Asset Category",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.current_location",
+   "fieldname": "current_location",
+   "fieldtype": "Data",
+   "label": "Current Location",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "valuation_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcca Valuation"
+  },
+  {
+   "fieldname": "revaluation_method",
+   "fieldtype": "Select",
+   "label": "Revaluation Method",
+   "options": "Market Value\nReplacement Cost\nFair Value\nIndexed Cost\nProfessional Valuation\nInsurance Valuation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "valuer_appraiser",
+   "fieldtype": "Data",
+   "label": "Valuer/Appraiser"
+  },
+  {
+   "fieldname": "column_break_val1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "valuation_report_reference",
+   "fieldtype": "Attach",
+   "label": "Valuation Report"
+  },
+  {
+   "fieldname": "reason_for_revaluation",
+   "fieldtype": "Text Editor",
+   "label": "Reason for Revaluation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "financial_impact_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcb0 Financial Impact"
+  },
+  {
+   "fetch_from": "asset.gross_purchase_amount",
+   "fieldname": "current_gross_value",
+   "fieldtype": "Currency",
+   "label": "Current Gross Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "current_accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Current Accumulated Depreciation",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "current_net_book_value",
+   "fieldtype": "Currency",
+   "label": "Current Net Book Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fin1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "new_gross_value",
+   "fieldtype": "Currency",
+   "label": "New Gross Value",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "revaluation_amount",
+   "fieldtype": "Currency",
+   "label": "Revaluation Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "percentage_change",
+   "fieldtype": "Percent",
+   "label": "Percentage Change",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_fin2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "revaluation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Revaluation Type",
+   "options": "Upward Revaluation\nDownward Revaluation\nNo Change",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcda Accounting"
+  },
+  {
+   "fieldname": "revaluation_reserve_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Reserve Account",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "revaluation_surplus_loss_account",
+   "fieldtype": "Link",
+   "label": "Revaluation Surplus/Loss Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Revaluation",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Revaluation",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-06 07:07:23.134614",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Revaluation",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

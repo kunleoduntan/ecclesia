@@ -1,0 +1,184 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-04 06:52:01.330316",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "asset",
+  "asset_code",
+  "asset_name",
+  "category",
+  "column_break_1",
+  "depreciation_date",
+  "opening_nbv",
+  "column_break_2",
+  "depreciation_amount",
+  "accumulated_depreciation",
+  "closing_nbv",
+  "accounting_section",
+  "depreciation_expense_account",
+  "accumulated_depreciation_account",
+  "column_break_acc1",
+  "cost_center",
+  "department",
+  "dimension_section",
+  "dimension_1",
+  "dimension_2",
+  "column_break_dim1",
+  "dimension_3",
+  "dimension_4"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Asset",
+   "options": "Fixed Asset",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "label": "Category",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "depreciation_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "opening_nbv",
+   "fieldtype": "Currency",
+   "label": "Opening NBV",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "depreciation_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Depreciation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accumulated_depreciation",
+   "fieldtype": "Currency",
+   "label": "Accumulated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "closing_nbv",
+   "fieldtype": "Currency",
+   "label": "Closing NBV",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Details"
+  },
+  {
+   "fieldname": "depreciation_expense_account",
+   "fieldtype": "Link",
+   "label": "Depreciation Expense Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accumulated_depreciation_account",
+   "fieldtype": "Link",
+   "label": "Accumulated Depreciation Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_acc1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center",
+   "read_only": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "dimension_section",
+   "fieldtype": "Section Break",
+   "label": "Dimensions"
+  },
+  {
+   "fieldname": "dimension_1",
+   "fieldtype": "Data",
+   "label": "Dimension 1"
+  },
+  {
+   "fieldname": "dimension_2",
+   "fieldtype": "Data",
+   "label": "Dimension 2"
+  },
+  {
+   "fieldname": "column_break_dim1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "dimension_3",
+   "fieldtype": "Data",
+   "label": "Dimension 3"
+  },
+  {
+   "fieldname": "dimension_4",
+   "fieldtype": "Data",
+   "label": "Dimension 4"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-04 06:52:01.330316",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Depreciation Entry Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

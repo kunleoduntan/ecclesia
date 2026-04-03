@@ -1,0 +1,523 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-02-05 19:56:59.833717",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_info_tab",
+  "naming_series",
+  "company",
+  "asset",
+  "asset_name",
+  "asset_code",
+  "column_break_1",
+  "policy_number",
+  "insurance_provider",
+  "policy_status",
+  "column_break_basic2",
+  "asset_category",
+  "asset_location",
+  "asset_value",
+  "policy_details_tab",
+  "insurance_type",
+  "policy_type",
+  "coverage_type",
+  "column_break_policy1",
+  "policy_start_date",
+  "policy_end_date",
+  "policy_term_months",
+  "column_break_policy2",
+  "renewal_date",
+  "auto_renewal",
+  "days_to_expiry",
+  "section_break_coverage_desc",
+  "coverage_description",
+  "coverage_tab",
+  "sum_insured",
+  "coverage_percentage",
+  "column_break_coverage1",
+  "deductible_amount",
+  "maximum_coverage_limit",
+  "premium_tab",
+  "premium_amount",
+  "premium_frequency",
+  "number_of_installments",
+  "column_break_premium1",
+  "installment_amount",
+  "next_payment_date",
+  "total_premium_paid",
+  "claims_tab",
+  "insurance_claims",
+  "section_break_claims_summary",
+  "total_claims_amount",
+  "total_settled_amount",
+  "column_break_claims1",
+  "pending_claims_count",
+  "claim_settlement_ratio",
+  "accounting_tab",
+  "create_journal_entry_for_premium",
+  "journal_entry",
+  "column_break_accounting1",
+  "insurance_expense_account",
+  "prepaid_insurance_account",
+  "cost_center",
+  "additional_info_tab",
+  "insurance_agent",
+  "agent_contact",
+  "column_break_additional1",
+  "policy_document",
+  "claim_procedure_document",
+  "section_break_cancellation",
+  "cancellation_reason",
+  "refund_amount",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "Basic Information"
+  },
+  {
+   "default": "FAI-.YYYY.-.#####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "FAI-.YYYY.-.#####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fixed Asset",
+   "options": "Fixed Asset",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "asset.asset_name",
+   "fieldname": "asset_name",
+   "fieldtype": "Data",
+   "label": "Asset Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.asset_code",
+   "fieldname": "asset_code",
+   "fieldtype": "Data",
+   "label": "Asset Code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "policy_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Policy Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "insurance_provider",
+   "fieldtype": "Link",
+   "label": "Insurance Provider",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "policy_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Policy Status",
+   "options": "Draft\nActive\nExpiring Soon\nExpired\nCancelled\nRenewed\nNot Started"
+  },
+  {
+   "fieldname": "column_break_basic2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "asset.asset_category",
+   "fieldname": "asset_category",
+   "fieldtype": "Link",
+   "label": "Asset Category",
+   "options": "Fixed Asset Category",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.current_location",
+   "fieldname": "asset_location",
+   "fieldtype": "Data",
+   "label": "Asset Location",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "asset.current_gross_value",
+   "fieldname": "asset_value",
+   "fieldtype": "Currency",
+   "label": "Asset Value",
+   "read_only": 1
+  },
+  {
+   "fieldname": "policy_details_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udccb Policy Details"
+  },
+  {
+   "fieldname": "insurance_type",
+   "fieldtype": "Select",
+   "label": "Insurance Type",
+   "options": "Comprehensive\nFire\nTheft\nAll Risk\nSpecified Perils\nLiability\nMarine\nMotor",
+   "reqd": 1
+  },
+  {
+   "fieldname": "policy_type",
+   "fieldtype": "Select",
+   "label": "Policy Type",
+   "options": "New Policy\nRenewal\nEndorsement\nReplacement",
+   "reqd": 1
+  },
+  {
+   "default": "Replacement Cost",
+   "fieldname": "coverage_type",
+   "fieldtype": "Select",
+   "label": "Coverage Type",
+   "options": "Replacement Cost\nActual Cash Value\nAgreed Value\nMarket Value",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_policy1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "policy_start_date",
+   "fieldtype": "Date",
+   "label": "Policy Start Date",
+   "reqd": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "policy_end_date",
+   "fieldtype": "Date",
+   "label": "Policy End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "policy_term_months",
+   "fieldtype": "Int",
+   "label": "Policy Term (Months)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_policy2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "renewal_date",
+   "fieldtype": "Date",
+   "label": "Renewal Date",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_renewal",
+   "fieldtype": "Check",
+   "label": "Auto Renewal"
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_coverage_desc",
+   "fieldtype": "Section Break",
+   "label": "Coverage Description"
+  },
+  {
+   "fieldname": "coverage_description",
+   "fieldtype": "Text Editor",
+   "label": "Coverage Description"
+  },
+  {
+   "fieldname": "coverage_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcb0 Coverage"
+  },
+  {
+   "bold": 1,
+   "fieldname": "sum_insured",
+   "fieldtype": "Currency",
+   "label": "Sum Insured",
+   "reqd": 1
+  },
+  {
+   "fieldname": "coverage_percentage",
+   "fieldtype": "Percent",
+   "label": "Coverage Percentage",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_coverage1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "deductible_amount",
+   "fieldtype": "Currency",
+   "label": "Deductible Amount"
+  },
+  {
+   "fieldname": "maximum_coverage_limit",
+   "fieldtype": "Currency",
+   "label": "Maximum Coverage Limit"
+  },
+  {
+   "fieldname": "premium_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcb5 Premium"
+  },
+  {
+   "bold": 1,
+   "fieldname": "premium_amount",
+   "fieldtype": "Currency",
+   "label": "Total Premium Amount",
+   "reqd": 1
+  },
+  {
+   "default": "Annual",
+   "fieldname": "premium_frequency",
+   "fieldtype": "Select",
+   "label": "Premium Frequency",
+   "options": "Annual\nSemi-Annual\nQuarterly\nMonthly",
+   "reqd": 1
+  },
+  {
+   "fieldname": "number_of_installments",
+   "fieldtype": "Int",
+   "label": "Number of Installments",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_premium1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "installment_amount",
+   "fieldtype": "Currency",
+   "label": "Installment Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "next_payment_date",
+   "fieldtype": "Date",
+   "label": "Next Payment Date"
+  },
+  {
+   "fieldname": "total_premium_paid",
+   "fieldtype": "Currency",
+   "label": "Total Premium Paid",
+   "read_only": 1
+  },
+  {
+   "fieldname": "claims_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udccb Claims"
+  },
+  {
+   "fieldname": "insurance_claims",
+   "fieldtype": "Table",
+   "label": "Insurance Claims",
+   "options": "Asset Insurance Claim"
+  },
+  {
+   "fieldname": "section_break_claims_summary",
+   "fieldtype": "Section Break",
+   "label": "Claims Summary"
+  },
+  {
+   "fieldname": "total_claims_amount",
+   "fieldtype": "Currency",
+   "label": "Total Claims Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_settled_amount",
+   "fieldtype": "Currency",
+   "label": "Total Settled Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_claims1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pending_claims_count",
+   "fieldtype": "Int",
+   "label": "Pending Claims Count",
+   "read_only": 1
+  },
+  {
+   "fieldname": "claim_settlement_ratio",
+   "fieldtype": "Percent",
+   "label": "Claim Settlement Ratio",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcda Accounting"
+  },
+  {
+   "default": "0",
+   "fieldname": "create_journal_entry_for_premium",
+   "fieldtype": "Check",
+   "label": "Create Journal Entry for Premium"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_accounting1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.create_journal_entry_for_premium==1",
+   "fieldname": "insurance_expense_account",
+   "fieldtype": "Link",
+   "label": "Insurance Expense Account",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.create_journal_entry_for_premium==1 && doc.premium_frequency=='Annual'",
+   "fieldname": "prepaid_insurance_account",
+   "fieldtype": "Link",
+   "label": "Prepaid Insurance Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "additional_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "\ud83d\udcce Additional Info"
+  },
+  {
+   "fieldname": "insurance_agent",
+   "fieldtype": "Data",
+   "label": "Insurance Agent"
+  },
+  {
+   "fieldname": "agent_contact",
+   "fieldtype": "Data",
+   "label": "Agent Contact"
+  },
+  {
+   "fieldname": "column_break_additional1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "policy_document",
+   "fieldtype": "Attach",
+   "label": "Policy Document"
+  },
+  {
+   "fieldname": "claim_procedure_document",
+   "fieldtype": "Attach",
+   "label": "Claim Procedure Document"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_cancellation",
+   "fieldtype": "Section Break",
+   "label": "Cancellation Details"
+  },
+  {
+   "fieldname": "cancellation_reason",
+   "fieldtype": "Small Text",
+   "label": "Cancellation Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "refund_amount",
+   "fieldtype": "Currency",
+   "label": "Refund Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Insurance",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fixed Asset Insurance",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-02-18 15:00:32.131360",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fixed Asset Insurance",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

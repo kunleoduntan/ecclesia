@@ -1,0 +1,661 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:company",
+ "creation": "2026-02-03 17:58:17.751838",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company_section",
+  "company",
+  "fiscal_year",
+  "column_break_1",
+  "default_currency",
+  "enable_budget_control",
+  "default_settings_section",
+  "default_distribution_method",
+  "default_cost_center_distribution",
+  "column_break_2",
+  "default_projection_method",
+  "default_ai_model",
+  "variance_settings_section",
+  "variance_threshold",
+  "auto_calculate_variance",
+  "variance_calculation_frequency",
+  "column_break_3",
+  "enable_variance_alerts",
+  "default_alert_recipients",
+  "alert_threshold_critical",
+  "approval_settings_section",
+  "require_approval",
+  "approval_workflow",
+  "column_break_4",
+  "auto_submit_on_approval",
+  "allow_amendments",
+  "projection_settings_section",
+  "enable_projections_by_default",
+  "default_historical_years",
+  "default_growth_rate",
+  "column_break_5",
+  "default_inflation_rate",
+  "enable_seasonality",
+  "default_seasonality_template",
+  "ai_ml_settings_section",
+  "enable_ai_by_default",
+  "ai_confidence_threshold",
+  "auto_generate_scenarios",
+  "column_break_6",
+  "default_best_case_percentage",
+  "default_worst_case_percentage",
+  "enable_anomaly_detection",
+  "budget_control_section",
+  "budget_control_action",
+  "allow_budget_override",
+  "override_roles",
+  "column_break_7",
+  "notify_on_budget_exceed",
+  "notification_recipients",
+  "grace_percentage",
+  "export_settings_section",
+  "default_export_template",
+  "include_charts_by_default",
+  "column_break_8",
+  "include_scenarios_by_default",
+  "auto_generate_dashboard",
+  "distribution_settings_section",
+  "branch_allocation_basis",
+  "cost_center_allocation_basis",
+  "column_break_9",
+  "auto_create_child_budgets",
+  "lock_child_budgets_on_approval",
+  "advanced_settings_section",
+  "enable_multi_currency",
+  "exchange_rate_source",
+  "column_break_10",
+  "enable_budget_rollover",
+  "rollover_percentage",
+  "notification_settings_section",
+  "enable_email_notifications",
+  "notification_frequency",
+  "column_break_11",
+  "weekly_report_day",
+  "monthly_report_date",
+  "integration_section",
+  "enable_api_access",
+  "api_key",
+  "column_break_12",
+  "webhook_url",
+  "enable_webhooks",
+  "system_settings_section",
+  "cache_duration",
+  "max_budget_lines",
+  "column_break_13",
+  "enable_audit_trail",
+  "retention_period"
+ ],
+ "fields": [
+  {
+   "fieldname": "company_section",
+   "fieldtype": "Section Break",
+   "label": "Company Information"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Default Fiscal Year",
+   "options": "Fiscal Year"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "company.default_currency",
+   "fieldname": "default_currency",
+   "fieldtype": "Link",
+   "label": "Default Currency",
+   "options": "Currency",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_budget_control",
+   "fieldtype": "Check",
+   "label": "Enable Budget Control"
+  },
+  {
+   "fieldname": "default_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Default Settings"
+  },
+  {
+   "default": "Equal Distribution",
+   "fieldname": "default_distribution_method",
+   "fieldtype": "Select",
+   "label": "Default Branch Distribution Method",
+   "options": "\nEqual Distribution\nProportional (Revenue)\nProportional (Headcount)\nProportional (Historical Spend)\nProportional (Square Footage)\nActivity-Based\nCustom Allocation"
+  },
+  {
+   "default": "Equal Distribution",
+   "fieldname": "default_cost_center_distribution",
+   "fieldtype": "Select",
+   "label": "Default Cost Center Distribution",
+   "options": "\nEqual Distribution\nProportional (Budget Size)\nProportional (Headcount)\nProportional (Historical Spend)\nActivity-Based Costing\nCost Driver Based\nCustom Allocation"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Historical Average",
+   "fieldname": "default_projection_method",
+   "fieldtype": "Select",
+   "label": "Default Projection Method",
+   "options": "\nHistorical Average\nLinear Trend\nExponential Growth\nMoving Average\nWeighted Average\nML-Based"
+  },
+  {
+   "default": "Time Series (ARIMA)",
+   "fieldname": "default_ai_model",
+   "fieldtype": "Select",
+   "label": "Default AI Model",
+   "options": "\nTime Series (ARIMA)\nRegression Analysis\nNeural Network\nRandom Forest\nGradient Boosting"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "variance_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Variance Tracking Settings"
+  },
+  {
+   "default": "10",
+   "description": "Alert when variance exceeds this percentage",
+   "fieldname": "variance_threshold",
+   "fieldtype": "Percent",
+   "label": "Default Variance Threshold %",
+   "precision": "2"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_calculate_variance",
+   "fieldtype": "Check",
+   "label": "Auto Calculate Variance"
+  },
+  {
+   "default": "Monthly",
+   "depends_on": "eval:doc.auto_calculate_variance",
+   "fieldname": "variance_calculation_frequency",
+   "fieldtype": "Select",
+   "label": "Variance Calculation Frequency",
+   "options": "\nDaily\nWeekly\nMonthly\nManual"
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_variance_alerts",
+   "fieldtype": "Check",
+   "label": "Enable Variance Alerts"
+  },
+  {
+   "depends_on": "eval:doc.enable_variance_alerts",
+   "description": "Comma-separated email addresses",
+   "fieldname": "default_alert_recipients",
+   "fieldtype": "Small Text",
+   "label": "Default Alert Recipients"
+  },
+  {
+   "default": "25",
+   "depends_on": "eval:doc.enable_variance_alerts",
+   "description": "Send critical alerts when variance exceeds this",
+   "fieldname": "alert_threshold_critical",
+   "fieldtype": "Percent",
+   "label": "Critical Alert Threshold %"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "approval_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Approval Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "require_approval",
+   "fieldtype": "Check",
+   "label": "Require Approval for Budgets"
+  },
+  {
+   "depends_on": "eval:doc.require_approval",
+   "fieldname": "approval_workflow",
+   "fieldtype": "Link",
+   "label": "Budget Approval Workflow",
+   "options": "Workflow"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "depends_on": "eval:doc.require_approval",
+   "fieldname": "auto_submit_on_approval",
+   "fieldtype": "Check",
+   "label": "Auto Submit on Final Approval"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_amendments",
+   "fieldtype": "Check",
+   "label": "Allow Budget Amendments"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "projection_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Projection Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_projections_by_default",
+   "fieldtype": "Check",
+   "label": "Enable Projections by Default"
+  },
+  {
+   "default": "3",
+   "description": "Number of previous years to analyze",
+   "fieldname": "default_historical_years",
+   "fieldtype": "Int",
+   "label": "Default Historical Years for Analysis"
+  },
+  {
+   "default": "5",
+   "fieldname": "default_growth_rate",
+   "fieldtype": "Percent",
+   "label": "Default Growth Rate %",
+   "precision": "2"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "3",
+   "fieldname": "default_inflation_rate",
+   "fieldtype": "Percent",
+   "label": "Default Inflation Rate %",
+   "precision": "2"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_seasonality",
+   "fieldtype": "Check",
+   "label": "Enable Seasonality Adjustment"
+  },
+  {
+   "depends_on": "eval:doc.enable_seasonality",
+   "fieldname": "default_seasonality_template",
+   "fieldtype": "Link",
+   "label": "Default Seasonality Template",
+   "options": "Monthly Distribution"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "ai_ml_settings_section",
+   "fieldtype": "Section Break",
+   "label": "AI/ML Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_ai_by_default",
+   "fieldtype": "Check",
+   "label": "Enable AI Analysis by Default"
+  },
+  {
+   "default": "70",
+   "description": "Minimum confidence score to accept AI recommendations",
+   "fieldname": "ai_confidence_threshold",
+   "fieldtype": "Percent",
+   "label": "AI Confidence Threshold %"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_generate_scenarios",
+   "fieldtype": "Check",
+   "label": "Auto Generate Scenarios"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "20",
+   "description": "Percentage increase for best case scenario",
+   "fieldname": "default_best_case_percentage",
+   "fieldtype": "Percent",
+   "label": "Default Best Case %"
+  },
+  {
+   "default": "20",
+   "description": "Percentage decrease for worst case scenario",
+   "fieldname": "default_worst_case_percentage",
+   "fieldtype": "Percent",
+   "label": "Default Worst Case %"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_anomaly_detection",
+   "fieldtype": "Check",
+   "label": "Enable Anomaly Detection"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "budget_control_section",
+   "fieldtype": "Section Break",
+   "label": "Budget Control"
+  },
+  {
+   "default": "Warn",
+   "description": "Action to take when actual exceeds budget",
+   "fieldname": "budget_control_action",
+   "fieldtype": "Select",
+   "label": "Action on Budget Exceed",
+   "options": "\nWarn\nStop\nIgnore"
+  },
+  {
+   "default": "1",
+   "fieldname": "allow_budget_override",
+   "fieldtype": "Check",
+   "label": "Allow Budget Override"
+  },
+  {
+   "depends_on": "eval:doc.allow_budget_override",
+   "fieldname": "override_roles",
+   "fieldtype": "Table MultiSelect",
+   "label": "Roles Allowed to Override",
+   "options": "Budget Override Role"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "notify_on_budget_exceed",
+   "fieldtype": "Check",
+   "label": "Notify on Budget Exceed"
+  },
+  {
+   "depends_on": "eval:doc.notify_on_budget_exceed",
+   "description": "Comma-separated email addresses",
+   "fieldname": "notification_recipients",
+   "fieldtype": "Small Text",
+   "label": "Notification Recipients"
+  },
+  {
+   "default": "5",
+   "description": "Allow spending up to this % over budget without warning",
+   "fieldname": "grace_percentage",
+   "fieldtype": "Percent",
+   "label": "Grace Percentage"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "export_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Export Settings"
+  },
+  {
+   "default": "Standard Format",
+   "fieldname": "default_export_template",
+   "fieldtype": "Select",
+   "label": "Default Export Template",
+   "options": "\nStandard Format\nExecutive Summary\nDetailed Analysis\nVariance Report\nDashboard Format"
+  },
+  {
+   "default": "1",
+   "fieldname": "include_charts_by_default",
+   "fieldtype": "Check",
+   "label": "Include Charts by Default"
+  },
+  {
+   "fieldname": "column_break_8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "include_scenarios_by_default",
+   "fieldtype": "Check",
+   "label": "Include Scenarios by Default"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_generate_dashboard",
+   "fieldtype": "Check",
+   "label": "Auto Generate Dashboard"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "distribution_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Distribution Settings"
+  },
+  {
+   "description": "Define metrics for branch budget allocation",
+   "fieldname": "branch_allocation_basis",
+   "fieldtype": "Table",
+   "label": "Branch Allocation Basis",
+   "options": "Budget Allocation Basis"
+  },
+  {
+   "description": "Define metrics for cost center budget allocation",
+   "fieldname": "cost_center_allocation_basis",
+   "fieldtype": "Table",
+   "label": "Cost Center Allocation Basis",
+   "options": "Budget Allocation Basis"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Automatically create child budgets when parent is approved",
+   "fieldname": "auto_create_child_budgets",
+   "fieldtype": "Check",
+   "label": "Auto Create Child Budgets"
+  },
+  {
+   "default": "1",
+   "fieldname": "lock_child_budgets_on_approval",
+   "fieldtype": "Check",
+   "label": "Lock Child Budgets on Approval"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "advanced_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Advanced Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_multi_currency",
+   "fieldtype": "Check",
+   "label": "Enable Multi-Currency Budgets"
+  },
+  {
+   "default": "Currency Exchange",
+   "depends_on": "eval:doc.enable_multi_currency",
+   "fieldname": "exchange_rate_source",
+   "fieldtype": "Select",
+   "label": "Exchange Rate Source",
+   "options": "\nManual\nCurrency Exchange\nExternal API"
+  },
+  {
+   "fieldname": "column_break_10",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Allow unused budget to rollover to next period",
+   "fieldname": "enable_budget_rollover",
+   "fieldtype": "Check",
+   "label": "Enable Budget Rollover"
+  },
+  {
+   "default": "10",
+   "depends_on": "eval:doc.enable_budget_rollover",
+   "fieldname": "rollover_percentage",
+   "fieldtype": "Percent",
+   "label": "Max Rollover Percentage"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "notification_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Notification Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_email_notifications",
+   "fieldtype": "Check",
+   "label": "Enable Email Notifications"
+  },
+  {
+   "default": "Weekly",
+   "depends_on": "eval:doc.enable_email_notifications",
+   "fieldname": "notification_frequency",
+   "fieldtype": "Select",
+   "label": "Notification Frequency",
+   "options": "\nDaily\nWeekly\nMonthly"
+  },
+  {
+   "fieldname": "column_break_11",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Monday",
+   "depends_on": "eval:doc.notification_frequency=='Weekly'",
+   "fieldname": "weekly_report_day",
+   "fieldtype": "Select",
+   "label": "Weekly Report Day",
+   "options": "\nMonday\nTuesday\nWednesday\nThursday\nFriday\nSaturday\nSunday"
+  },
+  {
+   "default": "1",
+   "depends_on": "eval:doc.notification_frequency=='Monthly'",
+   "description": "Day of month to send report (1-28)",
+   "fieldname": "monthly_report_date",
+   "fieldtype": "Int",
+   "label": "Monthly Report Date"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "integration_section",
+   "fieldtype": "Section Break",
+   "label": "Integration Settings"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_api_access",
+   "fieldtype": "Check",
+   "label": "Enable API Access"
+  },
+  {
+   "depends_on": "eval:doc.enable_api_access",
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "URL to send budget events",
+   "fieldname": "webhook_url",
+   "fieldtype": "Data",
+   "label": "Webhook URL"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_webhooks",
+   "fieldtype": "Check",
+   "label": "Enable Webhooks"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "system_settings_section",
+   "fieldtype": "Section Break",
+   "label": "System Settings"
+  },
+  {
+   "default": "30",
+   "description": "Duration to cache budget calculations",
+   "fieldname": "cache_duration",
+   "fieldtype": "Int",
+   "label": "Cache Duration (minutes)"
+  },
+  {
+   "default": "500",
+   "description": "Maximum number of line items in a budget",
+   "fieldname": "max_budget_lines",
+   "fieldtype": "Int",
+   "label": "Max Budget Lines per Document"
+  },
+  {
+   "fieldname": "column_break_13",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_audit_trail",
+   "fieldtype": "Check",
+   "label": "Enable Audit Trail"
+  },
+  {
+   "default": "60",
+   "depends_on": "eval:doc.enable_audit_trail",
+   "description": "How long to keep audit logs",
+   "fieldname": "retention_period",
+   "fieldtype": "Int",
+   "label": "Audit Retention Period (months)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-02-03 17:58:17.751838",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Budget Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

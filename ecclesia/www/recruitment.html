@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recruitment — HR Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0f1e;--ink2:#1e2740;--muted:#6b7a99;--surface:#fff;--sf2:#f4f6fb;--sf3:#e8ecf5;
+  --border:#dde3f0;--accent:#2563eb;--green:#059669;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;
+  --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
+  --r:12px;--sh:0 2px 12px rgba(10,15,30,.08);--sh-lg:0 8px 40px rgba(10,15,30,.14);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--sf2);color:var(--ink);display:flex;min-height:100vh;overflow-x:hidden}
+/* ── sidebar ── */
+.sb{width:236px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow-y:auto}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.sb-logo{width:32px;height:32px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.sb-name{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.sb-sub{font-size:10px;color:var(--muted)}
+.sb-nav{padding:10px;flex:1;display:flex;flex-direction:column;gap:1px}
+.sb-sec{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:12px 8px 5px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:12px;color:var(--muted);transition:.12s;border:none;background:none;font-family:var(--font);width:100%;text-align:left}
+.sb-item:hover{background:var(--sf2);color:var(--ink)}
+.sb-item.on{background:var(--sf3);color:var(--ink);font-weight:600}
+.sb-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.sb-bdg{margin-left:auto;padding:2px 6px;border-radius:8px;font-size:9px;font-weight:800}
+.sb-bdg.red{background:var(--red);color:#fff}
+.sb-bdg.amber{background:var(--amber);color:#fff}
+/* ── main ── */
+.main{margin-left:236px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.content{padding:24px 28px;flex:1}
+.panel{display:none}
+.panel.on{display:block;animation:fup .2s ease}
+@keyframes fup{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+/* ── buttons ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:.12s}
+.btn-dark{background:var(--ink);color:#fff}.btn-dark:hover{background:var(--ink2)}
+.btn-out{background:transparent;border:1.5px solid var(--border);color:var(--ink)}.btn-out:hover{border-color:var(--ink)}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-accent{background:var(--accent);color:#fff}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+/* ── stat grid ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px}
+.stat.blue::after{background:var(--accent)}
+.stat.green::after{background:var(--green)}
+.stat.amber::after{background:var(--amber)}
+.stat.purple::after{background:var(--purple)}
+.stat.red::after{background:var(--red)}
+.stat-val{font-size:30px;font-weight:800;letter-spacing:-1.5px;margin-bottom:3px}
+.stat-label{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:3px}
+/* ── card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.card-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.card-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
+/* ── table ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:700;padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--sf2);white-space:nowrap}
+.tbl td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--sf2)}
+.tbl tbody tr{cursor:pointer}
+/* ── score bar ── */
+.sbar-wrap{display:flex;align-items:center;gap:8px;min-width:110px}
+.sbar-bg{flex:1;height:7px;background:var(--sf3);border-radius:3px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:3px;transition:.5s}
+.sbar-val{font-family:var(--mono);font-size:11px;font-weight:600;width:28px;text-align:right}
+/* ── pill ── */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700}
+.pill-green{background:#dcfce7;color:#15803d}
+.pill-amber{background:#fef3c7;color:#92400e}
+.pill-blue{background:#dbeafe;color:#1d4ed8}
+.pill-red{background:#fee2e2;color:#b91c1c}
+.pill-purple{background:#ede9fe;color:#6d28d9}
+.pill-grey{background:var(--sf3);color:var(--muted)}
+/* ── tabs ── */
+.tabs-row{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 18px;overflow-x:auto}
+.tab{padding:12px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:.12s;white-space:nowrap;flex-shrink:0}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+/* ── form inputs ── */
+.fg{margin-bottom:14px}
+.flabel{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:5px;display:block}
+.finput{width:100%;background:var(--sf2);border:1.5px solid var(--border);border-radius:7px;padding:8px 11px;font-size:12px;font-family:var(--font);color:var(--ink);outline:none;transition:.12s}
+.finput:focus{border-color:var(--accent);background:var(--surface)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* ── criteria cards ── */
+.criteria-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.crit-card{background:var(--sf2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.crit-icon{font-size:20px;margin-bottom:8px}
+.crit-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:8px}
+.crit-val{font-size:26px;font-weight:800;letter-spacing:-1px;color:var(--ink);margin-bottom:4px}
+.crit-range{width:100%;margin-top:6px;accent-color:var(--accent)}
+.weight-total{text-align:center;padding:8px;border-radius:7px;font-size:12px;font-weight:600;margin-top:10px}
+.wt-ok{background:#dcfce7;color:#15803d}
+.wt-bad{background:#fee2e2;color:var(--red)}
+/* ── score breakdown in modal ── */
+.sc-crit{background:var(--sf2);border-radius:9px;padding:14px;margin-bottom:10px}
+.sc-crit-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sc-crit-label{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.sc-crit-val{font-family:var(--mono);font-size:13px;font-weight:700}
+/* ── q builder ── */
+.qitem{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:10px;position:relative}
+.qitem-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.qnum{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--muted)}
+/* ── modal ── */
+#mo{display:none;position:fixed;inset:0;background:rgba(10,15,30,.5);z-index:9000;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#mo-box{background:var(--surface);border-radius:14px;padding:24px;width:min(700px,95vw);max-height:92vh;overflow-y:auto;position:relative;box-shadow:0 24px 80px rgba(10,15,30,.3)}
+/* ── toast ── */
+#toast{position:fixed;bottom:20px;right:18px;z-index:99999;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:11px 16px;font-size:12px;box-shadow:var(--sh-lg);display:none;max-width:320px;line-height:1.5}
+.loading{padding:40px;text-align:center;color:var(--muted);font-size:12px}
+.empty-row{padding:40px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+
+<div id="mo" onclick="closeMo()"><div id="mo-box" onclick="event.stopPropagation()">
+  <button onclick="closeMo()" style="position:absolute;top:12px;right:14px;background:var(--sf2);border:none;border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center">✕</button>
+  <div id="mo-body"></div>
+</div></div>
+<div id="toast"></div>
+
+<!-- sidebar -->
+<aside class="sb">
+  <div class="sb-brand"><div class="sb-logo">🏛</div><div><div class="sb-name">Recruitment</div><div class="sb-sub">HR Dashboard</div></div></div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Overview</div>
+    <button class="sb-item on" onclick="go('dashboard',this)"><span class="sb-icon">🏠</span>Dashboard</button>
+    <div class="sb-sec">Jobs</div>
+    <button class="sb-item" onclick="go('jobs',this)"><span class="sb-icon">💼</span>Job Openings</button>
+    <button class="sb-item" onclick="go('criteria',this)"><span class="sb-icon">⚙️</span>Scoring Criteria</button>
+    <div class="sb-sec">Candidates</div>
+    <button class="sb-item" onclick="go('applicants',this)"><span class="sb-icon">👥</span>All Applicants<span class="sb-bdg red" id="bdg-new">0</span></button>
+    <button class="sb-item" onclick="go('shortlist',this)"><span class="sb-icon">⭐</span>Shortlisted<span class="sb-bdg amber" id="bdg-short">0</span></button>
+    <button class="sb-item" onclick="go('ko',this)"><span class="sb-icon">⚡</span>Knocked Out</button>
+    <div class="sb-sec">Process</div>
+    <button class="sb-item" onclick="go('interviews',this)"><span class="sb-icon">📅</span>Interviews</button>
+    <button class="sb-item" onclick="go('offers',this)"><span class="sb-icon">✉️</span>Offers</button>
+    <div class="sb-sec">Links</div>
+    <a href="/careers" target="_blank" class="sb-item" style="text-decoration:none"><span class="sb-icon">🌐</span>Careers Portal</a>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="tbar-title">Dashboard</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-out" onclick="go('criteria',null);setTimeout(function(){var s=document.getElementById('crit-job-sel');if(s)s.focus();},200)">⚙️ Criteria</button>
+      <button class="btn btn-dark" onclick="openCreateJob()">+ New Job</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="p-dashboard" class="panel on">
+      <div class="stats-grid">
+        <div class="stat blue"><div class="stat-val" id="ds-open">—</div><div class="stat-label">Open Positions</div></div>
+        <div class="stat amber"><div class="stat-val" id="ds-apps">—</div><div class="stat-label">Total Applicants</div><div class="stat-sub" id="ds-today"></div></div>
+        <div class="stat green"><div class="stat-val" id="ds-short">—</div><div class="stat-label">Shortlisted</div><div class="stat-sub" id="ds-avg"></div></div>
+        <div class="stat purple"><div class="stat-val" id="ds-intvw">—</div><div class="stat-label">Interviews</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--accent)" id="ds-offers">—</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px">Offers</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--red)" id="ds-ko">—</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px">Knocked Out</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--green)" id="ds-avg-s">—</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px">Avg Score</div></div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--purple)" id="ds-dup">—</div><div style="font-size:9px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:3px">Duplicates</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+        <div class="card"><div class="card-hd"><div class="card-title">💼 Open Jobs</div><button class="btn btn-out" style="font-size:10px;padding:4px 9px" onclick="go('jobs',null)">View All</button></div>
+          <table class="tbl" id="ds-jobs"><thead><tr><th>Position</th><th>Apps</th><th>Shortlisted</th></tr></thead><tbody><tr><td colspan="3" class="loading">Loading…</td></tr></tbody></table></div>
+        <div class="card"><div class="card-hd"><div class="card-title">🏆 Top Scored Applicants</div><button class="btn btn-out" style="font-size:10px;padding:4px 9px" onclick="go('applicants',null)">View All</button></div>
+          <table class="tbl" id="ds-top"><thead><tr><th>Applicant</th><th>Position</th><th>Score</th></tr></thead><tbody><tr><td colspan="3" class="loading">Loading…</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ══ JOBS ══ -->
+    <div id="p-jobs" class="panel">
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-title">💼 Job Openings</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select class="finput" id="job-sf" onchange="loadJobs()" style="width:auto;padding:5px 9px;font-size:11px"><option value="All">All</option><option>Open</option><option>Closed</option></select>
+            <button class="btn btn-dark" onclick="openCreateJob()">+ New Job</button>
+          </div>
+        </div>
+        <table class="tbl" id="jobs-tbl">
+          <thead><tr><th></th><th>Position</th><th>Dept</th><th>Deadline</th><th>Apps</th><th>Shortlisted</th><th>Scoring</th><th>Status</th><th></th></tr></thead>
+          <tbody><tr><td colspan="9" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CRITERIA ══ -->
+    <div id="p-criteria" class="panel">
+      <div class="card" style="margin-bottom:18px">
+        <div class="card-hd">
+          <div class="card-title">⚙️ Scoring Criteria — 10 Criteria</div>
+          <select class="finput" id="crit-job-sel" onchange="loadCriteria()" style="width:260px;padding:6px 10px;font-size:12px"><option value="">Select Job Opening…</option></select>
+        </div>
+      </div>
+      <div id="crit-body"><div class="empty-row" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r)">👆 Select a job opening to configure its criteria</div></div>
+    </div>
+
+    <!-- ══ APPLICANTS ══ -->
+    <div id="p-applicants" class="panel">
+      <div class="card">
+        <div class="tabs-row" id="app-tabs">
+          <div class="tab on" onclick="switchTab('all',this)">All</div>
+          <div class="tab" onclick="switchTab('Open',this)">New</div>
+          <div class="tab" onclick="switchTab('Replied',this)">Under Review</div>
+          <div class="tab" onclick="switchTab('Hold',this)">Shortlisted ⭐</div>
+          <div class="tab" onclick="switchTab('Accepted',this)">Accepted</div>
+          <div class="tab" onclick="switchTab('Rejected',this)">Rejected</div>
+        </div>
+        <div class="card-hd">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="finput" id="app-search" placeholder="Search…" oninput="loadApps()" style="width:180px;padding:6px 10px;font-size:11px">
+            <select class="finput" id="app-job-f" onchange="loadApps()" style="width:auto;padding:6px 10px;font-size:11px"><option value="">All Jobs</option></select>
+            <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap"><input type="checkbox" id="pass-only" onchange="loadApps()" style="width:13px;height:13px;cursor:pointer;accent-color:var(--accent)"> Pass score only</label>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn btn-amber" onclick="bulkAction('Hold')">⭐ Shortlist</button>
+            <button class="btn btn-green" onclick="bulkAction('Accepted')">✓ Accept</button>
+            <button class="btn btn-red" onclick="bulkAction('Rejected')">✕ Reject</button>
+          </div>
+        </div>
+        <table class="tbl" id="apps-tbl">
+          <thead><tr><th><input type="checkbox" id="app-ca" onchange="toggleAll(this,'a-cb')"></th><th>Applicant</th><th>Position</th><th>Score</th><th>Criteria Met</th><th>KO</th><th>Status</th><th>Applied</th><th></th></tr></thead>
+          <tbody><tr><td colspan="9" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ SHORTLIST ══ -->
+    <div id="p-shortlist" class="panel">
+      <div class="card"><div class="card-hd"><div class="card-title">⭐ Shortlisted Candidates</div></div>
+        <table class="tbl" id="short-tbl"><thead><tr><th>Candidate</th><th>Position</th><th>Score</th><th>Status</th><th></th></tr></thead>
+          <tbody><tr><td colspan="5" class="loading">Loading…</td></tr></tbody></table></div>
+    </div>
+
+    <!-- ══ KNOCKED OUT ══ -->
+    <div id="p-ko" class="panel">
+      <div class="card"><div class="card-hd"><div class="card-title">⚡ Knocked-Out Applications</div>
+        <p style="font-size:11px;color:var(--muted)">These applicants failed a mandatory knock-out question and were auto-rejected.</p>
+      </div>
+        <table class="tbl" id="ko-tbl"><thead><tr><th>Applicant</th><th>Position</th><th>Reason</th><th>Applied</th><th></th></tr></thead>
+          <tbody><tr><td colspan="5" class="loading">Loading…</td></tr></tbody></table></div>
+    </div>
+
+    <!-- ══ INTERVIEWS ══ -->
+    <div id="p-interviews" class="panel">
+      <div class="card"><div class="card-hd"><div class="card-title">📅 Scheduled Interviews</div></div>
+        <table class="tbl" id="intvw-tbl"><thead><tr><th>Candidate</th><th>Date</th><th>Time</th><th>Round</th><th>Meeting</th><th>Status</th></tr></thead>
+          <tbody><tr><td colspan="6" class="loading">Loading…</td></tr></tbody></table></div>
+    </div>
+
+    <!-- ══ OFFERS ══ -->
+    <div id="p-offers" class="panel">
+      <div class="card"><div class="card-hd"><div class="card-title">✉️ Offers Extended</div></div>
+        <table class="tbl" id="offers-tbl"><thead><tr><th>Candidate</th><th>Position</th><th>Score</th><th>Applied</th><th></th></tr></thead>
+          <tbody><tr><td colspan="5" class="loading">Loading…</td></tr></tbody></table></div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ════════════════════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════════════════════ */
+function toast(msg,type){
+  var t=document.getElementById('toast');
+  t.innerHTML={'success':'✅ ','error':'❌ ','warn':'⚠️ ','info':'ℹ️ '}[type||'info']+msg;
+  t.style.display='block';
+  t.style.borderLeft='4px solid var(--'+(({success:'green',error:'red',warn:'amber'}[type]||'accent'))+')';
+  clearTimeout(t._t);t._t=setTimeout(function(){t.style.display='none';},5000);
+}
+function csrf(){var m=document.cookie.match(/csrf_token=([^;]+)/);return m?decodeURIComponent(m[1]):'';}
+function api(method,args){
+  return fetch('/api/method/'+method,{method:'POST',headers:{'Content-Type':'application/json','X-Frappe-CSRF-Token':csrf()},body:JSON.stringify(args||{})})
+  .then(function(r){return r.json();}).then(function(r){
+    if(r.exc){var raw=r._server_messages||r.exc;var msg;try{msg=JSON.parse(JSON.parse(raw)[0]).message;}catch(e){msg=String(raw).split('\n').pop();}throw new Error(msg||'Error');}
+    return r.message;
+  });
+}
+function openMo(html){document.getElementById('mo-body').innerHTML=html;document.getElementById('mo').style.display='flex';}
+function closeMo(){document.getElementById('mo').style.display='none';}
+function sbar(v,ps){var val=Math.round(v||0);var col=val>=(ps||70)?'var(--green)':val>=(ps||70)*.75?'var(--amber)':'var(--red)';
+  return '<div class="sbar-wrap"><div class="sbar-bg"><div class="sbar-fill" style="width:'+val+'%;background:'+col+'"></div></div><span class="sbar-val" style="color:'+col+'">'+val+'</span></div>';}
+function pill(s){var m={Open:'pill-blue',Replied:'pill-amber',Hold:'pill-purple',Accepted:'pill-green',Rejected:'pill-red','Knocked Out':'pill-red',Duplicate:'pill-amber',Scored:'pill-green',Pending:'pill-grey',Error:'pill-red'};return '<span class="pill '+(m[s]||'pill-grey')+'">'+s+'</span>';}
+function toggleAll(m,cls){document.querySelectorAll('.'+cls).forEach(function(c){c.checked=m.checked;});}
+function gv(id){var e=document.getElementById(id);return e?e.value:'';}
+function gc(id){var e=document.getElementById(id);return e&&e.checked?1:0;}
+
+var PANELS={dashboard:'Dashboard',jobs:'Job Openings',criteria:'Scoring Criteria',applicants:'All Applicants',shortlist:'Shortlisted',ko:'Knocked Out',interviews:'Interviews',offers:'Offers'};
+var TAB_STATUS='all';
+var JOBS_LIST=[];
+var Q_BUILDER=[];
+
+function go(name,el){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.sb-item').forEach(function(s){s.classList.remove('on');});
+  var p=document.getElementById('p-'+name);if(p)p.classList.add('on');
+  if(el)el.classList.add('on');
+  document.getElementById('tbar-title').textContent=PANELS[name]||name;
+  if(p&&p.dataset.loaded)return;if(p)p.dataset.loaded='1';
+  if(name==='jobs')       loadJobs();
+  if(name==='applicants') loadApps();
+  if(name==='shortlist')  loadShortlist();
+  if(name==='ko')         loadKO();
+  if(name==='interviews') loadInterviews();
+  if(name==='offers')     loadOffers();
+  if(name==='criteria')   initCriteria();
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════════════════════════════ */
+function loadDashboard(){
+  api('ecclesia.api.recruitment_portal_admin.get_dashboard_stats',{})
+  .then(function(s){
+    document.getElementById('ds-open').textContent=s.total_open;
+    document.getElementById('ds-apps').textContent=s.total_apps;
+    document.getElementById('ds-today').textContent=s.new_today+' new today';
+    document.getElementById('ds-short').textContent=s.shortlisted;
+    document.getElementById('ds-avg').textContent='Avg score '+s.avg_score;
+    document.getElementById('ds-intvw').textContent=s.interviews;
+    document.getElementById('ds-offers').textContent=s.offers;
+    document.getElementById('ds-ko').textContent=s.knocked_out||0;
+    document.getElementById('ds-avg-s').textContent=s.avg_score;
+    document.getElementById('ds-dup').textContent=s.duplicates||0;
+    document.getElementById('bdg-new').textContent=s.new_today||'';
+    document.getElementById('bdg-short').textContent=s.shortlisted||'';
+  }).catch(function(){});
+  api('ecclesia.api.recruitment_portal_admin.get_applicants',{page:1,page_size:5})
+  .then(function(res){
+    var tb=document.querySelector('#ds-top tbody');if(!tb||!res)return;
+    if(!res.data.length){tb.innerHTML='<tr><td colspan="3" class="empty-row">No applicants yet</td></tr>';return;}
+    tb.innerHTML=res.data.slice(0,5).map(function(a){
+      return '<tr onclick="viewApp(\''+a.name+'\')"><td><strong>'+a.applicant_name+'</strong><div style="font-size:10px;color:var(--muted)">'+a.email_id+'</div></td><td style="font-size:11px">'+a.job_title+'</td><td>'+sbar(a.ec_total_score,a.pass_score)+'</td></tr>';
+    }).join('');
+  }).catch(function(){});
+  api('ecclesia.api.recruitment_portal_admin.get_job_openings',{status:'Open',page:1,page_size:5})
+  .then(function(res){
+    var tb=document.querySelector('#ds-jobs tbody');if(!tb||!res)return;
+    if(!res.data.length){tb.innerHTML='<tr><td colspan="3" class="empty-row">No open jobs</td></tr>';return;}
+    tb.innerHTML=res.data.map(function(j){
+      return '<tr onclick="go(\'applicants\',null)"><td><strong>'+j.job_title+'</strong><div style="font-size:10px;color:var(--muted)">'+( j.department||'')+'</div></td><td>'+j.applicant_count+'</td><td>'+(j.shortlisted_count||0)+'</td></tr>';
+    }).join('');
+  }).catch(function(){});
+}
+
+/* ════════════════════════════════════════════════════════════════
+   JOBS
+════════════════════════════════════════════════════════════════ */
+function loadJobs(){
+  var tb=document.querySelector('#jobs-tbl tbody');if(tb)tb.innerHTML='<tr><td colspan="9" class="loading">Loading…</td></tr>';
+  api('ecclesia.api.recruitment_portal_admin.get_job_openings',{status:gv('job-sf')||'All',page:1,page_size:100})
+  .then(function(res){
+    JOBS_LIST=res.data||[];
+    var tb=document.querySelector('#jobs-tbl tbody');if(!tb)return;
+    if(!res.data.length){tb.innerHTML='<tr><td colspan="9" class="empty-row">No job openings</td></tr>';return;}
+    tb.innerHTML=res.data.map(function(j){
+      return '<tr><td><input type="checkbox" class="job-cb" value="'+j.name+'"></td>'
+        +'<td onclick="viewJobApps(\''+j.name+'\')" style="cursor:pointer"><strong>'+j.job_title+'</strong></td>'
+        +'<td>'+(j.department||'—')+'</td>'
+        +'<td style="font-family:var(--mono);font-size:11px">'+(j.ec_application_deadline||'—')+'</td>'
+        +'<td><strong>'+j.applicant_count+'</strong></td>'
+        +'<td>'+(j.shortlisted_count||0)+'</td>'
+        +'<td>'+(j.ec_scoring_enabled?'<span class="pill pill-green">⚡ On</span>':'<span class="pill pill-grey">Off</span>')+'</td>'
+        +'<td>'+pill(j.status)+'</td>'
+        +'<td onclick="event.stopPropagation()" style="display:flex;gap:5px">'
+        +'<button class="btn btn-out" style="font-size:10px;padding:4px 8px" onclick="openCriteriaFor(\''+j.name+'\')">⚙️</button>'
+        +'<button class="btn btn-out" style="font-size:10px;padding:4px 8px" onclick="viewJobApps(\''+j.name+'\')">👥</button>'
+        +'</td></tr>';
+    }).join('');
+    // Populate job filter dropdowns
+    ['app-job-f'].forEach(function(id){
+      var s=document.getElementById(id);if(!s)return;
+      var cur=s.value;
+      s.innerHTML='<option value="">All Jobs</option>'+res.data.map(function(j){return '<option value="'+j.name+'">'+j.job_title+'</option>';}).join('');
+      if(cur)s.value=cur;
+    });
+    var cs=document.getElementById('crit-job-sel');
+    if(cs){var cur=cs.value;cs.innerHTML='<option value="">Select Job Opening…</option>'+res.data.map(function(j){return '<option value="'+j.name+'">'+j.job_title+'</option>';}).join('');if(cur)cs.value=cur;}
+  }).catch(function(e){toast(e.message,'error');});
+}
+function openCreateJob(){
+  openMo('<h3 style="margin:0 0 16px;font-size:16px;font-weight:700">💼 Create Job Opening</h3>'
+    +'<p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">Create the job opening in ERPNext first, then return here to configure scoring criteria.</p>'
+    +'<div style="background:var(--sf2);border:1px solid var(--border);border-radius:9px;padding:14px;font-size:12px;line-height:1.8">'
+    +'<strong>Steps:</strong><ol style="margin-left:18px;margin-top:6px"><li>Go to ERPNext → HR → Job Opening → Create</li><li>Set title, department, description</li><li>Return here → Criteria → configure scoring</li></ol></div>'
+    +'<div style="display:flex;gap:8px;margin-top:16px"><a href="/app/job-opening/new-job-opening" target="_blank" class="btn btn-dark" style="text-decoration:none">Open ERPNext →</a><button class="btn btn-out" onclick="closeMo();loadJobs()">Refresh</button></div>');
+}
+function viewJobApps(name){
+  var s=document.getElementById('app-job-f');if(s)s.value=name;
+  var p=document.getElementById('p-applicants');if(p)delete p.dataset.loaded;
+  go('applicants',null);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CRITERIA — FULL 10-CRITERIA FORM
+════════════════════════════════════════════════════════════════ */
+function initCriteria(){loadJobs();}
+
+function openCriteriaFor(name){
+  go('criteria',null);
+  var s=document.getElementById('crit-job-sel');if(s){s.value=name;loadCriteria();}
+}
+
+function loadCriteria(){
+  var job=gv('crit-job-sel');
+  var body=document.getElementById('crit-body');
+  if(!job){body.innerHTML='<div class="empty-row" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r)">Select a job opening above</div>';return;}
+  body.innerHTML='<div class="loading" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r)">Loading criteria…</div>';
+  api('ecclesia.api.recruitment_portal_admin.get_job_criteria',{job_opening:job})
+  .then(function(d){renderCriteria(d);}).catch(function(e){toast(e.message,'error');});
+}
+
+var CRITERIA_DEF=[
+  {key:'education',    icon:'🎓', label:'Education',             defW:15},
+  {key:'experience',   icon:'💼', label:'Experience',            defW:25},
+  {key:'skills',       icon:'🧠', label:'Skills',                defW:30},
+  {key:'certifications',icon:'📜',label:'Certifications',        defW:10},
+  {key:'industry',     icon:'🏭', label:'Industry Experience',   defW:10},
+  {key:'location',     icon:'🌍', label:'Location',              defW: 5},
+  {key:'languages',    icon:'🗣️', label:'Languages',             defW: 5},
+  {key:'stability',    icon:'📅', label:'Employment Stability',  defW: 5},
+  {key:'portfolio',    icon:'🧩', label:'Portfolio / Projects',  defW: 5},
+  {key:'screening',    icon:'📝', label:'Screening Q&A',         defW:10},
+];
+
+function renderCriteria(d){
+  Q_BUILDER=d.screening_questions_parsed||[];
+
+  // Weight cards
+  var weightCards=CRITERIA_DEF.map(function(c){
+    var fid='ec_weight_'+c.key;
+    var val=d[fid]!==undefined?d[fid]:c.defW;
+    return '<div class="crit-card"><div class="crit-icon">'+c.icon+'</div>'
+      +'<div class="crit-label">'+c.label+'</div>'
+      +'<div class="crit-val" id="cv-'+c.key+'">'+val+'%</div>'
+      +'<input type="range" class="crit-range wrange" id="cw-'+c.key+'" data-key="'+c.key
+      +'" min="0" max="60" value="'+val+'" oninput="document.getElementById(\'cv-'+c.key+'\').textContent=this.value+\'%\';updateWTotal()">'
+      +'</div>';
+  }).join('');
+
+  var langJson='';
+  try{langJson=d.ec_required_languages?JSON.stringify(JSON.parse(d.ec_required_languages),null,2):'';}catch(e){langJson=d.ec_required_languages||'';}
+
+  var html=[
+    '<div class="card"><div class="card-hd"><div class="card-title">⚖️ Scoring Weights — 10 Criteria</div><div style="font-size:11px;color:var(--muted)">Must sum to 100%</div></div>',
+    '<div style="padding:16px"><div class="criteria-grid">'+weightCards+'</div>',
+    '<div id="wt-total" class="weight-total wt-ok">✓ Total: 100%</div></div></div>',
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">',
+
+    // ── Education ────────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🎓 Education</div></div><div style="padding:14px">',
+    '<div class="fg"><label class="flabel">Minimum Education Level</label><select class="finput" id="cw-edu-lvl"><option value="">Any</option>',
+    ["High School","OND / NCE","HND","Bachelor's Degree","Postgraduate Diploma","Master's Degree","Doctorate / PhD"].map(function(e){return '<option'+(d.ec_education_level===e?' selected':'')+'>'+e+'</option>';}).join(''),
+    '</select></div>',
+    '<div class="fg"><label class="flabel">Relevant Fields of Study (comma-sep)</label><input class="finput" id="cw-fos" value="'+(d.ec_field_of_study||'')+'"></div>',
+    '</div></div>',
+
+    // ── Experience ───────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">💼 Experience</div></div><div style="padding:14px">',
+    '<div class="frow">',
+    '<div class="fg"><label class="flabel">Min Years</label><input class="finput" type="number" id="cw-exp-min" value="'+(d.ec_experience_years_min||0)+'" min="0" step="0.5"></div>',
+    '<div class="fg"><label class="flabel">Max Years (0=no limit)</label><input class="finput" type="number" id="cw-exp-max" value="'+(d.ec_experience_years_max||0)+'" min="0" step="0.5"></div>',
+    '</div>',
+    '<div class="fg"><label class="flabel">Min Avg Job Duration for Stability (yrs, 0=off)</label><input class="finput" type="number" id="cw-stability" value="'+(d.ec_min_stability_years||0)+'" min="0" step="0.5"></div>',
+    '</div></div>',
+
+    '</div>',// close 2-col grid
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">',
+
+    // ── Skills ───────────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🧠 Skills</div></div><div style="padding:14px">',
+    '<div class="fg"><label class="flabel">Required Skills (comma-sep, 70% of skills score)</label><input class="finput" id="cw-skills-req" value="'+(d.ec_skills_required||'')+'" placeholder="Python, SQL, Leadership…"></div>',
+    '<div class="fg"><label class="flabel">Nice-to-Have Skills (comma-sep, 30% of skills score)</label><input class="finput" id="cw-skills-nth" value="'+(d.ec_nice_to_have_skills||'')+'" placeholder="Docker, Agile…"></div>',
+    '</div></div>',
+
+    // ── Certifications ───────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">📜 Certifications</div></div><div style="padding:14px">',
+    '<div class="fg"><label class="flabel">Required Certifications (comma-sep, 70% of cert score)</label><input class="finput" id="cw-cert-req" value="'+(d.ec_required_certifications||'')+'" placeholder="PMP, CISSP…"></div>',
+    '<div class="fg"><label class="flabel">Preferred Certifications (comma-sep, 30% of cert score)</label><input class="finput" id="cw-cert-pref" value="'+(d.ec_preferred_certifications||'')+'" placeholder="AWS, Google Analytics…"></div>',
+    '</div></div>',
+
+    '</div>',
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">',
+
+    // ── Industry ─────────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🏭 Industry</div></div><div style="padding:14px">',
+    '<div class="fg"><label class="flabel">Target Industry (exact match = 100%)</label><input class="finput" id="cw-ind-req" value="'+(d.ec_required_industry||'')+'" placeholder="Finance"></div>',
+    '<div class="fg"><label class="flabel">Related Industries (comma-sep, 60% score)</label><input class="finput" id="cw-ind-rel" value="'+(d.ec_related_industries||'')+'" placeholder="Banking, Insurance…"></div>',
+    '</div></div>',
+
+    // ── Location ─────────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🌍 Location</div></div><div style="padding:14px">',
+    '<div class="fg"><label class="flabel">Work Mode</label><select class="finput" id="cw-mode"><option value="">—</option><option'+(d.ec_location_mode==='On-site'?' selected':'')+'>On-site</option><option'+(d.ec_location_mode==='Remote'?' selected':'')+'>Remote</option><option'+(d.ec_location_mode==='Hybrid'?' selected':'')+'>Hybrid</option></select></div>',
+    '<div class="frow"><div class="fg"><label class="flabel">Required City</label><input class="finput" id="cw-city" value="'+(d.ec_required_location_city||'')+'"></div>',
+    '<div class="fg"><label class="flabel">Required Country</label><input class="finput" id="cw-country" value="'+(d.ec_required_location_country||'')+'"></div></div>',
+    '</div></div>',
+
+    '</div>',
+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">',
+
+    // ── Languages ────────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🗣️ Languages</div></div><div style="padding:14px">',
+    '<div class="fg"><label class="flabel">Language Requirements (JSON)</label>',
+    '<textarea class="finput" id="cw-langs" rows="5" style="font-family:var(--mono);font-size:11px;resize:vertical">',
+    langJson||'[\n  {"lang":"English","level":"required"},\n  {"lang":"French","level":"preferred"}\n]',
+    '</textarea></div>',
+    '<p style="font-size:10px;color:var(--muted)">levels: required | preferred | bonus</p>',
+    '</div></div>',
+
+    // ── Portfolio ────────────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🧩 Portfolio</div></div><div style="padding:14px">',
+    '<label style="font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px"><input type="checkbox" id="cw-port-req"'+(d.ec_portfolio_required?' checked':'')+' style="width:14px;height:14px;cursor:pointer;accent-color:var(--accent)"> Portfolio / GitHub required</label>',
+    '<p style="font-size:11px;color:var(--muted);line-height:1.6">If unchecked, having a portfolio still earns bonus points (60–100 raw). If checked, missing portfolio scores 0.</p>',
+    '</div></div>',
+
+    '</div>',
+
+    // ── Scoring thresholds ────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">🎯 Scoring Thresholds & Settings</div></div><div style="padding:14px">',
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">',
+    '<div class="fg" style="margin:0"><label class="flabel">Pass Score (shortlist threshold)</label><input class="finput" type="number" id="cw-pass" value="'+(d.ec_pass_score||70)+'" min="0" max="100"></div>',
+    '<div class="fg" style="margin:0"><label class="flabel">Auto-Reject Below (0=off)</label><input class="finput" type="number" id="cw-autoreject" value="'+(d.ec_auto_reject_below||0)+'" min="0" max="100"></div>',
+    '<div class="fg" style="margin:0"><label class="flabel">Application Deadline</label><input class="finput" type="date" id="cw-deadline" value="'+(d.ec_application_deadline||'')+'"></div>',
+    '<div class="fg" style="margin:0;display:flex;flex-direction:column;justify-content:flex-end"><label style="font-size:12px;display:flex;align-items:center;gap:7px;cursor:pointer;margin-bottom:6px"><input type="checkbox" id="cw-scoring-on"'+(d.ec_scoring_enabled?' checked':'')+' style="width:13px;height:13px;cursor:pointer;accent-color:var(--accent)"> Enable auto-scoring</label><label style="font-size:12px;display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" id="cw-published"'+(d.ec_portal_published?' checked':'')+' style="width:13px;height:13px;cursor:pointer;accent-color:var(--accent)"> Published on careers</label></div>',
+    '</div></div></div>',
+
+    // ── Question builder ──────────────────────────────────────
+    '<div class="card"><div class="card-hd"><div class="card-title">📝 Screening Questions (Criterion 10)</div>',
+    '<button class="btn btn-out" onclick="addQ()" style="font-size:11px">+ Add Question</button></div>',
+    '<div style="padding:16px">',
+    '<p style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.7">Questions with correct answers are auto-scored. Mark <strong>Knock-out</strong> to auto-reject applicants who answer incorrectly.</p>',
+    '<div id="qbuilder">'+renderQBuilder()+'</div>',
+    '</div></div>',
+
+    '<div style="display:flex;gap:10px;margin-top:6px">',
+    '<button class="btn btn-dark" onclick="saveCriteria()">💾 Save All Criteria</button>',
+    '<button class="btn btn-out" onclick="rescoreAll()">⚡ Re-score All Applicants</button>',
+    '</div>',
+  ].join('');
+
+  document.getElementById('crit-body').innerHTML=html;
+  document.querySelectorAll('.wrange').forEach(function(r){r.addEventListener('input',updateWTotal);});
+  updateWTotal();
+}
+
+function updateWTotal(){
+  var total=0;
+  CRITERIA_DEF.forEach(function(c){var e=document.getElementById('cw-'+c.key);if(e)total+=parseInt(e.value)||0;});
+  var el=document.getElementById('wt-total');if(!el)return;
+  el.textContent=(total===100?'✓':'⚠')+' Total: '+total+'%';
+  el.className='weight-total '+(total===100?'wt-ok':'wt-bad');
+}
+
+function renderQBuilder(){
+  if(!Q_BUILDER.length)return '<div style="text-align:center;padding:20px;color:var(--muted);font-size:12px">No questions yet. Click "+ Add Question" to begin.</div>';
+  return Q_BUILDER.map(function(q,i){
+    var types=['text','yesno','mcq','rating'];
+    var typeOpts=types.map(function(t){return '<option value="'+t+'"'+(q.type===t?' selected':'')+'>'+{text:'Free Text',yesno:'Yes / No',mcq:'Multiple Choice',rating:'Star Rating'}[t]+'</option>';}).join('');
+    return '<div class="qitem" id="qi-'+i+'">'
+      +'<div class="qitem-hd">'
+      +'<span class="qnum">Question '+(i+1)+'</span>'
+      +'<div style="display:flex;gap:8px;align-items:center">'
+      +'<label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="q-req" data-i="'+i+'"'+(q.required?' checked':'')+' style="width:12px;height:12px;cursor:pointer;accent-color:var(--accent)"> Required</label>'
+      +'<label style="font-size:11px;display:flex;align-items:center;gap:5px;cursor:pointer"><input type="checkbox" class="q-ko" data-i="'+i+'"'+(q.knockout?' checked':'')+' style="width:12px;height:12px;cursor:pointer;accent-color:var(--red)"> <span style="color:var(--red);font-weight:600">Knock-out</span></label>'
+      +'<button class="btn btn-red" style="font-size:10px;padding:3px 8px" onclick="removeQ('+i+')">Remove</button>'
+      +'</div></div>'
+      +'<div class="fg"><label class="flabel">Question Text</label><input class="finput q-text" data-i="'+i+'" value="'+escQ(q.question||'')+'" placeholder="Enter your screening question…"></div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">'
+      +'<div class="fg" style="margin:0"><label class="flabel">Type</label><select class="finput q-type" data-i="'+i+'" onchange="refreshQType('+i+',this)">'+typeOpts+'</select></div>'
+      +'<div class="fg" style="margin:0"><label class="flabel">Weight</label><input type="number" class="finput q-weight" data-i="'+i+'" value="'+(q.weight||1)+'" min="0.5" step="0.5"></div>'
+      +'<div class="fg" style="margin:0"><label class="flabel">Correct / KO Answer</label><input class="finput q-answer" data-i="'+i+'" value="'+escQ(q.correct_answer||q.knockout_answer||'')+'" placeholder="Leave blank = manual"></div>'
+      +'</div>'
+      +(q.type==='mcq'?'<div class="fg" style="margin-top:8px"><label class="flabel">Options (comma-sep)</label><input class="finput q-opts" data-i="'+i+'" value="'+escQ((q.options||[]).join(', '))+'" placeholder="Option A, Option B…"></div>':'')
+      +'</div>';
+  }).join('');
+}
+function escQ(s){return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function addQ(){Q_BUILDER.push({question:'',type:'text',options:[],required:true,knockout:false,weight:1,correct_answer:''});document.getElementById('qbuilder').innerHTML=renderQBuilder();}
+function removeQ(i){Q_BUILDER.splice(i,1);document.getElementById('qbuilder').innerHTML=renderQBuilder();}
+function refreshQType(i,sel){Q_BUILDER[i].type=sel.value;document.getElementById('qbuilder').innerHTML=renderQBuilder();}
+function gatherQs(){
+  return Q_BUILDER.map(function(q,i){
+    return {
+      id:i+1,
+      question:  (document.querySelector('.q-text[data-i="'+i+'"]')||{}).value||q.question,
+      type:      (document.querySelector('.q-type[data-i="'+i+'"]')||{}).value||q.type,
+      options:   ((document.querySelector('.q-opts[data-i="'+i+'"]')||{}).value||'').split(',').map(function(s){return s.trim();}).filter(Boolean),
+      weight:    parseFloat((document.querySelector('.q-weight[data-i="'+i+'"]')||{}).value||1),
+      required:  !!((document.querySelector('.q-req[data-i="'+i+'"]')||{}).checked),
+      knockout:  !!((document.querySelector('.q-ko[data-i="'+i+'"]')||{}).checked),
+      correct_answer:(document.querySelector('.q-answer[data-i="'+i+'"]')||{}).value||'',
+      knockout_answer:(document.querySelector('.q-answer[data-i="'+i+'"]')||{}).value||'',
+    };
+  });
+}
+
+function saveCriteria(){
+  var job=gv('crit-job-sel');if(!job){toast('Select a job first','warn');return;}
+  var qs=gatherQs();
+  var langs=gv('cw-langs');
+  try{JSON.parse(langs||'[]');}catch(e){toast('Language JSON is invalid: '+e.message,'error');return;}
+  var criteria={
+    ec_skills_required:         gv('cw-skills-req'),
+    ec_nice_to_have_skills:     gv('cw-skills-nth'),
+    ec_experience_years_min:    parseFloat(gv('cw-exp-min')||0),
+    ec_experience_years_max:    parseFloat(gv('cw-exp-max')||0),
+    ec_education_level:         gv('cw-edu-lvl'),
+    ec_field_of_study:          gv('cw-fos'),
+    ec_required_certifications: gv('cw-cert-req'),
+    ec_preferred_certifications:gv('cw-cert-pref'),
+    ec_required_industry:       gv('cw-ind-req'),
+    ec_related_industries:      gv('cw-ind-rel'),
+    ec_location_mode:           gv('cw-mode'),
+    ec_required_location_city:  gv('cw-city'),
+    ec_required_location_country:gv('cw-country'),
+    ec_required_languages:      langs,
+    ec_min_stability_years:     parseFloat(gv('cw-stability')||0),
+    ec_portfolio_required:      gc('cw-port-req'),
+    ec_scoring_enabled:         gc('cw-scoring-on'),
+    ec_pass_score:              parseFloat(gv('cw-pass')||70),
+    ec_auto_reject_below:       parseFloat(gv('cw-autoreject')||0),
+    ec_application_deadline:    gv('cw-deadline'),
+    ec_portal_published:        gc('cw-published'),
+    ec_screening_questions:     JSON.stringify(qs),
+  };
+  CRITERIA_DEF.forEach(function(c){criteria['ec_weight_'+c.key]=parseInt(gv('cw-'+c.key)||c.defW);});
+
+  var btn=document.querySelector('#crit-body .btn-dark');if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  api('ecclesia.api.recruitment_portal_admin.save_job_criteria',{job_opening:job,criteria:JSON.stringify(criteria)})
+  .then(function(){
+    if(btn){btn.disabled=false;btn.textContent='💾 Save All Criteria';}
+    toast('Criteria saved! ✓','success');
+  }).catch(function(e){
+    if(btn){btn.disabled=false;btn.textContent='💾 Save All Criteria';}
+    toast(e.message,'error');
+  });
+}
+
+function rescoreAll(){
+  var job=gv('crit-job-sel');if(!job){toast('Select a job first','warn');return;}
+  toast('Re-scoring applicants…','info');
+  api('ecclesia.api.recruitment_portal_admin.get_applicants',{job_opening:job,page:1,page_size:500})
+  .then(function(res){
+    var names=(res.data||[]).map(function(a){return a.name;});
+    Promise.all(names.map(function(n){return api('ecclesia.api.recruitment_portal_score.rescore_applicant',{job_applicant:n}).catch(function(){return null;});}))
+    .then(function(){toast('Re-scored '+names.length+' applicants ✓','success');});
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+/* ════════════════════════════════════════════════════════════════
+   APPLICANTS
+════════════════════════════════════════════════════════════════ */
+function switchTab(status,el){
+  TAB_STATUS=status;
+  document.querySelectorAll('#app-tabs .tab').forEach(function(t){t.classList.remove('on');});
+  if(el)el.classList.add('on');
+  loadApps();
+}
+
+function loadApps(){
+  var status=TAB_STATUS==='all'?null:TAB_STATUS;
+  var job=gv('app-job-f');
+  var passOnly=gc('pass-only');
+  var q=(document.getElementById('app-search')||{}).value||'';
+  var tb=document.querySelector('#apps-tbl tbody');if(tb)tb.innerHTML='<tr><td colspan="9" class="loading">Loading…</td></tr>';
+  api('ecclesia.api.recruitment_portal_admin.get_applicants',{job_opening:job||null,status:status,page:1,page_size:200})
+  .then(function(res){
+    var tb=document.querySelector('#apps-tbl tbody');if(!tb||!res)return;
+    var data=(res.data||[]).filter(function(a){
+      if(passOnly&&parseFloat(a.ec_total_score||0)<(a.pass_score||70))return false;
+      if(q&&!(a.applicant_name||'').toLowerCase().includes(q.toLowerCase())&&!(a.email_id||'').toLowerCase().includes(q.toLowerCase()))return false;
+      return true;
+    });
+    if(!data.length){tb.innerHTML='<tr><td colspan="9" class="empty-row">No applicants found</td></tr>';return;}
+    tb.innerHTML=data.map(function(a){
+      var isKO=a.ec_scoring_status==='Knocked Out';
+      var isDup=a.ec_scoring_status==='Duplicate';
+      // Criteria met count from breakdown
+      return '<tr onclick="viewApp(\''+a.name+'\')">'
+        +'<td onclick="event.stopPropagation()"><input type="checkbox" class="a-cb" value="'+a.name+'"></td>'
+        +'<td><strong>'+a.applicant_name+'</strong><div style="font-size:10px;color:var(--muted)">'+a.email_id+'</div></td>'
+        +'<td style="font-size:11px">'+a.job_title+'</td>'
+        +'<td>'+(isKO?'<span class="pill pill-red">⚡ KO</span>':isDup?'<span class="pill pill-amber">⚠ Dup</span>':sbar(a.ec_total_score,a.pass_score))+'</td>'
+        +'<td style="font-size:11px;color:var(--muted)">'+(a.ec_scoring_status==='Scored'?'Scored':'—')+'</td>'
+        +'<td>'+(isKO?'<span class="pill pill-red">⚡ Fail</span>':'<span class="pill pill-green">✓ Pass</span>')+'</td>'
+        +'<td>'+pill(a.status)+'</td>'
+        +'<td style="font-family:var(--mono);font-size:10px;color:var(--muted)">'+(a.creation||'').substring(0,10)+'</td>'
+        +'<td onclick="event.stopPropagation()" style="display:flex;gap:4px">'
+        +'<button class="btn btn-out" style="font-size:10px;padding:3px 7px" onclick="viewApp(\''+a.name+'\')">View</button>'
+        +'<button class="btn btn-amber" style="font-size:10px;padding:3px 7px" onclick="quickSchedule(\''+a.name+'\',\''+a.applicant_name+'\')">📅</button>'
+        +'</td></tr>';
+    }).join('');
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+function bulkAction(status){
+  var checked=Array.from(document.querySelectorAll('.a-cb:checked')).map(function(c){return c.value;});
+  if(!checked.length){toast('Select applicants first','warn');return;}
+  if(!confirm('Set '+checked.length+' applicant(s) to '+status+'?'))return;
+  api('ecclesia.api.recruitment_portal_admin.bulk_update_status',{job_applicants:JSON.stringify(checked),status:status})
+  .then(function(){toast(checked.length+' updated ✓','success');loadApps();}).catch(function(e){toast(e.message,'error');});
+}
+
+function viewApp(name){
+  openMo('<div class="loading">Loading applicant detail…</div>');
+  Promise.all([
+    api('ecclesia.api.recruitment_portal_admin.get_applicants',{page:1,page_size:500}).then(function(r){return (r.data||[]).find(function(a){return a.name===name;});}),
+    api('ecclesia.api.recruitment_portal_score.get_score_detail',{job_applicant:name}),
+  ]).then(function(rs){
+    var a=rs[0];var sc=rs[1];if(!a){openMo('<p>Not found</p>');return;}
+    var bd=sc.breakdown||{};
+    var bHtml=CRITERIA_DEF.map(function(c){
+      var cr=bd[c.key];if(!cr)return '';
+      var pct=Math.round(cr.raw||0);
+      var col=pct>=70?'var(--green)':pct>=50?'var(--amber)':'var(--red)';
+      var detail='';
+      if(c.key==='skills'){detail='<div style="font-size:10px;margin-top:6px">'+(cr.required_matched&&cr.required_matched.length?'<span style="color:var(--green)">✓ Req: '+cr.required_matched.join(', ')+'</span><br>':'')+(cr.required_missing&&cr.required_missing.length?'<span style="color:var(--red)">✗ Missing: '+cr.required_missing.join(', ')+'</span><br>':'')+(cr.nth_matched&&cr.nth_matched.length?'<span style="color:var(--accent)">⊕ NTH: '+cr.nth_matched.join(', ')+'</span>':'')+'</div>';}
+      else if(c.key==='certifications'){detail='<div style="font-size:10px;margin-top:6px">'+(cr.required_matched&&cr.required_matched.length?'<span style="color:var(--green)">✓ '+cr.required_matched.join(', ')+'</span><br>':'')+(cr.required_missing&&cr.required_missing.length?'<span style="color:var(--red)">✗ Missing: '+cr.required_missing.join(', ')+'</span>':'')+'</div>';}
+      else if(cr.reason){detail='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+cr.reason+'</div>';}
+      return '<div class="sc-crit"><div class="sc-crit-hd"><span class="sc-crit-label">'+c.icon+' '+c.label+'</span><span class="sc-crit-val" style="color:'+col+'">'+pct+'/100 × '+Math.round(cr.weight||0)+'%</span></div>'
+        +'<div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:4px"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:3px"></div></div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)"><span>Earned: <strong>'+cr.earned+'pts</strong></span></div>'
+        +detail+'</div>';
+    }).join('');
+
+    var statusOpts=['Open','Replied','Hold','Accepted','Rejected'].map(function(s){return '<option'+(a.status===s?' selected':'')+'>'+s+'</option>';}).join('');
+    var specialBanner='';
+    if(sc.is_duplicate)specialBanner='<div style="background:#fef9c3;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:#92400e">⚠ Duplicate application detected. Earlier application: <strong>'+sc.duplicate_of+'</strong></div>';
+    if(!sc.knockout_passed)specialBanner='<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--red)">⚡ Knock-out failed: '+sc.knockout_failed_reason+'</div>';
+
+    openMo(
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">'
+      +'<div><h3 style="font-size:16px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px">'+a.applicant_name+'</h3>'
+      +'<div style="font-size:11px;color:var(--muted)">'+a.email_id+(a.phone_number?' · '+a.phone_number:'')+'</div></div>'
+      +'<div style="text-align:right"><div style="font-family:var(--mono);font-size:34px;font-weight:800;color:'+(parseFloat(a.ec_total_score||0)>=(a.pass_score||70)?'var(--green)':parseFloat(a.ec_total_score||0)>=(a.pass_score||70)*.75?'var(--amber)':'var(--red)')+';line-height:1">'+Math.round(parseFloat(a.ec_total_score||0))+'</div>'
+      +'<div style="font-size:9px;color:var(--muted)">out of 100</div></div></div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">'
+      +'<span style="font-size:11px">📋 '+a.job_title+'</span>'
+      +(a.ec_education_level?'<span style="font-size:11px">🎓 '+a.ec_education_level+'</span>':'')
+      +(a.ec_experience_years?'<span style="font-size:11px">💼 '+a.ec_experience_years+' yrs</span>':'')
+      +(a.ec_current_city?'<span style="font-size:11px">📍 '+a.ec_current_city+(a.ec_current_country?', '+a.ec_current_country:'')+'</span>':'')
+      +pill(a.status)+'</div>'
+      +specialBanner
+      +(a.ec_cv_file?'<div style="margin-bottom:14px"><a href="'+a.ec_cv_file+'" target="_blank" class="btn btn-out">📄 View CV</a></div>':'')
+      +'<h4 style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;color:var(--muted)">10-Criteria Score Breakdown</h4>'
+      +bHtml
+      +'<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;align-items:center">'
+      +'<select class="finput" id="mo-status" style="width:auto;padding:6px 10px">'+statusOpts+'</select>'
+      +'<button class="btn btn-dark" onclick="updStatus(\''+a.name+'\')">Update Status</button>'
+      +'<button class="btn btn-out" onclick="quickSchedule(\''+a.name+'\',\''+a.applicant_name+'\')">📅 Schedule</button>'
+      +'<button class="btn btn-out" onclick="api(\'ecclesia.api.recruitment_portal_score.rescore_applicant\',{job_applicant:\''+a.name+'\'}).then(function(r){toast(\'Re-scored: \'+r.new_score+\' ✓\',\'success\');closeMo();loadApps();})">⚡ Re-score</button>'
+      +'</div>'
+    );
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+function updStatus(name){
+  var s=document.getElementById('mo-status');if(!s)return;
+  api('ecclesia.api.recruitment_portal_admin.update_applicant_status',{job_applicant:name,status:s.value})
+  .then(function(){toast('Status updated ✓','success');closeMo();loadApps();}).catch(function(e){toast(e.message,'error');});
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SHORTLIST / KO / INTERVIEWS / OFFERS
+════════════════════════════════════════════════════════════════ */
+function loadShortlist(){
+  var tb=document.querySelector('#short-tbl tbody');if(tb)tb.innerHTML='<tr><td colspan="5" class="loading">Loading…</td></tr>';
+  api('ecclesia.api.recruitment_portal_admin.get_applicants',{status:'Hold',page:1,page_size:200})
+  .then(function(res){
+    var tb=document.querySelector('#short-tbl tbody');if(!tb)return;
+    if(!res.data.length){tb.innerHTML='<tr><td colspan="5" class="empty-row">No shortlisted candidates</td></tr>';return;}
+    tb.innerHTML=res.data.map(function(a){
+      return '<tr onclick="viewApp(\''+a.name+'\')">'
+        +'<td><strong>'+a.applicant_name+'</strong><div style="font-size:10px;color:var(--muted)">'+a.email_id+'</div></td>'
+        +'<td style="font-size:11px">'+a.job_title+'</td>'
+        +'<td>'+sbar(a.ec_total_score,a.pass_score)+'</td>'
+        +'<td>'+pill(a.status)+'</td>'
+        +'<td onclick="event.stopPropagation()" style="display:flex;gap:5px">'
+        +'<button class="btn btn-out" style="font-size:10px;padding:4px 8px" onclick="quickSchedule(\''+a.name+'\',\''+a.applicant_name+'\')">📅 Schedule</button>'
+        +'<button class="btn btn-green" style="font-size:10px;padding:4px 8px" onclick="api(\'ecclesia.api.recruitment_portal_admin.update_applicant_status\',{job_applicant:\''+a.name+'\',status:\'Accepted\'}).then(function(){toast(\'Offer extended ✓\',\'success\');loadShortlist();}).catch(function(e){toast(e.message,\'error\');})">✓ Accept</button>'
+        +'</td></tr>';
+    }).join('');
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+function loadKO(){
+  var tb=document.querySelector('#ko-tbl tbody');if(tb)tb.innerHTML='<tr><td colspan="5" class="loading">Loading…</td></tr>';
+  api('ecclesia.api.recruitment_portal_admin.get_applicants',{page:1,page_size:200})
+  .then(function(res){
+    var data=(res.data||[]).filter(function(a){return a.ec_scoring_status==='Knocked Out';});
+    var tb=document.querySelector('#ko-tbl tbody');if(!tb)return;
+    if(!data.length){tb.innerHTML='<tr><td colspan="5" class="empty-row">No knocked-out applications</td></tr>';return;}
+    tb.innerHTML=data.map(function(a){
+      return '<tr><td><strong>'+a.applicant_name+'</strong><div style="font-size:10px;color:var(--muted)">'+a.email_id+'</div></td>'
+        +'<td style="font-size:11px">'+a.job_title+'</td>'
+        +'<td style="font-size:11px;color:var(--red)">'+(a.ec_knockout_failed_reason||'—')+'</td>'
+        +'<td style="font-family:var(--mono);font-size:10px;color:var(--muted)">'+(a.creation||'').substring(0,10)+'</td>'
+        +'<td><button class="btn btn-out" style="font-size:10px;padding:3px 7px" onclick="viewApp(\''+a.name+'\')">View</button></td></tr>';
+    }).join('');
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+function loadInterviews(){
+  var tb=document.querySelector('#intvw-tbl tbody');if(tb)tb.innerHTML='<tr><td colspan="6" class="loading">Loading…</td></tr>';
+  api('ecclesia.api.recruitment_portal_admin.get_interviews',{page:1,page_size:100})
+  .then(function(res){
+    var tb=document.querySelector('#intvw-tbl tbody');if(!tb)return;
+    if(!res.data.length){tb.innerHTML='<tr><td colspan="6" class="empty-row">No interviews scheduled</td></tr>';return;}
+    tb.innerHTML=res.data.map(function(r){
+      return '<tr><td><strong>'+r.applicant_name+'</strong></td><td style="font-family:var(--mono);font-size:10px">'+(r.scheduled_on||'—')+'</td>'
+        +'<td style="font-family:var(--mono);font-size:10px">'+(r.from_time||'')+(r.to_time?' – '+r.to_time:'')+'</td>'
+        +'<td style="font-size:11px">'+(r.interview_round||'—')+'</td>'
+        +'<td>'+(r.ec_meeting_link?'<a href="'+r.ec_meeting_link+'" target="_blank" style="color:var(--accent);font-size:11px">Join →</a>':'—')+'</td>'
+        +'<td>'+pill(r.status||'Scheduled')+'</td></tr>';
+    }).join('');
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+function loadOffers(){
+  var tb=document.querySelector('#offers-tbl tbody');if(tb)tb.innerHTML='<tr><td colspan="5" class="loading">Loading…</td></tr>';
+  api('ecclesia.api.recruitment_portal_admin.get_applicants',{status:'Accepted',page:1,page_size:200})
+  .then(function(res){
+    var tb=document.querySelector('#offers-tbl tbody');if(!tb)return;
+    if(!res.data.length){tb.innerHTML='<tr><td colspan="5" class="empty-row">No offers yet</td></tr>';return;}
+    tb.innerHTML=res.data.map(function(a){
+      return '<tr onclick="viewApp(\''+a.name+'\')">'
+        +'<td><strong>'+a.applicant_name+'</strong><div style="font-size:10px;color:var(--muted)">'+a.email_id+'</div></td>'
+        +'<td style="font-size:11px">'+a.job_title+'</td>'
+        +'<td>'+sbar(a.ec_total_score,a.pass_score)+'</td>'
+        +'<td style="font-family:var(--mono);font-size:10px;color:var(--muted)">'+(a.creation||'').substring(0,10)+'</td>'
+        +'<td><button class="btn btn-out" style="font-size:10px;padding:3px 7px" onclick="viewApp(\''+a.name+'\')">View</button></td></tr>';
+    }).join('');
+  }).catch(function(e){toast(e.message,'error');});
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INTERVIEW SCHEDULING
+════════════════════════════════════════════════════════════════ */
+function quickSchedule(name,cname){
+  openMo('<h3 style="margin:0 0 14px;font-size:15px;font-weight:700">📅 Schedule Interview</h3>'
+    +'<p style="font-size:11px;color:var(--muted);margin-bottom:14px">Scheduling for <strong>'+cname+'</strong></p>'
+    +'<div class="frow">'
+    +'<div class="fg"><label class="flabel">Date</label><input type="date" class="finput" id="int-date"></div>'
+    +'<div class="fg"><label class="flabel">Round</label><select class="finput" id="int-round"><option>HR Screening</option><option>Technical</option><option>Panel</option><option>Final</option><option>Culture Fit</option></select></div>'
+    +'</div>'
+    +'<div class="frow">'
+    +'<div class="fg"><label class="flabel">From</label><input type="time" class="finput" id="int-from" value="10:00"></div>'
+    +'<div class="fg"><label class="flabel">To</label><input type="time" class="finput" id="int-to" value="11:00"></div>'
+    +'</div>'
+    +'<div class="fg"><label class="flabel">Meeting Link (optional)</label><input type="url" class="finput" id="int-link" placeholder="https://meet.google.com/…"></div>'
+    +'<div style="display:flex;gap:8px;margin-top:14px">'
+    +'<button class="btn btn-dark" onclick="confirmSchedule(\''+name+'\')">Schedule & Notify Candidate</button>'
+    +'<button class="btn btn-out" onclick="closeMo()">Cancel</button>'
+    +'</div>');
+}
+
+function confirmSchedule(name){
+  var date=gv('int-date');if(!date){toast('Select a date','warn');return;}
+  var btn=document.querySelector('#mo-box .btn-dark');if(btn){btn.disabled=true;btn.textContent='Scheduling…';}
+  api('ecclesia.api.recruitment_portal_admin.schedule_interview',{
+    job_applicant:name,scheduled_on:date,from_time:gv('int-from'),to_time:gv('int-to'),
+    interview_round:gv('int-round'),meeting_link:gv('int-link'),
+  }).then(function(){
+    if(btn){btn.disabled=false;}closeMo();
+    toast('Interview scheduled & candidate notified ✓','success');
+    var ip=document.getElementById('p-interviews');if(ip)delete ip.dataset.loaded;
+  }).catch(function(e){if(btn){btn.disabled=false;btn.textContent='Schedule & Notify Candidate';}toast(e.message,'error');});
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',function(){
+  loadDashboard();
+  loadJobs();
+});
+</script>
+</body>
+</html>

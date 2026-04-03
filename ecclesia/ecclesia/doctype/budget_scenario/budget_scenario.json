@@ -1,0 +1,326 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-02-03 16:36:02.724079",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "scenario_details_section",
+  "scenario_name",
+  "scenario_type",
+  "adjustment_percentage",
+  "column_break_1",
+  "probability",
+  "is_active",
+  "color_indicator",
+  "description_section",
+  "description",
+  "key_assumptions",
+  "column_break_2",
+  "triggers",
+  "risk_factors",
+  "financial_details_section",
+  "total_budget",
+  "variance_from_base",
+  "variance_percentage",
+  "column_break_3",
+  "revenue_impact",
+  "cost_impact",
+  "net_impact",
+  "monthly_breakdown_section",
+  "jan",
+  "feb",
+  "mar",
+  "column_break_4",
+  "apr",
+  "may",
+  "jun",
+  "column_break_5",
+  "jul",
+  "aug",
+  "sep",
+  "column_break_6",
+  "oct",
+  "nov",
+  "dec",
+  "analysis_section",
+  "confidence_score",
+  "likelihood",
+  "impact_level",
+  "column_break_7",
+  "created_by_system",
+  "last_updated",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "scenario_details_section",
+   "fieldtype": "Section Break",
+   "label": "Scenario Details"
+  },
+  {
+   "fieldname": "scenario_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Scenario Name",
+   "reqd": 1
+  },
+  {
+   "default": "Most Likely",
+   "fieldname": "scenario_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Scenario Type",
+   "options": "\nBest Case\nWorst Case\nMost Likely\nOptimistic\nPessimistic\nConservative\nAggressive\nCustom",
+   "reqd": 1
+  },
+  {
+   "description": "Percentage adjustment from base budget (positive or negative)",
+   "fieldname": "adjustment_percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Adjustment %"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "50",
+   "description": "Estimated likelihood this scenario will occur",
+   "fieldname": "probability",
+   "fieldtype": "Percent",
+   "label": "Probability of Occurrence"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "label": "Is Active"
+  },
+  {
+   "default": "Blue",
+   "fieldname": "color_indicator",
+   "fieldtype": "Select",
+   "label": "Color Indicator",
+   "options": "\nGreen\nYellow\nRed\nBlue\nGray"
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description & Assumptions"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Scenario Description"
+  },
+  {
+   "description": "Critical assumptions underlying this scenario",
+   "fieldname": "key_assumptions",
+   "fieldtype": "Text Editor",
+   "label": "Key Assumptions"
+  },
+  {
+   "fieldname": "column_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Events or conditions that would activate this scenario",
+   "fieldname": "triggers",
+   "fieldtype": "Text Editor",
+   "label": "Trigger Events"
+  },
+  {
+   "description": "Potential risks associated with this scenario",
+   "fieldname": "risk_factors",
+   "fieldtype": "Text Editor",
+   "label": "Risk Factors"
+  },
+  {
+   "fieldname": "financial_details_section",
+   "fieldtype": "Section Break",
+   "label": "Financial Impact"
+  },
+  {
+   "fieldname": "total_budget",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Budget (Scenario)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variance_from_base",
+   "fieldtype": "Currency",
+   "label": "Variance from Base Budget",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variance_percentage",
+   "fieldtype": "Percent",
+   "label": "Variance %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Expected impact on revenue",
+   "fieldname": "revenue_impact",
+   "fieldtype": "Currency",
+   "label": "Revenue Impact"
+  },
+  {
+   "description": "Expected impact on costs",
+   "fieldname": "cost_impact",
+   "fieldtype": "Currency",
+   "label": "Cost Impact"
+  },
+  {
+   "fieldname": "net_impact",
+   "fieldtype": "Currency",
+   "label": "Net Impact",
+   "read_only": 1
+  },
+  {
+   "fieldname": "monthly_breakdown_section",
+   "fieldtype": "Section Break",
+   "label": "Monthly Scenario Values"
+  },
+  {
+   "fieldname": "jan",
+   "fieldtype": "Currency",
+   "label": "January"
+  },
+  {
+   "fieldname": "feb",
+   "fieldtype": "Currency",
+   "label": "February"
+  },
+  {
+   "fieldname": "mar",
+   "fieldtype": "Currency",
+   "label": "March"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "apr",
+   "fieldtype": "Currency",
+   "label": "April"
+  },
+  {
+   "fieldname": "may",
+   "fieldtype": "Currency",
+   "label": "May"
+  },
+  {
+   "fieldname": "jun",
+   "fieldtype": "Currency",
+   "label": "June"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "jul",
+   "fieldtype": "Currency",
+   "label": "July"
+  },
+  {
+   "fieldname": "aug",
+   "fieldtype": "Currency",
+   "label": "August"
+  },
+  {
+   "fieldname": "sep",
+   "fieldtype": "Currency",
+   "label": "September"
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "oct",
+   "fieldtype": "Currency",
+   "label": "October"
+  },
+  {
+   "fieldname": "nov",
+   "fieldtype": "Currency",
+   "label": "November"
+  },
+  {
+   "fieldname": "dec",
+   "fieldtype": "Currency",
+   "label": "December"
+  },
+  {
+   "fieldname": "analysis_section",
+   "fieldtype": "Section Break",
+   "label": "Analysis & Tracking"
+  },
+  {
+   "description": "AI-generated confidence score for this scenario",
+   "fieldname": "confidence_score",
+   "fieldtype": "Float",
+   "label": "Confidence Score (0-100)",
+   "read_only": 1
+  },
+  {
+   "default": "Medium",
+   "fieldname": "likelihood",
+   "fieldtype": "Select",
+   "label": "Likelihood",
+   "options": "\nVery Low\nLow\nMedium\nHigh\nVery High"
+  },
+  {
+   "default": "Moderate",
+   "fieldname": "impact_level",
+   "fieldtype": "Select",
+   "label": "Impact Level",
+   "options": "\nMinimal\nLow\nModerate\nHigh\nCritical"
+  },
+  {
+   "fieldname": "column_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "created_by_system",
+   "fieldtype": "Check",
+   "label": "Auto-Generated by System",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_updated",
+   "fieldtype": "Datetime",
+   "label": "Last Updated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Additional Notes"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-03 16:36:02.724079",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Budget Scenario",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
