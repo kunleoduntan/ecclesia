@@ -77,6 +77,7 @@ doctype_js = {
     "Receipts": "doctype/receipts/receipts.js",
     "Sales Invoice": "public/js/sales_invoice_payment.js",
     "Employee": "public/js/employee.js",
+    "Purchase Invoice": "public/js/purchase_invoice.js",
 }
 
 
@@ -417,14 +418,35 @@ standard_portal_menu_items = [
 
 # ─── Fixtures ────────────────────────────────────────────────────────────────
 fixtures = [
+    # Roles
     {"dt": "Role", "filters": [["name", "in", [
         "eRequest Employee",
         "eRequest Manager",
-        "eRequest Finance",
-        "eRequest Admin",
+        "eRequest Finance", 
+        "eRequest Admin"
     ]]]},
-    {"dt": "Email Template", "filters": [["module", "=", "Ecclesia eRequest"]]},
+    
+    # Email Templates
+    {"dt": "Email Template", "filters": [["module", "=", "Ecclesia"]]},
+    
+    # Custom Fields (consolidated using "in")
+    {"dt": "Custom Field", "filters": [["dt", "in", [
+        "Supplier", 
+        "Customer", 
+        "Communication", 
+        "Company",
+        "account",
+        "bank_account",
+        "journal_entry",
+        "purchase_invoice",
+        "purchase_invoice_item",
+        "request for quotation"
+    ]]]},
+    
+    # Property Setters
+    {"dt": "Property Setter", "filters": [["doc_type", "=", "Supplier"]]}
 ]
+
 
 # NOTE: Workflow is intentionally NOT a fixture.
 # Configure per-company via ERPNext > Setup > Workflow > New Workflow

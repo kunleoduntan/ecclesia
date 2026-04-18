@@ -113,7 +113,7 @@ function preview_print_format(report) {
     }, 3);
     
     frappe.call({
-        method: "general.general_biz_apps.report.employee_pension_statement.employee_pension_statement.preview_pension_print",
+        method: "ecclesia.ecclesia.report.employee_pension_statement.employee_pension_statement.preview_pension_print",
         args: {
             filters: filters
         },
@@ -142,7 +142,7 @@ function download_pdf_format(report) {
     }, 3);
     
     frappe.call({
-        method: "general.general_biz_apps.report.employee_pension_statement.employee_pension_statement.download_pension_pdf",
+        method: "ecclesia.ecclesia.report.employee_pension_statement.employee_pension_statement.download_pension_pdf",
         args: {
             filters: filters
         },
@@ -174,7 +174,7 @@ function export_to_excel(report) {
     }, 3);
     
     frappe.call({
-        method: "general.general_biz_apps.report.employee_pension_statement.employee_pension_statement.export_employee_statement_excel",
+        method: "ecclesia.ecclesia.report.employee_pension_statement.employee_pension_statement.export_employee_statement_excel",
         args: {
             filters: filters
         },
@@ -276,7 +276,7 @@ function show_summary(report) {
     
     // Get pension summary
     frappe.call({
-        method: "general.general_biz_apps.report.employee_pension_statement.employee_pension_statement.get_employee_pension_summary",
+        method: "ecclesia.ecclesia.report.employee_pension_statement.employee_pension_statement.get_employee_pension_summary",
         args: {
             employee: filters.employee
         },
@@ -360,7 +360,7 @@ function debug_components(report) {
     }, 3);
     
     frappe.call({
-        method: "general.general_biz_apps.report.employee_pension_statement.employee_pension_statement.debug_salary_components",
+        method: "ecclesia.ecclesia.report.employee_pension_statement.employee_pension_statement.debug_salary_components",
         args: {
             employee: filters.employee,
             from_year: filters.from_year,
@@ -527,7 +527,7 @@ function preview_remittance_print(report) {
     }, 3);
     
     frappe.call({
-        method: "general.general_biz_apps.report.pension_remittance_report.pension_remittance_report.preview_remittance_print",
+        method: "ecclesia.ecclesia.report.pension_remittance_report.pension_remittance_report.preview_remittance_print",
         args: {
             filters: filters,
             data: data
@@ -570,7 +570,7 @@ function download_remittance_pdf(report) {
     }, 5);
     
     frappe.call({
-        method: "general.general_biz_apps.report.pension_remittance_report.pension_remittance_report.download_remittance_pdf",
+        method: "ecclesia.ecclesia.report.pension_remittance_report.pension_remittance_report.download_remittance_pdf",
         args: {
             filters: filters,
             data: data

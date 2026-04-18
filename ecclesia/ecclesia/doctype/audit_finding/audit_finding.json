@@ -120,7 +120,7 @@
    "fieldname": "finding_type",
    "fieldtype": "Select",
    "label": "Finding Type",
-   "options": "Control Deficiency\nSegregation of Duties\nUnauthorized Transaction\nPolicy Non-Compliance\nGL Posting Error\nCutoff Error\nDuplicate Transaction\nMissing Documentation\nApproval Bypass\nFraud Indicator\nStatistical Outlier\nOther"
+   "options": "Control Deficiency\nSegregation of Duties\nUnauthorized Transaction\nRound Amount JV\nPolicy Non-Compliance\nGL Posting Error\nCutoff Error\nDuplicate Transaction\nMissing Documentation\nApproval Bypass\nFraud Indicator\nStatistical Outlier\nOther"
   },
   {
    "fieldname": "materiality_level",
@@ -330,7 +330,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-02 20:55:34.243663",
+ "modified": "2026-04-05 21:44:05.658897",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Audit Finding",
@@ -351,6 +351,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

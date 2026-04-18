@@ -142,7 +142,7 @@ function export_paye_template(report) {
     }
 
     frappe.call({
-        method: "general.general_biz_apps.report.paye_deduction_report.paye_deduction_report.export_paye_format",
+        method: "ecclesia.ecclesia.report.paye_deduction_report.paye_deduction_report.export_paye_format",
         args: {
             filters: filters
         },
@@ -177,7 +177,7 @@ function export_detailed_excel(report) {
     }
 
     frappe.call({
-        method: "general.general_biz_apps.report.paye_deduction_report.paye_deduction_report.export_detailed_excel",
+        method: "ecclesia.ecclesia.report.paye_deduction_report.paye_deduction_report.export_detailed_excel",
         args: {
             filters: filters
         },
@@ -331,7 +331,7 @@ function download_summary(report) {
         primary_action_label: __("Download PDF"),
         primary_action: function() {
             frappe.call({
-                method: "general.general_biz_apps.report.paye_deduction_report.paye_deduction_report.generate_summary_pdf",
+                method: "ecclesia.ecclesia.report.paye_deduction_report.paye_deduction_report.generate_summary_pdf",
                 args: {
                     filters: filters,
                     summary: {

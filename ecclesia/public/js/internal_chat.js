@@ -1421,9 +1421,11 @@
             _is_typing = true;
             frappe.call({
                 method: "ecclesia.api.internal_chat.broadcast_typing",
-                args: { chat_name: S.active_conv.name, is_typing: true }
+                args: { chat_name: S.active_conv.name, is_typing: _is_typing ? 1 : 0 }
             });
         }
+            
+        
         clearTimeout(_typing_timer);
         _typing_timer = setTimeout(function() {
             _is_typing = false;
@@ -1533,7 +1535,10 @@
 
     function _set_online(online) {
         if (!frappe || !frappe.call) return;
-        frappe.call({ method: "ecclesia.api.internal_chat.set_online_status", args: { online: online } });
+        frappe.call({
+            method: "ecclesia.api.internal_chat.set_online_status",
+            args: { online: online ? 1 : 0 }
+        });
     }
 
     // =========================================================================

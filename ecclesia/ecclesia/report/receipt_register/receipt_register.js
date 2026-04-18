@@ -203,7 +203,7 @@ function add_custom_buttons(report) {
         let filters = report.get_filter_values();
         
         frappe.call({
-            method: "general.general_biz_apps.report.receipt_register.receipt_register.export_to_excel",
+            method: "ecclesia.ecclesia.report.receipt_register.receipt_register.export_to_excel",
             args: {
                 filters: filters
             },
@@ -496,7 +496,7 @@ function email_receipt_register(report) {
             let filters = report.get_filter_values();
             
             frappe.call({
-                method: "general.general_biz_apps.report.receipt_register.receipt_register.send_email_report",
+                method: "ecclesia.ecclesia.report.receipt_register.receipt_register.send_email_report",
                 args: {
                     filters: filters,
                     recipients: values.recipients,

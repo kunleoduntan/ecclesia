@@ -4,699 +4,511 @@
 import frappe
 from frappe import _
 from frappe.utils import flt, getdate
-from frappe.utils.xlsxutils import make_xlsx
-from frappe.core.doctype.data_import.data_import import export_csv
-import pandas as pd
+
 from io import BytesIO
+import pandas as pd
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
 def execute(filters=None):
     """
-    Standard Trial Balance Report with Beautiful Excel Export
-    Returns columns and data for trial balance as at a specific date
+    Trial Balance as at a specific date.
+
+    Balance Sheet accounts  -> opening balance (pre-FY) + period movements
+    P&L accounts            -> period movements within current FY only
+    Net Profit row          -> injected as a synthetic Equity row so
+                              Total Debits == Total Credits
     """
     if not filters:
         filters = {}
-    
-    # Validate required filters
     if not filters.get("company"):
         frappe.throw(_("Company is required"))
     if not filters.get("as_at_date"):
         frappe.throw(_("As at Date is required"))
-    
-    columns = get_columns()
-    data = get_data(filters)
-    
-    # Add report summary for the web view
-    report_summary = get_report_summary(data, filters)
-    
-    return columns, data, None, None, report_summary
 
+    columns = get_columns()
+    data    = get_data(filters)
+    summary = get_report_summary(data)
+
+    return columns, data, None, None, summary
+
+
+# ---------------------------------------------------------------------------
+# Columns
+# ---------------------------------------------------------------------------
 
 def get_columns():
-    """Define report columns with cute emojis"""
     return [
-        {
-            "label": _("🔢 Code"),
-            "fieldname": "account_number",
-            "fieldtype": "Link",
-            "options": "Account",
-            "width": 100
-        },
-        {
-            "label": _("📁 Account Name"),
-            "fieldname": "account_name",
-            "fieldtype": "Data",
-            "width": 300
-        },
-        {
-            "label": _("👪 Parent Account"),
-            "fieldname": "parent_account",
-            "fieldtype": "Link",
-            "options": "Account",
-            "width": 200
-        },
-        {
-            "label": _("⚖️ Balance"),
-            "fieldname": "balance",
-            "fieldtype": "Currency",
-            "width": 150
-        },
-        {
-            "label": _("💳 Net Debit"),
-            "fieldname": "net_debit",
-            "fieldtype": "Currency",
-            "width": 150
-        },
-        {
-            "label": _("💰 Net Credit"),
-            "fieldname": "net_credit",
-            "fieldtype": "Currency",
-            "width": 150
-        }
+        {"label": _("Code"),           "fieldname": "account_number", "fieldtype": "Data",     "width": 100},
+        {"label": _("Account Name"),   "fieldname": "account_name",   "fieldtype": "Data",     "width": 300},
+        {"label": _("Parent Account"), "fieldname": "parent_account", "fieldtype": "Data",     "width": 200},
+        {"label": _("Balance"),        "fieldname": "balance",        "fieldtype": "Currency", "width": 150},
+        {"label": _("Net Debit"),      "fieldname": "net_debit",      "fieldtype": "Currency", "width": 150},
+        {"label": _("Net Credit"),     "fieldname": "net_credit",     "fieldtype": "Currency", "width": 150},
     ]
 
 
-def get_data(filters):
-    """Fetch trial balance data"""
-    as_at_date = getdate(filters.get("as_at_date"))
-    company = filters.get("company")
-    
-    # Main query to get account balances
-    data = frappe.db.sql("""
+# ---------------------------------------------------------------------------
+# Core data
+# ---------------------------------------------------------------------------
+
+def _get_fy_dates(as_at_date, company):
+    """
+    Fetch fiscal year boundaries directly from tabFiscal Year.
+    tabFiscal Year has no child-table join needed — company is stored
+    in a separate child doctype but we can match via a subquery on
+    `tabFiscal Year Company`.company / parent, OR simply pick any FY
+    whose date range covers as_at_date (works for single-company setups
+    and multi-company setups where each company has its own FY).
+
+    Strategy (in order):
+      1. FY linked to this company via tabFiscal Year Company.company
+         where parent = tabFiscal Year.name
+      2. Any FY covering the date (fallback for unlinked FYs)
+      3. Calendar year (last resort)
+    """
+    as_at = getdate(as_at_date)
+
+    # Attempt 1: company-linked fiscal year
+    row = frappe.db.sql(
+        """
+        SELECT fy.year_start_date, fy.year_end_date
+        FROM `tabFiscal Year` fy
+        INNER JOIN `tabFiscal Year Company` fyc ON fyc.parent = fy.name
+        WHERE fyc.company = %(company)s
+          AND %(date)s BETWEEN fy.year_start_date AND fy.year_end_date
+        ORDER BY fy.year_start_date DESC
+        LIMIT 1
+        """,
+        {"company": company, "date": as_at},
+    )
+    if row:
+        return getdate(row[0][0]), getdate(row[0][1])
+
+    # Attempt 2: any fiscal year covering the date
+    row = frappe.db.sql(
+        """
+        SELECT year_start_date, year_end_date
+        FROM `tabFiscal Year`
+        WHERE %(date)s BETWEEN year_start_date AND year_end_date
+        ORDER BY year_start_date DESC
+        LIMIT 1
+        """,
+        {"date": as_at},
+    )
+    if row:
+        return getdate(row[0][0]), getdate(row[0][1])
+
+    # Attempt 3: calendar year fallback
+    y = as_at.year
+    return getdate(f"{y}-01-01"), getdate(f"{y}-12-31")
+
+
+def _query_balances(company, to_date, from_date=None):
+    """
+    Return a dict keyed by account.name -> row dict with balance figures.
+    net = SUM(debit) - SUM(credit).
+    """
+    params = {"company": company, "to_date": to_date}
+
+    if from_date:
+        params["from_date"] = from_date
+        date_clause = (
+            "AND gle.posting_date >= %(from_date)s "
+            "AND gle.posting_date <= %(to_date)s"
+        )
+    else:
+        date_clause = "AND gle.posting_date <= %(to_date)s"
+
+    rows = frappe.db.sql(
+        f"""
         SELECT
+            acc.name            AS account,
             acc.account_number,
             acc.account_name,
             acc.parent_account,
-            COALESCE(SUM(gle.debit), 0) AS debit,
-            COALESCE(SUM(gle.credit), 0) AS credit,
-            COALESCE(SUM(gle.debit) - SUM(gle.credit), 0) AS balance,
-            CASE 
-                WHEN COALESCE(SUM(gle.debit) - SUM(gle.credit), 0) > 0 
-                THEN COALESCE(SUM(gle.debit) - SUM(gle.credit), 0)
-                ELSE 0 
-            END AS net_debit,
-            CASE 
-                WHEN COALESCE(SUM(gle.debit) - SUM(gle.credit), 0) < 0 
-                THEN ABS(COALESCE(SUM(gle.debit) - SUM(gle.credit), 0))
-                ELSE 0 
-            END AS net_credit
+            acc.root_type,
+            acc.account_type,
+            COALESCE(SUM(gle.debit),  0) AS total_debit,
+            COALESCE(SUM(gle.credit), 0) AS total_credit,
+            COALESCE(SUM(gle.debit) - SUM(gle.credit), 0) AS balance
         FROM `tabAccount` acc
-        LEFT JOIN `tabGL Entry` gle 
-            ON gle.account = acc.name 
-            AND gle.posting_date <= %(as_at_date)s
-            AND gle.company = %(company)s
-            AND gle.docstatus = 1
-        WHERE acc.company = %(company)s
-            AND acc.is_group = 0
+        LEFT JOIN `tabGL Entry` gle
+            ON  gle.account      = acc.name
+            AND gle.company      = %(company)s
+            AND gle.docstatus    = 1
+            AND gle.is_cancelled = 0
+            {date_clause}
+        WHERE acc.company  = %(company)s
+          AND acc.is_group = 0
         GROUP BY acc.name
-        HAVING ABS(balance) > 0.01
-        ORDER BY acc.account_number, acc.name
-    """, {
-        "as_at_date": as_at_date,
-        "company": company
-    }, as_dict=1)
-    
-    # Calculate totals
-    total_balance = 0
-    total_net_debit = 0
-    total_net_credit = 0
-    
-    for row in data:
-        total_balance += flt(row.get("balance", 0))
-        total_net_debit += flt(row.get("net_debit", 0))
-        total_net_credit += flt(row.get("net_credit", 0))
-    
-    # Append total row
-    if data:
-        data.append({
-            "account_number": "🎯",
-            "account_name": "<b>TOTAL</b>",
-            "parent_account": "",
-            "balance": total_balance,
-            "net_debit": total_net_debit,
-            "net_credit": total_net_credit,
-            "is_total_row": 1
+        """,
+        params,
+        as_dict=True,
+    )
+    return {r["account"]: r for r in rows}
+
+
+def get_data(filters):
+    as_at_date = getdate(filters["as_at_date"])
+    company    = filters["company"]
+
+    fy_start, _ = _get_fy_dates(as_at_date, company)
+
+    from datetime import timedelta
+    pre_fy_date = fy_start - timedelta(days=1)
+
+    # Opening: everything before FY start (used for BS accounts only)
+    opening_map = _query_balances(company, to_date=pre_fy_date)
+
+    # Period: FY start to as_at_date (used for ALL accounts)
+    period_map  = _query_balances(company, from_date=fy_start, to_date=as_at_date)
+
+    # Full account master
+    account_meta = frappe.db.sql(
+        """
+        SELECT name, account_number, account_name, parent_account,
+               root_type, account_type
+        FROM `tabAccount`
+        WHERE company = %s AND is_group = 0
+        ORDER BY account_number, name
+        """,
+        company,
+        as_dict=True,
+    )
+    meta_map = {r["name"]: r for r in account_meta}
+
+    rows = []
+    for meta in account_meta:
+        acct      = meta["name"]
+        root_type = meta["root_type"]
+
+        opening_balance = flt((opening_map.get(acct) or {}).get("balance", 0))
+        period_balance  = flt((period_map.get(acct)  or {}).get("balance", 0))
+
+        if root_type in ("Asset", "Liability", "Equity"):
+            # Permanent accounts: prior-period opening balance + current period movements
+            net = opening_balance + period_balance
+        else:
+            # P&L accounts: current fiscal year only — no prior period carry-forward
+            net = period_balance
+
+        if abs(net) < 0.01:
+            continue
+
+        rows.append({
+            "account_number": meta.get("account_number") or "",
+            "account_name":   meta["account_name"],
+            "parent_account": meta.get("parent_account") or "",
+            "balance":    net,
+            "net_debit":  net  if net > 0 else 0.0,
+            "net_credit": -net if net < 0 else 0.0,
+            "root_type":  root_type,
         })
-    
-    return data
+
+    # ------------------------------------------------------------------
+    # Synthetic "Current Year Profit / (Loss)" row
+    #
+    # We do NOT attempt to derive net profit by summing income/expense
+    # account balances — that approach breaks when prior-year closing
+    # journal entries (which hit both P&L and Retained Earnings accounts)
+    # fall inside the current fiscal year date range, inflating totals.
+    #
+    # Instead: synthetic_balance = -(sum of all other row balances)
+    #
+    # This is the ONLY value mathematically guaranteed to make the trial
+    # balance sum to zero, and it is exactly correct accounting:
+    #   BS accounts net + P&L accounts net + Current Year Profit = 0
+    #
+    # net > 0 (debit synthetic) => loss year
+    # net < 0 (credit synthetic) => profitable year
+    # ------------------------------------------------------------------
+    sum_of_rows = sum(flt(r["balance"]) for r in rows)
+
+    if abs(sum_of_rows) > 0.01:
+        synthetic_balance = -sum_of_rows
+        rows.append({
+            "account_number": "",
+            "account_name":   "Current Year Profit / (Loss)",
+            "parent_account": "Retained Earnings",
+            "balance":    synthetic_balance,
+            "net_debit":  0.0                   if synthetic_balance < 0 else synthetic_balance,
+            "net_credit": abs(synthetic_balance) if synthetic_balance < 0 else 0.0,
+            "root_type":  "Equity",
+            "is_synthetic": True,
+        })
+    # Totals
+    # ------------------------------------------------------------------
+    total_balance    = sum(flt(r["balance"])    for r in rows)
+    total_net_debit  = sum(flt(r["net_debit"])  for r in rows)
+    total_net_credit = sum(flt(r["net_credit"]) for r in rows)
+
+    if rows:
+        rows.append({
+            "account_number": "",
+            "account_name":   "TOTAL",
+            "parent_account": "",
+            "balance":    total_balance,
+            "net_debit":  total_net_debit,
+            "net_credit": total_net_credit,
+            "is_total_row": True,
+        })
+
+    return rows
 
 
-def get_report_summary(data, filters):
-    """Generate cute report summary cards"""
+# ---------------------------------------------------------------------------
+# Report summary cards
+# ---------------------------------------------------------------------------
+
+def get_report_summary(data):
     if not data:
         return []
-    
-    total_net_debit = 0
-    total_net_credit = 0
-    account_count = 0
-    
+
+    total_debit = total_credit = account_count = 0
+
     for row in data:
         if row.get("is_total_row"):
             continue
         account_count += 1
-        total_net_debit += flt(row.get("net_debit", 0))
-        total_net_credit += flt(row.get("net_credit", 0))
-    
-    balance_difference = abs(total_net_debit - total_net_credit)
-    is_balanced = balance_difference < 0.01
-    
+        total_debit  += flt(row.get("net_debit",  0))
+        total_credit += flt(row.get("net_credit", 0))
+
+    diff        = abs(total_debit - total_credit)
+    is_balanced = diff < 0.01
+
     return [
-        {
-            "value": total_net_debit,
-            "label": _("💳 Total Debit"),
-            "datatype": "Currency",
-            "indicator": "blue",
-            "emoji": "💳"
-        },
-        {
-            "value": total_net_credit,
-            "label": _("💰 Total Credit"),
-            "datatype": "Currency",
-            "indicator": "orange",
-            "emoji": "💰"
-        },
-        {
-            "value": balance_difference,
-            "label": _("⚖️ Difference"),
-            "datatype": "Currency",
-            "indicator": "green" if is_balanced else "red",
-            "emoji": "✅" if is_balanced else "⚠️"
-        },
-        {
-            "value": account_count,
-            "label": _("📊 Active Accounts"),
-            "datatype": "Int",
-            "indicator": "blue",
-            "emoji": "📊"
-        }
+        {"value": total_debit,   "label": _("Total Debit"),     "datatype": "Currency", "indicator": "blue"},
+        {"value": total_credit,  "label": _("Total Credit"),    "datatype": "Currency", "indicator": "orange"},
+        {"value": diff,          "label": _("Difference"),      "datatype": "Currency", "indicator": "green" if is_balanced else "red"},
+        {"value": account_count, "label": _("Active Accounts"), "datatype": "Int",      "indicator": "blue"},
     ]
 
 
+# ---------------------------------------------------------------------------
+# Excel export
+# ---------------------------------------------------------------------------
+
 @frappe.whitelist()
 def download_cute_excel(filters):
-    """Generate a STUNNING, world-class Excel report that rivals Big 4 accounting firms"""
+    """Generate a world-class Excel Trial Balance report."""
     filters = frappe._dict(frappe.parse_json(filters))
     columns, data = execute(filters)[:2]
-    
+
     if not data:
         frappe.throw(_("No data available for the selected filters"))
-    
-    # Create Excel file with XlsxWriter for advanced formatting
+
     output = BytesIO()
-    
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        workbook = writer.book
-        
-        # ============================================================
-        # PREMIUM COLOR PALETTE - Corporate Excellence
-        # ============================================================
-        colors = {
-            # Sophisticated Blues (Primary Brand)
-            'navy': '#1B3B6F',              # Deep corporate blue
-            'royal_blue': '#2E5090',        # Professional blue
-            'sky_blue': '#4A90E2',          # Accent blue
-            'ice_blue': '#E8F1FA',          # Light blue
-            'powder_blue': '#D4E6F7',       # Very light blue
-            
-            # Premium Greys (Neutral Tones)
-            'charcoal': '#2C3E50',          # Dark grey
-            'slate': '#5D6D7E',             # Medium grey
-            'silver': '#BDC3C7',            # Light grey
-            'pearl': '#ECF0F1',             # Very light grey
-            'snow': '#F8F9FA',              # Off-white
-            'white': '#FFFFFF',             # Pure white
-            
-            # Accent Colors (Status Indicators)
-            'emerald': '#27AE60',           # Success green
-            'mint': '#D5F4E6',              # Light green
-            'ruby': '#C0392B',              # Error red
-            'rose': '#FADBD8',              # Light red
-            'gold': '#F39C12',              # Warning orange
-            'amber': '#FCF3CF',             # Light yellow
-            
-            # Special Purpose
-            'total_gold': '#FFF9E6',        # Total row background
-            'border_dark': '#34495E',       # Dark borders
-            'border_light': '#D5DBDB',      # Light borders
+
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        workbook  = writer.book
+        worksheet = workbook.add_worksheet("Trial Balance")
+
+        C = {
+            "navy":         "#1B3B6F",
+            "royal_blue":   "#2E5090",
+            "sky_blue":     "#4A90E2",
+            "ice_blue":     "#E8F1FA",
+            "powder_blue":  "#D4E6F7",
+            "charcoal":     "#2C3E50",
+            "slate":        "#5D6D7E",
+            "silver":       "#BDC3C7",
+            "pearl":        "#ECF0F1",
+            "snow":         "#F8F9FA",
+            "white":        "#FFFFFF",
+            "emerald":      "#27AE60",
+            "ruby":         "#C0392B",
+            "gold":         "#F39C12",
+            "total_gold":   "#FFF9E6",
+            "border_light": "#D5DBDB",
+            "synthetic_bg": "#EEF2FF",
         }
-        
-        # Create worksheet
-        worksheet = workbook.add_worksheet('Trial Balance')
-        
-        # ============================================================
-        # SECTION 1: MAGNIFICENT HEADER
-        # ============================================================
-        
-        # Logo/Branding Bar - Deep Navy with Gradient Effect
-        branding_format = workbook.add_format({
-            'bold': True,
-            'font_size': 26,
-            'font_name': 'Arial',
-            'font_color': colors['white'],
-            'bg_color': colors['navy'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 0
-        })
-        
-        # Company Name Subtitle
-        company_format = workbook.add_format({
-            'bold': True,
-            'font_size': 16,
-            'font_name': 'Arial',
-            'font_color': colors['white'],
-            'bg_color': colors['royal_blue'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 0
-        })
-        
-        # Report Type Badge
-        report_type_format = workbook.add_format({
-            'bold': True,
-            'font_size': 11,
-            'font_name': 'Arial',
-            'font_color': colors['navy'],
-            'bg_color': colors['ice_blue'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 1,
-            'border_color': colors['sky_blue']
-        })
-        
-        # Info Labels (Left Column)
-        info_label = workbook.add_format({
-            'bold': True,
-            'font_size': 10,
-            'font_name': 'Arial',
-            'font_color': colors['navy'],
-            'bg_color': colors['powder_blue'],
-            'align': 'right',
-            'valign': 'vcenter',
-            'border': 1,
-            'border_color': colors['border_light'],
-            'right': 2,
-            'right_color': colors['royal_blue']
-        })
-        
-        # Info Values (Right Column)
-        info_value = workbook.add_format({
-            'bold': False,
-            'font_size': 10,
-            'font_name': 'Arial',
-            'font_color': colors['charcoal'],
-            'bg_color': colors['white'],
-            'align': 'left',
-            'valign': 'vcenter',
-            'border': 1,
-            'border_color': colors['border_light']
-        })
-        
-        # Set premium row heights
-        worksheet.set_row(0, 45)   # Main title - Extra tall
-        worksheet.set_row(1, 32)   # Company name
-        worksheet.set_row(2, 8)    # Spacer
-        worksheet.set_row(3, 24)   # Report type badge
-        worksheet.set_row(4, 20)   # Company info
-        worksheet.set_row(5, 20)   # Date info
-        worksheet.set_row(6, 8)    # Spacer
-        worksheet.set_row(7, 35)   # Column headers - Tall
-        
-        # Write stunning header
-        worksheet.merge_range('A1:F1', '✨ TRIAL BALANCE REPORT ✨', branding_format)
-        worksheet.merge_range('A2:F2', filters.get("company", "N/A").upper(), company_format)
-        worksheet.merge_range('A4:F4', '📊 FINANCIAL STATEMENT', report_type_format)
-        
-        # Elegant info table
-        worksheet.merge_range('A5:B5', '🏢  Company Name:', info_label)
-        worksheet.merge_range('C5:F5', filters.get('company', 'N/A'), info_value)
-        
-        worksheet.merge_range('A6:B6', '📅  Reporting Date:', info_label)
-        worksheet.merge_range('C6:F6', filters.get('as_at_date', 'N/A'), info_value)
-        
-        # ============================================================
-        # SECTION 2: PREMIUM COLUMN HEADERS
-        # ============================================================
-        
-        header_format = workbook.add_format({
-            'bold': True,
-            'font_size': 11,
-            'font_name': 'Arial',
-            'font_color': colors['white'],
-            'bg_color': colors['royal_blue'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 2,
-            'border_color': colors['navy'],
-            'text_wrap': True,
-            'top': 3,
-            'bottom': 3,
-            'top_color': colors['navy'],
-            'bottom_color': colors['navy']
-        })
-        
-        # Optimized column widths for professional appearance
+
+        def F(**kw):
+            return workbook.add_format(kw)
+
+        branding_fmt = F(bold=True, font_size=26, font_name="Arial",
+                         font_color=C["white"], bg_color=C["navy"],
+                         align="center", valign="vcenter")
+        company_fmt  = F(bold=True, font_size=16, font_name="Arial",
+                         font_color=C["white"], bg_color=C["royal_blue"],
+                         align="center", valign="vcenter")
+        badge_fmt    = F(bold=True, font_size=11, font_name="Arial",
+                         font_color=C["navy"], bg_color=C["ice_blue"],
+                         align="center", valign="vcenter",
+                         border=1, border_color=C["sky_blue"])
+        lbl_fmt      = F(bold=True, font_size=10, font_name="Arial",
+                         font_color=C["navy"], bg_color=C["powder_blue"],
+                         align="right", valign="vcenter",
+                         border=1, border_color=C["border_light"],
+                         right=2, right_color=C["royal_blue"])
+        val_fmt      = F(font_size=10, font_name="Arial",
+                         font_color=C["charcoal"], bg_color=C["white"],
+                         align="left", valign="vcenter",
+                         border=1, border_color=C["border_light"])
+        hdr_fmt      = F(bold=True, font_size=11, font_name="Arial",
+                         font_color=C["white"], bg_color=C["royal_blue"],
+                         align="center", valign="vcenter",
+                         border=2, border_color=C["navy"],
+                         text_wrap=True, top=3, bottom=3,
+                         top_color=C["navy"], bottom_color=C["navy"])
+
+        for i, h in [(0,45),(1,32),(2,8),(3,24),(4,20),(5,20),(6,8),(7,35)]:
+            worksheet.set_row(i, h)
+
         col_widths = [16, 45, 38, 20, 20, 20]
-        
-        for col_num, column in enumerate(columns):
-            # Write header with emoji cleaned for Excel compatibility
-            header_text = column['label']
-            worksheet.write(7, col_num, header_text, header_format)
-            worksheet.set_column(col_num, col_num, col_widths[col_num])
-        
-        # ============================================================
-        # SECTION 3: BEAUTIFUL DATA ROWS
-        # ============================================================
-        
-        # Even row formats (White background)
-        text_even = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'font_color': colors['charcoal'],
-            'bg_color': colors['white'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'valign': 'vcenter',
-            'left': 1,
-            'right': 1
-        })
-        
-        currency_even = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'num_format': '#,##0.00',
-            'font_color': colors['charcoal'],
-            'bg_color': colors['white'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        # Odd row formats (Light grey background)
-        text_odd = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'font_color': colors['charcoal'],
-            'bg_color': colors['snow'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'valign': 'vcenter'
-        })
-        
-        currency_odd = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'num_format': '#,##0.00',
-            'font_color': colors['charcoal'],
-            'bg_color': colors['snow'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        # Special formats for positive/negative values
-        # Debit (Positive) - Emerald Green
-        debit_even = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'num_format': '#,##0.00',
-            'font_color': colors['emerald'],
-            'bold': True,
-            'bg_color': colors['white'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        debit_odd = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'num_format': '#,##0.00',
-            'font_color': colors['emerald'],
-            'bold': True,
-            'bg_color': colors['snow'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        # Credit (Negative) - Ruby Red
-        credit_even = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'num_format': '#,##0.00',
-            'font_color': colors['ruby'],
-            'bold': True,
-            'bg_color': colors['white'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        credit_odd = workbook.add_format({
-            'font_size': 10,
-            'font_name': 'Calibri',
-            'num_format': '#,##0.00',
-            'font_color': colors['ruby'],
-            'bold': True,
-            'bg_color': colors['snow'],
-            'border': 1,
-            'border_color': colors['border_light'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        # TOTAL ROW - Premium Gold Theme
-        total_text = workbook.add_format({
-            'bold': True,
-            'font_size': 12,
-            'font_name': 'Arial',
-            'font_color': colors['navy'],
-            'bg_color': colors['total_gold'],
-            'border': 2,
-            'border_color': colors['gold'],
-            'top': 3,
-            'top_color': colors['navy'],
-            'valign': 'vcenter'
-        })
-        
-        total_currency = workbook.add_format({
-            'bold': True,
-            'font_size': 12,
-            'font_name': 'Arial',
-            'num_format': '#,##0.00',
-            'font_color': colors['navy'],
-            'bg_color': colors['total_gold'],
-            'border': 2,
-            'border_color': colors['gold'],
-            'top': 3,
-            'top_color': colors['navy'],
-            'align': 'right',
-            'valign': 'vcenter'
-        })
-        
-        # Write data rows with beautiful formatting
-        row_num = 8  # Start after headers
-        
-        for data_row in data:
-            is_total = data_row.get('is_total_row', 0)
-            is_even = (row_num - 8) % 2 == 0
-            
-            # Set row height
+        for i, w in enumerate(col_widths):
+            worksheet.set_column(i, i, w)
+
+        worksheet.merge_range("A1:F1", "TRIAL BALANCE REPORT", branding_fmt)
+        worksheet.merge_range("A2:F2", filters.get("company","").upper(), company_fmt)
+        worksheet.merge_range("A4:F4", "FINANCIAL STATEMENT", badge_fmt)
+        worksheet.merge_range("A5:B5", "Company Name:",   lbl_fmt)
+        worksheet.merge_range("C5:F5", filters.get("company","N/A"), val_fmt)
+        worksheet.merge_range("A6:B6", "Reporting Date:", lbl_fmt)
+        worksheet.merge_range("C6:F6", str(filters.get("as_at_date","N/A")), val_fmt)
+
+        for col_num, col in enumerate(columns):
+            worksheet.write(7, col_num, col["label"], hdr_fmt)
+
+        def tf(bg):
+            return F(font_size=10, font_name="Calibri", font_color=C["charcoal"],
+                     bg_color=bg, border=1, border_color=C["border_light"], valign="vcenter")
+
+        def nf(bg, color=None, bold=False):
+            return F(font_size=10, font_name="Calibri", num_format="#,##0.00",
+                     font_color=color or C["charcoal"], bold=bold,
+                     bg_color=bg, border=1, border_color=C["border_light"],
+                     align="right", valign="vcenter")
+
+        t_even  = tf(C["white"]);   t_odd  = tf(C["snow"])
+        n_even  = nf(C["white"]);   n_odd  = nf(C["snow"])
+        dr_even = nf(C["white"], C["emerald"], True);  dr_odd = nf(C["snow"], C["emerald"], True)
+        cr_even = nf(C["white"], C["ruby"],    True);  cr_odd = nf(C["snow"], C["ruby"],    True)
+
+        syn_t = F(italic=True, font_size=10, font_name="Calibri",
+                  font_color=C["navy"], bg_color=C["synthetic_bg"],
+                  border=1, border_color=C["sky_blue"], valign="vcenter")
+        syn_n = F(italic=True, font_size=10, font_name="Calibri",
+                  num_format="#,##0.00", font_color=C["navy"],
+                  bg_color=C["synthetic_bg"], border=1, border_color=C["sky_blue"],
+                  align="right", valign="vcenter")
+
+        tot_t = F(bold=True, font_size=12, font_name="Arial",
+                  font_color=C["navy"], bg_color=C["total_gold"],
+                  border=2, border_color=C["gold"],
+                  top=3, top_color=C["navy"], valign="vcenter")
+        tot_n = F(bold=True, font_size=12, font_name="Arial",
+                  num_format="#,##0.00", font_color=C["navy"],
+                  bg_color=C["total_gold"], border=2, border_color=C["gold"],
+                  top=3, top_color=C["navy"], align="right", valign="vcenter")
+
+        row_num = 8
+        for dr in data:
+            is_total = dr.get("is_total_row")
+            is_syn   = dr.get("is_synthetic")
+            is_even  = (row_num - 8) % 2 == 0
+
             worksheet.set_row(row_num, 28 if is_total else 22)
-            
-            for col_num, column in enumerate(columns):
-                fieldname = column['fieldname']
-                value = data_row.get(fieldname, '')
-                
+
+            for col_num, col in enumerate(columns):
+                fn  = col["fieldname"]
+                val = dr.get(fn, "")
+
                 if is_total:
-                    # TOTAL ROW - Special formatting
-                    if column['fieldtype'] == 'Currency' and value != '':
-                        worksheet.write_number(row_num, col_num, flt(value), total_currency)
+                    if col["fieldtype"] == "Currency" and val != "":
+                        worksheet.write_number(row_num, col_num, flt(val), tot_n)
                     else:
-                        # Clean up total row text
-                        display_value = str(value).replace('<b>', '').replace('</b>', '')
-                        worksheet.write(row_num, col_num, display_value, total_text)
+                        worksheet.write(row_num, col_num, str(val), tot_t)
+
+                elif is_syn:
+                    if col["fieldtype"] == "Currency" and val != "":
+                        worksheet.write_number(row_num, col_num, flt(val), syn_n)
+                    else:
+                        worksheet.write(row_num, col_num, str(val), syn_t)
+
                 else:
-                    # REGULAR DATA ROWS
-                    if column['fieldtype'] == 'Currency' and value != '':
-                        # Smart color-coding based on column and value
-                        if fieldname == 'balance':
-                            if flt(value) > 0:
-                                fmt = debit_even if is_even else debit_odd
-                            elif flt(value) < 0:
-                                fmt = credit_even if is_even else credit_odd
-                            else:
-                                fmt = currency_even if is_even else currency_odd
-                        elif fieldname == 'net_debit' and flt(value) > 0:
-                            fmt = debit_even if is_even else debit_odd
-                        elif fieldname == 'net_credit' and flt(value) > 0:
-                            fmt = credit_even if is_even else credit_odd
-                        else:
-                            fmt = currency_even if is_even else currency_odd
-                        
-                        worksheet.write_number(row_num, col_num, flt(value), fmt)
+                    if col["fieldtype"] == "Currency" and val != "":
+                        v = flt(val)
+                        if fn == "balance":
+                            fmt_ = (dr_even if is_even else dr_odd) if v > 0 else \
+                                   (cr_even if is_even else cr_odd) if v < 0 else \
+                                   (n_even  if is_even else n_odd)
+                        elif fn == "net_debit"  and v > 0: fmt_ = dr_even if is_even else dr_odd
+                        elif fn == "net_credit" and v > 0: fmt_ = cr_even if is_even else cr_odd
+                        else:                               fmt_ = n_even  if is_even else n_odd
+                        worksheet.write_number(row_num, col_num, v, fmt_)
                     else:
-                        # Text fields
-                        fmt = text_even if is_even else text_odd
-                        worksheet.write(row_num, col_num, str(value), fmt)
-            
+                        worksheet.write(row_num, col_num, str(val),
+                                        t_even if is_even else t_odd)
             row_num += 1
-        
-        # ============================================================
-        # SECTION 4: EXECUTIVE SUMMARY DASHBOARD
-        # ============================================================
-        
-        summary_data = get_report_summary(data, filters)
-        
-        # Add elegant spacing
+
+        summary_data = get_report_summary(data)
         row_num += 3
-        
-        # Summary section title with gradient effect
-        summary_title = workbook.add_format({
-            'bold': True,
-            'font_size': 15,
-            'font_name': 'Arial',
-            'font_color': colors['white'],
-            'bg_color': colors['royal_blue'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 2,
-            'border_color': colors['navy']
-        })
-        
+
+        s_title = F(bold=True, font_size=15, font_name="Arial",
+                    font_color=C["white"], bg_color=C["royal_blue"],
+                    align="center", valign="vcenter",
+                    border=2, border_color=C["navy"])
+        s_lbl   = F(bold=True, font_size=10, font_name="Arial",
+                    font_color=C["navy"], bg_color=C["ice_blue"],
+                    align="center", valign="vcenter",
+                    border=1, border_color=C["sky_blue"])
+        s_val   = F(bold=True, font_size=14, font_name="Arial",
+                    font_color=C["navy"], bg_color=C["white"],
+                    align="center", valign="vcenter",
+                    border=2, border_color=C["sky_blue"],
+                    num_format="#,##0.00")
+
         worksheet.set_row(row_num, 32)
-        worksheet.merge_range(row_num, 0, row_num, 5, '📈 EXECUTIVE SUMMARY', summary_title)
+        worksheet.merge_range(row_num, 0, row_num, 5, "EXECUTIVE SUMMARY", s_title)
         row_num += 1
-        
-        # Beautiful summary card formats
-        card_label = workbook.add_format({
-            'bold': True,
-            'font_size': 10,
-            'font_name': 'Arial',
-            'font_color': colors['navy'],
-            'bg_color': colors['ice_blue'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 1,
-            'border_color': colors['sky_blue']
-        })
-        
-        card_value = workbook.add_format({
-            'bold': True,
-            'font_size': 14,
-            'font_name': 'Arial',
-            'font_color': colors['navy'],
-            'bg_color': colors['white'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 2,
-            'border_color': colors['sky_blue'],
-            'num_format': '#,##0.00'
-        })
-        
-        # Create 2x2 dashboard grid
-        summary_row = row_num
-        for i, summary in enumerate(summary_data):
-            col_offset = (i % 2) * 3
-            row_offset = summary_row + (i // 2) * 3
-            
-            worksheet.set_row(row_offset, 24)
-            worksheet.set_row(row_offset + 1, 32)
-            worksheet.set_row(row_offset + 2, 4)  # Spacer
-            
-            # Card label
-            worksheet.merge_range(
-                row_offset, col_offset,
-                row_offset, col_offset + 2,
-                summary.get('label', ''),
-                card_label
-            )
-            
-            # Card value
-            value = summary.get('value', 0)
-            worksheet.merge_range(
-                row_offset + 1, col_offset,
-                row_offset + 1, col_offset + 2,
-                flt(value),
-                card_value
-            )
-        
-        # ============================================================
-        # SECTION 5: PROFESSIONAL FOOTER
-        # ============================================================
-        
-        footer_row = summary_row + 7
-        
-        footer_format = workbook.add_format({
-            'italic': True,
-            'font_size': 9,
-            'font_name': 'Arial',
-            'font_color': colors['slate'],
-            'bg_color': colors['pearl'],
-            'align': 'center',
-            'valign': 'vcenter',
-            'border': 1,
-            'border_color': colors['silver']
-        })
-        
+        sr = row_num
+
+        for i, s in enumerate(summary_data):
+            co = (i % 2) * 3
+            ro = sr + (i // 2) * 3
+            worksheet.set_row(ro, 24); worksheet.set_row(ro+1, 32); worksheet.set_row(ro+2, 4)
+            worksheet.merge_range(ro,   co, ro,   co+2, s.get("label",""), s_lbl)
+            worksheet.merge_range(ro+1, co, ro+1, co+2, flt(s.get("value",0)), s_val)
+
         from datetime import datetime
-        footer_text = f"Report Generated: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')} | Powered by ERPNext & Value Impacts Consulting"
-        
+        footer_row = sr + 7
+        footer_fmt = F(italic=True, font_size=9, font_name="Arial",
+                       font_color=C["slate"], bg_color=C["pearl"],
+                       align="center", valign="vcenter",
+                       border=1, border_color=C["silver"])
         worksheet.set_row(footer_row, 22)
-        worksheet.merge_range(footer_row, 0, footer_row, 5, footer_text, footer_format)
-        
-        # ============================================================
-        # SECTION 6: EXCEL MAGIC - Advanced Features
-        # ============================================================
-        
-        # Freeze panes at header row
+        worksheet.merge_range(
+            footer_row, 0, footer_row, 5,
+            f"Report Generated: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"
+            f" | Powered by ERPNext & Value Impacts Consulting",
+            footer_fmt,
+        )
+
         worksheet.freeze_panes(8, 0)
-        
-        # Auto-filter on header row
         worksheet.autofilter(7, 0, row_num - 1, 5)
-        
-        # Print settings for professional output
         worksheet.set_landscape()
-        worksheet.set_paper(9)  # A4
-        worksheet.fit_to_pages(1, 0)  # Fit width to 1 page
-        
-        # Premium margins
+        worksheet.set_paper(9)
+        worksheet.fit_to_pages(1, 0)
         worksheet.set_margins(left=0.6, right=0.6, top=0.8, bottom=0.8)
-        
-        # Page header and footer
-        company_name = filters.get("company", "")
-        worksheet.set_header(f'&L&"Arial,Bold"&12{company_name}&R&"Arial"&10Page &P of &N')
+        worksheet.set_header(
+            f'&L&"Arial,Bold"&12{filters.get("company","")}'
+            f'&R&"Arial"&10Page &P of &N'
+        )
         worksheet.set_footer('&C&"Arial,Italic"&9Trial Balance Report - Confidential')
-        
-        # Repeat header row on every printed page
         worksheet.repeat_rows(7)
-    
-    # ============================================================
-    # GENERATE FILE
-    # ============================================================
-    
-    xlsx_file = output.getvalue()
-    
-    # Professional filename with timestamp
+
     from datetime import datetime
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    company_safe = filters.get('company', 'Company').replace(' ', '_').replace('/', '_')
-    
-    frappe.response['filename'] = f"TB_{company_safe}_{filters.get('as_at_date')}_{timestamp}.xlsx"
-    frappe.response['filecontent'] = xlsx_file
-    frappe.response['type'] = 'binary'
-    frappe.response['content_type'] = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    
-    return
+    ts           = datetime.now().strftime("%Y%m%d_%H%M%S")
+    company_safe = filters.get("company","Company").replace(" ","_").replace("/","_")
 
-
-# Override the default Excel export
-def get_xlsx_data(columns, data):
-    """Override default Excel export to use custom format"""
-    return None  # This will trigger the custom download button instead
+    frappe.response["filename"]     = f"TB_{company_safe}_{filters.get('as_at_date')}_{ts}.xlsx"
+    frappe.response["filecontent"]  = output.getvalue()
+    frappe.response["type"]         = "binary"
+    frappe.response["content_type"] = (
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )

@@ -1,0 +1,225 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-04-15 11:39:25.165007",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "company",
+  "match_date",
+  "party_type",
+  "column_break_1",
+  "status",
+  "amended_from",
+  "section_break_filter",
+  "from_date",
+  "to_date",
+  "confidence_threshold",
+  "column_break_filter2",
+  "bank_account",
+  "auto_apply_above",
+  "section_break_summary",
+  "total_payments_fetched",
+  "total_invoices_fetched",
+  "matches_proposed",
+  "column_break_summary2",
+  "matches_approved",
+  "matches_rejected",
+  "total_amount_reconciled",
+  "section_break_remarks",
+  "remarks",
+  "section_break_matches",
+  "match_lines"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "PIM-.YYYY.-",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "match_date",
+   "fieldtype": "Date",
+   "label": "Match Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "label": "Party Type",
+   "options": "\nCustomer\nSupplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nIn Progress\nCompleted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payment Invoice Match",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_filter",
+   "fieldtype": "Section Break",
+   "label": "Matching Filters"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "Payment From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "label": "Payment To Date",
+   "reqd": 1
+  },
+  {
+   "default": "60",
+   "description": "Only show AI matches above this confidence score",
+   "fieldname": "confidence_threshold",
+   "fieldtype": "Percent",
+   "label": "Min Confidence to Show"
+  },
+  {
+   "fieldname": "column_break_filter2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Filter payments by bank account",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account (optional filter)",
+   "options": "Bank Account"
+  },
+  {
+   "default": "95",
+   "description": "Automatically apply matches above this score without manual review",
+   "fieldname": "auto_apply_above",
+   "fieldtype": "Percent",
+   "label": "Auto-Apply Above Confidence"
+  },
+  {
+   "fieldname": "section_break_summary",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "total_payments_fetched",
+   "fieldtype": "Int",
+   "label": "Payments Fetched",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_invoices_fetched",
+   "fieldtype": "Int",
+   "label": "Invoices Fetched",
+   "read_only": 1
+  },
+  {
+   "fieldname": "matches_proposed",
+   "fieldtype": "Int",
+   "label": "Matches Proposed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_summary2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "matches_approved",
+   "fieldtype": "Int",
+   "label": "Matches Approved",
+   "read_only": 1
+  },
+  {
+   "fieldname": "matches_rejected",
+   "fieldtype": "Int",
+   "label": "Matches Rejected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_amount_reconciled",
+   "fieldtype": "Currency",
+   "label": "Total Amount Reconciled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_remarks",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / AI Notes"
+  },
+  {
+   "fieldname": "section_break_matches",
+   "fieldtype": "Section Break",
+   "label": "Match Results"
+  },
+  {
+   "fieldname": "match_lines",
+   "fieldtype": "Table",
+   "label": "Match Lines",
+   "options": "Payment Invoice Match Line"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-15 11:39:25.165007",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Payment Invoice Match",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

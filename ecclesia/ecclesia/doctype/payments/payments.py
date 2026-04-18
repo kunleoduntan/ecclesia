@@ -40,7 +40,6 @@ class PaymentAccountingController:
         self.is_local_currency = self.doc.payment_currency == self.company_currency
         self.created_entries = []
 
-        # Cache frequently used values
         self._cache = {
             'payable_account': None,
             'interbank_account': None
@@ -52,17 +51,74 @@ class PaymentAccountingController:
         """Get company currency with caching"""
         return frappe.db.get_value('Company', self.company, 'default_currency', cache=True)
 
+    # ==================== Double-Creation Guards ====================
+
+    def _accounting_entries_already_exist(self):
+        """
+        Check whether any submitted JE or PE already exists for this payment's
+        reference number. Used to prevent duplicate creation on re-submit or
+        repeated button clicks.
+        """
+        ref = self.doc.reference_no
+        company = self.company
+
+        je_exists = frappe.db.sql("""
+            SELECT name FROM `tabJournal Entry`
+            WHERE (cheque_no = %s OR cheque_no LIKE %s)
+            AND company = %s AND docstatus = 1
+            LIMIT 1
+        """, (ref, f"{ref}-RC%", company), as_dict=1)
+
+        if je_exists:
+            return True
+
+        pe_exists = frappe.db.get_all('Payment Entry',
+            filters={'reference_no': ref, 'company': company, 'docstatus': 1},
+            fields=['name'], limit=1
+        )
+
+        return bool(pe_exists)
+
+    def _je_already_exists_for_ref(self, cheque_no):
+        """Check whether a specific JE cheque_no already has a submitted entry."""
+        return frappe.db.exists('Journal Entry', {
+            'cheque_no': cheque_no,
+            'company': self.company,
+            'docstatus': 1
+        })
+
+    def _pe_already_exists_for_ref(self):
+        """Check whether a PE already exists for this reference."""
+        return frappe.db.exists('Payment Entry', {
+            'reference_no': self.doc.reference_no,
+            'company': self.company,
+            'docstatus': 1
+        })
+
+    # ==================== Main Entry Point ====================
+
     def create_accounting_entries(self):
         """Main method to create accounting entries"""
         if not self.doc.create_accounting_entries:
             frappe.logger().info(f"Accounting entry creation disabled for {self.doc.name}")
             return []
 
+        # ── GUARD: abort if entries already exist ──────────────────────────
+        if self._accounting_entries_already_exist():
+            frappe.logger().warning(
+                f"Accounting entries already exist for {self.doc.name} "
+                f"(ref: {self.doc.reference_no}). Skipping creation to prevent duplicates."
+            )
+            frappe.msgprint(
+                _("Accounting entries already exist for reference {0}. No new entries created.").format(
+                    self.doc.reference_no),
+                indicator="orange", alert=True
+            )
+            return []
+
         try:
-            # Validate before creating entries
             self._validate_before_creation()
 
-            # Create appropriate entries based on transaction type
             if self.doc.trans_type == "Supplier Payment":
                 return self._create_supplier_payment_entries()
 
@@ -103,16 +159,27 @@ class PaymentAccountingController:
         """Ensure account is not a group account"""
         if not account:
             return
-
         is_group = frappe.db.get_value("Account", account, "is_group", cache=True)
         if is_group:
-            frappe.throw(_("The account {0} is a group account and cannot be used for posting").format(account))
+            frappe.throw(
+                _("The account {0} is a group account and cannot be used for posting").format(account))
 
     # ==================== Supplier Payment Entries ====================
 
     def _create_supplier_payment_entries(self):
-        """Create Payment Entry for supplier payments"""
+        """Create Payment Entry for supplier payments — with duplicate guard"""
         frappe.logger().info(f"Creating supplier payment entry for {self.doc.name}")
+
+        # ── GUARD: PE-level duplicate check ───────────────────────────────
+        if self._pe_already_exists_for_ref():
+            frappe.logger().warning(
+                f"Payment Entry already exists for ref {self.doc.reference_no}. Skipping.")
+            frappe.msgprint(
+                _("A Payment Entry already exists for reference {0}. Skipping.").format(
+                    self.doc.reference_no),
+                indicator="orange", alert=True
+            )
+            return self.created_entries
 
         try:
             pe = frappe.new_doc("Payment Entry")
@@ -139,6 +206,7 @@ class PaymentAccountingController:
             pe.remarks = self.doc.transaction_purposes or f"Payment to {self.doc.supplier_name}"
 
             pe.flags.ignore_permissions = True
+            pe.flags.ignore_fiscal_year = True
             pe.insert(ignore_permissions=True)
             pe.submit()
 
@@ -181,9 +249,9 @@ class PaymentAccountingController:
             pe.paid_from_account_currency = self.doc.bank_account_currency
             pe.paid_to_account_currency = self.doc.payment_currency
             pe.paid_amount = amount_paid_in_fc
-            pe.base_paid_amount = amount_paid_in_fc * exchange_rate          # FIX: was raw field arithmetic
+            pe.base_paid_amount = amount_paid_in_fc * exchange_rate
             pe.received_amount = amount_paid_in_fc
-            pe.base_received_amount = amount_paid_in_fc * exchange_rate      # FIX: was raw field arithmetic
+            pe.base_received_amount = amount_paid_in_fc * exchange_rate
             pe.source_exchange_rate = exchange_rate
             pe.target_exchange_rate = exchange_rate
 
@@ -209,16 +277,12 @@ class PaymentAccountingController:
 
         if self.doc.is_multi_line:
             return self._create_multi_line_expense_entry()
-
         elif self.doc.is_shared_cost:
             return self._create_shared_cost_entry()
-
         elif self.doc.is_related_coy_trans:
             return self._create_related_company_entries()
-
         elif self.doc.deduct_wht:
             return self._create_expense_entry_with_wht()
-
         else:
             return self._create_simple_expense_entry()
 
@@ -274,7 +338,6 @@ class PaymentAccountingController:
 
             self._validate_account_not_group(self.doc.wht_account)
 
-            # Debit: Expense Account (full amount)
             je.append("accounts", {
                 "account": self.doc.account_to_debit,
                 "debit_in_account_currency": base_amount,
@@ -286,7 +349,6 @@ class PaymentAccountingController:
                 "against_account": f"{self.doc.remittance_bank_gl}, {self.doc.wht_account}"
             })
 
-            # Credit: WHT Account
             je.append("accounts", {
                 "account": self.doc.wht_account,
                 "credit_in_account_currency": wht_amount,
@@ -297,7 +359,6 @@ class PaymentAccountingController:
                 "against_account": self.doc.account_to_debit
             })
 
-            # Credit: Bank Account (net amount)
             bank_credit = net_amount if self.is_local_currency else (net_amount / exchange_rate)
 
             je.append("accounts", {
@@ -379,8 +440,9 @@ class PaymentAccountingController:
         try:
             total_percentage = sum([flt(dist.distribution) for dist in self.doc.cost_center_distribution])
             if abs(total_percentage - 100) > 0.01:
-                frappe.throw(_("Total cost center distribution must equal 100%. Current total: {0}%").format(
-                    total_percentage))
+                frappe.throw(
+                    _("Total cost center distribution must equal 100%. Current total: {0}%").format(
+                        total_percentage))
 
             je = self._initialize_journal_entry("Bank Entry")
 
@@ -392,12 +454,14 @@ class PaymentAccountingController:
                 if not dist.cost_center:
                     frappe.throw(_("Row {0}: Cost Center is required").format(idx))
 
-                dist_val = flt(dist.distribution)                            # FIX: was raw comparison
+                dist_val = flt(dist.distribution)
                 if not dist_val or dist_val <= 0:
-                    frappe.throw(_("Row {0}: Distribution percentage must be greater than zero").format(idx))
+                    frappe.throw(
+                        _("Row {0}: Distribution percentage must be greater than zero").format(idx))
 
                 if not frappe.db.exists('Cost Center', dist.cost_center):
-                    frappe.throw(_("Row {0}: Cost Center '{1}' does not exist").format(idx, dist.cost_center))
+                    frappe.throw(
+                        _("Row {0}: Cost Center '{1}' does not exist").format(idx, dist.cost_center))
 
                 allocated_amount = (base_amount * dist_val) / 100
                 total_allocated += allocated_amount
@@ -415,9 +479,10 @@ class PaymentAccountingController:
                 })
 
             if abs(total_allocated - base_amount) > 0.01:
-                frappe.msgprint(_("Warning: Allocated amount ({0}) does not exactly match payment amount ({1}) due to rounding").format(
-                    total_allocated, base_amount
-                ), indicator='orange', alert=True)
+                frappe.msgprint(
+                    _("Warning: Allocated amount ({0}) does not exactly match payment amount ({1}) due to rounding").format(
+                        total_allocated, base_amount),
+                    indicator='orange', alert=True)
 
             credit_amount = self._get_payment_amount_for_bank()
 
@@ -455,6 +520,16 @@ class PaymentAccountingController:
                 errors.append(validation_error)
                 continue
 
+            # ── GUARD: per-row RC entry duplicate check ────────────────────
+            rc_cheque_no = f"{self.doc.reference_no}-RC{idx}"
+            if self._je_already_exists_for_ref(rc_cheque_no):
+                frappe.logger().warning(
+                    f"Related company JE already exists for {rc_cheque_no}. Skipping row {idx}.")
+                errors.append(
+                    _("Row {0}: Journal Entry already exists for reference {1}. Skipped.").format(
+                        idx, rc_cheque_no))
+                continue
+
             try:
                 je_name = self._create_single_related_company_entry(rc_payment, idx)
                 if je_name:
@@ -469,13 +544,15 @@ class PaymentAccountingController:
             except Exception as e:
                 error_msg = f"Row {idx}: {str(e)}"
                 errors.append(error_msg)
-                frappe.logger().error(f"Error creating related company entry for row {idx}: {str(e)}")
-                frappe.log_error(frappe.get_traceback(), f"Related Company Entry Error - Row {idx}")
+                frappe.logger().error(
+                    f"Error creating related company entry for row {idx}: {str(e)}")
+                frappe.log_error(frappe.get_traceback(),
+                                 f"Related Company Entry Error - Row {idx}")
 
         if entries:
             self.created_entries.extend(entries)
-            frappe.msgprint(_("Created {0} related company entries").format(len(entries)),
-                            indicator="green")
+            frappe.msgprint(
+                _("Created {0} related company entries").format(len(entries)), indicator="green")
 
         if errors:
             error_message = _("Failed to create {0} related company entries:").format(len(errors))
@@ -492,7 +569,7 @@ class PaymentAccountingController:
         if not rc_payment.party:
             return _("Row {0}: Account/Party is required").format(row_num)
 
-        rc_amount = flt(rc_payment.amount)                                   # FIX: was raw comparison
+        rc_amount = flt(rc_payment.amount)
         if not rc_amount or rc_amount <= 0:
             return _("Row {0}: Amount must be greater than zero").format(row_num)
 
@@ -522,8 +599,9 @@ class PaymentAccountingController:
     def _create_single_related_company_entry(self, rc_payment, row_num):
         """Create a single related company journal entry"""
         je = frappe.new_doc("Journal Entry")
-        je.voucher_type = "Journal Entry"
-        je.naming_series = "JV-.YYYY.-"
+        je.voucher_type = "Bank Entry"
+        #je.naming_series = "JV-.YYYY.-"
+        je.payee_name = self.doc.payee_name or self.doc.supplier_name
         je.company = rc_payment.company
         je.posting_date = self.doc.transaction_date
         je.cheque_no = f"{self.doc.reference_no}-RC{row_num}"
@@ -557,6 +635,7 @@ class PaymentAccountingController:
 
         je.set_total_debit_credit()
         je.flags.ignore_permissions = True
+        je.flags.ignore_fiscal_year = True
         je.insert(ignore_permissions=True)
         je.submit()
 
@@ -659,7 +738,8 @@ class PaymentAccountingController:
         """Initialize a new Journal Entry with common fields"""
         je = frappe.new_doc("Journal Entry")
         je.voucher_type = voucher_type
-        je.naming_series = "JV-.YYYY.-"
+        #je.naming_series = "JV-.YYYY.-"
+        je.payee_name = self.doc.payee_name or self.doc.supplier_name
         je.company = self.company
         je.posting_date = self.doc.transaction_date
         je.cheque_no = self.doc.reference_no
@@ -695,10 +775,26 @@ class PaymentAccountingController:
             doc.branch = self.doc.branch
 
     def _save_and_submit_journal_entry(self, je):
-        """Save and submit journal entry with error handling"""
+        """
+        Save and submit journal entry.
+        Includes a cheque_no-level duplicate guard to catch any concurrent
+        or re-entrant calls that slip past the top-level guard.
+        """
+        # ── GUARD: JE-level duplicate check on cheque_no ──────────────────
+        if self._je_already_exists_for_ref(je.cheque_no):
+            frappe.logger().warning(
+                f"Journal Entry already exists for cheque_no {je.cheque_no}. Skipping.")
+            frappe.msgprint(
+                _("Journal Entry already exists for reference {0}. Skipping duplicate.").format(
+                    je.cheque_no),
+                indicator="orange", alert=True
+            )
+            return self.created_entries
+
         try:
             je.set_total_debit_credit()
             je.flags.ignore_permissions = True
+            je.flags.ignore_fiscal_year = True
             je.insert(ignore_permissions=True)
             je.submit()
 
@@ -742,8 +838,9 @@ class AccountingEntryCanceller:
         self._cancel_payment_entries()
 
         if self.cancelled_entries:
-            frappe.msgprint(_("Cancelled {0} accounting entries").format(len(self.cancelled_entries)),
-                            indicator="orange")
+            frappe.msgprint(
+                _("Cancelled {0} accounting entries").format(len(self.cancelled_entries)),
+                indicator="orange")
 
         return self.cancelled_entries
 
@@ -850,18 +947,15 @@ class Payments(Document):
         if not company_currency:
             frappe.throw(_("Company currency not found for {0}").format(self.company))
 
-        # Safely coerce all numeric fields to float before any comparison or arithmetic
         amount_paid = flt(self.amount_paid)
         amount_paid_in_fc = flt(self.amount_paid_in_fc)
         exchange_rate = flt(self.exchange_rate)
         whtax_rate = flt(self.whtax_rate)
 
-        # Ensure amount is positive
         amount = amount_paid if self.payment_currency == company_currency else amount_paid_in_fc
         if not amount or amount <= 0:
             frappe.throw(_("Payment amount must be greater than zero"))
 
-        # Calculate local currency amount
         if self.payment_currency != company_currency:
             if not exchange_rate or exchange_rate <= 0:
                 frappe.throw(_("Exchange rate must be greater than zero"))
@@ -869,7 +963,6 @@ class Payments(Document):
         else:
             self.local_currency_amount = amount_paid
 
-        # Calculate WHT if applicable
         if self.deduct_wht:
             if not whtax_rate or whtax_rate <= 0:
                 frappe.throw(_("WHT rate is required when deducting WHT"))
@@ -909,31 +1002,36 @@ class Payments(Document):
             return
 
         if not self.cost_center_distribution:
-            frappe.throw(_("Cost center distribution is required when 'Is Shared Cost' is enabled"))
+            frappe.throw(
+                _("Cost center distribution is required when 'Is Shared Cost' is enabled"))
 
         total_percentage = sum([flt(row.distribution) for row in self.cost_center_distribution])
 
         if abs(total_percentage - 100) > 0.01:
-            frappe.throw(_("Total cost center distribution must equal 100%. Current total: {0}%").format(
-                round(total_percentage, 2)
-            ))
+            frappe.throw(
+                _("Total cost center distribution must equal 100%. Current total: {0}%").format(
+                    round(total_percentage, 2)))
 
         for idx, row in enumerate(self.cost_center_distribution, start=1):
             if not row.cost_center:
                 frappe.throw(_("Row {0}: Cost Center is required").format(idx))
 
-            dist_val = flt(row.distribution)                                 # FIX: was raw comparison
+            dist_val = flt(row.distribution)
             if not dist_val or dist_val <= 0:
-                frappe.throw(_("Row {0}: Distribution percentage must be greater than zero").format(idx))
+                frappe.throw(
+                    _("Row {0}: Distribution percentage must be greater than zero").format(idx))
 
-            if dist_val > 100:                                               # FIX: was raw comparison
-                frappe.throw(_("Row {0}: Distribution percentage cannot exceed 100%").format(idx))
+            if dist_val > 100:
+                frappe.throw(
+                    _("Row {0}: Distribution percentage cannot exceed 100%").format(idx))
 
             if not frappe.db.exists('Cost Center', row.cost_center):
-                frappe.throw(_("Row {0}: Cost Center '{1}' does not exist").format(idx, row.cost_center))
+                frappe.throw(
+                    _("Row {0}: Cost Center '{1}' does not exist").format(idx, row.cost_center))
 
             if frappe.db.get_value('Cost Center', row.cost_center, 'disabled'):
-                frappe.throw(_("Row {0}: Cost Center '{1}' is disabled").format(idx, row.cost_center))
+                frappe.throw(
+                    _("Row {0}: Cost Center '{1}' is disabled").format(idx, row.cost_center))
 
         frappe.logger().info(f"Cost center distribution validated - Total: {total_percentage}%")
 
@@ -943,7 +1041,8 @@ class Payments(Document):
             return
 
         if not self.related_company_payments:
-            frappe.throw(_("Related company payment details are required when 'Is Related Company Transaction' is enabled"))
+            frappe.throw(
+                _("Related company payment details are required when 'Is Related Company Transaction' is enabled"))
 
         total_amount = 0
 
@@ -954,7 +1053,7 @@ class Payments(Document):
             if not row.party:
                 frappe.throw(_("Row {0}: Account/Party is required").format(idx))
 
-            row_amount = flt(row.amount)                                     # FIX: was raw comparison
+            row_amount = flt(row.amount)
             if not row_amount or row_amount <= 0:
                 frappe.throw(_("Row {0}: Amount must be greater than zero").format(idx))
 
@@ -962,58 +1061,71 @@ class Payments(Document):
                 frappe.throw(_("Row {0}: Related Company Account is required").format(idx))
 
             if not frappe.db.exists('Company', row.company):
-                frappe.throw(_("Row {0}: Company '{1}' does not exist").format(idx, row.company))
+                frappe.throw(
+                    _("Row {0}: Company '{1}' does not exist").format(idx, row.company))
 
             if not frappe.db.exists('Account', row.party):
-                frappe.throw(_("Row {0}: Account '{1}' does not exist").format(idx, row.party))
+                frappe.throw(
+                    _("Row {0}: Account '{1}' does not exist").format(idx, row.party))
 
             if not frappe.db.exists('Account', row.related_company_account):
-                frappe.throw(_("Row {0}: Related Company Account '{1}' does not exist").format(
-                    idx, row.related_company_account))
+                frappe.throw(
+                    _("Row {0}: Related Company Account '{1}' does not exist").format(
+                        idx, row.related_company_account))
 
             if frappe.db.get_value('Account', row.party, 'is_group'):
-                frappe.throw(_("Row {0}: '{1}' is a group account and cannot be used for transactions").format(
-                    idx, row.party))
+                frappe.throw(
+                    _("Row {0}: '{1}' is a group account and cannot be used for transactions").format(
+                        idx, row.party))
 
             if frappe.db.get_value('Account', row.related_company_account, 'is_group'):
-                frappe.throw(_("Row {0}: '{1}' is a group account and cannot be used for transactions").format(
-                    idx, row.related_company_account))
+                frappe.throw(
+                    _("Row {0}: '{1}' is a group account and cannot be used for transactions").format(
+                        idx, row.related_company_account))
 
             if row.cost_center:
                 if not frappe.db.exists('Cost Center', row.cost_center):
-                    frappe.throw(_("Row {0}: Cost Center '{1}' does not exist").format(idx, row.cost_center))
+                    frappe.throw(
+                        _("Row {0}: Cost Center '{1}' does not exist").format(idx, row.cost_center))
 
                 if frappe.db.get_value('Cost Center', row.cost_center, 'disabled'):
-                    frappe.throw(_("Row {0}: Cost Center '{1}' is disabled").format(idx, row.cost_center))
+                    frappe.throw(
+                        _("Row {0}: Cost Center '{1}' is disabled").format(idx, row.cost_center))
 
             total_amount += flt(row.amount_in_lcy or row.amount)
 
         payment_amount = flt(self.local_currency_amount) or flt(self.amount_paid)
         if abs(total_amount - payment_amount) > 0.01:
-            frappe.msgprint(_("Warning: Total related company amount ({0}) does not match payment amount ({1})").format(
-                total_amount, payment_amount
-            ), indicator='orange', alert=True)
+            frappe.msgprint(
+                _("Warning: Total related company amount ({0}) does not match payment amount ({1})").format(
+                    total_amount, payment_amount),
+                indicator='orange', alert=True)
 
         frappe.logger().info(f"Related company payments validated - Total: {total_amount}")
 
     def calculate_totals(self):
         """Calculate all totals"""
         if self.payments_reference:
-            self.total_outstanding_invoice = sum([flt(row.allocated_amount) for row in self.payments_reference])
+            self.total_outstanding_invoice = sum(
+                [flt(row.allocated_amount) for row in self.payments_reference])
 
         if self.payments_item_line:
-            self.total_multi_line_amount = sum([flt(row.amount_in_lcy or row.amount) for row in self.payments_item_line])
+            self.total_multi_line_amount = sum(
+                [flt(row.amount_in_lcy or row.amount) for row in self.payments_item_line])
 
         if self.cost_center_distribution:
-            self.total_percentage = sum([flt(row.distribution) for row in self.cost_center_distribution])
+            self.total_percentage = sum(
+                [flt(row.distribution) for row in self.cost_center_distribution])
 
         if self.related_company_payments:
-            self.total_rcoy = sum([flt(row.amount_in_lcy or row.amount) for row in self.related_company_payments])
+            self.total_rcoy = sum(
+                [flt(row.amount_in_lcy or row.amount) for row in self.related_company_payments])
 
     def set_amount_in_words(self):
         """Convert amount to words"""
         if self.local_currency_amount:
-            company_currency = frappe.db.get_value('Company', self.company, 'default_currency', cache=True) or 'NGN'
+            company_currency = frappe.db.get_value(
+                'Company', self.company, 'default_currency', cache=True) or 'NGN'
             self.amount_in_words = money_in_words(flt(self.local_currency_amount), company_currency)
 
     def before_submit(self):
@@ -1022,7 +1134,11 @@ class Payments(Document):
         frappe.logger().info(f"Submitting Payment {self.name}")
 
     def on_submit(self):
-        """On submit event"""
+        """
+        On submit event.
+        Accounting entries are created here ONLY if create_accounting_entries is checked.
+        The controller's internal guard prevents duplication if the UI button is also used.
+        """
         frappe.logger().info(f"Payment {self.name} submitted")
 
         try:
@@ -1031,7 +1147,8 @@ class Payments(Document):
                 created = controller.create_accounting_entries()
 
                 if created:
-                    frappe.logger().info(f"Created {len(created)} accounting entries for {self.name}")
+                    frappe.logger().info(
+                        f"Created {len(created)} accounting entries for {self.name}")
 
             if self.amortize and self.amortization_schedule:
                 create_all_amortization_entries(self)
@@ -1082,10 +1199,9 @@ def create_all_amortization_entries(payment_doc):
             payment_doc.db_set('amortization_status', 'Completed')
             frappe.msgprint(
                 _("Created {0} amortization journal entries").format(len(created_entries)),
-                indicator='green',
-                alert=True
-            )
-            frappe.logger().info(f"Created {len(created_entries)} amortization entries for {payment_doc.name}")
+                indicator='green', alert=True)
+            frappe.logger().info(
+                f"Created {len(created_entries)} amortization entries for {payment_doc.name}")
 
         return created_entries
 
@@ -1099,13 +1215,18 @@ def create_single_amortization_entry(payment_doc, schedule_entry):
     try:
         je = frappe.new_doc("Journal Entry")
         je.voucher_type = "Journal Entry"
-        je.naming_series = "JV-.YYYY.-"
+        #je.naming_series = "JV-.YYYY.-"
+        je.payee_name = payment_doc.payee_name or payment_doc.supplier_name
         je.company = payment_doc.company
         je.posting_date = schedule_entry.period_start
-        je.user_remark = f"Amortization for {payment_doc.name} - Period {schedule_entry.period_start} to {schedule_entry.period_end}"
+        je.user_remark = (
+            f"Amortization for {payment_doc.name} - "
+            f"Period {schedule_entry.period_start} to {schedule_entry.period_end}"
+        )
 
         if not payment_doc.expense_account or not payment_doc.deferred_expense_account:
-            frappe.throw(_("Expense Account and Deferred Expense Account are required for amortization"))
+            frappe.throw(
+                _("Expense Account and Deferred Expense Account are required for amortization"))
 
         entry_amount = flt(schedule_entry.amount)
 
@@ -1131,6 +1252,7 @@ def create_single_amortization_entry(payment_doc, schedule_entry):
 
         je.set_total_debit_credit()
         je.flags.ignore_permissions = True
+        je.flags.ignore_fiscal_year = True
         je.insert(ignore_permissions=True)
         je.submit()
 
@@ -1144,7 +1266,8 @@ def create_single_amortization_entry(payment_doc, schedule_entry):
         return je.name
 
     except Exception as e:
-        frappe.log_error(frappe.get_traceback(), f"Amortization Entry Error - {schedule_entry.name}")
+        frappe.log_error(frappe.get_traceback(),
+                         f"Amortization Entry Error - {schedule_entry.name}")
         return None
 
 
@@ -1184,10 +1307,9 @@ def cancel_amortization_entries(payment_doc):
             payment_doc.db_set('amortization_status', 'Not Started')
             frappe.msgprint(
                 _("Cancelled {0} amortization journal entries").format(cancelled_count),
-                indicator='orange',
-                alert=True
-            )
-            frappe.logger().info(f"Cancelled {cancelled_count} amortization entries for {payment_doc.name}")
+                indicator='orange', alert=True)
+            frappe.logger().info(
+                f"Cancelled {cancelled_count} amortization entries for {payment_doc.name}")
 
         return cancelled_count
 
@@ -1199,7 +1321,11 @@ def cancel_amortization_entries(payment_doc):
 
 @frappe.whitelist()
 def create_accounting_entries_from_ui(payment_name):
-    """Create accounting entries from UI button click"""
+    """
+    Create accounting entries from UI button click.
+    The controller's _accounting_entries_already_exist() guard prevents
+    duplication when on_submit has already created them.
+    """
     try:
         doc = frappe.get_doc('Payments', payment_name)
 
@@ -1210,8 +1336,9 @@ def create_accounting_entries_from_ui(payment_name):
         created_entries = controller.create_accounting_entries()
 
         if not created_entries:
-            frappe.msgprint(_("No accounting entries were created. Please check configuration."),
-                            indicator="orange")
+            frappe.msgprint(
+                _("No new accounting entries were created. Entries may already exist for this reference."),
+                indicator="orange")
             return None
 
         frappe.db.commit()
@@ -1370,7 +1497,8 @@ def get_bank_balance(bank_account):
         account = frappe.db.get_value('Bank Account', bank_account, 'account', cache=True)
 
         if not account:
-            currency = frappe.db.get_value('Bank Account', bank_account, 'account_currency', cache=True) or 'NGN'
+            currency = frappe.db.get_value(
+                'Bank Account', bank_account, 'account_currency', cache=True) or 'NGN'
             return {'balance': 0, 'currency': currency, 'formatted': fmt_money(0, currency=currency)}
 
         from erpnext.accounts.utils import get_balance_on

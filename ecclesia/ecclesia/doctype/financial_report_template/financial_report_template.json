@@ -1,8 +1,10 @@
 {
  "actions": [],
+ "allow_events_in_timeline": 1,
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:template_name",
- "creation": "2026-02-12 00:00:00.000000",
+ "creation": "2026-02-12 00:00:00",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -40,17 +42,17 @@
   {
    "fieldname": "basic_configuration_section",
    "fieldtype": "Section Break",
-   "label": "📊 Basic Configuration"
+   "label": "\ud83d\udcca Basic Configuration"
   },
   {
+   "description": "e.g., 'Standard P&L', 'IFRS Balance Sheet', 'Management Report'",
    "fieldname": "template_name",
    "fieldtype": "Data",
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Template Name",
    "reqd": 1,
-   "unique": 1,
-   "description": "e.g., 'Standard P&L', 'IFRS Balance Sheet', 'Management Report'"
+   "unique": 1
   },
   {
    "fieldname": "report_type",
@@ -63,10 +65,10 @@
   },
   {
    "default": "0",
+   "description": "Use this as default for this report type",
    "fieldname": "is_default",
    "fieldtype": "Check",
-   "label": "Default Template",
-   "description": "Use this as default for this report type"
+   "label": "Default Template"
   },
   {
    "default": "1",
@@ -85,10 +87,10 @@
    "label": "Description"
   },
   {
+   "description": "Title to display on report (e.g., 'Statement of Comprehensive Income')",
    "fieldname": "report_title",
    "fieldtype": "Data",
-   "label": "Report Title",
-   "description": "Title to display on report (e.g., 'Statement of Comprehensive Income')"
+   "label": "Report Title"
   },
   {
    "default": "1",
@@ -98,37 +100,37 @@
   },
   {
    "default": "0",
+   "description": "Allow optional budget vs actual comparison",
    "fieldname": "enable_budget_comparison",
    "fieldtype": "Check",
-   "label": "Enable Budget Comparison",
-   "description": "Allow optional budget vs actual comparison"
+   "label": "Enable Budget Comparison"
   },
   {
    "collapsible": 1,
    "fieldname": "column_definition_section",
    "fieldtype": "Section Break",
-   "label": "📊 Custom Column Definition"
+   "label": "\ud83d\udcca Custom Column Definition"
   },
   {
    "default": "0",
+   "description": "Enable to define your own columns (M1, M2, Q1, etc). When disabled, uses standard frequency-based columns",
    "fieldname": "use_column_definition",
    "fieldtype": "Check",
-   "label": "Use Custom Column Definition",
-   "description": "Enable to define your own columns (M1, M2, Q1, etc). When disabled, uses standard frequency-based columns"
+   "label": "Use Custom Column Definition"
   },
   {
+   "depends_on": "eval:doc.use_column_definition==1",
+   "description": "Define custom columns: M1 (Jan), Q1 (Q1), -M1 (Jan LY), M1_BUD (Jan Budget)",
    "fieldname": "report_columns",
    "fieldtype": "Table",
    "label": "Report Columns",
-   "options": "Financial Report Column",
-   "depends_on": "eval:doc.use_column_definition==1",
-   "description": "Define custom columns: M1 (Jan), Q1 (Q1), -M1 (Jan LY), M1_BUD (Jan Budget)"
+   "options": "Financial Report Column"
   },
   {
    "collapsible": 1,
    "fieldname": "excel_settings_section",
    "fieldtype": "Section Break",
-   "label": "📈 Excel Export Settings"
+   "label": "\ud83d\udcc8 Excel Export Settings"
   },
   {
    "default": "#4472C4",
@@ -188,10 +190,10 @@
   },
   {
    "default": "10",
+   "description": "Highlight variances above this percentage",
    "fieldname": "variance_threshold_highlight",
    "fieldtype": "Float",
-   "label": "Variance Threshold % for Highlight",
-   "description": "Highlight variances above this percentage"
+   "label": "Variance Threshold % for Highlight"
   },
   {
    "default": "#FF0000",
@@ -202,7 +204,7 @@
   {
    "fieldname": "report_lines_section",
    "fieldtype": "Section Break",
-   "label": "📝 Report Line Items"
+   "label": "\ud83d\udcdd Report Line Items"
   },
   {
    "fieldname": "report_lines",
@@ -214,7 +216,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-12 00:00:00.000000",
+ "modified": "2026-04-15 14:06:09.178254",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Financial Report Template",
@@ -254,7 +256,7 @@
    "share": 1
   }
  ],
- "quick_entry": 0,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

@@ -1,0 +1,199 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-04-15 07:02:15.579114",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "title",
+  "posting_date",
+  "bank_account",
+  "bank_account_no",
+  "column_break_1",
+  "company",
+  "status",
+  "column_break_2gsr",
+  "amended_from",
+  "user_remark",
+  "section_break_lines",
+  "transactions",
+  "section_break_totals",
+  "total_receipts",
+  "total_payments",
+  "column_break_totals",
+  "total_je_amount",
+  "net_movement",
+  "section_break_submit",
+  "submit_remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Series",
+   "options": "BTP-.YYYY.-\nBTP-{company:.4}-{bank_account:.5}-.YYYY.-",
+   "set_only_once": 1
+  },
+  {
+   "description": "e.g. 'GTBank October 2025 Transactions'",
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "description": "The bank account all transactions flow through",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "bank_account.bank_account_no",
+   "fieldname": "bank_account_no",
+   "fieldtype": "Data",
+   "label": "Bank Account No.",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Bank Transaction Processor",
+   "read_only": 1
+  },
+  {
+   "fieldname": "user_remark",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "section_break_lines",
+   "fieldtype": "Section Break",
+   "label": "Bank Transaction Lines"
+  },
+  {
+   "fieldname": "transactions",
+   "fieldtype": "Table",
+   "label": "Transactions",
+   "options": "Bank Transaction Line",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_totals",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "description": "Sum of all Payment Entry receipts + JE Credits to bank",
+   "fieldname": "total_receipts",
+   "fieldtype": "Currency",
+   "label": "Total Receipts (Inflow)",
+   "read_only": 1
+  },
+  {
+   "description": "Sum of all Payment Entry payments + JE Debits from bank",
+   "fieldname": "total_payments",
+   "fieldtype": "Currency",
+   "label": "Total Payments (Outflow)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_totals",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_je_amount",
+   "fieldtype": "Currency",
+   "label": "Total JE Amount",
+   "read_only": 1
+  },
+  {
+   "description": "Receipts minus Payments",
+   "fieldname": "net_movement",
+   "fieldtype": "Currency",
+   "label": "Net Movement",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_submit",
+   "fieldtype": "Section Break",
+   "label": "Submission"
+  },
+  {
+   "fieldname": "submit_remarks",
+   "fieldtype": "Small Text",
+   "label": "Submission Remarks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_2gsr",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-04-15 11:22:42.125714",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bank Transaction Processor",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

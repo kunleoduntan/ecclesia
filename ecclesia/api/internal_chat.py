@@ -392,13 +392,14 @@ def mark_as_read(chat_name: str):
 @frappe.whitelist()
 def broadcast_typing(chat_name: str, is_typing: bool):
     user = frappe.session.user
+    if isinstance(is_typing, str):
+        is_typing = is_typing.lower() in ("1", "true", "yes")
     frappe.publish_realtime("ic_typing", {
         "chat_name": chat_name,
         "user":      user,
         "user_name": frappe.db.get_value("User", user, "full_name") or user,
-        "is_typing": frappe.parse_json(is_typing) if isinstance(is_typing, str) else is_typing
+        "is_typing": is_typing
     })
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ONLINE STATUS
@@ -407,9 +408,10 @@ def broadcast_typing(chat_name: str, is_typing: bool):
 @frappe.whitelist()
 def set_online_status(online: bool):
     user = frappe.session.user
-    online = frappe.parse_json(online) if isinstance(online, str) else online
+    if isinstance(online, str):
+        online = online.lower() in ("1", "true", "yes")
     frappe.cache().set_value(f"ic_online:{user}", 1 if online else 0, expires_in_sec=60)
-    frappe.publish_realtime("ic_user_online", {"user": user, "online": online})
+    frappe.publish_realtime("ic_user_online", {"user": user, "online": bool(online)})
 
 
 @frappe.whitelist()

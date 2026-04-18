@@ -198,7 +198,7 @@ function export_excel(report) {
     }
 
     frappe.call({
-        method: "general.general_biz_apps.report.enterprise_payroll_report.enterprise_payroll_report.export_excel",
+        method: "ecclesia.ecclesia.report.enterprise_payroll_report.enterprise_payroll_report.export_excel",
         args: {
             filters: filters
         },

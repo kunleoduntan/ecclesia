@@ -147,7 +147,7 @@ function export_to_excel(report) {
     let filters = report.get_filter_values();
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.payments.payment_utils.export_payments_report',
+        method: 'ecclesia.ecclesia.doctype.payments.payment_utils.export_payments_report',
         args: {
             filters: filters
         },
@@ -188,7 +188,7 @@ function send_bulk_notifications(report) {
         primary_action_label: __('Send'),
         primary_action: function(values) {
             frappe.call({
-                method: 'general.general_biz_apps.doctype.payments.payment_utils.send_bulk_notifications',
+                method: 'ecclesia.ecclesia.doctype.payments.payment_utils.send_bulk_notifications',
                 args: {
                     payment_names: selected.map(x => x.name),
                     notification_type: values.notification_type,
