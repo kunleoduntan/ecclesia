@@ -1,3 +1,23 @@
 [build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ecclesia"
+authors = [
+    { name = "Your Name/Org", email = "you@example.com" }
+]
+description = "Ecclesia app for Frappe/ERPNext"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "pypika",
+    "twilio>=8.0.0",
+    "vonage",
+    "plivo",
+    "requests>=2.28.0",
+]
+
+[tool.setuptools]
+packages = ["ecclesia"]
