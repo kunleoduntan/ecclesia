@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-04-03 12:22:36.399881",
+ "creation": "2026-06-27 17:23:53.550817",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -38,7 +38,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Event",
-   "options": "GL Entry Created\nGL Entry Cancelled\nGL Entry Amended\nJournal Entry Submitted\nReconciliation Variance\nSuspense Account Used",
+   "options": "\nGL Entry Created\nGL Entry Cancelled\nGL Entry Amended\nJournal Entry Submitted\nReconciliation Variance\nSuspense Account Used",
    "reqd": 1
   },
   {
@@ -59,8 +59,7 @@
    "fieldname": "voucher_no",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Voucher No",
-   "options": "voucher_type"
+   "label": "Voucher No"
   },
   {
    "fieldname": "column_break_1",
@@ -139,7 +138,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-03 12:22:36.399881",
+ "modified": "2026-07-21 15:48:00.391933",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "GL Audit Log",

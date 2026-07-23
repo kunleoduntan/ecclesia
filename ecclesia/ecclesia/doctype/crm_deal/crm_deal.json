@@ -1,0 +1,336 @@
+{
+ "actions": [],
+ "allow_rename": 0,
+ "autoname": "CRM-DEAL-.YYYY.-.#####",
+ "creation": "2026-06-05 10:00:00",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "deal_title",
+  "account",
+  "contact",
+  "col_break_1",
+  "stage",
+  "pipeline",
+  "assigned_to",
+  "territory",
+  "section_fin",
+  "deal_value",
+  "currency",
+  "probability",
+  "col_break_2",
+  "close_date",
+  "actual_close_date",
+  "deal_source",
+  "section_ai",
+  "deal_health_score",
+  "last_activity_date",
+  "days_in_stage",
+  "col_break_3",
+  "stage_entered_date",
+  "ai_recommendation",
+  "section_dashboard",
+  "deal_dashboard_html",
+  "section_lost",
+  "lost_reason",
+  "lost_notes",
+  "section_ref",
+  "lead",
+  "section_activities",
+  "deal_activities",
+  "section_notes",
+  "deal_notes",
+  "section_stakeholders",
+  "deal_stakeholders",
+  "section_products",
+  "deal_products",
+  "section_history",
+  "stage_history",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "deal_title",
+   "fieldtype": "Data",
+   "label": "Deal Title",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "account",
+   "fieldtype": "Link",
+   "label": "Account",
+   "options": "CRM Account",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "contact",
+   "fieldtype": "Link",
+   "label": "Primary Contact",
+   "options": "CRM Contact"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "label": "Stage",
+   "reqd": 1,
+   "default": "Lead In",
+   "in_list_view": 1,
+   "options": "Lead In\nQualified\nProposal Sent\nNegotiation\nClosed Won\nClosed Lost"
+  },
+  {
+   "fieldname": "pipeline",
+   "fieldtype": "Link",
+   "label": "Pipeline",
+   "options": "CRM Pipeline"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To",
+   "options": "User",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "territory",
+   "fieldtype": "Link",
+   "label": "Territory",
+   "options": "CRM Territory"
+  },
+  {
+   "fieldname": "section_fin",
+   "fieldtype": "Section Break",
+   "label": "Deal Financials"
+  },
+  {
+   "fieldname": "deal_value",
+   "fieldtype": "Currency",
+   "label": "Deal Value (₦)",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "default": "NGN"
+  },
+  {
+   "fieldname": "probability",
+   "fieldtype": "Percent",
+   "label": "Probability %"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "close_date",
+   "fieldtype": "Date",
+   "label": "Expected Close Date"
+  },
+  {
+   "fieldname": "actual_close_date",
+   "fieldtype": "Date",
+   "label": "Actual Close Date"
+  },
+  {
+   "fieldname": "deal_source",
+   "fieldtype": "Link",
+   "label": "Source",
+   "options": "CRM Source"
+  },
+  {
+   "fieldname": "section_ai",
+   "fieldtype": "Section Break",
+   "label": "🤖 AI Intelligence"
+  },
+  {
+   "fieldname": "deal_health_score",
+   "fieldtype": "Int",
+   "label": "Deal Health Score",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_activity_date",
+   "fieldtype": "Date",
+   "label": "Last Activity Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_in_stage",
+   "fieldtype": "Int",
+   "label": "Days in Stage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "stage_entered_date",
+   "fieldtype": "Date",
+   "label": "Stage Entered Date"
+  },
+  {
+   "fieldname": "ai_recommendation",
+   "fieldtype": "Small Text",
+   "label": "AI Recommendation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_dashboard",
+   "fieldtype": "Section Break",
+   "label": "📊 Deal Dashboard"
+  },
+  {
+   "fieldname": "deal_dashboard_html",
+   "fieldtype": "HTML",
+   "label": "Deal Intelligence Dashboard"
+  },
+  {
+   "fieldname": "section_lost",
+   "fieldtype": "Section Break",
+   "label": "Lost Details",
+   "depends_on": "eval:doc.stage=='Closed Lost'"
+  },
+  {
+   "fieldname": "lost_reason",
+   "fieldtype": "Select",
+   "label": "Lost Reason",
+   "options": "\nPrice too high\nChose competitor\nBudget cut\nNo decision\nTiming\nProduct fit\nContact left\nOther"
+  },
+  {
+   "fieldname": "lost_notes",
+   "fieldtype": "Small Text",
+   "label": "Lost Notes"
+  },
+  {
+   "fieldname": "section_ref",
+   "fieldtype": "Section Break",
+   "label": "References"
+  },
+  {
+   "fieldname": "lead",
+   "fieldtype": "Link",
+   "label": "Source Lead",
+   "options": "CRM Lead"
+  },
+  {
+   "fieldname": "section_activities",
+   "fieldtype": "Section Break",
+   "label": "Activities"
+  },
+  {
+   "fieldname": "deal_activities",
+   "fieldtype": "Table",
+   "label": "Activities",
+   "options": "CRM Deal Activity"
+  },
+  {
+   "fieldname": "section_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "deal_notes",
+   "fieldtype": "Table",
+   "label": "Notes",
+   "options": "CRM Deal Note"
+  },
+  {
+   "fieldname": "section_stakeholders",
+   "fieldtype": "Section Break",
+   "label": "Stakeholders"
+  },
+  {
+   "fieldname": "deal_stakeholders",
+   "fieldtype": "Table",
+   "label": "Stakeholders",
+   "options": "CRM Deal Stakeholder"
+  },
+  {
+   "fieldname": "section_products",
+   "fieldtype": "Section Break",
+   "label": "Products"
+  },
+  {
+   "fieldname": "deal_products",
+   "fieldtype": "Table",
+   "label": "Products",
+   "options": "CRM Deal Product"
+  },
+  {
+   "fieldname": "section_history",
+   "fieldtype": "Section Break",
+   "label": "Stage History"
+  },
+  {
+   "fieldname": "stage_history",
+   "fieldtype": "Table",
+   "label": "Stage History",
+   "options": "CRM Stage History"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "CRM Deal",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "icon": "fa fa-handshake-o",
+ "idx": 0,
+ "in_create": 1,
+ "links": [],
+ "module": "Ecclesia",
+ "name": "CRM Deal",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Rep",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "deal_title",
+ "track_changes": 1
+}

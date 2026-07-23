@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-04-15 19:56:36.797956",
+ "creation": "2026-07-10 09:56:30.477311",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -19,12 +19,16 @@
   "exch_rate",
   "amount_in_fc",
   "transaction_currency",
+  "column_break_heyl",
   "reference_no",
   "mode_of_payment",
   "section_break_pe_detail",
   "payee_name",
+  "payee_account_no",
+  "payee_bank_name",
   "cost_center",
   "department",
+  "column_break_nzo8",
   "project",
   "project_name",
   "branch",
@@ -186,6 +190,10 @@
    "options": "Currency"
   },
   {
+   "fieldname": "column_break_heyl",
+   "fieldtype": "Column Break"
+  },
+  {
    "fieldname": "reference_no",
    "fieldtype": "Data",
    "in_filter": 1,
@@ -199,16 +207,39 @@
    "options": "Mode of Payment"
   },
   {
-   "depends_on": "eval:!in_list(['Payment','Receipt'], doc.trans_type)",
+   "depends_on": "eval:doc.trans_type && !in_list(['Receipt','Pending'], doc.trans_type)",
    "fieldname": "section_break_pe_detail",
    "fieldtype": "Section Break",
-   "label": "Party & Classification Details"
+   "label": "Payee & Classification Details"
   },
   {
+   "depends_on": "eval:doc.trans_type && !in_list(['Receipt','Pending'], doc.trans_type)",
    "fieldname": "payee_name",
    "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_preview": 1,
+   "in_standard_filter": 1,
    "label": "Payee / Payee Name",
-   "mandatory_depends_on": "eval:in_list(['Payment','Receipt'], doc.trans_type)"
+   "mandatory_depends_on": "eval:in_list(['Payment','Receipt'], doc.trans_type)",
+   "sticky": 1
+  },
+  {
+   "columns": 2,
+   "depends_on": "eval:doc.trans_type && !in_list(['Receipt','Pending'], doc.trans_type)",
+   "description": "10-digit NUBAN account number of the beneficiary. Required for bank payment file generation (Zenith ISO 20022, GTB, etc.)",
+   "fieldname": "payee_account_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payee Account No."
+  },
+  {
+   "columns": 2,
+   "depends_on": "eval:doc.trans_type && !in_list(['Receipt','Pending'], doc.trans_type)",
+   "description": "Bank name of the beneficiary (e.g. Zenith Bank, GTBank, Access Bank). Used to auto-lookup BIC/SWIFT for bank payment export.",
+   "fieldname": "payee_bank_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Payee Bank"
   },
   {
    "fieldname": "cost_center",
@@ -219,13 +250,18 @@
    "in_standard_filter": 1,
    "label": "Cost Center",
    "mandatory_depends_on": "eval:in_list(['Payment','Receipt'], doc.trans_type)",
-   "options": "Cost Center"
+   "options": "Cost Center",
+   "sticky": 1
   },
   {
    "fieldname": "department",
    "fieldtype": "Link",
    "label": "Department",
    "options": "Department"
+  },
+  {
+   "fieldname": "column_break_nzo8",
+   "fieldtype": "Column Break"
   },
   {
    "fieldname": "project",
@@ -430,7 +466,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-04-17 20:29:12.779606",
+ "modified": "2026-07-10 09:56:30.477311",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Bank Transaction Line",

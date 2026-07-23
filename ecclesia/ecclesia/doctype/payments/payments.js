@@ -1,10 +1,21 @@
 // -*- coding: utf-8 -*-
-// Copyright (c) 2025, Your Company
+// Copyright (c) 2026, kunle Oduntan and contributors
 // Payment Voucher Client Script
+//
+// NOTE ON WHITELISTED METHOD PATHS:
+// Confirmed working at ecclesia.ecclesia.doctype.payments.payments.<method>
+// (no module-folder segment, despite payments.json declaring
+// "module": "Ecclesia" (app and module share the same name here) — this
+// app's doctype folder for Payments sits
+// directly under ecclesia/ecclesia/doctype/, not under a module
+// subfolder). If this ever needs to change, every call in this file
+// references the single PAYMENTS_PY_PATH constant below.
+
+const PAYMENTS_PY_PATH = 'ecclesia.ecclesia.doctype.payments.payments';
 
 frappe.ui.form.on('Payments', {
     // ==================== Form Initialization ====================
-    
+
     onload: function(frm) {
         // Set default values
         if (frm.is_new()) {
@@ -12,84 +23,84 @@ frappe.ui.form.on('Payments', {
             frm.set_value('payment_status', 'Draft');
             frm.set_value('create_accounting_entries', 1);
         }
-        
+
         // Set field queries
         set_field_queries(frm);
-        
+
         // Setup custom buttons
         setup_custom_buttons(frm);
-        
+
         // Fetch company currency
         if (frm.doc.company) {
             get_company_currency(frm);
         }
-        
+
         // Apply UI enhancements
         apply_zebra_striping(frm);
         style_buttons(frm);
         apply_field_styling(frm);
-        
+
         // Initialize allocation summary
         if (frm.doc.payments_reference && frm.doc.payments_reference.length > 0) {
             update_allocation_summary(frm);
         }
     },
-    
+
     refresh: function(frm) {
         // Apply UI enhancements
         apply_zebra_striping(frm);
         style_buttons(frm);
         apply_field_styling(frm);
-        
+
         // Update field visibility
         toggle_field_visibility(frm);
-        
+
         // Show accounting entries if submitted
         if (frm.doc.docstatus === 1) {
             show_accounting_entries(frm);
         }
-        
+
         // Setup custom buttons
         setup_custom_buttons(frm);
-        
+
         // Add custom buttons based on status
         add_action_buttons(frm);
-        
+
         // Display allocation summary if supplier payment
         if (frm.doc.trans_type === 'Supplier Payment' && frm.doc.payments_reference) {
             display_allocation_summary(frm);
         }
-        
+
         // Update allocation summary in real-time
         if (frm.doc.payments_reference && frm.doc.payments_reference.length > 0) {
             update_allocation_summary(frm);
         }
     },
-    
+
     // ==================== Transaction Type Logic ====================
-    
+
     company: function(frm) {
         // Fetch company currency when company changes
         if (frm.doc.company) {
             get_company_currency(frm);
         }
     },
-    
+
     trans_type: function(frm) {
         // Clear dependent fields
         frm.set_value('payee_id', '');
         frm.set_value('payee_name', '');
         frm.set_value('account_to_debit', '');
-        
+
         // Show/hide fields based on transaction type
         toggle_field_visibility(frm);
-        
+
         // Set default accounts
         set_default_accounts(frm);
     },
-    
+
     // ==================== Party/Beneficiary Logic ====================
-    
+
     payee_id: function(frm) {
         if (frm.doc.payee_id) {
             // Fetch supplier details
@@ -107,7 +118,7 @@ frappe.ui.form.on('Payments', {
             });
         }
     },
-    
+
     customer_id: function(frm) {
         if (frm.doc.customer_id) {
             // Fetch customer details
@@ -125,29 +136,29 @@ frappe.ui.form.on('Payments', {
             });
         }
     },
-    
+
     // ==================== Currency & Exchange Logic ====================
-    
+
     payment_currency: function(frm) {
         // Set exchange rate
         if (frm.doc.payment_currency) {
-            let company_currency = frm.doc.__company_currency || 'NGN';
-            
+            let company_currency = frm.doc.company_currency || 'NGN';
+
             if (frm.doc.payment_currency === company_currency) {
                 frm.set_value('exchange_rate', 1);
             } else {
                 fetch_exchange_rate(frm);
             }
         }
-        
+
         // Toggle amount fields
         toggle_field_visibility(frm);
     },
-    
+
     exchange_rate: function(frm) {
         calculate_local_currency_amount(frm);
     },
-    
+
     remittance_bank: function(frm) {
         if (frm.doc.remittance_bank) {
             // Fetch bank account details
@@ -166,29 +177,29 @@ frappe.ui.form.on('Payments', {
             });
         }
     },
-    
+
     // ==================== Amount Calculations ====================
-    
+
     amount_paid: function(frm) {
-        let company_currency = frm.doc.__company_currency || 'NGN';
+        let company_currency = frm.doc.company_currency || 'NGN';
         if (frm.doc.payment_currency === company_currency) {
             frm.set_value('local_currency_amount', frm.doc.amount_paid);
             calculate_wht(frm);
             convert_amount_to_words(frm);
         }
     },
-    
+
     amount_paid_in_fc: function(frm) {
-        let company_currency = frm.doc.__company_currency || 'NGN';
+        let company_currency = frm.doc.company_currency || 'NGN';
         if (frm.doc.payment_currency !== company_currency) {
             calculate_local_currency_amount(frm);
             calculate_wht(frm);
             convert_amount_to_words(frm);
         }
     },
-    
+
     // ==================== WHT Calculation ====================
-    
+
     deduct_wht: function(frm) {
         if (frm.doc.deduct_wht) {
             // Set default WHT rate if not set
@@ -201,25 +212,25 @@ frappe.ui.form.on('Payments', {
             frm.set_value('net_amount', frm.doc.local_currency_amount);
         }
     },
-    
+
     whtax_rate: function(frm) {
         calculate_wht(frm);
     },
-    
+
     // ==================== Transaction Options ====================
-    
+
     is_multi_line: function(frm) {
         toggle_field_visibility(frm);
     },
-    
+
     is_shared_cost: function(frm) {
         toggle_field_visibility(frm);
     },
-    
+
     is_related_coy_trans: function(frm) {
         toggle_field_visibility(frm);
     },
-    
+
     amortize: function(frm) {
         if (frm.doc.amortize) {
             // Set default frequency
@@ -229,43 +240,43 @@ frappe.ui.form.on('Payments', {
         }
         toggle_field_visibility(frm);
     },
-    
+
     // ==================== Amortization Logic ====================
-    
+
     frequency: function(frm) {
         if (frm.doc.frequency && frm.doc.start_date && frm.doc.end_date) {
             calculate_amortization_schedule(frm);
         }
     },
-    
+
     start_date: function(frm) {
         if (frm.doc.start_date && frm.doc.end_date) {
             validate_dates(frm);
             calculate_amortization_schedule(frm);
         }
     },
-    
+
     end_date: function(frm) {
         if (frm.doc.start_date && frm.doc.end_date) {
             validate_dates(frm);
             calculate_amortization_schedule(frm);
         }
     },
-    
+
     no_of_days: function(frm) {
         if (frm.doc.no_of_days && frm.doc.local_currency_amount) {
             calculate_charge_per_period(frm);
         }
     },
-    
+
     // ==================== Button Handlers ====================
-    
+
     get_outstanding_invoices: function(frm) {
         if (!frm.doc.payee_id) {
             frappe.msgprint(__('Please select a Supplier first'));
             return;
         }
-        
+
         frappe.call({
             method: 'erpnext.accounts.doctype.payment_entry.payment_entry.get_outstanding_reference_documents',
             args: {
@@ -285,100 +296,95 @@ frappe.ui.form.on('Payments', {
             }
         });
     },
-    
+
     ai_smart_allocation: function(frm) {
         if (!frm.doc.payments_reference || frm.doc.payments_reference.length === 0) {
             frappe.msgprint(__('Please fetch outstanding invoices first'));
             return;
         }
-        
+
         if (!frm.doc.local_currency_amount || frm.doc.local_currency_amount <= 0) {
             frappe.msgprint(__('Please enter payment amount first'));
             return;
         }
-        
+
         perform_smart_allocation(frm);
     },
-    
+
     preview_allocation: function(frm) {
         if (!frm.doc.payments_reference || frm.doc.payments_reference.length === 0) {
             frappe.msgprint(__('No invoices to preview'));
             return;
         }
-        
+
         display_allocation_summary(frm);
     },
-    
+
     // ==================== Before Save ====================
-    
+
     before_save: function(frm) {
         // Validate required fields
         validate_payment_data(frm);
-        
+
         // Calculate totals
         calculate_all_totals(frm);
-        
+
         // Validate allocations
         if (frm.doc.trans_type === 'Supplier Payment') {
             validate_invoice_allocation(frm);
         }
-        
+
         // Validate multi-line totals
         if (frm.doc.is_multi_line) {
             validate_multi_line_totals(frm);
         }
-        
+
         // Validate shared cost distribution
         if (frm.doc.is_shared_cost) {
             validate_cost_distribution(frm);
         }
     },
-    
+
     // ==================== Before Submit ====================
-    
+
     before_submit: function(frm) {
         // Final validations
         if (frm.doc.create_accounting_entries) {
             if (!frm.doc.remittance_bank_gl) {
                 frappe.throw(__('Bank GL Account is required'));
             }
-            
-            if (frm.doc.trans_type === 'Expense Payment' && !frm.doc.account_to_debit) {
-                frappe.throw(__('Account to Debit is required for Expense Payment'));
-            }
+
+            // account_to_debit for Expense Payment is intentionally NOT
+            // enforced here — the server's before_submit hook will attempt
+            // auto-coding first and throw its own actionable message if
+            // that fails. Enforcing it here would pre-empt auto-coding.
         }
-        
+
         // Set payment status
         frm.set_value('payment_status', 'Processing');
     },
-    
+
     // ==================== On Submit ====================
-    
+
     on_submit: function(frm) {
         // Create accounting entries
         if (frm.doc.create_accounting_entries) {
             create_accounting_entries(frm);
         }
-        
-        // Update payment status
-        frappe.call({
-            method: 'frappe.client.set_value',
-            args: {
-                doctype: 'Payments',
-                name: frm.doc.name,
-                fieldname: 'payment_status',
-                value: 'Completed'
-            }
-        });
-        
+
+        // Payment status is authoritatively set server-side (before_submit
+        // sets 'Pending', on_submit sets 'Completed' after entries are
+        // created) — no redundant client-side frappe.client.set_value call
+        // needed here, avoids a race with the server-side db_set.
+
         frappe.show_alert({
             message: __('Payment submitted successfully'),
             indicator: 'green'
         }, 5);
     },
-    
+
     // ==================== On Cancel ====================
-    
+
     before_cancel: function(frm) {
         frappe.confirm(
             __('Are you sure you want to cancel this payment? All linked accounting entries will be cancelled.'),
@@ -388,7 +394,7 @@ frappe.ui.form.on('Payments', {
             }
         );
     },
-    
+
     on_cancel: function(frm) {
         frappe.show_alert({
             message: __('Payment cancelled successfully'),
@@ -402,25 +408,25 @@ frappe.ui.form.on('Payments', {
 frappe.ui.form.on('Payments Reference', {
     allocated_amount: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
-        
+
         // Validate allocated amount
         if (row.allocated_amount > row.outstanding_amount) {
             frappe.msgprint(__('Allocated amount cannot be greater than outstanding amount'));
             frappe.model.set_value(cdt, cdn, 'allocated_amount', row.outstanding_amount);
         }
-        
+
         // Calculate total allocated
         calculate_total_allocated(frm);
-        
+
         // Update allocation summary in real-time
         update_allocation_summary(frm);
     },
-    
+
     payments_reference_remove: function(frm) {
         calculate_total_allocated(frm);
         update_allocation_summary(frm);
     },
-    
+
     payments_reference_add: function(frm) {
         update_allocation_summary(frm);
     }
@@ -432,7 +438,7 @@ frappe.ui.form.on('Payments Item Line', {
     amount: function(frm, cdt, cdn) {
         calculate_multi_line_total(frm);
     },
-    
+
     exch_rate: function(frm, cdt, cdn) {
         let row = locals[cdt][cdn];
         if (row.amount && row.exch_rate) {
@@ -440,7 +446,7 @@ frappe.ui.form.on('Payments Item Line', {
         }
         calculate_multi_line_total(frm);
     },
-    
+
     payments_item_line_remove: function(frm) {
         calculate_multi_line_total(frm);
     }
@@ -452,7 +458,7 @@ frappe.ui.form.on('Cost Center Distribution', {
     distribution: function(frm) {
         calculate_total_distribution(frm);
     },
-    
+
     cost_center_distribution_remove: function(frm) {
         calculate_total_distribution(frm);
     }
@@ -468,7 +474,7 @@ frappe.ui.form.on('Related Company Payments', {
         }
         calculate_related_company_total(frm);
     },
-    
+
     related_company_payments_remove: function(frm) {
         calculate_related_company_total(frm);
     }
@@ -487,7 +493,7 @@ function apply_zebra_striping(frm) {
         'related_company_payments',
         'amortization_schedule'
     ];
-    
+
     tables.forEach(table => {
         if (frm.fields_dict[table]) {
             frm.fields_dict[table].grid.wrapper.find('.grid-row').each(function(i, row) {
@@ -512,7 +518,7 @@ function style_buttons(frm) {
             'transition': 'all 0.3s ease',
             'box-shadow': '0 4px 6px rgba(0,0,0,0.1)'
         });
-        
+
         frm.get_field('ai_smart_allocation').$input.hover(
             function() {
                 $(this).css({
@@ -528,7 +534,7 @@ function style_buttons(frm) {
             }
         );
     }
-    
+
     // Style Preview Allocation Button
     if (frm.fields_dict.preview_allocation) {
         frm.get_field('preview_allocation').$input.css({
@@ -543,7 +549,7 @@ function style_buttons(frm) {
             'transition': 'all 0.3s ease',
             'box-shadow': '0 4px 6px rgba(0,0,0,0.1)'
         });
-        
+
         frm.get_field('preview_allocation').$input.hover(
             function() {
                 $(this).css({
@@ -559,7 +565,7 @@ function style_buttons(frm) {
             }
         );
     }
-    
+
     // Style Get Outstanding Invoices Button
     if (frm.fields_dict.get_outstanding_invoices) {
         frm.get_field('get_outstanding_invoices').$input.css({
@@ -574,7 +580,7 @@ function style_buttons(frm) {
             'transition': 'all 0.3s ease',
             'box-shadow': '0 4px 6px rgba(0,0,0,0.1)'
         });
-        
+
         frm.get_field('get_outstanding_invoices').$input.hover(
             function() {
                 $(this).css({
@@ -612,7 +618,7 @@ function apply_field_styling(frm) {
         'whtax_rate': '#ffb3ba',
         'deduct_wht': '#bae1ff'
     };
-    
+
     Object.keys(field_colors).forEach(field => {
         if (frm.fields_dict[field]) {
             frm.get_field(field).$input.css('background-color', field_colors[field]);
@@ -629,24 +635,24 @@ function update_allocation_summary(frm) {
         }
         return;
     }
-    
+
     let total_allocated = 0;
     let total_outstanding = 0;
     let fully_paid_count = 0;
-    
+
     frm.doc.payments_reference.forEach(row => {
         total_allocated += flt(row.allocated_amount);
         total_outstanding += flt(row.outstanding_amount);
-        
+
         if (flt(row.allocated_amount) >= flt(row.outstanding_amount)) {
             fully_paid_count++;
         }
     });
-    
-    let amount_paid = frm.doc.local_currency_amount || frm.doc.amount_paid || 
+
+    let amount_paid = frm.doc.local_currency_amount || frm.doc.amount_paid ||
                      (frm.doc.amount_paid_in_fc * frm.doc.exchange_rate);
     let remaining = amount_paid - total_allocated;
-    
+
     let html = `
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; margin: 10px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
             <h4 style="margin: 0 0 15px 0; font-size: 18px; display: flex; align-items: center;">
@@ -684,28 +690,34 @@ function update_allocation_summary(frm) {
             `}
         </div>
     `;
-    
+
     if (frm.fields_dict.allocation_summary_html) {
         frm.fields_dict.allocation_summary_html.$wrapper.html(html);
     }
 }
 
 function get_company_currency(frm) {
-    if (frm.doc.company) {
-        frappe.db.get_value('Company', frm.doc.company, 'default_currency', function(r) {
-            if (r && r.default_currency) {
-                frm.doc.__company_currency = r.default_currency;
-                
-                // Set payment currency to company currency if not set
-                if (!frm.doc.payment_currency) {
-                    frm.set_value('payment_currency', r.default_currency);
-                }
-                
-                // Refresh field visibility
-                toggle_field_visibility(frm);
+    if (!frm.doc.company) return;
+
+    frappe.db.get_value('Company', frm.doc.company, 'default_currency', function(r) {
+        if (r && r.default_currency) {
+            // Write to the real 'company_currency' field (fetch_from
+            // company.default_currency in the DocType) rather than an
+            // informal frm.doc.__company_currency property, so both the
+            // client-side toggle logic below AND the server-side
+            // depends_on/mandatory_depends_on evals stay in sync off the
+            // same value.
+            frm.set_value('company_currency', r.default_currency);
+
+            // Set payment currency to company currency if not set
+            if (!frm.doc.payment_currency) {
+                frm.set_value('payment_currency', r.default_currency);
             }
-        });
-    }
+
+            // Refresh field visibility
+            toggle_field_visibility(frm);
+        }
+    });
 }
 
 function set_field_queries(frm) {
@@ -719,7 +731,7 @@ function set_field_queries(frm) {
             }
         };
     });
-    
+
     frm.set_query('wht_account', function() {
         return {
             filters: {
@@ -729,7 +741,7 @@ function set_field_queries(frm) {
             }
         };
     });
-    
+
     // Bank account filter
     frm.set_query('remittance_bank', function() {
         return {
@@ -739,7 +751,7 @@ function set_field_queries(frm) {
             }
         };
     });
-    
+
     // Supplier filter
     frm.set_query('payee_id', function() {
         return {
@@ -751,9 +763,10 @@ function set_field_queries(frm) {
 }
 
 function toggle_field_visibility(frm) {
-    // Get company currency dynamically
-    let company_currency = frm.doc.__company_currency || 'NGN';
-    
+    // Get company currency dynamically (from the fetched company_currency
+    // field — same value the server's depends_on evals compare against)
+    let company_currency = frm.doc.company_currency || 'NGN';
+
     // Currency amount fields
     let is_foreign = frm.doc.payment_currency !== company_currency;
     frm.toggle_display('amount_paid', !is_foreign);
@@ -761,34 +774,34 @@ function toggle_field_visibility(frm) {
     frm.toggle_display('exchange_rate', is_foreign);
     frm.toggle_reqd('amount_paid', !is_foreign);
     frm.toggle_reqd('amount_paid_in_fc', is_foreign);
-    
+
     // Transaction type specific fields
     let is_expense = frm.doc.trans_type === 'Expense Payment';
     let is_supplier = frm.doc.trans_type === 'Supplier Payment';
     let show_beneficiary = ['Expense Payment', 'Transfer Out'].includes(frm.doc.trans_type);
-    
+
     frm.toggle_display('payee_id', is_supplier);
     frm.toggle_display('payee_name', show_beneficiary);
     frm.toggle_display('account_to_debit', is_expense || frm.doc.trans_type === 'Transfer Out');
     frm.toggle_display('nature_of_expense', is_expense);
     frm.toggle_reqd('cost_center', is_expense);
-    
+
     // WHT fields
     frm.toggle_display('section_break_r9iee', frm.doc.deduct_wht);
     frm.toggle_reqd('wht_account', frm.doc.deduct_wht);
-    
+
     // Multi-line section
     frm.toggle_display('multi_line_transactions_section', frm.doc.is_multi_line);
-    
+
     // Shared cost section
     frm.toggle_display('cost_center_distribution_section', frm.doc.is_shared_cost);
-    
+
     // Related company section
     frm.toggle_display('related_company_transactions_section', frm.doc.is_related_coy_trans);
-    
+
     // Amortization section
     frm.toggle_display('amortization_tab', frm.doc.amortize);
-    
+
     // Supplier invoice tab
     frm.toggle_display('supplier_invoice_tab', is_supplier);
 }
@@ -804,7 +817,7 @@ function calculate_wht(frm) {
     if (frm.doc.deduct_wht && frm.doc.whtax_rate && frm.doc.local_currency_amount) {
         let wht_amount = (frm.doc.local_currency_amount * frm.doc.whtax_rate) / 100;
         let net_amount = frm.doc.local_currency_amount - wht_amount;
-        
+
         frm.set_value('wht_amount', wht_amount);
         frm.set_value('net_amount', net_amount);
     } else {
@@ -814,15 +827,14 @@ function calculate_wht(frm) {
 }
 
 function convert_amount_to_words(frm) {
-    // Amount in words is now handled by the Python backend
-    // The backend will automatically convert using frappe.utils.money_in_words
-    // No need to call from JS - it will be set during validation
+    // Amount in words is handled by the Python backend during validate()
+    // (frappe.utils.money_in_words) - nothing to compute here client-side.
     frm.refresh_field('amount_in_words');
 }
 
 function fetch_exchange_rate(frm) {
-    let company_currency = frm.doc.__company_currency || 'NGN';
-    
+    let company_currency = frm.doc.company_currency || 'NGN';
+
     if (frm.doc.payment_currency && frm.doc.transaction_date && frm.doc.payment_currency !== company_currency) {
         frappe.call({
             method: 'erpnext.setup.utils.get_exchange_rate',
@@ -866,9 +878,9 @@ function calculate_total_distribution(frm) {
         frm.doc.cost_center_distribution.forEach(function(row) {
             total += flt(row.distribution);
         });
-        
+
         frm.set_value('total_percentage', total);
-        
+
         if (total !== 100) {
             frappe.msgprint(__('Total distribution must equal 100%'));
         }
@@ -896,7 +908,7 @@ function calculate_all_totals(frm) {
 
 function populate_invoice_table(frm, invoices) {
     frm.clear_table('payments_reference');
-    
+
     invoices.forEach(function(invoice) {
         let row = frm.add_child('payments_reference');
         row.reference_doctype = invoice.voucher_type;
@@ -907,21 +919,21 @@ function populate_invoice_table(frm, invoices) {
         row.allocated_amount = 0;
         row.exchange_rate = invoice.exchange_rate || 1;
     });
-    
+
     frm.refresh_field('payments_reference');
 }
 
 function perform_smart_allocation(frm) {
     let available_amount = frm.doc.local_currency_amount;
     let remaining_amount = available_amount;
-    
+
     // Sort by due date (oldest first)
     let invoices = frm.doc.payments_reference.sort(function(a, b) {
         return new Date(a.due_date) - new Date(b.due_date);
     });
-    
+
     let invoices_matched = 0;
-    
+
     invoices.forEach(function(row) {
         if (remaining_amount > 0) {
             if (remaining_amount >= row.outstanding_amount) {
@@ -935,11 +947,11 @@ function perform_smart_allocation(frm) {
             }
         }
     });
-    
+
     frm.refresh_field('payments_reference');
     calculate_total_allocated(frm);
     update_allocation_summary(frm);
-    
+
     // Show enhanced success message
     let total_allocated = available_amount - remaining_amount;
     let message = `
@@ -967,7 +979,7 @@ function perform_smart_allocation(frm) {
             </table>
         </div>
     `;
-    
+
     frappe.msgprint({
         title: __('AI Smart Allocation Results'),
         message: message,
@@ -979,7 +991,7 @@ function display_allocation_summary(frm) {
     if (!frm.doc.payments_reference || frm.doc.payments_reference.length === 0) {
         return;
     }
-    
+
     let html = `
         <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px;">
@@ -1000,13 +1012,13 @@ function display_allocation_summary(frm) {
                     </thead>
                     <tbody>
     `;
-    
+
     frm.doc.payments_reference.forEach(function(row, index) {
         if (row.allocated_amount > 0) {
             let percentage = (row.allocated_amount / row.outstanding_amount) * 100;
             let status_color = percentage >= 100 ? '#51cf66' : percentage > 0 ? '#ffd43b' : '#868e96';
             let status_text = percentage >= 100 ? 'Fully Paid' : percentage > 0 ? 'Partial' : 'Unpaid';
-            
+
             html += `
                 <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8f9fa'};">
                     <td style="padding: 10px;">
@@ -1030,14 +1042,14 @@ function display_allocation_summary(frm) {
             `;
         }
     });
-    
+
     html += `
                     </tbody>
                 </table>
             </div>
         </div>
     `;
-    
+
     if (frm.get_field('allocation_summary_html')) {
         frm.get_field('allocation_summary_html').$wrapper.html(html);
     }
@@ -1045,7 +1057,7 @@ function display_allocation_summary(frm) {
 
 function validate_payment_data(frm) {
     // Validate amount
-    let company_currency = frm.doc.__company_currency || 'NGN';
+    let company_currency = frm.doc.company_currency || 'NGN';
     let amount = frm.doc.payment_currency === company_currency ? frm.doc.amount_paid : frm.doc.amount_paid_in_fc;
     if (!amount || amount <= 0) {
         frappe.throw(__('Payment amount must be greater than zero'));
@@ -1058,7 +1070,7 @@ function validate_invoice_allocation(frm) {
         frm.doc.payments_reference.forEach(function(row) {
             total_allocated += flt(row.allocated_amount);
         });
-        
+
         if (total_allocated > frm.doc.local_currency_amount) {
             frappe.throw(__('Total allocated amount cannot exceed payment amount'));
         }
@@ -1100,9 +1112,9 @@ function calculate_amortization_schedule(frm) {
     if (!frm.doc.frequency || !frm.doc.start_date || !frm.doc.end_date || !frm.doc.local_currency_amount) {
         return;
     }
-    
+
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.payments.payments.generate_amortization_schedule',
+        method: `${PAYMENTS_PY_PATH}.generate_amortization_schedule`,
         args: {
             start_date: frm.doc.start_date,
             end_date: frm.doc.end_date,
@@ -1126,7 +1138,7 @@ function calculate_amortization_schedule(frm) {
 
 function create_accounting_entries(frm) {
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.payments.payments.create_accounting_entries_from_ui',
+        method: `${PAYMENTS_PY_PATH}.create_accounting_entries_from_ui`,
         args: {
             payment_name: frm.doc.name
         },
@@ -1145,7 +1157,7 @@ function create_accounting_entries(frm) {
 
 function cancel_accounting_entries(frm) {
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.payments.payments.cancel_accounting_entries_from_ui',
+        method: `${PAYMENTS_PY_PATH}.cancel_accounting_entries_from_ui`,
         args: {
             payment_name: frm.doc.name
         },
@@ -1163,7 +1175,7 @@ function cancel_accounting_entries(frm) {
 
 function show_accounting_entries(frm) {
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.payments.payments.get_linked_accounting_entries',
+        method: `${PAYMENTS_PY_PATH}.get_linked_accounting_entries`,
         args: {
             payment_name: frm.doc.name
         },
@@ -1171,7 +1183,7 @@ function show_accounting_entries(frm) {
             if (r.message) {
                 let html = generate_accounting_entries_html(r.message);
                 frm.get_field('accounting_entries_html').$wrapper.html(html);
-                
+
                 let links_html = generate_linked_documents_html(r.message);
                 frm.get_field('linked_documents_html').$wrapper.html(links_html);
             }
@@ -1182,7 +1194,7 @@ function show_accounting_entries(frm) {
 function generate_accounting_entries_html(data) {
     let html = '<div class="table-responsive"><table class="table table-bordered">';
     html += '<thead><tr><th>Type</th><th>Document</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>';
-    
+
     if (data.journal_entries) {
         data.journal_entries.forEach(function(je) {
             html += '<tr>';
@@ -1194,7 +1206,7 @@ function generate_accounting_entries_html(data) {
             html += '</tr>';
         });
     }
-    
+
     if (data.payment_entries) {
         data.payment_entries.forEach(function(pe) {
             html += '<tr>';
@@ -1206,7 +1218,19 @@ function generate_accounting_entries_html(data) {
             html += '</tr>';
         });
     }
-    
+
+    if (data.amortization_entries) {
+        data.amortization_entries.forEach(function(ae) {
+            html += '<tr>';
+            html += '<td>Amortization JE</td>';
+            html += '<td><a href="/app/journal-entry/' + ae.name + '">' + ae.name + '</a></td>';
+            html += '<td>' + frappe.datetime.str_to_user(ae.posting_date) + '</td>';
+            html += '<td>' + format_currency(ae.total_debit) + '</td>';
+            html += '<td>' + get_status_indicator(ae.docstatus) + '</td>';
+            html += '</tr>';
+        });
+    }
+
     html += '</tbody></table></div>';
     return html;
 }
@@ -1214,13 +1238,19 @@ function generate_accounting_entries_html(data) {
 function generate_linked_documents_html(data) {
     let html = '<div class="alert alert-info">';
     html += '<strong>Linked Documents:</strong><br>';
-    
-    let total_entries = (data.journal_entries ? data.journal_entries.length : 0) + 
-                       (data.payment_entries ? data.payment_entries.length : 0);
-    
+
+    let total_entries = (data.journal_entries ? data.journal_entries.length : 0) +
+                       (data.payment_entries ? data.payment_entries.length : 0) +
+                       (data.amortization_entries ? data.amortization_entries.length : 0);
+
     html += 'Total Accounting Entries: ' + total_entries;
+
+    if (data.purchase_invoices && data.purchase_invoices.length > 0) {
+        html += '<br>Linked Purchase Invoices: ' + data.purchase_invoices.length;
+    }
+
     html += '</div>';
-    
+
     return html;
 }
 
@@ -1236,11 +1266,22 @@ function get_status_indicator(docstatus) {
 
 function setup_custom_buttons(frm) {
     if (frm.doc.docstatus === 1 && frm.doc.create_accounting_entries) {
-        frm.add_custom_button(__('View Accounting Entries'), function() {
-            show_accounting_entries(frm);
-        });
+        // Since on_submit() now REQUIRES accounting entries to exist before
+        // a payment is allowed to submit at all, this button's main job
+        // going forward is recovery: any payment submitted before this
+        // guarantee was added may still have docstatus=1 with nothing
+        // actually posted. Safe to click even when entries already exist —
+        // create_accounting_entries_from_ui() just reports "already exist"
+        // and does nothing further in that case.
+        frm.add_custom_button(__(get_create_entry_button_label(frm.doc.trans_type)), function() {
+            create_accounting_entries(frm);
+        }, __('Accounting'));
+
+        frm.add_custom_button(__('View Journal / Payment Entry'), function() {
+            view_created_accounting_entries(frm);
+        }, __('Accounting'));
     }
-    
+
     if (frm.doc.docstatus === 0 && frm.doc.amortize) {
         frm.add_custom_button(__('Generate Schedule'), function() {
             calculate_amortization_schedule(frm);
@@ -1248,11 +1289,70 @@ function setup_custom_buttons(frm) {
     }
 }
 
+function get_create_entry_button_label(trans_type) {
+    if (trans_type === 'Supplier Payment') return 'Create Payment Entry';
+    if (['Expense Payment', 'Transfer Out', 'Supplier Refunds'].includes(trans_type)) {
+        return 'Create Journal Entry';
+    }
+    return 'Create Accounting Entries';
+}
+
+function view_created_accounting_entries(frm) {
+    frappe.call({
+        method: `${PAYMENTS_PY_PATH}.get_linked_accounting_entries`,
+        args: { payment_name: frm.doc.name },
+        callback: function(r) {
+            if (!r.message) return;
+
+            let entries = [
+                ...(r.message.journal_entries || []).map(e => ({ ...e, doctype: 'Journal Entry' })),
+                ...(r.message.payment_entries || []).map(e => ({
+                    ...e, doctype: 'Payment Entry', total_debit: e.paid_amount
+                }))
+            ];
+
+            if (entries.length === 0) {
+                frappe.msgprint({
+                    title: __('No Entries Yet'),
+                    message: __('No Journal Entry or Payment Entry has been created for this payment yet. Use "{0}" to create one.', [get_create_entry_button_label(frm.doc.trans_type)]),
+                    indicator: 'orange'
+                });
+                return;
+            }
+
+            if (entries.length === 1) {
+                frappe.set_route('Form', entries[0].doctype, entries[0].name);
+                return;
+            }
+
+            // Multiple entries (e.g. related-company payments post one JE
+            // per row) — show a quick picker rather than guessing which one
+            // the user wants.
+            let html = '<div class="list-group">';
+            entries.forEach(e => {
+                let route = frappe.router.slug(e.doctype);
+                html += `
+                    <a class="list-group-item" href="/app/${route}/${e.name}" style="display:block; padding:10px; border:1px solid #d1d8dd; border-radius:4px; margin-bottom:6px;">
+                        <strong>${e.doctype}</strong>: ${e.name}
+                        <span style="float:right;">${format_currency(e.total_debit || 0)}</span>
+                    </a>`;
+            });
+            html += '</div>';
+
+            frappe.msgprint({
+                title: __('Accounting Entries for {0}', [frm.doc.name]),
+                message: html,
+                indicator: 'blue'
+            });
+        }
+    });
+}
+
 function add_action_buttons(frm) {
     if (frm.doc.docstatus === 1) {
         // Add print button
         frm.page.set_inner_btn_group_as_primary(__('Print'));
-        
+
         // Add email button
         frm.page.add_inner_button(__('Send Email'), function() {
             frappe.utils.send_email(frm);
@@ -1269,4 +1369,3 @@ function set_default_accounts(frm) {
         });
     }
 }
-

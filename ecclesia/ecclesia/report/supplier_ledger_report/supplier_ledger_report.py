@@ -1,8 +1,6 @@
 # Copyright (c) 2026, Kunle Oduntan and contributors
 # For license information, please see license.txt
 
-
-
 import frappe
 from frappe import _
 from frappe.utils import flt, getdate, today
@@ -141,13 +139,18 @@ def get_data(filters):
         supplier_entries[supplier].append(entry)
 
     final_data = []
+    
+    # Grand total accumulators
+    grand_total_debit = 0
+    grand_total_credit = 0
+    grand_total_balance = 0
 
     for supplier, entries in supplier_entries.items():
         meta = supplier_meta[supplier]
         currency = meta.get('currency', 'NGN')
         supplier_name = meta.get('supplier_name', supplier)
 
-        # ── HEADER ROW ──────────────────────────────────────────────
+        # HEADER ROW
         opening_balance = get_opening_balance(supplier, filters)
 
         final_data.append({
@@ -166,15 +169,15 @@ def get_data(filters):
             "bold": 1,
         })
 
-        # ── TRANSACTION ROWS ─────────────────────────────────────────
+        # TRANSACTION ROWS
         running_balance = opening_balance
-        total_debit = 0
-        total_credit = 0
+        supplier_total_debit = 0
+        supplier_total_credit = 0
 
         for entry in entries:
             running_balance += flt(entry.get('debit')) - flt(entry.get('credit'))
-            total_debit += flt(entry.get('debit'))
-            total_credit += flt(entry.get('credit'))
+            supplier_total_debit += flt(entry.get('debit'))
+            supplier_total_credit += flt(entry.get('credit'))
 
             final_data.append({
                 "posting_date": entry.get('posting_date'),
@@ -191,7 +194,12 @@ def get_data(filters):
                 "indent": 1,
             })
 
-        # ── SUBTOTAL ROW ─────────────────────────────────────────────
+        # Add to grand totals
+        grand_total_debit += supplier_total_debit
+        grand_total_credit += supplier_total_credit
+        grand_total_balance += running_balance
+
+        # SUBTOTAL ROW
         final_data.append({
             "posting_date": "",
             "supplier": supplier,
@@ -200,16 +208,33 @@ def get_data(filters):
             "voucher_no": "",
             "against_voucher": "",
             "description": "Closing Balance",
-            "debit": total_debit,
-            "credit": total_credit,
+            "debit": supplier_total_debit,
+            "credit": supplier_total_credit,
             "balance": running_balance,
             "currency": currency,
             "is_total_row": True,
             "bold": 1,
         })
 
-        # ── SPACER ROW ───────────────────────────────────────────────
+        # SPACER ROW
         final_data.append({})
+
+    # GRAND TOTAL ROW
+    final_data.append({
+        "posting_date": "",
+        "supplier": "",
+        "supplier_name": "═══════════════════════════════════════════════════════════════════════════════════════════════════",
+        "voucher_type": "",
+        "voucher_no": "",
+        "against_voucher": "",
+        "description": "GRAND TOTAL (All Suppliers)",
+        "debit": grand_total_debit,
+        "credit": grand_total_credit,
+        "balance": grand_total_balance,
+        "currency": "NGN",
+        "is_grand_total": True,
+        "bold": 1,
+    })
 
     return final_data
 
@@ -257,34 +282,32 @@ def get_summary(data):
     
     total_debit = 0
     total_credit = 0
-    final_balance = 0
+    grand_balance = 0
     
-    for row in reversed(data):
-        if row and row.get('balance') is not None and row.get('is_total_row'):
-            final_balance = row.get('balance')
-            break
-    
+    # Find the grand total row
     for row in data:
-        if row and not row.get('is_total_row') and not row.get('is_header_row'):
-            total_debit += flt(row.get('debit'))
-            total_credit += flt(row.get('credit'))
+        if row and row.get('is_grand_total'):
+            total_debit = flt(row.get('debit'))
+            total_credit = flt(row.get('credit'))
+            grand_balance = flt(row.get('balance'))
+            break
     
     return [
         {
             "value": total_debit,
-            "label": "Total Debit",
+            "label": "Grand Total Debit",
             "datatype": "Currency",
             "currency": "NGN"
         },
         {
             "value": total_credit,
-            "label": "Total Credit",
+            "label": "Grand Total Credit",
             "datatype": "Currency",
             "currency": "NGN"
         },
         {
-            "value": final_balance,
-            "label": "Outstanding Balance",
+            "value": grand_balance,
+            "label": "Grand Outstanding Balance",
             "datatype": "Currency",
             "currency": "NGN"
         }
@@ -294,7 +317,7 @@ def get_summary(data):
 @frappe.whitelist()
 def download_excel(filters=None):
     """
-    Beautifully formatted Excel export for Supplier Ledger
+    Beautifully formatted Excel export for Supplier Ledger with Grand Total
     """
     import re
     import io
@@ -320,27 +343,28 @@ def download_excel(filters=None):
     # Indices of currency columns (0-based)
     currency_idx = {i for i, ft in enumerate(col_types) if ft == "Currency"}
 
-    # ── Create Workbook ────────────────────────────────────────────
+    # Create Workbook
     wb = Workbook()
     ws = wb.active
     ws.title = "Supplier Ledger"
 
-    # ── Color Palette (Supplier theme - Purple/Burgundy) ───────────
+    # Color Palette (Supplier theme - Purple/Burgundy)
     colors = {
-        'dark_purple': '4A235A',      # Supplier header
-        'medium_purple': '6C3483',     # Column headers
-        'light_purple': 'F5EEF8',      # Subtotal background
-        'light_gray': 'F8F9F9',        # Alternate row background
+        'dark_purple': '4A235A',
+        'medium_purple': '6C3483',
+        'light_purple': 'F5EEF8',
+        'light_gray': 'F8F9F9',
         'white': 'FFFFFF',
-        'debit_brown': '8B4513',       # Debit amounts
-        'credit_green': '1E7E34',      # Credit amounts
-        'positive_balance': '117A65',   # Positive balance (credit balance)
-        'negative_balance': 'B03A2E',   # Negative balance (debit balance)
+        'debit_brown': '8B4513',
+        'credit_green': '1E7E34',
+        'positive_balance': '117A65',
+        'negative_balance': 'B03A2E',
         'border_gray': 'D5D8DC',
-        'title_bg': 'FBFCFC'
+        'title_bg': 'FBFCFC',
+        'grand_total_gold': '7D3C98',
+        'grand_total_bg': 'F4ECF7'
     }
 
-    # ── Styles ─────────────────────────────────────────────────────
     def get_fill(hex_color):
         return PatternFill("solid", fgColor=hex_color)
 
@@ -356,22 +380,20 @@ def download_excel(filters=None):
         right=Side(style='thin', color='9B59B6')
     )
 
-    # Excel number format for currency
     NUM_FMT = '#,##0.00'
 
-    # ── Set Column Widths ──────────────────────────────────────────
+    # Set Column Widths
     col_widths = [13, 15, 30, 16, 22, 22, 40, 17, 17, 17]
     for i, width in enumerate(col_widths[:num_cols], start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
 
-    # ── Helper: Clean HTML ─────────────────────────────────────────
     def clean_html(value):
         if isinstance(value, str):
             value = re.sub(r'<[^>]+>', '', value)
-            value = value.replace('&nbsp;', ' ').replace('—', '-').strip()
+            value = value.replace('&nbsp;', ' ').replace('\u2014', '-').strip()
         return value if value is not None else ''
 
-    # ── Title Block (Rows 1-5) ─────────────────────────────────────
+    # Title Block
     company = filters.get('company', '')
     from_date = filters.get('from_date', '')
     to_date = filters.get('to_date', '')
@@ -382,7 +404,7 @@ def download_excel(filters=None):
         (f'Company: {company}', Font(size=11, color='444444'), 20),
         (f'Period: {from_date} to {to_date}', Font(size=11, color='444444'), 20),
         (f'Generated: {generated_on}', Font(italic=True, size=10, color='666666'), 18),
-        ('', None, 8)  # Spacer
+        ('', None, 8)
     ]
 
     for text, font, height in title_rows:
@@ -397,7 +419,7 @@ def download_excel(filters=None):
         cell.alignment = Alignment(horizontal='left', vertical='center', indent=1)
         ws.row_dimensions[row].height = height
 
-    # ── Column Headers ─────────────────────────────────────────────
+    # Column Headers
     ws.append(col_labels)
     header_row = ws.max_row
     for col_idx, cell in enumerate(ws[header_row], start=1):
@@ -411,7 +433,7 @@ def download_excel(filters=None):
     ws.row_dimensions[header_row].height = 26
     ws.freeze_panes = f'A{header_row + 1}'
 
-    # ── Data Rows ──────────────────────────────────────────────────
+    # Data Rows
     current_row = header_row + 1
     row_counter = 0
 
@@ -423,8 +445,8 @@ def download_excel(filters=None):
 
         is_header = row_data.get('is_header_row')
         is_total = row_data.get('is_total_row')
+        is_grand_total = row_data.get('is_grand_total')
 
-        # Build row values - keep numbers as floats for currency columns
         excel_row = []
         for idx, field in enumerate(col_fields):
             val = row_data.get(field)
@@ -436,12 +458,11 @@ def download_excel(filters=None):
         ws.append(excel_row)
         current_row = ws.max_row
 
-        # ── Supplier Header Row ────────────────────────────────────
+        # Supplier Header Row
         if is_header:
-            # Merge all cells for supplier name
-            ws.merge_cells(start_row=current_row, start_column=1, 
+            ws.merge_cells(start_row=current_row, start_column=1,
                           end_row=current_row, end_column=num_cols)
-            
+
             supplier_text = f"  ⬤  {row_data.get('supplier_name', '')}  [{row_data.get('supplier', '')}]"
             cell = ws.cell(row=current_row, column=1)
             cell.value = supplier_text
@@ -450,16 +471,14 @@ def download_excel(filters=None):
             cell.alignment = Alignment(horizontal='left', vertical='center', indent=1)
             ws.row_dimensions[current_row].height = 24
 
-            # Add opening balance if exists
             opening_bal = row_data.get('balance')
             if opening_bal:
                 ws.unmerge_cells(start_row=current_row, start_column=1,
                                 end_row=current_row, end_column=num_cols)
-                # Re-merge all except last column for opening balance
                 if num_cols > 1:
                     ws.merge_cells(start_row=current_row, start_column=1,
                                   end_row=current_row, end_column=num_cols - 1)
-                
+
                 bal_cell = ws.cell(row=current_row, column=num_cols)
                 bal_cell.value = flt(opening_bal)
                 bal_cell.number_format = NUM_FMT
@@ -467,10 +486,10 @@ def download_excel(filters=None):
                 bal_cell.fill = get_fill(colors['dark_purple'])
                 bal_cell.alignment = Alignment(horizontal='right', vertical='center')
 
-        # ── Subtotal Row ───────────────────────────────────────────
+        # Subtotal Row
         elif is_total:
             ws.row_dimensions[current_row].height = 22
-            
+
             for col_idx in range(1, num_cols + 1):
                 cell = ws.cell(row=current_row, column=col_idx)
                 cell.fill = get_fill(colors['light_purple'])
@@ -478,61 +497,107 @@ def download_excel(filters=None):
                     top=Side(style='medium', color=colors['medium_purple']),
                     bottom=Side(style='thin', color=colors['border_gray'])
                 )
-                
+
                 field = col_fields[col_idx - 1]
-                
+
                 if field == 'supplier_name':
                     cell.font = Font(bold=True, color=colors['dark_purple'], size=11)
                     cell.alignment = Alignment(horizontal='left', vertical='center', indent=1)
-                
+
                 elif field == 'description':
                     cell.font = Font(bold=True, color='555555', size=10)
                     cell.alignment = Alignment(horizontal='left', vertical='center')
-                
+
                 elif field == 'debit':
                     cell.number_format = NUM_FMT
                     cell.font = Font(bold=True, color=colors['debit_brown'], size=11)
                     cell.alignment = Alignment(horizontal='right', vertical='center')
-                
+
                 elif field == 'credit':
                     cell.number_format = NUM_FMT
                     cell.font = Font(bold=True, color=colors['credit_green'], size=11)
                     cell.alignment = Alignment(horizontal='right', vertical='center')
-                
+
                 elif field == 'balance':
                     balance = flt(row_data.get('balance'))
                     cell.number_format = NUM_FMT
-                    # For suppliers, credit balance is positive (we owe them)
                     balance_color = colors['positive_balance'] if balance > 0 else \
                                    colors['negative_balance'] if balance < 0 else '1E7E34'
                     cell.font = Font(bold=True, color=balance_color, size=11)
                     cell.alignment = Alignment(horizontal='right', vertical='center')
-                
+
                 elif (col_idx - 1) in currency_idx:
                     cell.number_format = NUM_FMT
                     cell.font = Font(bold=True, size=11)
                     cell.alignment = Alignment(horizontal='right', vertical='center')
 
-        # ── Normal Transaction Row ─────────────────────────────────
-        else:
-            # Alternate row colors
-            if row_counter % 2 == 0:
-                row_fill = get_fill(colors['light_gray'])
-            else:
-                row_fill = get_fill(colors['white'])
+        # Grand Total Row
+        elif is_grand_total:
+            ws.row_dimensions[current_row].height = 28
             
+            # Merge cells for better visual appearance
+            if num_cols > 1:
+                ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
+                ws.merge_cells(start_row=current_row, start_column=3, end_row=current_row, end_column=6)
+            
+            for col_idx in range(1, num_cols + 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.fill = get_fill(colors['grand_total_bg'])
+                cell.border = Border(
+                    top=Side(style='double', color=colors['grand_total_gold']),
+                    bottom=Side(style='double', color=colors['grand_total_gold']),
+                    left=Side(style='thin', color=colors['border_gray']),
+                    right=Side(style='thin', color=colors['border_gray'])
+                )
+                
+                field = col_fields[col_idx - 1]
+                
+                if field == 'supplier_name':
+                    cell.font = Font(bold=True, color=colors['grand_total_gold'], size=12)
+                    cell.alignment = Alignment(horizontal='left', vertical='center', indent=1)
+                
+                elif field == 'description':
+                    cell.font = Font(bold=True, color=colors['grand_total_gold'], size=12)
+                    cell.alignment = Alignment(horizontal='left', vertical='center')
+                
+                elif field == 'debit':
+                    cell.number_format = NUM_FMT
+                    cell.font = Font(bold=True, color=colors['debit_brown'], size=12)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+                
+                elif field == 'credit':
+                    cell.number_format = NUM_FMT
+                    cell.font = Font(bold=True, color=colors['credit_green'], size=12)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+                
+                elif field == 'balance':
+                    balance = flt(row_data.get('balance'))
+                    cell.number_format = NUM_FMT
+                    balance_color = colors['positive_balance'] if balance > 0 else \
+                                   colors['negative_balance'] if balance < 0 else colors['dark_purple']
+                    cell.font = Font(bold=True, color=balance_color, size=13)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+                
+                elif (col_idx - 1) in currency_idx:
+                    cell.number_format = NUM_FMT
+                    cell.font = Font(bold=True, size=12)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+
+        # Normal Transaction Row
+        else:
+            row_fill = get_fill(colors['light_gray']) if row_counter % 2 == 0 else get_fill(colors['white'])
+
             for col_idx in range(1, num_cols + 1):
                 cell = ws.cell(row=current_row, column=col_idx)
                 cell.fill = row_fill
                 cell.border = thin_border
-                
+
                 field = col_fields[col_idx - 1]
-                
+
                 if (col_idx - 1) in currency_idx:
                     cell.number_format = NUM_FMT
                     cell.alignment = Alignment(horizontal='right', vertical='center')
-                    
-                    # Color code amounts
+
                     if field == 'debit' and flt(row_data.get('debit')) > 0:
                         cell.font = Font(color=colors['debit_brown'], size=10)
                     elif field == 'credit' and flt(row_data.get('credit')) > 0:
@@ -550,77 +615,26 @@ def download_excel(filters=None):
                 else:
                     cell.font = Font(size=10)
                     cell.alignment = Alignment(
-                        horizontal='left', 
+                        horizontal='left',
                         vertical='center',
                         wrap_text=(field == 'description')
                     )
 
         row_counter += 1
 
-    # ── Add Grand Total Row at the end ─────────────────────────────
-    if data:
-        # Calculate grand totals
-        grand_debit = 0
-        grand_credit = 0
-        grand_balance = 0
-        
-        for row in data:
-            if row and not row.get('is_header_row') and not row.get('is_total_row'):
-                grand_debit += flt(row.get('debit'))
-                grand_credit += flt(row.get('credit'))
-            if row and row.get('is_total_row'):
-                grand_balance = flt(row.get('balance'))
-
-        # Add spacer
-        ws.append([''] * num_cols)
-        ws.row_dimensions[ws.max_row].height = 8
-
-        # Add grand total row
-        grand_row = [''] * num_cols
-        grand_row[0] = 'GRAND TOTAL'
-        grand_row[6] = 'Overall Totals'
-        grand_row[7] = grand_debit
-        grand_row[8] = grand_credit
-        grand_row[9] = grand_balance
-
-        ws.append(grand_row)
-        total_row = ws.max_row
-
-        for col_idx in range(1, num_cols + 1):
-            cell = ws.cell(row=total_row, column=col_idx)
-            cell.font = Font(bold=True, size=11, color=colors['dark_purple'])
-            cell.fill = get_fill('F4ECF7')
-            cell.border = Border(
-                top=Side(style='double', color=colors['dark_purple']),
-                bottom=Side(style='double', color=colors['dark_purple'])
-            )
-            
-            if (col_idx - 1) in currency_idx:
-                cell.number_format = NUM_FMT
-                cell.alignment = Alignment(horizontal='right', vertical='center')
-            else:
-                cell.alignment = Alignment(horizontal='left', vertical='center')
-
-        # Merge first two cells for grand total label
-        if num_cols > 1:
-            ws.merge_cells(start_row=total_row, start_column=1, 
-                          end_row=total_row, end_column=2)
-
-    # ── Page Setup ─────────────────────────────────────────────────
+    # Page Setup
     ws.page_setup.orientation = 'landscape'
     ws.page_setup.fitToPage = True
     ws.page_setup.fitToWidth = 1
     ws.page_setup.fitToHeight = 0
-    
     ws.print_options.gridLines = False
     ws.print_title_rows = f'1:{header_row}'
 
-    # ── Save to BytesIO ────────────────────────────────────────────
+    # Save and return
     output = io.BytesIO()
     wb.save(output)
     output.seek(0)
 
-    # ── Return file ────────────────────────────────────────────────
     frappe.response['filename'] = f'Supplier_Ledger_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
     frappe.response['filecontent'] = output.getvalue()
     frappe.response['type'] = 'binary'

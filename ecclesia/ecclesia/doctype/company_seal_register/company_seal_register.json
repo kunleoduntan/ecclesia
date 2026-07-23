@@ -1,0 +1,194 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SEAL-.YYYY.-.#####",
+ "creation": "2026-07-16 09:36:52.831445",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "seal_request_title",
+  "company",
+  "seal_number",
+  "status",
+  "amended_from",
+  "details_tab",
+  "requested_by",
+  "request_date",
+  "purpose",
+  "document_reference",
+  "cb_seal",
+  "approved_by",
+  "approval_date",
+  "used_by",
+  "date_used",
+  "witness_tab",
+  "witness_1",
+  "witness_2",
+  "documents_tab",
+  "document_attachment",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "fieldname": "seal_request_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Purpose / Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "seal_number",
+   "fieldtype": "Data",
+   "label": "Company Seal Number (if multiple)"
+  },
+  {
+   "default": "Requested",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Requested\nApproved\nUsed\nRejected"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Company Seal Register",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Request & Approval"
+  },
+  {
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "label": "Requested By",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "request_date",
+   "fieldtype": "Date",
+   "label": "Request Date"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_reference",
+   "fieldtype": "Link",
+   "label": "Related Document",
+   "options": "Corporate Document"
+  },
+  {
+   "fieldname": "cb_seal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Approval Date"
+  },
+  {
+   "fieldname": "used_by",
+   "fieldtype": "Link",
+   "label": "Used By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "date_used",
+   "fieldtype": "Date",
+   "label": "Date Used"
+  },
+  {
+   "fieldname": "witness_tab",
+   "fieldtype": "Tab Break",
+   "label": "Witnesses"
+  },
+  {
+   "fieldname": "witness_1",
+   "fieldtype": "Link",
+   "label": "Witness 1",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "witness_2",
+   "fieldtype": "Link",
+   "label": "Witness 2",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "document_attachment",
+   "fieldtype": "Attach",
+   "label": "Sealed Document"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-16 09:36:52.831445",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Company Seal Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

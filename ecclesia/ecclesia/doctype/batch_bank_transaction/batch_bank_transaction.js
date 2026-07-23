@@ -1071,7 +1071,7 @@ function show_import_dialog(frm) {
             show_loading(frm, 'Importing transactions...');
             
             frappe.call({
-                method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.import_transactions',
+                method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.import_transactions',
                 args: {
                     file_url: values.file_url,
                     has_header: values.has_header
@@ -1110,7 +1110,7 @@ function export_to_excel(frm) {
     show_loading(frm, 'Generating Excel report...');
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.export_to_excel',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.export_to_excel',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1137,7 +1137,7 @@ function get_ai_suggestions(frm) {
     }
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.get_ai_suggestions',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.get_ai_suggestions',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1270,7 +1270,7 @@ function auto_categorize_transaction(frm, row, cdt, cdn) {
     if (!row.remark) return;
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.auto_categorize_transaction',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.auto_categorize_transaction',
         args: { remark: row.remark },
         callback: function(r) {
             if (r.message && r.message.account) {
@@ -1292,7 +1292,7 @@ function reconcile_batch(frm) {
     }
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.reconcile_batch',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.reconcile_batch',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             if (r.message) {
@@ -1366,7 +1366,7 @@ function get_bank_balance(frm) {
     if (!frm.doc.bank_account) return;
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.get_bank_balance',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.get_bank_balance',
         args: {
             bank_account: frm.doc.bank_account,
             as_on_date: frm.doc.batch_date
@@ -1438,7 +1438,7 @@ function show_bulk_update_dialog(frm) {
             show_loading(frm, 'Applying bulk update...');
             
             frappe.call({
-                method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.bulk_update_cost_center',
+                method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.bulk_update_cost_center',
                 args: {
                     doc_name: frm.doc.name,
                     cost_center: values.cost_center
@@ -1475,7 +1475,7 @@ function generate_batch_report(frm) {
     show_loading(frm, 'Generating batch report...');
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.generate_batch_report',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.generate_batch_report',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1981,6 +1981,30 @@ window.apply_optimization = function(action) {
 
 frappe.ui.form.on("Batch Bank Transaction", {
     refresh(frm) {
+        // ── Bank Payment buttons — shown on submitted docs only ──────────────
+        if (frm.doc.docstatus === 1) {
+            frm.add_custom_button(__('📥 Download Payment File'), () => {
+                _bbt_dialog(frm, 'download');
+            }, __('🏦 Bank Payment'));
+
+            frm.add_custom_button(__('🚀 Send to Bank'), () => {
+                _bbt_dialog(frm, 'send');
+            }, __('🏦 Bank Payment'));
+
+            frm.add_custom_button(__('📎 Attach to Document'), () => {
+                _bbt_attach_dialog(frm);
+            }, __('🏦 Bank Payment'));
+
+            frm.add_custom_button(__('📧 Email Payment File'), () => {
+                _bbt_email_dialog(frm);
+            }, __('🏦 Bank Payment'));
+
+            frm.add_custom_button(__('📡 Check Send Status'), () => {
+                _bbt_status_dialog(frm);
+            }, __('🏦 Bank Payment'));
+        }
+
+        // ── Existing: Set Party & Cost Center ────────────────────────────────
         frm.add_custom_button(__('Set Party & Cost Center'), function () {
 
             if (!frm.doc.company) {
@@ -2125,4 +2149,444 @@ function set_account_or_company_cost_center(d, company_cost_center) {
     } else {
         set_cost_center(d, company_cost_center);
     }
+}
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  🏦 BANK PAYMENT — Batch Bank Transaction helpers
+//  Fields used from Payment Gateway Settings:
+//    sftp_host, sftp_port, sftp_username, sftp_password, sftp_path  → SFTP channel
+//    secret_key (Password)                                           → Paystack / Flutterwave / Squad
+//    bank_export_format, bank_bic_code                               → file format
+// ══════════════════════════════════════════════════════════════════════════════
+
+const _BBT = {
+    export:   'ecclesia.api.bank_payment_export.generate_batch_payment_file',
+    send:     'ecclesia.api.bank_send_api.send_batch_payment',
+    channels: 'ecclesia.api.bank_send_api.get_send_channels',
+    status:   'ecclesia.api.bank_send_api.check_payment_status',
+    formats:  'ecclesia.api.bank_payment_export.get_supported_formats',
+    attach:   'ecclesia.api.bank_payment_export.attach_payment_file_to_doc',
+    email:    'ecclesia.api.bank_payment_export.email_payment_file',
+    files:    'ecclesia.api.bank_payment_export.get_attached_payment_files',
+};
+
+function _bbt_dialog(frm, mode) {
+    const isSend   = mode === 'send';
+    const rowCount = (frm.doc.transaction_entry || []).length;
+    const total    = (frm.doc.total_outflow || 0) + (frm.doc.total_inflow || 0);
+
+    Promise.all([
+        frappe.db.get_list('Payment Gateway Settings', {
+            filters: { enabled: 1, company: frm.doc.company },
+            fields: ['name', 'provider', 'bank_export_format'],
+            limit: 20,
+        }),
+        frappe.call({ method: _BBT.formats }),
+    ]).then(([gateways, fmtRes]) => {
+        const formats    = fmtRes.message || [];
+        const fmtOpts    = formats.map(f => f.key).join('\n');
+        const defaultFmt = (gateways[0] || {}).bank_export_format || 'zenith_iso20022';
+
+        const summaryHtml = `
+            <div style="background:#EFF6FF;border-left:4px solid #3B82F6;
+                        padding:11px 15px;border-radius:7px;margin-bottom:6px;font-size:12px">
+                <div style="font-weight:700;color:#1E40AF;margin-bottom:4px">
+                    📋 ${frm.doc.name} &nbsp;·&nbsp; ${frm.doc.company || ''}
+                </div>
+                <div style="display:flex;gap:20px;color:#1D4ED8">
+                    <span>💳 <b>${rowCount}</b> transactions</span>
+                    <span>📅 ${frm.doc.batch_date || ''}</span>
+                    <span>💰 <b>₦${total.toLocaleString()}</b></span>
+                </div>
+            </div>`;
+
+        const fields = [
+            { fieldtype: 'HTML', options: summaryHtml },
+            {
+                fieldname: 'bank_format', fieldtype: 'Select',
+                label: 'Bank Format', options: fmtOpts,
+                reqd: 1, default: defaultFmt,
+                description: 'Zenith: ISO 20022 · GTB/Access/UBA/FBN: CSV · EU: SEPA XML · US: NACHA · International: SWIFT MT103',
+            },
+            {
+                fieldtype: 'HTML',
+                options: `<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:11px;margin-top:-4px">
+                    <b style="color:#475569">Format keys:</b>
+                    <div style="display:grid;grid-template-columns:140px 1fr;gap:1px 8px;margin-top:4px;color:#64748B;line-height:1.7">
+                      <span style="font-family:monospace;color:#1E40AF">zenith_iso20022</span><span>Zenith Bank Nigeria — ISO 20022 pain.001 CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">gtb_csv</span><span>GTBank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">access_csv</span><span>Access Bank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">uba_csv</span><span>UBA Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">firstbank_csv</span><span>First Bank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">sepa_xml</span><span>SEPA Credit Transfer XML — EU banks</span>
+                      <span style="font-family:monospace;color:#1E40AF">bacs_csv</span><span>BACS Direct Credit — UK</span>
+                      <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
+                      <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
+                    </div>
+                </div>`,
+            },
+        ];
+
+        if (isSend) {
+            fields.push(
+                {
+                    fieldname: 'gateway_name', fieldtype: 'Link',
+                    label: 'Payment Gateway', options: 'Payment Gateway Settings',
+                    reqd: 1, default: (gateways[0] || {}).name || '',
+                    description: 'SFTP: requires sftp_host + sftp_username + sftp_password | REST APIs: requires secret_key',
+                },
+                {
+                    fieldname: 'send_channel', fieldtype: 'Select',
+                    label: 'Send Channel',
+                    options: [
+                        'sftp_upload:📡 SFTP Upload — direct to bank file server',
+                        'paystack_bulk:💳 Paystack Bulk Transfer API',
+                        'flutterwave_bulk:🦋 Flutterwave Bulk Transfer API',
+                        'squad_bulk:🏦 Squad (GTBank) Bulk Transfer API',
+                        'manual_download:📥 Manual Download — upload to portal yourself',
+                    ].join('\n'),
+                    reqd: 1, default: 'sftp_upload',
+                },
+                {
+                    fieldtype: 'HTML',
+                    options: `<div style="background:#FFFBEB;border-left:4px solid #F59E0B;
+                              padding:9px 14px;border-radius:6px;font-size:11px;color:#92400E;margin-top:4px">
+                        ⚠️ <b>This initiates actual bank transfers.</b><br>
+                        SFTP — set <b>SFTP Host</b>, <b>SFTP Username</b>, <b>SFTP Password</b> and <b>SFTP Remote Path</b>
+                        in the Payment Gateway Settings record.<br>
+                        REST APIs (Paystack / Flutterwave / Squad) — set <b>Secret Key</b> in API Credentials section.
+                    </div>`,
+                }
+            );
+        }
+
+        const d = new frappe.ui.Dialog({
+            title:   isSend ? '🚀 Send Payment Batch to Bank' : '📥 Download Bank Payment File',
+            size:    'large',
+            fields,
+            primary_action_label: isSend ? '🚀 Send Now' : '📥 Download',
+            primary_action(vals) {
+                d.hide();
+                isSend ? _bbt_do_send(frm, vals) : _bbt_do_download(frm, vals.bank_format);
+            },
+        });
+
+        // Reload channels when gateway selection changes
+        if (isSend && d.fields_dict.gateway_name) {
+            d.fields_dict.gateway_name.df.change = function() {
+                const gw = d.get_value('gateway_name');
+                if (!gw) return;
+                frappe.call({
+                    method: _BBT.channels,
+                    args: { gateway_name: gw },
+                    callback: r => {
+                        const opts = (r.message || []).map(c => `${c.key}:${c.label}`).join('\n');
+                        d.fields_dict.send_channel.df.options = opts;
+                        d.fields_dict.send_channel.refresh();
+                    }
+                });
+            };
+        }
+
+        d.show();
+    });
+}
+
+function _bbt_do_download(frm, bank_format) {
+    frappe.call({
+        method: _BBT.export,
+        args:   { payment_batch: frm.doc.name, bank_format },
+        freeze: true, freeze_message: `Generating ${bank_format} file…`,
+        callback(r) {
+            const res = r.message || {};
+            if (res.success) {
+                _bbt_save_file(res);
+                frappe.show_alert({
+                    message: `✅ ${res.file_name} · ${res.row_count} rows · ₦${(res.total_amount || 0).toLocaleString()}`,
+                    indicator: 'green',
+                }, 7);
+            } else {
+                frappe.msgprint({ title: '❌ Export Failed', message: res.error || 'Unknown error', indicator: 'red' });
+            }
+        },
+    });
+}
+
+function _bbt_do_send(frm, vals) {
+    const freeze_msgs = {
+        sftp_upload:      '📡 Uploading to bank SFTP server…',
+        paystack_bulk:    '💳 Initiating Paystack bulk transfer…',
+        flutterwave_bulk: '🦋 Initiating Flutterwave bulk transfer…',
+        squad_bulk:       '🏦 Initiating Squad bulk transfer…',
+        manual_download:  '📥 Preparing file for download…',
+    };
+    frappe.call({
+        method: _BBT.send,
+        args: {
+            payment_batch: frm.doc.name,
+            send_channel:  vals.send_channel,
+            gateway_name:  vals.gateway_name,
+        },
+        freeze: true,
+        freeze_message: freeze_msgs[vals.send_channel] || 'Sending…',
+        callback(r) {
+            const res = r.message || {};
+            if (res.success) {
+                if (res.channel === 'manual_download' && res.file_data) _bbt_save_file(res);
+                _bbt_show_success(frm, res, vals);
+            } else {
+                _bbt_show_error(res);
+            }
+        },
+    });
+}
+
+function _bbt_status_dialog(frm) {
+    frappe.db.get_list('Payment Gateway Settings', {
+        filters: { enabled: 1, company: frm.doc.company },
+        fields: ['name', 'provider'],
+        limit: 20,
+    }).then(gateways => {
+        new frappe.ui.Dialog({
+            title: '📡 Check Payment Send Status',
+            fields: [
+                {
+                    fieldname: 'gateway_name', fieldtype: 'Select', label: 'Payment Gateway',
+                    options: gateways.map(g => g.name).join('\n'), reqd: 1,
+                    default: (gateways[0] || {}).name || '',
+                },
+                {
+                    fieldname: 'batch_reference', fieldtype: 'Data',
+                    label: 'Batch / Transfer Reference', reqd: 1,
+                    description: 'Reference returned when the payment was sent',
+                },
+            ],
+            primary_action_label: '📡 Check',
+            primary_action(vals) {
+                this.hide();
+                frappe.call({
+                    method: _BBT.status,
+                    args: { gateway_name: vals.gateway_name, batch_reference: vals.batch_reference },
+                    freeze: true, freeze_message: 'Querying status…',
+                    callback(r) {
+                        const res = r.message || {};
+                        const col = { success:'green', failed:'red', pending:'blue' }[res.status] || 'blue';
+                        frappe.msgprint({
+                            title: `📡 Status: ${(res.status || 'unknown').toUpperCase()}`,
+                            message: `
+                                <div style="font-size:12px;margin-bottom:8px;line-height:1.8">
+                                    <b>Provider:</b> ${res.provider || vals.gateway_name}<br>
+                                    <b>Reference:</b> ${res.reference || vals.batch_reference}<br>
+                                    <b>Status:</b> ${res.status || 'unknown'}
+                                </div>
+                                <pre style="font-size:10px;background:#F8FAFC;padding:8px;border-radius:6px;
+                                     max-height:220px;overflow:auto">${JSON.stringify(res.details || {}, null, 2)}</pre>`,
+                            indicator: col,
+                        });
+                    },
+                });
+            },
+        }).show();
+    });
+}
+
+function _bbt_show_success(frm, res, vals) {
+    const ref = res.reference || res.batch_code || '';
+    frappe.msgprint({
+        title: '✅ Payment Sent',
+        message: `
+            <div style="font-size:13px;line-height:2">
+                <b>${res.message || 'Transfer initiated'}</b><br>
+                Transactions: <b>${res.row_count || 0}</b><br>
+                Total: <b>₦${(res.total_amount || 0).toLocaleString()}</b>
+                ${ref ? `<div style="margin-top:6px;padding:5px 10px;background:#F1F5F9;
+                          border-radius:5px;font-family:monospace;font-size:11px">
+                          Reference: <b>${ref}</b></div>` : ''}
+                ${res.remote_path ? `<div style="font-size:11px;color:#64748B;margin-top:4px">
+                    SFTP path: <code>${res.remote_path}</code></div>` : ''}
+            </div>`,
+        indicator: 'green',
+    });
+    // Store reference for audit trail
+    if (ref) {
+        frappe.call({
+            method: 'frappe.client.set_value',
+            args: {
+                doctype: 'Batch Bank Transaction', name: frm.doc.name,
+                fieldname: 'remark',
+                value: `Bank send: ${ref} via ${vals.send_channel} · ${frappe.datetime.now_datetime()}`,
+            },
+            callback: () => frm.reload_doc(),
+        });
+    }
+}
+
+function _bbt_show_error(res) {
+    frappe.msgprint({
+        title: '❌ Send Failed',
+        message: `<b style="color:#DC2626">${res.error || 'Unknown error'}</b>
+            <div style="margin-top:10px;font-size:11px;color:#64748B;line-height:1.8">
+                <b>Troubleshooting:</b><br>
+                📡 <b>SFTP:</b> Check SFTP Host, SFTP Username, SFTP Password and SFTP Remote Path
+                in the Payment Gateway Settings record.<br>
+                💳 <b>Paystack / Flutterwave / Squad:</b> Check Secret Key in API Credentials section.
+                Ensure account is live (disable Sandbox / Test Mode) and has transfer permissions.<br>
+                ✅ <b>All channels:</b> Batch Bank Transaction must be submitted (docstatus = 1).
+            </div>`,
+        indicator: 'red',
+    });
+}
+
+function _bbt_save_file(res) {
+    const fname = res.file_name || 'BankPayment.csv';
+    const ext   = fname.split('.').pop().toLowerCase();
+    const mime  = ext === 'xml' ? 'application/xml' : ext === 'txt' ? 'text/plain' : 'text/csv';
+    const a = document.createElement('a');
+    a.href = `data:${mime};base64,${res.file_data}`;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+
+// ── Attach to Document ────────────────────────────────────────────────────────
+
+function _bbt_attach_dialog(frm) {
+    frappe.call({ method: _BBT.formats, callback: r => {
+        const formats = (r.message || []);
+        const fmtOpts = formats.map(f => f.key).join('\n');
+        const rowCount = (frm.doc.transaction_entry || []).length;
+        const total    = (frm.doc.total_outflow || 0) + (frm.doc.total_inflow || 0);
+
+        new frappe.ui.Dialog({
+            title: '📎 Attach Bank Payment File to Document',
+            fields: [
+                { fieldtype: 'HTML', options: `
+                    <div style="background:#EFF6FF;border-left:4px solid #3B82F6;padding:10px 14px;border-radius:7px;margin-bottom:6px;font-size:12px;color:#1E40AF">
+                        <b>${frm.doc.name}</b> · ${rowCount} transactions · ₦${total.toLocaleString()}<br>
+                        The file will be saved as an attachment on this Batch Bank Transaction
+                        and will appear in the Attachments panel.
+                    </div>` },
+                { fieldname: 'bank_format', fieldtype: 'Select', label: 'Bank Format',
+                  options: fmtOpts, reqd: 1, default: 'zenith_iso20022' },
+            {
+                fieldtype: 'HTML',
+                options: `<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:11px;margin-top:-4px">
+                    <b style="color:#475569">Format keys:</b>
+                    <div style="display:grid;grid-template-columns:140px 1fr;gap:1px 8px;margin-top:4px;color:#64748B;line-height:1.7">
+                      <span style="font-family:monospace;color:#1E40AF">zenith_iso20022</span><span>Zenith Bank Nigeria — ISO 20022 pain.001 CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">gtb_csv</span><span>GTBank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">access_csv</span><span>Access Bank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">uba_csv</span><span>UBA Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">firstbank_csv</span><span>First Bank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">sepa_xml</span><span>SEPA Credit Transfer XML — EU banks</span>
+                      <span style="font-family:monospace;color:#1E40AF">bacs_csv</span><span>BACS Direct Credit — UK</span>
+                      <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
+                      <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
+                    </div>
+                </div>`,
+            },
+            ],
+            primary_action_label: '📎 Generate & Attach',
+            primary_action(vals) {
+                this.hide();
+                frappe.call({
+                    method: _BBT.attach,
+                    args: { source_doctype: 'Batch Bank Transaction', source_name: frm.doc.name, bank_format: (vals.bank_format || '').split(':')[0] },
+                    freeze: true, freeze_message: 'Generating and attaching payment file…',
+                    callback(r) {
+                        const res = r.message || {};
+                        if (res.success) {
+                            frm.reload_doc();
+                            frappe.show_alert({
+                                message: `📎 Attached: <a href="${res.file_url}" target="_blank">${res.file_name}</a> · ${res.row_count} rows · ₦${(res.total_amount||0).toLocaleString()}`,
+                                indicator: 'green'
+                            }, 8);
+                        } else {
+                            frappe.msgprint({ title: '❌ Attach Failed', message: r.exc || 'Unknown error', indicator: 'red' });
+                        }
+                    }
+                });
+            }
+        }).show();
+    }});
+}
+
+// ── Email Payment File ────────────────────────────────────────────────────────
+
+function _bbt_email_dialog(frm) {
+    frappe.call({ method: _BBT.formats, callback: r => {
+        const formats = (r.message || []);
+        const fmtOpts = formats.map(f => f.key).join('\n');
+        const rowCount = (frm.doc.transaction_entry || []).length;
+        const total    = (frm.doc.total_outflow || 0) + (frm.doc.total_inflow || 0);
+
+        new frappe.ui.Dialog({
+            title: '📧 Email Bank Payment File',
+            size: 'large',
+            fields: [
+                { fieldtype: 'HTML', options: `
+                    <div style="background:#EFF6FF;border-left:4px solid #3B82F6;padding:10px 14px;border-radius:7px;margin-bottom:6px;font-size:12px;color:#1E40AF">
+                        <b>${frm.doc.name}</b> · ${rowCount} transactions · ₦${total.toLocaleString()}<br>
+                        The file will be generated and emailed as an attachment.
+                    </div>` },
+                { fieldname: 'bank_format', fieldtype: 'Select', label: 'Bank Format',
+                  options: fmtOpts, reqd: 1, default: 'zenith_iso20022' },
+            {
+                fieldtype: 'HTML',
+                options: `<div style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:6px;padding:8px 12px;font-size:11px;margin-top:-4px">
+                    <b style="color:#475569">Format keys:</b>
+                    <div style="display:grid;grid-template-columns:140px 1fr;gap:1px 8px;margin-top:4px;color:#64748B;line-height:1.7">
+                      <span style="font-family:monospace;color:#1E40AF">zenith_iso20022</span><span>Zenith Bank Nigeria — ISO 20022 pain.001 CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">gtb_csv</span><span>GTBank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">access_csv</span><span>Access Bank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">uba_csv</span><span>UBA Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">firstbank_csv</span><span>First Bank Nigeria — CSV</span>
+                      <span style="font-family:monospace;color:#1E40AF">sepa_xml</span><span>SEPA Credit Transfer XML — EU banks</span>
+                      <span style="font-family:monospace;color:#1E40AF">bacs_csv</span><span>BACS Direct Credit — UK</span>
+                      <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
+                      <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
+                    </div>
+                </div>`,
+            },
+                { fieldname: 'recipients', fieldtype: 'Data', label: 'Recipients (comma-separated)',
+                  reqd: 1, default: frappe.session.user,
+                  description: 'e.g. treasury@company.com, payments@zenithbank.com' },
+                { fieldname: 'subject', fieldtype: 'Data', label: 'Subject',
+                  default: `Bank Payment File — ${frm.doc.name}` },
+                { fieldname: 'message', fieldtype: 'Small Text', label: 'Message (optional)',
+                  description: 'Leave blank for auto-generated message' },
+            ],
+            primary_action_label: '📧 Send Email',
+            primary_action(vals) {
+                this.hide();
+                frappe.call({
+                    method: _BBT.email,
+                    args: {
+                        source_doctype: 'Batch Bank Transaction',
+                        source_name:    frm.doc.name,
+                        bank_format:    (vals.bank_format || '').split(':')[0],
+                        recipients:     vals.recipients,
+                        subject:        vals.subject,
+                        message:        vals.message || null,
+                    },
+                    freeze: true, freeze_message: 'Generating file and sending email…',
+                    callback(r) {
+                        const res = r.message || {};
+                        if (res.success) {
+                            frm.reload_doc();
+                            frappe.show_alert({
+                                message: `📧 Sent: ${res.file_name} to ${(res.recipients||[]).join(', ')} · ${res.row_count} rows`,
+                                indicator: 'green'
+                            }, 8);
+                        } else {
+                            frappe.msgprint({ title: '❌ Email Failed', message: r.exc || 'Unknown error', indicator: 'red' });
+                        }
+                    }
+                });
+            }
+        }).show();
+    }});
 }

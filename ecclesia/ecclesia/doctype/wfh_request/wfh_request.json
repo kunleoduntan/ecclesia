@@ -1,0 +1,190 @@
+{
+  "actions": [],
+  "autoname": "format:WFH-REQ-{YYYY}-{#####}",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "document_type": "Document",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "employee", "employee_name", "department", "designation", "column_break_1",
+    "from_date", "to_date", "total_days", "work_mode", "section_break_deliverables",
+    "expected_deliverables", "reason", "section_break_approval",
+    "status", "approver", "approved_on", "rejection_reason",
+    "section_break_meta", "amended_from"
+  ],
+  "fields": [
+    {
+      "fieldname": "employee",
+      "fieldtype": "Link",
+      "label": "Employee",
+      "options": "Employee",
+      "reqd": 1,
+      "in_list_view": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "employee_name",
+      "fieldtype": "Data",
+      "label": "Employee Name",
+      "fetch_from": "employee.employee_name",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "department",
+      "fieldtype": "Link",
+      "label": "Department",
+      "options": "Department",
+      "fetch_from": "employee.department",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "designation",
+      "fieldtype": "Link",
+      "label": "Designation",
+      "options": "Designation",
+      "fetch_from": "employee.designation",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "from_date",
+      "fieldtype": "Date",
+      "label": "From Date",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "to_date",
+      "fieldtype": "Date",
+      "label": "To Date",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "total_days",
+      "fieldtype": "Int",
+      "label": "Total Days",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "work_mode",
+      "fieldtype": "Select",
+      "label": "Work Mode",
+      "options": "\nFully Remote\nHybrid",
+      "default": "Fully Remote",
+      "reqd": 1
+    },
+    {
+      "fieldname": "section_break_deliverables",
+      "fieldtype": "Section Break",
+      "label": "Deliverables & Reason"
+    },
+    {
+      "fieldname": "expected_deliverables",
+      "fieldtype": "Small Text",
+      "label": "Expected Deliverables",
+      "description": "Briefly describe what you plan to deliver during this WFH period"
+    },
+    {
+      "fieldname": "reason",
+      "fieldtype": "Small Text",
+      "label": "Reason",
+      "reqd": 1
+    },
+    {
+      "fieldname": "section_break_approval",
+      "fieldtype": "Section Break",
+      "label": "Approval"
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Draft\nPending Approval\nApproved\nRejected\nCancelled",
+      "default": "Draft",
+      "read_only": 1,
+      "in_list_view": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "approver",
+      "fieldtype": "Link",
+      "label": "Approver",
+      "options": "User"
+    },
+    {
+      "fieldname": "approved_on",
+      "fieldtype": "Datetime",
+      "label": "Approved / Rejected On",
+      "read_only": 1
+    },
+    {
+      "fieldname": "rejection_reason",
+      "fieldtype": "Small Text",
+      "label": "Rejection Reason",
+      "depends_on": "eval:doc.status=='Rejected'"
+    },
+    {
+      "fieldname": "section_break_meta",
+      "fieldtype": "Section Break"
+    },
+    {
+      "fieldname": "amended_from",
+      "fieldtype": "Link",
+      "label": "Amended From",
+      "options": "WFH Request",
+      "print_hide": 1,
+      "read_only": 1,
+      "no_copy": 1
+    }
+  ],
+  "is_submittable": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Ecclesia",
+  "name": "WFH Request",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1, "delete": 0, "email": 1, "export": 1,
+      "print": 1, "read": 1, "report": 1, "role": "Employee",
+      "share": 1, "submit": 0, "write": 1
+    },
+    {
+      "create": 1, "delete": 0, "email": 1, "export": 1,
+      "print": 1, "read": 1, "report": 1, "role": "Line Manager",
+      "share": 1, "submit": 1, "write": 1, "cancel": 1
+    },
+    {
+      "create": 1, "delete": 1, "email": 1, "export": 1,
+      "print": 1, "read": 1, "report": 1, "role": "HR Manager",
+      "share": 1, "submit": 1, "write": 1, "cancel": 1
+    },
+    {
+      "create": 1, "delete": 1, "email": 1, "export": 1,
+      "print": 1, "read": 1, "report": 1, "role": "System Manager",
+      "share": 1, "submit": 1, "write": 1, "cancel": 1
+    }
+  ],
+  "sort_field": "from_date",
+  "sort_order": "DESC",
+  "states": [
+    {"color": "Gray",   "title": "Draft"},
+    {"color": "Yellow", "title": "Pending Approval"},
+    {"color": "Green",  "title": "Approved"},
+    {"color": "Red",    "title": "Rejected"},
+    {"color": "Gray",   "title": "Cancelled"}
+  ],
+  "title_field": "employee_name",
+  "track_changes": 1,
+  "track_views": 1
+}

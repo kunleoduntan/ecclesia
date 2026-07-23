@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2026-06-14 15:01:36.908496",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-06-14 15:01:36.908496",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "admin-dashboard",
+ "owner": "Administrator",
+ "page_name": "admin-dashboard",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Admin Dashboard"
+}

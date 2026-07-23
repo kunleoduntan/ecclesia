@@ -1,34 +1,25 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:PRR-{#####}",
- "creation": "2026-03-13 17:19:54.059417",
+ "autoname": "PRR-.YYYY.-.#####",
+ "creation": "2026-07-04 14:30:32.503167",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "cycle",
   "reviewee",
   "reviewee_name",
-  "col1",
-  "reviewer",
-  "reviewer_name",
-  "relationship",
-  "status",
+  "performance_cycle",
   "is_anonymous",
-  "submitted_on",
-  "sec_responses",
-  "responses"
+  "deadline",
+  "status",
+  "sec_peers",
+  "peers",
+  "sec_inst",
+  "instructions",
+  "amended_from"
  ],
  "fields": [
-  {
-   "fieldname": "cycle",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Performance Cycle",
-   "options": "Performance Cycle",
-   "reqd": 1
-  },
   {
    "fieldname": "reviewee",
    "fieldtype": "Link",
@@ -41,77 +32,76 @@
    "fetch_from": "reviewee.employee_name",
    "fieldname": "reviewee_name",
    "fieldtype": "Data",
-   "in_list_view": 1,
    "label": "Reviewee Name",
    "read_only": 1
   },
   {
-   "fieldname": "col1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fieldname": "reviewer",
+   "fieldname": "performance_cycle",
    "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Reviewer",
-   "options": "Employee",
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
    "reqd": 1
-  },
-  {
-   "fetch_from": "reviewer.employee_name",
-   "fieldname": "reviewer_name",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Reviewer Name",
-   "read_only": 1
-  },
-  {
-   "fieldname": "relationship",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Relationship",
-   "options": "Peer\nSubordinate\nCross-functional",
-   "reqd": 1
-  },
-  {
-   "default": "Pending",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Status",
-   "options": "Pending\nIn Progress\nCompleted\nDeclined"
   },
   {
    "default": "1",
    "fieldname": "is_anonymous",
    "fieldtype": "Check",
-   "label": "Anonymous"
+   "label": "Anonymous Review"
   },
   {
-   "fieldname": "submitted_on",
-   "fieldtype": "Datetime",
-   "label": "Submitted On",
-   "read_only": 1
+   "fieldname": "deadline",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Review Deadline",
+   "reqd": 1
   },
   {
-   "fieldname": "sec_responses",
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nCompleted\nExpired"
+  },
+  {
+   "fieldname": "sec_peers",
    "fieldtype": "Section Break",
-   "label": "Responses"
+   "label": "Assigned Peers"
   },
   {
-   "fieldname": "responses",
+   "fieldname": "peers",
    "fieldtype": "Table",
-   "label": "Competency Ratings",
-   "options": "Review Response"
+   "label": "Peers",
+   "options": "Peer Review Request Peer"
+  },
+  {
+   "fieldname": "sec_inst",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "instructions",
+   "fieldtype": "Text Editor",
+   "label": "Instructions for Reviewers"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Peer Review Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
+ "is_submittable": 1,
  "links": [],
- "modified": "2026-03-13 17:30:00.668734",
+ "modified": "2026-07-04 14:30:32.503167",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Peer Review Request",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -128,7 +118,9 @@
   }
  ],
  "quick_entry": 1,
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

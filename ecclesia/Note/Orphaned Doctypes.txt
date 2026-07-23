@@ -1,0 +1,13 @@
+Orphaned DocType(s) found: Parish, GL Audit Log, Audit Scope DocType, Fixed Asset Depreciation Schedule
+
+
+
+Orphaned and deleted doctypes
+Deal Stage
+CRM source
+CRM activity
+CRM Contact
+CRM Account
+Conflict of interest
+AML KYC
+HSE Inspection

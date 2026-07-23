@@ -1,0 +1,62 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-21 10:37:58.014928",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "component",
+  "percentage",
+  "amount",
+  "is_pensionable"
+ ],
+ "fields": [
+  {
+   "fieldname": "component",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Component",
+   "options": "Basic Salary\nHousing\nTransport\nOthers",
+   "reqd": 1
+  },
+  {
+   "fieldname": "percentage",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "% of Annual Gross",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pensionable",
+   "fieldtype": "Check",
+   "label": "Pensionable",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-21 10:37:58.014928",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "CTC Component",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

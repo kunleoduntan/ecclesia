@@ -1,0 +1,212 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CTC-.YYYY.-.#####",
+ "creation": "2026-06-15 10:00:40.422348",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "calendar_title",
+  "company",
+  "fiscal_year",
+  "training_category",
+  "col1",
+  "is_mandatory",
+  "target_audience",
+  "trainer",
+  "regulatory_requirement",
+  "schedule_section",
+  "scheduled_date",
+  "duration_hours",
+  "venue",
+  "col2",
+  "target_headcount",
+  "actual_attendees",
+  "completion_target_pct",
+  "actual_completion_pct",
+  "status",
+  "participants_section",
+  "participants",
+  "materials_attachment",
+  "completion_report",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "calendar_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Calendar Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "training_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "AML & KYC\nNDPR / Data Protection\nHSE / Safety\nLabour Law\nTax Compliance\nCorporate Governance\nFraud Awareness\nWhistleblowing\nConflict of Interest\nCode of Conduct\nIndustry Regulatory\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "label": "Mandatory for All Target Audience"
+  },
+  {
+   "fieldname": "target_audience",
+   "fieldtype": "Select",
+   "label": "Target Audience",
+   "options": "All Employees\nManagement\nBoard\nFinance & Accounts\nHR\nFront-line Staff\nCompliance Team\nIT\nOther"
+  },
+  {
+   "fieldname": "trainer",
+   "fieldtype": "Data",
+   "label": "Trainer / Provider"
+  },
+  {
+   "fieldname": "regulatory_requirement",
+   "fieldtype": "Small Text",
+   "label": "Regulatory Requirement (e.g. NFIU AML requirement)"
+  },
+  {
+   "fieldname": "schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Schedule"
+  },
+  {
+   "fieldname": "scheduled_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Scheduled Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration_hours",
+   "fieldtype": "Float",
+   "label": "Duration (Hours)"
+  },
+  {
+   "fieldname": "venue",
+   "fieldtype": "Data",
+   "label": "Venue / Mode (e.g. Online, Lagos HQ)"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "target_headcount",
+   "fieldtype": "Int",
+   "label": "Target Headcount"
+  },
+  {
+   "fieldname": "actual_attendees",
+   "fieldtype": "Int",
+   "label": "Actual Attendees"
+  },
+  {
+   "default": "100",
+   "fieldname": "completion_target_pct",
+   "fieldtype": "Percent",
+   "label": "Completion Target (%)"
+  },
+  {
+   "fieldname": "actual_completion_pct",
+   "fieldtype": "Percent",
+   "label": "Actual Completion (%)",
+   "read_only": 1
+  },
+  {
+   "default": "Planned",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Planned\nScheduled\nCompleted\nCancelled\nPostponed"
+  },
+  {
+   "fieldname": "participants_section",
+   "fieldtype": "Section Break",
+   "label": "Participants"
+  },
+  {
+   "fieldname": "participants",
+   "fieldtype": "Table",
+   "label": "Participants",
+   "options": "Training Participant Line"
+  },
+  {
+   "fieldname": "materials_attachment",
+   "fieldtype": "Attach",
+   "label": "Training Materials"
+  },
+  {
+   "fieldname": "completion_report",
+   "fieldtype": "Attach",
+   "label": "Completion Report"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Training Calendar",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 10:00:40.422348",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Training Calendar",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,223 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SA-.YYYY.-.#####",
+ "creation": "2026-07-04 14:32:15.543729",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "column_break_y3ox",
+  "performance_cycle",
+  "submission_date",
+  "column_break_tyuw",
+  "status",
+  "sec_goals",
+  "goal_summary",
+  "goal_self_score",
+  "sec_comp",
+  "competency_ratings",
+  "sec_narrative",
+  "key_accomplishments",
+  "challenges",
+  "lessons_learned",
+  "training_completed",
+  "future_aspirations",
+  "strengths",
+  "improvement_areas",
+  "improvement_plan",
+  "overall_self_rating",
+  "overall_comments",
+  "sec_evidence",
+  "evidence_files",
+  "ai_feedback",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "submission_date",
+   "fieldtype": "Date",
+   "label": "Submission Date"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nLocked"
+  },
+  {
+   "fieldname": "sec_goals",
+   "fieldtype": "Section Break",
+   "label": "Goal Achievement"
+  },
+  {
+   "fieldname": "goal_summary",
+   "fieldtype": "Text Editor",
+   "label": "Summary of Goal Achievements",
+   "reqd": 1
+  },
+  {
+   "fieldname": "goal_self_score",
+   "fieldtype": "Float",
+   "label": "Goal Self Score (1-5)"
+  },
+  {
+   "fieldname": "sec_comp",
+   "fieldtype": "Section Break",
+   "label": "Competency Self-Rating"
+  },
+  {
+   "fieldname": "competency_ratings",
+   "fieldtype": "Table",
+   "label": "Competency Ratings",
+   "options": "Self Appraisal Competency"
+  },
+  {
+   "fieldname": "sec_narrative",
+   "fieldtype": "Section Break",
+   "label": "Narrative"
+  },
+  {
+   "fieldname": "key_accomplishments",
+   "fieldtype": "Text Editor",
+   "label": "Key Accomplishments"
+  },
+  {
+   "fieldname": "challenges",
+   "fieldtype": "Text Editor",
+   "label": "Challenges Faced"
+  },
+  {
+   "fieldname": "lessons_learned",
+   "fieldtype": "Text Editor",
+   "label": "Lessons Learned"
+  },
+  {
+   "fieldname": "training_completed",
+   "fieldtype": "Text Editor",
+   "label": "Training Completed"
+  },
+  {
+   "fieldname": "future_aspirations",
+   "fieldtype": "Text Editor",
+   "label": "Career Aspirations"
+  },
+  {
+   "fieldname": "strengths",
+   "fieldtype": "Text Editor",
+   "label": "Strengths"
+  },
+  {
+   "fieldname": "improvement_areas",
+   "fieldtype": "Text Editor",
+   "label": "Areas for Improvement"
+  },
+  {
+   "fieldname": "improvement_plan",
+   "fieldtype": "Text Editor",
+   "label": "Improvement Plan"
+  },
+  {
+   "fieldname": "overall_self_rating",
+   "fieldtype": "Float",
+   "label": "Overall Self Rating (1-5)"
+  },
+  {
+   "fieldname": "overall_comments",
+   "fieldtype": "Text Editor",
+   "label": "Additional Comments"
+  },
+  {
+   "fieldname": "sec_evidence",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "evidence_files",
+   "fieldtype": "Attach",
+   "label": "Evidence Upload"
+  },
+  {
+   "fieldname": "ai_feedback",
+   "fieldtype": "Text Editor",
+   "label": "AI Coaching Feedback",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Self Appraisal",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_y3ox",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_tyuw",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-06 11:54:39.571332",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Self Appraisal",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

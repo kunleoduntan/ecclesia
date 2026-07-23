@@ -1,0 +1,141 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:alert_name",
+ "creation": "2026-06-15 09:36:14.998475",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "alert_name",
+  "trigger_type",
+  "obligation_type",
+  "col1",
+  "days_before_event",
+  "risk_score_threshold",
+  "channel",
+  "col2",
+  "recipient_role",
+  "recipient_employee",
+  "active",
+  "escalate_if_unresolved",
+  "escalation_days",
+  "message_template"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "alert_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Alert Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "trigger_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Trigger",
+   "options": "Due Date Approaching\nOverdue\nRisk Score Threshold\nLicense Expiry\nCLL Balance\nSLA Breach",
+   "reqd": 1
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nData Breach Notification\nAML/KYC\nContractual Obligation\nTraining Levy\nOther"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "days_before_event",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Days Before Event"
+  },
+  {
+   "fieldname": "risk_score_threshold",
+   "fieldtype": "Float",
+   "label": "Risk Score Threshold"
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Channel",
+   "options": "Email\nIn-App Notification\nDashboard\nAll",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "recipient_role",
+   "fieldtype": "Data",
+   "label": "Recipient Role (e.g. Accounts Manager)"
+  },
+  {
+   "fieldname": "recipient_employee",
+   "fieldtype": "Link",
+   "label": "Recipient Employee",
+   "options": "Employee"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  },
+  {
+   "default": "0",
+   "fieldname": "escalate_if_unresolved",
+   "fieldtype": "Check",
+   "label": "Escalate if Unresolved"
+  },
+  {
+   "fieldname": "escalation_days",
+   "fieldtype": "Int",
+   "label": "Escalate After (days)"
+  },
+  {
+   "fieldname": "message_template",
+   "fieldtype": "Small Text",
+   "label": "Message Template"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 09:36:14.998475",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Alert Rule",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

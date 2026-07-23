@@ -1,0 +1,245 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "WB-.YYYY.-.#####",
+ "creation": "2026-06-15 08:14:13.958825",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "report_code",
+  "received_date",
+  "channel",
+  "is_anonymous",
+  "company",
+  "col1",
+  "report_category",
+  "severity",
+  "alleged_department",
+  "alleged_parties",
+  "incident_section",
+  "description",
+  "incident_period",
+  "estimated_financial_impact",
+  "supporting_evidence",
+  "investigation_section",
+  "assigned_investigator",
+  "investigation_start",
+  "investigation_close",
+  "col2",
+  "escalated_to_board",
+  "external_authority_notified",
+  "authority_notified",
+  "outcome",
+  "status",
+  "compliance_incident_ref",
+  "confidentiality_note",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "description": "System-generated masked code \u2014 never expose identity in this field",
+   "fieldname": "report_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Report Code (Auto)",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "received_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Received",
+   "reqd": 1
+  },
+  {
+   "fieldname": "channel",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Reporting Channel",
+   "options": "Anonymous Portal\nEmail\nPhone Hotline\nIn-Person\nBoard / Audit Committee\nRegulator",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_anonymous",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Anonymous Report"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "report_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Financial Fraud\nBribery & Corruption\nEmployee Misconduct\nSafety Violation\nEnvironmental Breach\nData Privacy Violation\nTheft\nHarassment\nConflict of Interest\nRegulatory Breach\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Medium",
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Severity",
+   "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "alleged_department",
+   "fieldtype": "Link",
+   "label": "Alleged Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "alleged_parties",
+   "fieldtype": "Small Text",
+   "label": "Alleged Parties (if known)"
+  },
+  {
+   "fieldname": "incident_section",
+   "fieldtype": "Section Break",
+   "label": "Report Details"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description of Allegation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "incident_period",
+   "fieldtype": "Data",
+   "label": "Period Incident Occurred"
+  },
+  {
+   "fieldname": "estimated_financial_impact",
+   "fieldtype": "Currency",
+   "label": "Estimated Financial Impact (\u20a6)"
+  },
+  {
+   "fieldname": "supporting_evidence",
+   "fieldtype": "Attach",
+   "label": "Supporting Evidence"
+  },
+  {
+   "fieldname": "investigation_section",
+   "fieldtype": "Section Break",
+   "label": "Investigation"
+  },
+  {
+   "fieldname": "assigned_investigator",
+   "fieldtype": "Link",
+   "label": "Assigned Investigator",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "investigation_start",
+   "fieldtype": "Date",
+   "label": "Investigation Started"
+  },
+  {
+   "fieldname": "investigation_close",
+   "fieldtype": "Date",
+   "label": "Investigation Closed"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "escalated_to_board",
+   "fieldtype": "Check",
+   "label": "Escalated to Board / Audit Committee"
+  },
+  {
+   "default": "0",
+   "fieldname": "external_authority_notified",
+   "fieldtype": "Check",
+   "label": "External Authority Notified"
+  },
+  {
+   "fieldname": "authority_notified",
+   "fieldtype": "Data",
+   "label": "Authority Notified"
+  },
+  {
+   "fieldname": "outcome",
+   "fieldtype": "Select",
+   "label": "Outcome",
+   "options": "Pending\nSubstantiated \u2014 Action Taken\nSubstantiated \u2014 No Action\nUnsubstantiated\nReferred to Authority"
+  },
+  {
+   "default": "Received",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Received\nUnder Investigation\nEscalated\nClosed \u2014 Substantiated\nClosed \u2014 Unsubstantiated"
+  },
+  {
+   "fieldname": "compliance_incident_ref",
+   "fieldtype": "Link",
+   "label": "Compliance Incident",
+   "options": "Compliance Incident"
+  },
+  {
+   "default": "All reports are treated with strict confidentiality. Victimisation of whistleblowers is prohibited.",
+   "fieldname": "confidentiality_note",
+   "fieldtype": "Small Text",
+   "label": "Confidentiality Notice"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Whistleblower Report",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:14:13.958825",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Whistleblower Report",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

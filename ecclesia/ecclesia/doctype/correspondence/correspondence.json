@@ -1,0 +1,483 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CORR-.YYYY.-.#####",
+ "creation": "2026-07-16 07:55:56.325130",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "subject",
+  "company",
+  "correspondence_type",
+  "correspondence_category",
+  "priority",
+  "confidential",
+  "status",
+  "amended_from",
+  "details_tab",
+  "sb_incoming",
+  "from_name",
+  "from_organisation",
+  "cb_incoming",
+  "from_email",
+  "from_phone",
+  "from_address",
+  "sb_outgoing",
+  "to_name",
+  "to_organisation",
+  "cb_outgoing",
+  "to_email",
+  "to_phone",
+  "to_address",
+  "sb_dates",
+  "date_received",
+  "date_created",
+  "due_date",
+  "reference_no",
+  "cb_dates",
+  "department",
+  "assigned_to",
+  "body_summary",
+  "routing_tab",
+  "routing_log",
+  "dispatch_tab",
+  "courier_company",
+  "tracking_number",
+  "dispatch_date",
+  "dispatched_by",
+  "cb_dispatch",
+  "delivery_status",
+  "delivery_confirmation_date",
+  "received_by",
+  "sb_ack",
+  "acknowledgement_required",
+  "acknowledgement_received",
+  "cb_ack",
+  "acknowledgement_date",
+  "acknowledgement_attachment",
+  "response_tab",
+  "response_required",
+  "response_due_date",
+  "response_status",
+  "cb_response",
+  "responded_by",
+  "response_date",
+  "linked_response",
+  "response_summary",
+  "attachments_tab",
+  "main_attachment",
+  "attachments",
+  "analytics_tab",
+  "days_since_received",
+  "days_to_due",
+  "is_overdue",
+  "ai_summary"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Subject",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Incoming Mail",
+   "fieldname": "correspondence_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Correspondence Type",
+   "options": "Incoming Mail\nOutgoing Mail\nInternal Memo\nExternal Letter\nCircular",
+   "reqd": 1
+  },
+  {
+   "fieldname": "correspondence_category",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "Correspondence Type"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "Urgent\nHigh\nMedium\nLow"
+  },
+  {
+   "default": "0",
+   "fieldname": "confidential",
+   "fieldtype": "Check",
+   "label": "Confidential"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nPending Review\nRouted\nPending Response\nResponded\nDispatched\nClosed"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Correspondence",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sender / Recipient"
+  },
+  {
+   "depends_on": "eval:doc.correspondence_type=='Incoming Mail'",
+   "fieldname": "sb_incoming",
+   "fieldtype": "Section Break",
+   "label": "Sender Details (Incoming)"
+  },
+  {
+   "fieldname": "from_name",
+   "fieldtype": "Data",
+   "label": "From (Name)"
+  },
+  {
+   "fieldname": "from_organisation",
+   "fieldtype": "Data",
+   "label": "From (Organisation)"
+  },
+  {
+   "fieldname": "cb_incoming",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_email",
+   "fieldtype": "Data",
+   "label": "From (Email)"
+  },
+  {
+   "fieldname": "from_phone",
+   "fieldtype": "Phone",
+   "label": "From (Phone)"
+  },
+  {
+   "fieldname": "from_address",
+   "fieldtype": "Small Text",
+   "label": "From (Address)"
+  },
+  {
+   "depends_on": "eval:doc.correspondence_type!='Incoming Mail'",
+   "fieldname": "sb_outgoing",
+   "fieldtype": "Section Break",
+   "label": "Recipient Details (Outgoing / Internal)"
+  },
+  {
+   "fieldname": "to_name",
+   "fieldtype": "Data",
+   "label": "To (Name)"
+  },
+  {
+   "fieldname": "to_organisation",
+   "fieldtype": "Data",
+   "label": "To (Organisation)"
+  },
+  {
+   "fieldname": "cb_outgoing",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "to_email",
+   "fieldtype": "Data",
+   "label": "To (Email)"
+  },
+  {
+   "fieldname": "to_phone",
+   "fieldtype": "Phone",
+   "label": "To (Phone)"
+  },
+  {
+   "fieldname": "to_address",
+   "fieldtype": "Small Text",
+   "label": "To (Address)"
+  },
+  {
+   "fieldname": "sb_dates",
+   "fieldtype": "Section Break",
+   "label": "Dates & Ownership"
+  },
+  {
+   "depends_on": "eval:doc.correspondence_type=='Incoming Mail'",
+   "fieldname": "date_received",
+   "fieldtype": "Date",
+   "label": "Date Received"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date_created",
+   "fieldtype": "Date",
+   "label": "Date Created / Drafted"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "reference_no",
+   "fieldtype": "Data",
+   "label": "External Reference No"
+  },
+  {
+   "fieldname": "cb_dates",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To / Owner",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "body_summary",
+   "fieldtype": "Text Editor",
+   "label": "Summary / Body"
+  },
+  {
+   "fieldname": "routing_tab",
+   "fieldtype": "Tab Break",
+   "label": "Routing"
+  },
+  {
+   "fieldname": "routing_log",
+   "fieldtype": "Table",
+   "label": "Routing Log",
+   "options": "Correspondence Routing Log"
+  },
+  {
+   "depends_on": "eval:doc.correspondence_type!='Incoming Mail'",
+   "fieldname": "dispatch_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dispatch & Delivery"
+  },
+  {
+   "fieldname": "courier_company",
+   "fieldtype": "Data",
+   "label": "Courier / Carrier"
+  },
+  {
+   "fieldname": "tracking_number",
+   "fieldtype": "Data",
+   "label": "Tracking Number"
+  },
+  {
+   "fieldname": "dispatch_date",
+   "fieldtype": "Date",
+   "label": "Dispatch Date"
+  },
+  {
+   "fieldname": "dispatched_by",
+   "fieldtype": "Link",
+   "label": "Dispatched By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cb_dispatch",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "delivery_status",
+   "fieldtype": "Select",
+   "label": "Delivery Status",
+   "options": "Pending\nDispatched\nIn Transit\nDelivered\nFailed\nReturned"
+  },
+  {
+   "fieldname": "delivery_confirmation_date",
+   "fieldtype": "Date",
+   "label": "Delivery Confirmation Date"
+  },
+  {
+   "fieldname": "received_by",
+   "fieldtype": "Data",
+   "label": "Received By (Recipient End)"
+  },
+  {
+   "fieldname": "sb_ack",
+   "fieldtype": "Section Break",
+   "label": "Acknowledgement"
+  },
+  {
+   "default": "0",
+   "fieldname": "acknowledgement_required",
+   "fieldtype": "Check",
+   "label": "Acknowledgement Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "acknowledgement_received",
+   "fieldtype": "Check",
+   "label": "Acknowledgement Received"
+  },
+  {
+   "fieldname": "cb_ack",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "acknowledgement_date",
+   "fieldtype": "Date",
+   "label": "Acknowledgement Date"
+  },
+  {
+   "fieldname": "acknowledgement_attachment",
+   "fieldtype": "Attach",
+   "label": "Acknowledgement Receipt"
+  },
+  {
+   "fieldname": "response_tab",
+   "fieldtype": "Tab Break",
+   "label": "Response Tracking"
+  },
+  {
+   "default": "0",
+   "fieldname": "response_required",
+   "fieldtype": "Check",
+   "label": "Response Required"
+  },
+  {
+   "fieldname": "response_due_date",
+   "fieldtype": "Date",
+   "label": "Response Due Date"
+  },
+  {
+   "default": "Not Required",
+   "fieldname": "response_status",
+   "fieldtype": "Select",
+   "label": "Response Status",
+   "options": "Not Required\nPending\nOverdue\nResponded",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_response",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "responded_by",
+   "fieldtype": "Link",
+   "label": "Responded By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "response_date",
+   "fieldtype": "Date",
+   "label": "Response Date"
+  },
+  {
+   "fieldname": "linked_response",
+   "fieldtype": "Link",
+   "label": "Response / Reply Correspondence",
+   "options": "Correspondence"
+  },
+  {
+   "fieldname": "response_summary",
+   "fieldtype": "Small Text",
+   "label": "Response Summary"
+  },
+  {
+   "fieldname": "attachments_tab",
+   "fieldtype": "Tab Break",
+   "label": "Attachments"
+  },
+  {
+   "fieldname": "main_attachment",
+   "fieldtype": "Attach",
+   "label": "Primary Document"
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Table",
+   "label": "Supporting Attachments",
+   "options": "Correspondence Attachment"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "days_since_received",
+   "fieldtype": "Int",
+   "label": "Days Since Received",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_to_due",
+   "fieldtype": "Int",
+   "label": "Days to Due Date",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_overdue",
+   "fieldtype": "Check",
+   "label": "Overdue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_summary",
+   "fieldtype": "Long Text",
+   "label": "AI Summary & Suggested Action"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-16 07:55:56.325130",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Correspondence",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

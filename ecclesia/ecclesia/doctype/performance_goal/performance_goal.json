@@ -1,111 +1,563 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "hash",
- "creation": "2026-03-13 17:18:40.167407",
+ "autoname": "PG-.YYYY.-.#####",
+ "creation": "2026-07-05 19:26:52.698545",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "kpi",
-  "goal_description",
-  "weight",
-  "target_value",
-  "actual_value",
-  "achievement_pct",
-  "self_score",
-  "weighted_score",
+  "sec_basic",
+  "owner_employee",
+  "employee_name",
+  "col_basic_1",
+  "performance_cycle",
   "status",
-  "comments"
+  "sec_goal_details",
+  "col_goal_left",
+  "goal_title",
+  "goal_type",
+  "category",
+  "col_goal_mid",
+  "priority",
+  "weight",
+  "col_goal_right",
+  "progress_status",
+  "days_remaining",
+  "sec_target",
+  "col_target_left",
+  "description",
+  "kpi",
+  "target_value",
+  "measurement_unit",
+  "col_target_mid",
+  "due_date",
+  "target_completion_date",
+  "col_target_right",
+  "current_achievement",
+  "progress",
+  "progress_band",
+  "sec_updates",
+  "col_updates_left",
+  "last_update_date",
+  "last_update_notes",
+  "col_updates_right",
+  "evidence_upload",
+  "evidence_description",
+  "sec_alignment",
+  "col_alignment_left",
+  "aligned_to_goal",
+  "col_alignment_mid",
+  "aligned_to_dept_goal",
+  "col_alignment_right",
+  "strategic_initiative",
+  "sec_analytics",
+  "col_analytics_left",
+  "goal_achievement_rate",
+  "variance_from_target",
+  "col_analytics_mid",
+  "dept_avg_progress",
+  "dept_avg_achievement",
+  "col_analytics_right",
+  "goal_health",
+  "risk_factors",
+  "sec_tracking",
+  "col_tracking_left",
+  "created_on",
+  "total_updates",
+  "col_tracking_right",
+  "progress_velocity",
+  "estimated_completion",
+  "sec_dashboard",
+  "col_dashboard_left",
+  "dashboard_summary",
+  "dashboard_status",
+  "col_dashboard_mid",
+  "dashboard_target",
+  "dashboard_health",
+  "col_dashboard_right",
+  "dashboard_next_step",
+  "sec_approval",
+  "col_approval_left",
+  "approved_by",
+  "approved_on",
+  "col_approval_right",
+  "rejection_reason"
  ],
  "fields": [
   {
-   "columns": 3,
-   "fieldname": "kpi",
+   "fieldname": "sec_basic",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "fieldname": "owner_employee",
    "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "KPI",
-   "options": "KPI Library",
+   "label": "Employee",
+   "options": "Employee",
    "reqd": 1
   },
   {
-   "columns": 3,
-   "fieldname": "goal_description",
+   "fetch_from": "owner_employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_basic_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nPending Approval\nApproved\nIn Progress\nCompleted\nCancelled"
+  },
+  {
+   "fieldname": "sec_goal_details",
+   "fieldtype": "Section Break",
+   "label": "\ud83c\udfaf Goal Details"
+  },
+  {
+   "fieldname": "col_goal_left",
+   "fieldtype": "Column Break",
+   "label": "Goal Information"
+  },
+  {
+   "fieldname": "goal_title",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Goal",
+   "label": "Goal Title",
    "reqd": 1
   },
   {
-   "columns": 1,
+   "fieldname": "goal_type",
+   "fieldtype": "Select",
+   "label": "Goal Type",
+   "options": "KPI\nOKR\nStrategic Goal\nOperational Goal\nLearning Goal\nDevelopment Goal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Data",
+   "label": "Category"
+  },
+  {
+   "fieldname": "col_goal_mid",
+   "fieldtype": "Column Break",
+   "label": "Prioritization"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "High\nMedium\nLow"
+  },
+  {
    "fieldname": "weight",
    "fieldtype": "Float",
-   "in_list_view": 1,
    "label": "Weight (%)",
    "reqd": 1
   },
   {
-   "columns": 2,
+   "fieldname": "col_goal_right",
+   "fieldtype": "Column Break",
+   "label": "Status"
+  },
+  {
+   "fieldname": "progress_status",
+   "fieldtype": "Select",
+   "label": "Progress Status",
+   "options": "\nNot Started\nOn Track\nBehind Schedule\nAt Risk\nCompleted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_remaining",
+   "fieldtype": "Int",
+   "label": "Days Remaining",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_target",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Target & Measurement"
+  },
+  {
+   "fieldname": "col_target_left",
+   "fieldtype": "Column Break",
+   "label": "Target Details"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Goal Description"
+  },
+  {
+   "fieldname": "kpi",
+   "fieldtype": "Data",
+   "label": "KPI / Success Metric"
+  },
+  {
    "fieldname": "target_value",
    "fieldtype": "Data",
+   "label": "Target Value"
+  },
+  {
+   "fieldname": "measurement_unit",
+   "fieldtype": "Data",
+   "label": "Unit of Measurement"
+  },
+  {
+   "fieldname": "col_target_mid",
+   "fieldtype": "Column Break",
+   "label": "Timeline"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Target",
+   "label": "Due Date",
    "reqd": 1
   },
   {
-   "columns": 2,
-   "fieldname": "actual_value",
+   "description": "If different from due date",
+   "fieldname": "target_completion_date",
+   "fieldtype": "Date",
+   "label": "Target Completion Date"
+  },
+  {
+   "fieldname": "col_target_right",
+   "fieldtype": "Column Break",
+   "label": "Progress Tracking"
+  },
+  {
+   "fieldname": "current_achievement",
    "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Actual"
+   "label": "Current Achievement"
   },
   {
-   "columns": 1,
-   "fieldname": "achievement_pct",
+   "default": "0",
+   "fieldname": "progress",
    "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Achievement %",
+   "label": "Progress (%)"
+  },
+  {
+   "fieldname": "progress_band",
+   "fieldtype": "Select",
+   "label": "Progress Band",
+   "options": "\n0-25%: Just Started\n26-50%: Halfway\n51-75%: Well Progressed\n76-99%: Almost Done\n100%: Complete",
    "read_only": 1
   },
   {
-   "columns": 1,
-   "fieldname": "self_score",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "label": "Self Score (1-5)",
-   "options": "\n1\n2\n3\n4\n5"
+   "collapsible": 1,
+   "fieldname": "sec_updates",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd04 Updates & Evidence"
   },
   {
-   "fieldname": "weighted_score",
-   "fieldtype": "Float",
-   "label": "Weighted Score",
-   "precision": "2",
+   "fieldname": "col_updates_left",
+   "fieldtype": "Column Break",
+   "label": "Progress Updates"
+  },
+  {
+   "fieldname": "last_update_date",
+   "fieldtype": "Date",
+   "label": "Last Updated",
    "read_only": 1
   },
   {
-   "default": "Not Started",
-   "fieldname": "status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "Not Started\nIn Progress\nAchieved\nPartially Achieved\nNot Achieved"
-  },
-  {
-   "fieldname": "comments",
+   "fieldname": "last_update_notes",
    "fieldtype": "Small Text",
-   "label": "Comments"
+   "label": "Update Notes"
+  },
+  {
+   "fieldname": "col_updates_right",
+   "fieldtype": "Column Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "evidence_upload",
+   "fieldtype": "Attach",
+   "label": "Evidence File"
+  },
+  {
+   "fieldname": "evidence_description",
+   "fieldtype": "Small Text",
+   "label": "Evidence Description"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_alignment",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udd17 Goal Alignment"
+  },
+  {
+   "fieldname": "col_alignment_left",
+   "fieldtype": "Column Break",
+   "label": "Parent Goal"
+  },
+  {
+   "fieldname": "aligned_to_goal",
+   "fieldtype": "Link",
+   "label": "Aligned to Parent Goal",
+   "options": "Performance Goal"
+  },
+  {
+   "fieldname": "col_alignment_mid",
+   "fieldtype": "Column Break",
+   "label": "Department Alignment"
+  },
+  {
+   "description": "Enter department goal ID",
+   "fieldname": "aligned_to_dept_goal",
+   "fieldtype": "Data",
+   "label": "Department Goal Reference"
+  },
+  {
+   "fieldname": "col_alignment_right",
+   "fieldtype": "Column Break",
+   "label": "Strategic Alignment"
+  },
+  {
+   "description": "Linked initiative if applicable",
+   "fieldname": "strategic_initiative",
+   "fieldtype": "Data",
+   "label": "Strategic Initiative"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_analytics",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Analytics & Goal Insights"
+  },
+  {
+   "fieldname": "col_analytics_left",
+   "fieldtype": "Column Break",
+   "label": "Performance Metrics"
+  },
+  {
+   "description": "Based on target vs current achievement",
+   "fieldname": "goal_achievement_rate",
+   "fieldtype": "Float",
+   "label": "Achievement Rate (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variance_from_target",
+   "fieldtype": "Data",
+   "label": "Variance from Target",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_mid",
+   "fieldtype": "Column Break",
+   "label": "Comparative Data"
+  },
+  {
+   "fieldname": "dept_avg_progress",
+   "fieldtype": "Float",
+   "label": "Dept Avg Progress (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dept_avg_achievement",
+   "fieldtype": "Float",
+   "label": "Dept Avg Achievement (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_right",
+   "fieldtype": "Column Break",
+   "label": "Health Indicators"
+  },
+  {
+   "fieldname": "goal_health",
+   "fieldtype": "Select",
+   "label": "Goal Health",
+   "options": "\nHealthy\nAt Risk\nCritical\nCompleted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "risk_factors",
+   "fieldtype": "Small Text",
+   "label": "Risk Factors",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_tracking",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Progress History"
+  },
+  {
+   "fieldname": "col_tracking_left",
+   "fieldtype": "Column Break",
+   "label": "Timeline"
+  },
+  {
+   "fieldname": "created_on",
+   "fieldtype": "Date",
+   "label": "Goal Created",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_updates",
+   "fieldtype": "Int",
+   "label": "Total Updates",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_tracking_right",
+   "fieldtype": "Column Break",
+   "label": "Velocity"
+  },
+  {
+   "fieldname": "progress_velocity",
+   "fieldtype": "Float",
+   "label": "Progress Velocity (%/day)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "estimated_completion",
+   "fieldtype": "Date",
+   "label": "Estimated Completion Date",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_dashboard",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Dashboard View"
+  },
+  {
+   "fieldname": "col_dashboard_left",
+   "fieldtype": "Column Break",
+   "label": "Quick Summary"
+  },
+  {
+   "description": "{goal_title} | Type: {goal_type} | Priority: {priority}",
+   "fieldname": "dashboard_summary",
+   "fieldtype": "Data",
+   "label": "\ud83d\udccc Goal Summary",
+   "read_only": 1
+  },
+  {
+   "description": "Status: {status} | Progress: {progress}% | Days left: {days_remaining}",
+   "fieldname": "dashboard_status",
+   "fieldtype": "Data",
+   "label": "\u23f3 Status Overview",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_mid",
+   "fieldtype": "Column Break",
+   "label": "Key Metrics"
+  },
+  {
+   "description": "Target: {target_value} | Current: {current_achievement} | {goal_achievement_rate}%",
+   "fieldname": "dashboard_target",
+   "fieldtype": "Data",
+   "label": "\ud83c\udfaf Target vs Achievement",
+   "read_only": 1
+  },
+  {
+   "description": "Health: {goal_health} | Updates: {total_updates}",
+   "fieldname": "dashboard_health",
+   "fieldtype": "Data",
+   "label": "\ud83d\udc9a Goal Health",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_right",
+   "fieldtype": "Column Break",
+   "label": "Actions"
+  },
+  {
+   "description": "\u2022 Update progress\n\u2022 Upload evidence\n\u2022 Review by {approved_by}",
+   "fieldname": "dashboard_next_step",
+   "fieldtype": "Small Text",
+   "label": "\ud83d\udccc Next Steps",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_approval",
+   "fieldtype": "Section Break",
+   "label": "\u2705 Approval Workflow"
+  },
+  {
+   "fieldname": "col_approval_left",
+   "fieldtype": "Column Break",
+   "label": "Approval Details"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Date",
+   "label": "Approved On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_approval_right",
+   "fieldtype": "Column Break",
+   "label": "Rejection"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "istable": 1,
  "links": [],
- "modified": "2026-03-13 17:29:41.383226",
+ "modified": "2026-07-05 19:26:52.698545",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Performance Goal",
- "naming_rule": "Random",
  "owner": "Administrator",
- "permissions": [],
- "sort_field": "modified",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

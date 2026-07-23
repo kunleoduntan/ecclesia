@@ -1,0 +1,102 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-15 19:11:25.541377",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "appointing_member",
+  "shares_held",
+  "proxy_name",
+  "proxy_email",
+  "proxy_phone",
+  "date_received",
+  "voting_instruction",
+  "proxy_form",
+  "status",
+  "rejection_reason"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "appointing_member",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Appointing Shareholder",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "fieldname": "shares_held",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Shares Held"
+  },
+  {
+   "columns": 3,
+   "fieldname": "proxy_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Proxy Appointed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "proxy_email",
+   "fieldtype": "Data",
+   "label": "Proxy Email"
+  },
+  {
+   "fieldname": "proxy_phone",
+   "fieldtype": "Phone",
+   "label": "Proxy Phone"
+  },
+  {
+   "columns": 1,
+   "fieldname": "date_received",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Form Received"
+  },
+  {
+   "fieldname": "voting_instruction",
+   "fieldtype": "Select",
+   "label": "Voting Instruction",
+   "options": "At Proxy's Discretion\nFor All Resolutions\nAgainst All Resolutions\nSpecific Instructions"
+  },
+  {
+   "fieldname": "proxy_form",
+   "fieldtype": "Attach",
+   "label": "Signed Proxy Form"
+  },
+  {
+   "columns": 1,
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Received\nValidated\nRejected\nVoted"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-15 19:11:25.541377",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "AGM Proxy",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

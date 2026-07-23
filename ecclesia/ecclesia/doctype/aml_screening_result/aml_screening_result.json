@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-15 08:08:01.531069",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "screen_date",
+  "screening_type",
+  "source_checked",
+  "result",
+  "match_detail",
+  "actioned_by",
+  "escalated"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "screen_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Screen Date",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "screening_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Screen Type",
+   "options": "PEP Check\nSanctions\nAdverse Media\nCDD\nEDD\nOngoing Monitoring"
+  },
+  {
+   "columns": 3,
+   "fieldname": "source_checked",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source / Database"
+  },
+  {
+   "columns": 2,
+   "fieldname": "result",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Result",
+   "options": "Clear\nPotential Match\nConfirmed Match\nFalse Positive"
+  },
+  {
+   "fieldname": "match_detail",
+   "fieldtype": "Small Text",
+   "label": "Match Detail"
+  },
+  {
+   "columns": 2,
+   "fieldname": "actioned_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Actioned By",
+   "options": "Employee"
+  },
+  {
+   "default": "0",
+   "fieldname": "escalated",
+   "fieldtype": "Check",
+   "label": "Escalated"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:08:01.531069",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "AML Screening Result",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

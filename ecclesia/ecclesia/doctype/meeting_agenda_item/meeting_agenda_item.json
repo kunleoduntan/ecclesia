@@ -1,0 +1,77 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 07:28:51.214712",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "item_no",
+  "agenda_title",
+  "agenda_type",
+  "presenter",
+  "time_allotted",
+  "notes"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "item_no",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "#",
+   "reqd": 1
+  },
+  {
+   "columns": 4,
+   "fieldname": "agenda_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Agenda Item",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "default": "Discussion",
+   "fieldname": "agenda_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Matters Arising\nReport\nDecision\nDiscussion\nInformation\nApproval"
+  },
+  {
+   "columns": 2,
+   "fieldname": "presenter",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Presenter",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "time_allotted",
+   "fieldtype": "Int",
+   "label": "Time (mins)"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 07:28:51.214712",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Meeting Agenda Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

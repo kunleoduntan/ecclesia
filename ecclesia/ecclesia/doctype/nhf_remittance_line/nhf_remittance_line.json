@@ -1,0 +1,78 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-15 08:00:57.821394",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "basic_salary",
+  "nhf_rate",
+  "nhf_amount",
+  "salary_slip"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "columns": 3,
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name"
+  },
+  {
+   "columns": 2,
+   "fieldname": "basic_salary",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Basic Salary (\u20a6)"
+  },
+  {
+   "columns": 1,
+   "default": "2.5",
+   "fieldname": "nhf_rate",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "Rate %"
+  },
+  {
+   "columns": 2,
+   "fieldname": "nhf_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "NHF Amount (\u20a6)"
+  },
+  {
+   "fieldname": "salary_slip",
+   "fieldtype": "Link",
+   "label": "Salary Slip",
+   "options": "Salary Slip"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:00:57.821394",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "NHF Remittance Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

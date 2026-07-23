@@ -1,0 +1,81 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 07:10:59.739282",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "board_member",
+  "member_name",
+  "role",
+  "date_joined",
+  "date_exited",
+  "is_active"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "board_member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Board Member",
+   "options": "Board Member",
+   "reqd": 1
+  },
+  {
+   "columns": 3,
+   "fetch_from": "board_member.board_member_name",
+   "fieldname": "member_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "default": "Member",
+   "fieldname": "role",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Role",
+   "options": "Chairperson\nVice Chairperson\nMember\nSecretary"
+  },
+  {
+   "columns": 2,
+   "fieldname": "date_joined",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Joined"
+  },
+  {
+   "fieldname": "date_exited",
+   "fieldtype": "Date",
+   "label": "Date Exited"
+  },
+  {
+   "columns": 1,
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 07:10:59.739282",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Committee Member",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

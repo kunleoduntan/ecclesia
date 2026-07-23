@@ -1,0 +1,187 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "JRP-.YYYY.-.#####",
+ "creation": "2026-07-04 14:55:12.906456",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "job_opening",
+  "job_title",
+  "department",
+  "column_break_jofg",
+  "min_experience_years",
+  "max_experience_years",
+  "min_education",
+  "column_break_cbyv",
+  "required_certifications",
+  "sec_skills",
+  "required_skills",
+  "sec_weights",
+  "education_weight",
+  "experience_weight",
+  "column_break_3v7p",
+  "skills_weight",
+  "certifications_weight",
+  "column_break_kk5o",
+  "auto_shortlist_threshold",
+  "auto_reject_threshold",
+  "column_break_woam",
+  "custom_questions"
+ ],
+ "fields": [
+  {
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Job Opening",
+   "options": "Job Opening",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job_opening.job_title",
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "label": "Job Title",
+   "read_only": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "min_experience_years",
+   "fieldtype": "Float",
+   "label": "Min Experience (Years)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "max_experience_years",
+   "fieldtype": "Float",
+   "label": "Max Experience (Years)"
+  },
+  {
+   "fieldname": "min_education",
+   "fieldtype": "Select",
+   "label": "Min Education",
+   "options": "\nO-Level\nOND\nHND\nBSc / B.Eng\nMSc / MBA\nPhD"
+  },
+  {
+   "fieldname": "required_certifications",
+   "fieldtype": "Small Text",
+   "label": "Required Certifications"
+  },
+  {
+   "fieldname": "sec_skills",
+   "fieldtype": "Section Break",
+   "label": "Skills & Keywords"
+  },
+  {
+   "fieldname": "required_skills",
+   "fieldtype": "Table",
+   "label": "Required Skills",
+   "options": "Job Requirement Skill"
+  },
+  {
+   "fieldname": "sec_weights",
+   "fieldtype": "Section Break",
+   "label": "Scoring Weights"
+  },
+  {
+   "default": "20",
+   "fieldname": "education_weight",
+   "fieldtype": "Float",
+   "label": "Education Weight (%)"
+  },
+  {
+   "default": "30",
+   "fieldname": "experience_weight",
+   "fieldtype": "Float",
+   "label": "Experience Weight (%)"
+  },
+  {
+   "default": "35",
+   "fieldname": "skills_weight",
+   "fieldtype": "Float",
+   "label": "Skills Weight (%)"
+  },
+  {
+   "default": "15",
+   "fieldname": "certifications_weight",
+   "fieldtype": "Float",
+   "label": "Certifications Weight (%)"
+  },
+  {
+   "default": "70",
+   "fieldname": "auto_shortlist_threshold",
+   "fieldtype": "Float",
+   "label": "Auto-Shortlist Threshold (%)"
+  },
+  {
+   "default": "40",
+   "fieldname": "auto_reject_threshold",
+   "fieldtype": "Float",
+   "label": "Auto-Reject Threshold (%)"
+  },
+  {
+   "fieldname": "custom_questions",
+   "fieldtype": "Table",
+   "label": "Screening Questions",
+   "options": "Job Screening Question"
+  },
+  {
+   "fieldname": "column_break_jofg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_cbyv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_3v7p",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_kk5o",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_woam",
+   "fieldtype": "Section Break",
+   "label": "Screening Questions"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-04 15:05:42.425447",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Job Requirement Profile",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

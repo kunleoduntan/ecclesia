@@ -1,0 +1,216 @@
+{
+  "actions": [],
+  "autoname": "format:WFH-SUM-{YYYY}-{#####}",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "document_type": "Document",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "employee", "employee_name", "department", "column_break_1",
+    "date", "session", "wfh_request",
+    "section_break_summary",
+    "key_achievements", "challenges", "tomorrow_plan",
+    "column_break_summary",
+    "self_rating", "status",
+    "section_break_scores",
+    "activity_score", "hours_logged", "value_generated",
+    "consistency_score", "composite_score",
+    "section_break_flags",
+    "has_inactivity_flag", "flag_notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "employee",
+      "fieldtype": "Link",
+      "label": "Employee",
+      "options": "Employee",
+      "reqd": 1,
+      "in_list_view": 1,
+      "search_index": 1
+    },
+    {
+      "fieldname": "employee_name",
+      "fieldtype": "Data",
+      "label": "Employee Name",
+      "fetch_from": "employee.employee_name",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "department",
+      "fieldtype": "Link",
+      "label": "Department",
+      "options": "Department",
+      "fetch_from": "employee.department",
+      "read_only": 1
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "date",
+      "fieldtype": "Date",
+      "label": "Date",
+      "reqd": 1,
+      "default": "Today",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "session",
+      "fieldtype": "Link",
+      "label": "WFH Session",
+      "options": "WFH Session",
+      "reqd": 1
+    },
+    {
+      "fieldname": "wfh_request",
+      "fieldtype": "Link",
+      "label": "WFH Request",
+      "options": "WFH Request",
+      "fetch_from": "session.wfh_request",
+      "read_only": 1
+    },
+    {
+      "fieldname": "section_break_summary",
+      "fieldtype": "Section Break",
+      "label": "Daily Summary (30–60 seconds)"
+    },
+    {
+      "fieldname": "key_achievements",
+      "fieldtype": "Small Text",
+      "label": "Key Achievements Today",
+      "reqd": 1,
+      "description": "2–3 lines: what did you accomplish?"
+    },
+    {
+      "fieldname": "challenges",
+      "fieldtype": "Small Text",
+      "label": "Challenges / Blockers",
+      "description": "Optional: anything that slowed you down?"
+    },
+    {
+      "fieldname": "tomorrow_plan",
+      "fieldtype": "Small Text",
+      "label": "Plan for Tomorrow",
+      "description": "Optional: top priorities for next day"
+    },
+    {
+      "fieldname": "column_break_summary",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "self_rating",
+      "fieldtype": "Rating",
+      "label": "Self Rating (1–5)",
+      "reqd": 1
+    },
+    {
+      "fieldname": "status",
+      "fieldtype": "Select",
+      "label": "Status",
+      "options": "Draft\nSubmitted\nReviewed\nFlagged",
+      "default": "Draft",
+      "read_only": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "section_break_scores",
+      "fieldtype": "Section Break",
+      "label": "System-Computed Scores",
+      "collapsible": 1
+    },
+    {
+      "fieldname": "activity_score",
+      "fieldtype": "Float",
+      "label": "Activity Score",
+      "precision": 2,
+      "read_only": 1,
+      "in_list_view": 1,
+      "bold": 1,
+      "description": "Total points from Work Activity Logs for this day"
+    },
+    {
+      "fieldname": "hours_logged",
+      "fieldtype": "Float",
+      "label": "Hours Logged",
+      "precision": 2,
+      "read_only": 1
+    },
+    {
+      "fieldname": "value_generated",
+      "fieldtype": "Currency",
+      "label": "Business Value Generated",
+      "read_only": 1
+    },
+    {
+      "fieldname": "consistency_score",
+      "fieldtype": "Float",
+      "label": "Consistency Score",
+      "precision": 2,
+      "read_only": 1,
+      "description": "Rolling 7-day submission streak"
+    },
+    {
+      "fieldname": "composite_score",
+      "fieldtype": "Float",
+      "label": "Composite Score",
+      "precision": 2,
+      "read_only": 1,
+      "bold": 1,
+      "in_list_view": 1,
+      "description": "Weighted blend: 50% activity + 30% hours + 20% self-rating"
+    },
+    {
+      "fieldname": "section_break_flags",
+      "fieldtype": "Section Break",
+      "label": "Flags",
+      "collapsible": 1
+    },
+    {
+      "fieldname": "has_inactivity_flag",
+      "fieldtype": "Check",
+      "label": "Inactivity Flag",
+      "read_only": 1
+    },
+    {
+      "fieldname": "flag_notes",
+      "fieldtype": "Small Text",
+      "label": "Flag Notes",
+      "read_only": 1
+    }
+  ],
+  "is_submittable": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Ecclesia",
+  "name": "WFH Daily Summary",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1, "read": 1, "write": 1, "role": "Employee"
+    },
+    {
+      "create": 1, "read": 1, "write": 1, "submit": 1, "cancel": 1, "role": "Line Manager"
+    },
+    {
+      "create": 1, "read": 1, "write": 1, "submit": 1, "cancel": 1, "delete": 1, "role": "HR Manager"
+    },
+    {
+      "create": 1, "read": 1, "write": 1, "submit": 1, "cancel": 1, "delete": 1, "role": "System Manager"
+    }
+  ],
+  "sort_field": "date",
+  "sort_order": "DESC",
+  "states": [
+    {"color": "Gray",   "title": "Draft"},
+    {"color": "Blue",   "title": "Submitted"},
+    {"color": "Green",  "title": "Reviewed"},
+    {"color": "Orange", "title": "Flagged"}
+  ],
+  "title_field": "employee_name",
+  "track_changes": 1
+}

@@ -645,7 +645,7 @@ frappe.ui.form.on("Social Post", {
 
     refresh_metrics(frm) {
         frappe.call({
-            method: "carematrix.social_media.scheduler.sync_single_post_metrics",
+            method: "ecclesia.social_media.scheduler.sync_single_post_metrics",
             args: { post_name: frm.doc.name },
             freeze: true, freeze_message: "🔄 Refreshing metrics...",
             callback(r) {
@@ -659,7 +659,7 @@ frappe.ui.form.on("Social Post", {
 
     export_analytics(frm) {
         frappe.call({
-            method: "carematrix.carematrix.doctype.social_post.social_post.get_post_analytics",
+            method: "ecclesia.ecclesia.doctype.social_post.social_post.get_post_analytics",
             args: { post_name: frm.doc.name },
             callback(r) {
                 if (r.message) {

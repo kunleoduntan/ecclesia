@@ -555,3 +555,5 @@ def send_insurance_expiry_notification(expired, expiring_soon, critical):
         message=message,
         priority=1  # High priority
     )
+    
+    

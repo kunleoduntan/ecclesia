@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-14 14:04:35.573846",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "task_description",
+  "assigned_to",
+  "due_date",
+  "status",
+  "estimated_hours",
+  "actual_hours",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "columns": 4,
+   "fieldname": "task_description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Task",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Assigned To",
+   "options": "User"
+  },
+  {
+   "columns": 2,
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date"
+  },
+  {
+   "columns": 2,
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nIn Progress\nCompleted"
+  },
+  {
+   "fieldname": "estimated_hours",
+   "fieldtype": "Float",
+   "label": "Est. Hours"
+  },
+  {
+   "fieldname": "actual_hours",
+   "fieldtype": "Float",
+   "label": "Actual Hours"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-14 14:04:35.573846",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Maintenance Task",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

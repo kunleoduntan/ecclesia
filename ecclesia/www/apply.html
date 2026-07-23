@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="csrf-token" content="{{ csrf_token }}">
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Careers</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#F1F5F9;color:#1E293B;min-height:100vh}
+a{text-decoration:none}
+
+/* header */
+.hdr{background:linear-gradient(135deg,#312E81,#7C3AED);padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.hdr-logo{width:34px;height:34px;background:#fff;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:18px}
+.hdr-brand{color:#fff;font-size:14px;font-weight:800;margin-left:10px}
+.hdr-sub{color:rgba(255,255,255,.6);font-size:10px}
+.hdr-count{color:#fff;font-weight:700;font-size:14px;text-align:right}
+.hdr-count small{display:block;color:rgba(255,255,255,.65);font-size:11px;font-weight:400}
+
+/* hero */
+.hero{background:linear-gradient(135deg,#312E81,#7C3AED);
+  padding:44px 24px 52px;text-align:center}
+.hero h1{font-size:26px;font-weight:900;color:#fff;margin-bottom:8px}
+.hero p{font-size:14px;color:rgba(255,255,255,.8);max-width:440px;
+  margin:0 auto 24px;line-height:1.6}
+.stats{display:flex;justify-content:center;gap:32px}
+.stat-num{font-size:24px;font-weight:900;color:#fff}
+.stat-lbl{font-size:10px;color:rgba(255,255,255,.65);font-weight:600;
+  text-transform:uppercase;letter-spacing:.4px}
+
+/* filters */
+.filters{background:#fff;border-bottom:1px solid #E5E7EB;padding:12px 24px;
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  position:sticky;top:61px;z-index:50}
+.search{flex:1;min-width:180px;padding:9px 12px;border:1.5px solid #E5E7EB;
+  border-radius:8px;font-size:13px;font-family:Arial;outline:none}
+.search:focus{border-color:#7C3AED}
+.fsel{padding:9px 12px;border:1.5px solid #E5E7EB;border-radius:8px;
+  font-size:13px;background:#fff;outline:none;cursor:pointer;min-width:130px}
+.cbtn{padding:9px 14px;background:#F1F5F9;border:1.5px solid #E5E7EB;
+  border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;
+  color:#64748B;display:none}
+.cbtn.on{display:block}
+
+/* listing */
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+
+/* job card */
+.jcard{background:#fff;border:1.5px solid #E5E7EB;border-radius:14px;
+  overflow:hidden;cursor:pointer;transition:.2s}
+.jcard:hover{border-color:#7C3AED;box-shadow:0 6px 24px rgba(124,58,237,.12);
+  transform:translateY(-2px)}
+.jacc{height:5px;width:100%}
+.jbody{padding:18px 20px}
+.jdept{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;padding:3px 10px;border-radius:99px;margin-bottom:9px}
+.jtitle{font-size:16px;font-weight:800;color:#111;margin-bottom:5px;line-height:1.3}
+.jco{font-size:11px;color:#64748B;margin-bottom:9px}
+.jtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px}
+.tag-mode{background:#F0FDF4;color:#15803D}
+.tag-type{background:#FEF3C7;color:#92400E}
+.tag-urg{background:#FEE2E2;color:#991B1B}
+.jdesc{font-size:12px;color:#64748B;line-height:1.6;margin-bottom:12px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.jfoot{display:flex;align-items:center;justify-content:space-between;
+  padding-top:11px;border-top:1px solid #F1F5F9}
+.jdl{font-size:11px;color:#64748B}
+.jdl.urg{color:#DC2626;font-weight:700}
+.jbtn{padding:7px 16px;background:linear-gradient(135deg,#312E81,#7C3AED);
+  color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;
+  cursor:pointer;white-space:nowrap}
+
+/* message states */
+.msg{text-align:center;padding:60px 20px;color:#64748B}
+.msg-ico{font-size:44px;margin-bottom:10px}
+.msg h3{font-size:17px;font-weight:700;color:#374151;margin-bottom:5px}
+.msg p{font-size:13px;margin-top:5px}
+.errbox{background:#FEE2E2;border:1px solid #FECACA;border-radius:10px;
+  padding:16px 20px;margin:20px 0;font-size:13px;color:#991B1B}
+.errbox b{display:block;font-size:14px;margin-bottom:5px}
+
+/* form view */
+#vform{display:none}
+.fwrap{max-width:740px;margin:0 auto;padding:22px 18px}
+.backbtn{display:inline-flex;align-items:center;gap:7px;font-size:13px;
+  font-weight:700;color:#7C3AED;background:none;border:1.5px solid rgba(124,58,237,.25);
+  border-radius:8px;padding:8px 14px;cursor:pointer;margin-bottom:16px}
+.backbtn:hover{background:rgba(124,58,237,.06)}
+.jdcard{border-radius:14px;padding:20px 24px;margin-bottom:16px;color:#fff}
+.jdtitle{font-size:19px;font-weight:900;margin-bottom:5px}
+.jdmeta{font-size:12px;color:rgba(255,255,255,.75);display:flex;flex-wrap:wrap;gap:10px}
+.jdpill{background:rgba(255,255,255,.2);padding:3px 11px;border-radius:99px;
+  font-size:11px;font-weight:700}
+.rcard{background:#fff;border:1px solid #E5E7EB;border-radius:12px;
+  padding:16px 20px;margin-bottom:16px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.ri{background:#F8FAFC;border-radius:7px;padding:8px 11px}
+.rilbl{font-size:9px;font-weight:700;color:#64748B;text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:2px}
+.rival{font-size:12px;font-weight:600;color:#111}
+.sk{display:inline-flex;align-items:center;background:#EDE9FE;color:#7C3AED;
+  font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;margin:2px 3px 2px 0}
+.sk.mand::after{content:'*';color:#DC2626;margin-left:2px}
+.fcard{background:#fff;border:1px solid #E5E7EB;border-radius:12px;
+  padding:22px 24px;margin-bottom:18px}
+.steps{display:flex;justify-content:space-between;margin-bottom:16px;position:relative}
+.steps::before{content:'';position:absolute;top:13px;left:8%;right:8%;
+  height:2px;background:#E5E7EB;z-index:0}
+.st{display:flex;flex-direction:column;align-items:center;gap:3px;z-index:1}
+.stdt{width:26px;height:26px;border-radius:50%;border:2px solid #E5E7EB;
+  background:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#94A3B8}
+.st.on .stdt{border-color:#7C3AED;background:#7C3AED;color:#fff}
+.st.dn .stdt{border-color:#059669;background:#059669;color:#fff}
+.stlbl{font-size:9px;color:#64748B;font-weight:600;text-align:center;max-width:52px}
+.st.on .stlbl{color:#7C3AED}
+.prog{height:3px;background:#E5E7EB;border-radius:99px;margin-bottom:16px;overflow:hidden}
+.progfill{height:100%;background:linear-gradient(135deg,#312E81,#7C3AED);
+  border-radius:99px;transition:width .35s}
+.fs{display:none}.fs.on{display:block}
+.fg{margin-bottom:13px}
+.fl{display:block;font-size:11px;font-weight:700;color:#374151;margin-bottom:4px}
+.req{color:#DC2626;margin-left:2px}
+.hint{font-size:10px;color:#64748B;font-weight:400;margin-left:5px}
+.fi{width:100%;padding:9px 12px;border:1.5px solid #E5E7EB;border-radius:7px;
+  font-size:13px;font-family:Arial;color:#111;background:#fff;outline:none}
+.fi:focus{border-color:#7C3AED;box-shadow:0 0 0 3px rgba(124,58,237,.07)}
+.fi::placeholder{color:#94A3B8}
+textarea.fi{resize:vertical;min-height:90px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sdiv{border-top:1px solid #E5E7EB;padding-top:12px;margin-top:4px;
+  font-size:11px;font-weight:700;color:#1E2D5A;margin-bottom:11px}
+.gnote{background:#EDE9FE;border:1px solid rgba(124,58,237,.2);border-radius:7px;
+  padding:9px 12px;font-size:11px;color:#5B21B6;line-height:1.6;margin-top:6px}
+.uzwrap{border:2px dashed #D1D5DB;border-radius:9px;padding:22px;text-align:center;
+  cursor:pointer;background:#FAFBFF;position:relative}
+.uzwrap:hover{border-color:#7C3AED;background:#F5F0FF}
+.uzico{font-size:28px;margin-bottom:5px}
+.uzfn{margin-top:7px;font-size:11px;color:#059669;font-weight:600;display:none}
+#resin{position:absolute;inset:0;opacity:0;cursor:pointer}
+.alertbox{padding:10px 13px;border-radius:7px;font-size:12px;font-weight:600;
+  margin-bottom:12px;display:none;background:#FEE2E2;color:#DC2626;
+  border:1px solid #FECACA}
+.btnrow{display:flex;gap:8px;justify-content:space-between;margin-top:14px}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;font-family:Arial;transition:.15s;
+  display:inline-flex;align-items:center;gap:5px}
+.btnp{background:linear-gradient(135deg,#312E81,#7C3AED);color:#fff}
+.btnp:hover{opacity:.92}
+.btno{background:#fff;color:#64748B;border:1.5px solid #E5E7EB}
+.btno:hover{border-color:#7C3AED;color:#7C3AED}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.rvbox{background:#F8FAFC;border-radius:9px;padding:14px 16px;margin-bottom:12px}
+.rvtbl{width:100%;border-collapse:collapse;font-size:12px}
+.rvtbl td:first-child{color:#6B7280;font-weight:700;width:38%;padding:5px 0}
+.rvtbl td:last-child{color:#111;font-weight:500;padding:5px 0}
+.ckbox{background:#FFFBEB;border:1px solid #FDE68A;border-radius:7px;
+  padding:11px 13px;margin-bottom:11px}
+.cklbl{font-size:11px;font-weight:700;color:#92400E;margin-bottom:6px}
+.ckitem{display:flex;align-items:flex-start;gap:7px;font-size:11px;
+  color:#78350F;padding:3px 0;cursor:pointer}
+.ainote{background:#EDE9FE;border-radius:7px;padding:10px 13px;
+  font-size:11px;color:#4C1D95;line-height:1.6}
+.scard{background:#fff;border:1px solid #E5E7EB;border-radius:14px;
+  padding:38px 26px;text-align:center;display:none}
+.sico{font-size:50px;margin-bottom:11px}
+.stitle{font-size:20px;font-weight:900;color:#059669;margin-bottom:6px}
+.ssub{font-size:13px;color:#64748B;line-height:1.7;max-width:420px;margin:0 auto 14px}
+.sref{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:6px;
+  padding:8px 16px;display:inline-block;font-size:11px;font-weight:700;
+  color:#059669;margin-bottom:16px}
+@media(max-width:600px){
+  .fr2,.rgrid,.grid{grid-template-columns:1fr}
+  .hero h1{font-size:21px}
+  .filters{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="hdr-logo">💼</div>
+    <div>
+      <div class="hdr-brand" id="co-name">Careers Portal</div>
+      <div class="hdr-sub">Powered by Ecclesia HR Platform</div>
+    </div>
+  </div>
+  <div class="hdr-count">
+    <span id="hdr-n">—</span>
+    <small>open positions</small>
+  </div>
+</div>
+
+<!-- ═══════════  LISTING VIEW  ═══════════ -->
+<div id="vlisting">
+
+  <div class="hero">
+    <h1>Join Our Team 🚀</h1>
+    <p>Browse our open positions and click any role to apply — no login needed.</p>
+    <div class="stats">
+      <div><div class="stat-num" id="sn-jobs">—</div><div class="stat-lbl">Open Roles</div></div>
+      <div><div class="stat-num" id="sn-depts">—</div><div class="stat-lbl">Departments</div></div>
+      <div><div class="stat-num" id="sn-modes">—</div><div class="stat-lbl">Work Options</div></div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input class="search" id="q" type="text" placeholder="Search by title or keyword…" oninput="doFilter()"/>
+    <select class="fsel" id="fd" onchange="doFilter()"><option value="">All Departments</option></select>
+    <select class="fsel" id="fm" onchange="doFilter()">
+      <option value="">All Work Modes</option>
+      <option>On-site</option><option>Hybrid</option><option>Fully Remote</option><option>Flexible</option>
+    </select>
+    <button class="cbtn" id="cbtn" onclick="clearF()">✕ Clear</button>
+  </div>
+
+  <div class="wrap">
+    <div id="listing-msg" class="msg">
+      <div class="msg-ico">⏳</div>
+      <h3>Loading positions…</h3>
+      <p>Please wait while we fetch open roles.</p>
+    </div>
+    <div id="err-box" class="errbox" style="display:none">
+      <b>⚠️ Could not load job listings</b>
+      <span id="err-detail"></span>
+    </div>
+    <div class="grid" id="jgrid" style="display:none"></div>
+  </div>
+
+</div>
+
+<!-- ═══════════  FORM VIEW  ═══════════ -->
+<div id="vform">
+  <div class="fwrap">
+
+    <button class="backbtn" onclick="goList()">← Back to all positions</button>
+
+    <div class="jdcard" id="jdc" style="background:linear-gradient(135deg,#312E81,#7C3AED)">
+      <div class="jdtitle" id="jd-title">—</div>
+      <div class="jdmeta">
+        <span id="jd-co"></span>
+        <span id="jd-loc"></span>
+        <span class="jdpill" id="jd-mode"></span>
+        <span class="jdpill" id="jd-type"></span>
+      </div>
+      <div id="jd-dl" style="margin-top:9px;font-size:11px;color:rgba(255,255,255,.8)"></div>
+    </div>
+
+    <div class="rcard" id="rcard" style="display:none">
+      <div style="font-size:12px;font-weight:700;color:#1E2D5A;margin-bottom:9px">📋 Job Requirements</div>
+      <div class="rgrid" id="rgrid"></div>
+      <div id="sk-sec" style="display:none">
+        <div style="font-size:9px;font-weight:700;color:#64748B;text-transform:uppercase;
+          letter-spacing:.4px;margin-bottom:6px">Required Skills <span style="color:#DC2626">* mandatory</span></div>
+        <div id="sk-cont"></div>
+      </div>
+    </div>
+
+    <div class="scard" id="scard">
+      <div class="sico">🎉</div>
+      <div class="stitle">Application Submitted!</div>
+      <div class="ssub" id="smsg">Your application has been received.</div>
+      <div class="sref" id="sref"></div>
+      <button class="btn btno" onclick="goList()">← View other positions</button>
+    </div>
+
+    <div class="fcard" id="fcard">
+      <div style="font-size:14px;font-weight:800;color:#1E2D5A;margin-bottom:14px">📝 Your Application</div>
+      <div class="steps">
+        <div class="st on" id="sp1"><div class="stdt">1</div><div class="stlbl">Personal</div></div>
+        <div class="st" id="sp2"><div class="stdt">2</div><div class="stlbl">Education</div></div>
+        <div class="st" id="sp3"><div class="stdt">3</div><div class="stlbl">Experience</div></div>
+        <div class="st" id="sp4"><div class="stdt">4</div><div class="stlbl">Resume</div></div>
+        <div class="st" id="sp5"><div class="stdt">5</div><div class="stlbl">Review</div></div>
+      </div>
+      <div class="prog"><div class="progfill" id="pf" style="width:20%"></div></div>
+      <div class="alertbox" id="alert"></div>
+
+      <!-- Step 1 -->
+      <div class="fs on" id="s1">
+        <div class="fr2">
+          <div class="fg"><label class="fl">First Name<span class="req">*</span></label><input id="fn" class="fi" placeholder="Adaeze"/></div>
+          <div class="fg"><label class="fl">Last Name<span class="req">*</span></label><input id="ln" class="fi" placeholder="Okonkwo"/></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Email<span class="req">*</span></label><input id="em" class="fi" type="email" placeholder="you@email.com"/></div>
+          <div class="fg"><label class="fl">Phone<span class="req">*</span></label><input id="ph" class="fi" type="tel" placeholder="+234 800 000 0000"/></div>
+        </div>
+        <div class="sdiv">📍 Current Location</div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">City<span class="req">*</span></label><input id="cy" class="fi" placeholder="Lagos"/></div>
+          <div class="fg"><label class="fl">State<span class="req">*</span></label><input id="st" class="fi" placeholder="Lagos State"/></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Open to Relocation?</label>
+            <select id="re" class="fi"><option value="">— Select —</option>
+              <option value="1">Yes</option><option value="0">No</option><option value="">Depends on role</option>
+            </select></div>
+          <div class="fg"><label class="fl">Preferred Work Mode</label>
+            <select id="wm" class="fi"><option value="">— Select —</option>
+              <option>On-site</option><option>Hybrid</option><option>Fully Remote</option><option>Flexible</option>
+            </select></div>
+        </div>
+        <div class="sdiv">👤 Diversity (optional)</div>
+        <div class="fg">
+          <label class="fl">Gender<span class="hint">for anonymous reporting only</span></label>
+          <select id="gn" class="fi">
+            <option value="">Prefer not to say</option>
+            <option>Male</option><option>Female</option><option>Non-binary</option>
+          </select>
+          <div class="gnote">🔒 Never shared with hiring managers. Does not affect your score.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="fs" id="s2">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Education Level<span class="req">*</span></label>
+            <select id="ed" class="fi" onchange="togDC()">
+              <option value="">— Select —</option>
+              <option>O-Level</option><option>OND</option><option>HND</option>
+              <option>BSc / B.Eng</option><option>MSc / MBA</option><option>PhD</option>
+            </select></div>
+          <div class="fg" id="dcg">
+            <label class="fl">Class of Degree<span class="req">*</span><span class="hint" id="dchint"></span></label>
+            <select id="dc" class="fi">
+              <option value="">— Select —</option>
+              <option>First Class</option><option>Second Class Upper</option>
+              <option>Second Class Lower</option><option>Third Class</option>
+              <option>Pass</option><option>Not Applicable</option>
+            </select></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Institution<span class="req">*</span></label><input id="ins" class="fi" placeholder="University of Lagos"/></div>
+          <div class="fg"><label class="fl">Field of Study<span class="req">*</span></label><input id="cs" class="fi" placeholder="Accounting, Finance…"/></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Year of Graduation</label><input id="gy" class="fi" type="number" min="1990" max="2030" placeholder="2018"/></div>
+          <div class="fg"><label class="fl">LinkedIn Profile</label><input id="li" class="fi" type="url" placeholder="https://linkedin.com/in/…"/></div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="fs" id="s3">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Years of Experience<span class="req">*</span></label><input id="ex" class="fi" type="number" min="0" max="50" step="0.5" placeholder="5"/></div>
+          <div class="fg"><label class="fl">Current / Last Employer</label><input id="emp" class="fi" placeholder="Company name"/></div>
+        </div>
+        <div class="fg"><label class="fl">Certifications</label><input id="cert" class="fi" placeholder="ICAN, ACCA, PMP — comma separated"/></div>
+        <div class="fg"><label class="fl">Key Skills<span class="req">*</span></label>
+          <textarea id="sk" class="fi" rows="3" placeholder="ERPNext, Financial Reporting, IFRS, Excel&#10;Matching required skills improves your screening score"></textarea></div>
+        <div class="sdiv">💰 Salary Expectation</div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Min Expected (₦/month)</label><input id="smin" class="fi" type="number" min="0" placeholder="350000"/></div>
+          <div class="fg"><label class="fl">Max Expected (₦/month)</label><input id="smax" class="fi" type="number" min="0" placeholder="500000"/></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Notice Period</label>
+            <select id="np" class="fi"><option value="">— Select —</option>
+              <option>Immediately available</option><option>1 week</option><option>2 weeks</option>
+              <option>1 month</option><option>2 months</option><option>3 months</option>
+            </select></div>
+          <div class="fg"><label class="fl">Earliest Start Date</label><input id="sd" class="fi" type="date"/></div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="fs" id="s4">
+        <div class="fg"><label class="fl">Upload Resume / CV<span class="req">*</span></label>
+          <div class="uzwrap" id="uzw">
+            <input type="file" id="resin" accept=".pdf,.doc,.docx" onchange="onFile(this)"/>
+            <div class="uzico">📄</div>
+            <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:2px">Click to upload or drag & drop</div>
+            <div style="font-size:11px;color:#64748B">PDF or Word · Max 5MB</div>
+            <div class="uzfn" id="uzfn"></div>
+          </div></div>
+        <div class="fg"><label class="fl">Cover Letter<span class="hint">optional but recommended</span></label>
+          <textarea id="cl" class="fi" rows="5" placeholder="Tell us why you are the ideal candidate…"></textarea></div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="fs" id="s5">
+        <div class="rvbox">
+          <div style="font-size:12px;font-weight:700;color:#1E2D5A;margin-bottom:8px">📋 Review Your Application</div>
+          <table class="rvtbl" id="rvtbl"></table>
+        </div>
+        <div class="ckbox">
+          <div class="cklbl">⚠️ Before submitting:</div>
+          <label class="ckitem"><input type="checkbox" id="ca"/> All information is accurate and truthful</label>
+          <label class="ckitem"><input type="checkbox" id="cc"/> I consent to my data being processed for recruitment</label>
+          <label class="ckitem"><input type="checkbox" id="cg"/> Gender info (if provided) is for anonymous diversity monitoring only</label>
+        </div>
+        <div class="ainote">🤖 <b>AI Screening:</b> Your application will be automatically scored. Shortlisted candidates are notified after the closing date.</div>
+      </div>
+
+      <div class="btnrow">
+        <button class="btn btno" id="bbk" onclick="prev()" style="display:none">← Back</button>
+        <div style="flex:1"></div>
+        <button class="btn btnp" id="bnx" onclick="next()">Next →</button>
+        <button class="btn btnp" id="bsub" onclick="doSubmit()" style="display:none">🚀 Submit Application</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<noscript>
+  <div style="padding:40px;text-align:center;background:#FEE2E2;color:#991B1B;font-size:14px">
+    JavaScript is required to use this careers portal. Please enable JavaScript in your browser.
+  </div>
+</noscript>
+
+<script>
+var A = { jobs:[], sel:null, step:1, file:null };
+var COLS = [["#7C3AED","#EDE9FE"],["#2563EB","#DBEAFE"],["#059669","#D1FAE5"],["#D97706","#FEF3C7"],["#DC2626","#FEE2E2"],["#0D9488","#CCFBF1"],["#DB2777","#FCE7F3"],["#1E2D5A","#E0E7FF"]];
+
+function dc(n){ if(!n)return COLS[0]; var h=0; for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&65535; return COLS[h%COLS.length]; }
+function du(s){ if(!s)return null; return Math.ceil((new Date(s)-new Date())/86400000); }
+function fd(s){ if(!s)return""; try{return new Date(s).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});}catch(e){return s;} }
+function v(id){ var el=document.getElementById(id); return el?(el.value||"").trim():""; }
+function csrf(){
+  // 1. Try meta tag (most reliable for standalone pages)
+  var meta = document.querySelector('meta[name="csrf-token"]');
+  if(meta && meta.content && meta.content.length > 4) return meta.content;
+  // 2. Try Frappe JS object
+  try{ if(window.frappe && frappe.csrf_token) return frappe.csrf_token; }catch(e){}
+  // 3. Try cookie
+  var m = document.cookie.match(/csrf_token=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : "";
+}
+
+function showErr(msg){
+  var b=document.getElementById("err-box");
+  document.getElementById("listing-msg").style.display="none";
+  document.getElementById("err-detail").textContent=" "+msg;
+  b.style.display="block";
+}
+
+// Load jobs
+fetch("/api/method/ecclesia.api.apply_api.get_open_jobs",{
+  headers:{"X-Frappe-CSRF-Token":csrf()}
+})
+.then(function(r){
+  if(!r.ok){ return r.text().then(function(t){throw new Error("HTTP "+r.status+": "+t.substring(0,200));}); }
+  return r.json();
+})
+.then(function(data){
+  A.jobs = data.message||[];
+  document.getElementById("listing-msg").style.display="none";
+  if(A.jobs.length===0){
+    document.getElementById("listing-msg").style.display="block";
+    document.getElementById("listing-msg").innerHTML='<div class="msg-ico">📋</div><h3>No open positions right now</h3><p>We are not currently hiring. Please check back soon!</p>';
+    return;
+  }
+  buildFilters();renderCards(A.jobs);updateStats(A.jobs);
+  document.getElementById("jgrid").style.display="grid";
+  // set company name in header
+  if(A.jobs[0]&&A.jobs[0].company){
+    document.getElementById("co-name").textContent=A.jobs[0].company+" Careers";
+  }
+})
+.catch(function(e){
+  showErr(e.message||"Unknown error. Check browser console for details.");
+});
+
+function buildFilters(){
+  var depts={};
+  A.jobs.forEach(function(j){if(j.department)depts[j.department]=1;});
+  var sel=document.getElementById("fd");
+  Object.keys(depts).sort().forEach(function(d){
+    var o=document.createElement("option");o.value=d;o.textContent=d;sel.appendChild(o);
+  });
+}
+
+function renderCards(list){
+  var g=document.getElementById("jgrid");
+  if(!list.length){
+    g.style.display="none";
+    document.getElementById("listing-msg").style.display="block";
+    document.getElementById("listing-msg").innerHTML='<div class="msg-ico">🔍</div><h3>No matching positions</h3><p>Try adjusting your search or filters.</p>';
+    return;
+  }
+  document.getElementById("listing-msg").style.display="none";
+  g.style.display="grid";
+  g.innerHTML=list.map(function(j){
+    var col=dc(j.department);
+    var ac=col[0],bg=col[1];
+    var days=du(j.closes_on);
+    var urg=days!==null&&days<=7;
+    var dl=days===null?"":days<=0?"⚠️ Closing today":days===1?"⚠️ Closes tomorrow":urg?"⚠️ "+days+" days left":"Closes "+fd(j.closes_on);
+    return '<div class="jcard" onclick="pick(\''+j.name+'\')">'
+      +'<div class="jacc" style="background:'+ac+'"></div>'
+      +'<div class="jbody">'
+      +'<div class="jdept" style="background:'+bg+';color:'+ac+'">'+(j.department||"General")+'</div>'
+      +'<div class="jtitle">'+(j.job_title||"Open Role")+'</div>'
+      +'<div class="jco">🏢 '+(j.company||"")+(j.location?" · "+j.location:"")+'</div>'
+      +'<div class="jtags">'
+      +(j.work_mode?'<span class="tag tag-mode">💻 '+j.work_mode+'</span>':"")
+      +(j.employment_type?'<span class="tag tag-type">'+j.employment_type+'</span>':"")
+      +(urg?'<span class="tag tag-urg">🔥 Closing Soon</span>':"")
+      +'</div>'
+      +(j.description_preview?'<div class="jdesc">'+j.description_preview+'</div>':"")
+      +'<div class="jfoot">'
+      +'<div class="jdl'+(urg?" urg":"")+'">'+dl+'</div>'
+      +'<button class="jbtn" onclick="event.stopPropagation();pick(\''+j.name+'\')">View & Apply →</button>'
+      +'</div>'
+      +'</div></div>';
+  }).join("");
+}
+
+function updateStats(list){
+  var depts=new Set(list.map(function(j){return j.department;}).filter(Boolean));
+  var modes=new Set(list.map(function(j){return j.work_mode;}).filter(Boolean));
+  document.getElementById("sn-jobs").textContent=list.length;
+  document.getElementById("sn-depts").textContent=depts.size;
+  document.getElementById("sn-modes").textContent=modes.size;
+  document.getElementById("hdr-n").textContent=list.length;
+}
+
+function doFilter(){
+  var q=v("q").toLowerCase();
+  var dept=v("fd");
+  var mode=v("fm");
+  document.getElementById("cbtn").className="cbtn"+(q||dept||mode?" on":"");
+  var f=A.jobs.filter(function(j){
+    var mq=!q||(j.job_title||"").toLowerCase().indexOf(q)>=0
+      ||(j.description_preview||"").toLowerCase().indexOf(q)>=0
+      ||(j.department||"").toLowerCase().indexOf(q)>=0;
+    var md=!dept||j.department===dept;
+    var mm=!mode||(j.work_mode||"").indexOf(mode)>=0;
+    return mq&&md&&mm;
+  });
+  renderCards(f);updateStats(f);
+}
+
+function clearF(){
+  document.getElementById("q").value="";
+  document.getElementById("fd").value="";
+  document.getElementById("fm").value="";
+  document.getElementById("cbtn").className="cbtn";
+  renderCards(A.jobs);updateStats(A.jobs);
+}
+
+function goList(){
+  document.getElementById("vlisting").style.display="block";
+  document.getElementById("vform").style.display="none";
+  window.scrollTo({top:0,behavior:"smooth"});
+  history.pushState({},"","/apply");
+}
+
+function pick(name){
+  var job=null;
+  for(var i=0;i<A.jobs.length;i++){if(A.jobs[i].name===name){job=A.jobs[i];break;}}
+  if(!job)return;
+  A.sel=job;
+  fillDetail(job);
+  resetForm();
+  document.getElementById("vlisting").style.display="none";
+  document.getElementById("vform").style.display="block";
+  document.getElementById("scard").style.display="none";
+  document.getElementById("fcard").style.display="block";
+  window.scrollTo({top:0,behavior:"smooth"});
+  history.pushState({},"","/apply?job="+name);
+}
+
+window.addEventListener("popstate",function(){
+  if(document.getElementById("vform").style.display!=="none")goList();
+});
+
+function fillDetail(j){
+  var col=dc(j.department);
+  document.getElementById("jdc").style.background="linear-gradient(135deg,"+col[0]+"cc,"+col[0]+")";
+  document.getElementById("jd-title").textContent=j.job_title||"";
+  document.getElementById("jd-co").textContent="🏢 "+(j.company||"");
+  document.getElementById("jd-loc").textContent="📍 "+(j.location||"");
+  document.getElementById("jd-mode").textContent=j.work_mode||"";
+  document.getElementById("jd-type").textContent=j.employment_type||"";
+  var days=du(j.closes_on);
+  var dld=document.getElementById("jd-dl");
+  if(j.closes_on){
+    var urg=days!==null&&days<=7;
+    dld.innerHTML="⏰ Closing: <strong>"+fd(j.closes_on)+"</strong>"+(urg?"<span style='color:#FCD34D;font-weight:700;margin-left:8px'>("+days+" day"+(days!==1?"s":"")+" left!)</span>":"");
+  }
+  var rc=document.getElementById("rcard");
+  if(j.min_experience||j.min_education||(j.skills&&j.skills.length)){
+    rc.style.display="block";
+    document.getElementById("rgrid").innerHTML=[
+      j.min_experience?'<div class="ri"><div class="rilbl">Min Experience</div><div class="rival">'+j.min_experience+' years</div></div>':"",
+      j.min_education?'<div class="ri"><div class="rilbl">Min Education</div><div class="rival">'+j.min_education+'</div></div>':"",
+      j.min_degree_class?'<div class="ri"><div class="rilbl">Degree Class</div><div class="rival">'+j.min_degree_class+'</div></div>':"",
+      j.location?'<div class="ri"><div class="rilbl">Location</div><div class="rival">'+j.location+'</div></div>':"",
+    ].filter(Boolean).join("");
+    var ss=document.getElementById("sk-sec");
+    var skills=j.skills||[];
+    if(skills.length){
+      ss.style.display="block";
+      document.getElementById("sk-cont").innerHTML=skills.map(function(s){
+        return '<span class="sk'+(s.mandatory?" mand":"")+'">'+( s.skill||s)+'</span>';
+      }).join("");
+    }else{ss.style.display="none";}
+  }else{rc.style.display="none";}
+}
+
+// Form step management
+function resetForm(){
+  A.step=1;A.file=null;
+  document.querySelectorAll(".fi").forEach(function(el){
+    if(el.tagName==="INPUT"&&el.type!=="checkbox")el.value="";
+    else if(el.tagName==="SELECT")el.selectedIndex=0;
+    else if(el.tagName==="TEXTAREA")el.value="";
+  });
+  document.querySelectorAll("input[type=checkbox]").forEach(function(el){el.checked=false;});
+  document.getElementById("uzfn").style.display="none";
+  document.getElementById("uzw").style.borderColor="";
+  document.getElementById("alert").style.display="none";
+  showStep(1);
+}
+
+function showStep(n){
+  A.step=n;
+  for(var i=1;i<=5;i++){
+    document.getElementById("s"+i).className="fs"+(i===n?" on":"");
+    var el=document.getElementById("sp"+i);
+    el.className="st"+(i===n?" on":i<n?" dn":"");
+  }
+  document.getElementById("bbk").style.display=n===1?"none":"flex";
+  document.getElementById("bnx").style.display=n===5?"none":"flex";
+  document.getElementById("bsub").style.display=n===5?"flex":"none";
+  document.getElementById("pf").style.width=(n/5*100)+"%";
+  if(n===5)buildReview();
+  document.getElementById("alert").style.display="none";
+  document.getElementById("fcard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function next(){if(valid(A.step))showStep(A.step+1);}
+function prev(){showStep(A.step-1);}
+
+function valid(n){
+  if(n===1){
+    if(!v("fn")||!v("ln"))return err("Please enter your full name.");
+    if(!v("em")||!/\S+@\S+\.\S+/.test(v("em")))return err("Please enter a valid email address.");
+    if(!v("ph"))return err("Please enter your phone number.");
+    if(!v("cy"))return err("Please enter your current city.");
+    if(!v("st"))return err("Please enter your current state.");
+  }
+  if(n===2){
+    if(!v("ed"))return err("Please select your education level.");
+    var eu=v("ed");
+    if(["BSc / B.Eng","MSc / MBA","PhD","HND","OND"].indexOf(eu)>=0&&!v("dc"))
+      return err("Please select your class of degree.");
+    if(!v("ins"))return err("Please enter your institution name.");
+    if(!v("cs"))return err("Please enter your field of study.");
+  }
+  if(n===3){
+    if(!v("ex"))return err("Please enter your years of experience.");
+    if(!v("sk"))return err("Please list your key skills.");
+  }
+  if(n===4){if(!A.file)return err("Please upload your resume.");}
+  if(n===5){
+    if(!document.getElementById("ca").checked)return err("Please confirm your information is accurate.");
+    if(!document.getElementById("cc").checked)return err("Please consent to data processing.");
+    if(!document.getElementById("cg").checked)return err("Please acknowledge the gender data notice.");
+  }
+  return true;
+}
+
+function err(msg){
+  var a=document.getElementById("alert");
+  a.textContent="⚠️ "+msg;a.style.display="block";
+  a.scrollIntoView({behavior:"smooth",block:"center"});return false;
+}
+
+function togDC(){
+  var eu=v("ed");
+  document.getElementById("dcg").style.display=eu&&eu!=="O-Level"?"":"none";
+  document.getElementById("dchint").textContent=(eu==="HND"||eu==="OND")?"(Distinction/Upper/Lower Credit)":"";
+}
+
+function onFile(input){
+  var f=(input.files||[])[0];if(!f)return;
+  if(f.size>5*1024*1024){err("File too large. Maximum 5MB.");return;}
+  A.file=f;
+  var fn=document.getElementById("uzfn");fn.textContent="✅ "+f.name;fn.style.display="block";
+  document.getElementById("uzw").style.borderColor="#059669";
+}
+document.getElementById("uzw").addEventListener("dragover",function(e){e.preventDefault();this.style.borderColor="#7C3AED";});
+document.getElementById("uzw").addEventListener("dragleave",function(){this.style.borderColor="";});
+document.getElementById("uzw").addEventListener("drop",function(e){
+  e.preventDefault();this.style.borderColor="";
+  var f=e.dataTransfer.files[0];if(f)onFile({files:[f]});
+});
+
+function buildReview(){
+  var sm=parseFloat(v("smin"))||0,sx=parseFloat(v("smax"))||0;
+  var st2=sm||sx?"₦"+sm.toLocaleString()+" – ₦"+sx.toLocaleString()+"/month":"Not stated";
+  var rows=[
+    ["Applying For",A.sel?A.sel.job_title:"—"],
+    ["Full Name",v("fn")+" "+v("ln")],
+    ["Email",v("em")],["Phone",v("ph")],
+    ["Location",v("cy")+", "+v("st")],
+    ["Relocation",v("re")==="1"?"Yes":v("re")==="0"?"No":"Not stated"],
+    ["Gender",v("gn")||"Prefer not to say"],
+    ["Education",v("ed")],["Degree Class",v("dc")||"N/A"],
+    ["Institution",v("ins")],["Course",v("cs")],
+    ["Experience",v("ex")+" years"],
+    ["Certifications",v("cert")||"None"],
+    ["Salary",st2],["Notice",v("np")||"Not stated"],
+    ["Resume",A.file?"✅ "+A.file.name:"⚠️ Not uploaded"],
+  ];
+  document.getElementById("rvtbl").innerHTML=rows.map(function(r){
+    return "<tr><td>"+r[0]+"</td><td>"+(r[1]||"—")+"</td></tr>";
+  }).join("");
+}
+
+async function doSubmit(){
+  if(!valid(5)) return;
+
+  var btn = document.getElementById("bsub");
+  btn.disabled = true;
+  btn.textContent = "⏳ Submitting…";
+
+  try {
+    var sm = parseFloat(v("smin")) || 0;
+    var sx = parseFloat(v("smax")) || 0;
+    var sa = sm && sx ? (sm + sx) / 2 : sm || sx;
+    var tok = csrf();
+
+    // Use URLSearchParams — more reliable than JSON for allow_guest Frappe endpoints
+    var params = new URLSearchParams();
+    var fields = {
+      job_opening:           A.sel.name,
+      applicant_name:        (v("fn") + " " + v("ln")).trim(),
+      email_id:              v("em"),
+      mobile_no:             v("ph"),
+      cover_letter:          v("cl"),
+      gender:                v("gn") || "Prefer not to say",
+      location_city:         v("cy"),
+      location_state:        v("st"),
+      willing_to_relocate:   v("re") === "1" ? "1" : "0",
+      work_mode:             v("wm"),
+      highest_qualification: v("ed"),
+      degree_class:          v("dc") || "Not Applicable",
+      years_experience:      String(parseFloat(v("ex")) || 0),
+      certifications:        v("cert"),
+      skills:                v("sk"),
+      salary_expectation:    String(sa),
+      notice_period:         v("np"),
+    };
+    Object.keys(fields).forEach(function(k){ params.append(k, fields[k]); });
+
+    var r = await fetch(
+      "/api/method/ecclesia.api.apply_api.submit_application",
+      {
+        method:  "POST",
+        headers: {
+          "Content-Type":        "application/x-www-form-urlencoded",
+          "X-Frappe-CSRF-Token": tok,
+          "X-Frappe-Request-ID": Date.now().toString(),
+        },
+        body:        params.toString(),
+        credentials: "include",
+      }
+    );
+
+    // Read response text first so we can show it on error
+    var rawText = await r.text();
+    var d;
+    try { d = JSON.parse(rawText); }
+    catch(pe) {
+      throw new Error("Server returned non-JSON: " + rawText.substring(0, 200));
+    }
+
+    if (!r.ok || d.exc_type) {
+      var msg = d.exception || d._server_messages || rawText.substring(0, 300);
+      throw new Error(msg);
+    }
+
+    var res = d.message;
+    if (res && !res.success) {
+      err(res.message || "Submission error. Please try again.");
+      btn.disabled = false;
+      btn.innerHTML = "🚀 Submit Application";
+      return;
+    }
+
+    var ref = res ? res.applicant : "";
+
+    // Upload resume (non-fatal)
+    if (A.file && ref) {
+      var fd2 = new FormData();
+      fd2.append("file",      A.file);
+      fd2.append("doctype",   "Job Applicant");
+      fd2.append("docname",   ref);
+      fd2.append("fieldname", "resume_attachment");
+      fd2.append("is_private","0");
+      await fetch("/api/method/upload_file", {
+        method:      "POST",
+        headers:     { "X-Frappe-CSRF-Token": tok },
+        body:        fd2,
+        credentials: "include",
+      }).catch(function(){});
+    }
+
+    // Show success
+    document.getElementById("fcard").style.display = "none";
+    var sc = document.getElementById("scard");
+    sc.style.display = "block";
+    if (ref) document.getElementById("sref").textContent = "Reference: " + ref;
+    var cls = A.sel && A.sel.closes_on ? " after " + fd(A.sel.closes_on) : "";
+    document.getElementById("smsg").innerHTML =
+      "Your application for <strong>" + (A.sel ? A.sel.job_title : "this role") +
+      "</strong> has been received.<br><br>" +
+      "A confirmation email is on its way to <strong>" + v("em") + "</strong>." +
+      " You will receive an outcome notification" + cls + ".";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+  } catch(e) {
+    console.error("Submit error:", e);
+    var display = (e.message || "Unknown error. Please try again.").toString().substring(0, 250);
+    err("Submission failed — " + display);
+    btn.disabled = false;
+    btn.innerHTML = "🚀 Submit Application";
+  }
+}
+
+togDC();
+</script>
+</body>
+</html>

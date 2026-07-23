@@ -1,5 +1,3 @@
-# Copyright (c) 2026, Kunle Oduntan and contributors
-# For license information, please see license.txt
 """
 Bank Transaction Processor — Controller  (v2)
 ==============================================
@@ -156,10 +154,6 @@ class BankTransactionProcessor(Document):
                     pass  # allowed but not required — user may optionally set for reference
 
             if tt in _JE_TYPES:
-                if not row.get("account_to_debit"):
-                    frappe.throw(_(f"Row {idx}: Account to Debit is required for {tt}."))
-                if not row.get("account_to_credit"):
-                    frappe.throw(_(f"Row {idx}: Account to Credit is required for {tt}."))
                 if row.get("amortise"):
                     if not row.get("frequency"):
                         frappe.throw(_(f"Row {idx}: Frequency is required when Amortise is ticked."))
@@ -364,19 +358,21 @@ def _build_payment_entry(row, company, bank_account_name, processor_name):
 def _build_journal_entry_single(row, company, bank_account_name, processor_name,
                                  posting_date=None, amount=None, period_num=None):
     """
-    Creates one Journal Entry.
-    Used for immediate (non-amortised) Payment/Receipt rows,
-    and also called per-period by the amortisation builder.
+    Creates one Journal Entry for a Payment or Receipt row.
+    Used for immediate (non-amortised) rows and called per-period by the
+    amortisation builder.
 
-    Payment (expense / cost):
-        Dr  account_to_debit   (expense account)
-        Cr  account_to_credit  (bank account)
+    The bank GL account is taken from row.bank_account_gl (populated from the
+    parent processor's bank_account_gl field). The user only needs to supply
+    ONE non-bank GL account per row:
 
-    Receipt (income / revenue):
-        Dr  account_to_debit   (bank account)
-        Cr  account_to_credit  (income account)
+    Payment (expense / cost out of bank):
+        Dr  account_to_debit   ← user sets this (expense / cost account)
+        Cr  bank_gl            ← auto-resolved from row.bank_account_gl
 
-    The user sets both accounts explicitly — no guessing needed.
+    Receipt (income / revenue into bank):
+        Dr  bank_gl            ← auto-resolved from row.bank_account_gl
+        Cr  account_to_credit  ← user sets this (income / revenue account)
     """
     tt          = row.get("trans_type")
     use_amount  = flt(amount if amount is not None else row.get("amount"))
@@ -384,14 +380,44 @@ def _build_journal_entry_single(row, company, bank_account_name, processor_name,
     description = row.get("remark") or ""
     exch_rate   = flt(row.get("exch_rate")) or 1.0
 
-    dr_account  = row.get("account_to_debit")
-    cr_account  = row.get("account_to_credit")
-
-    if not dr_account or not cr_account:
+    # ── Resolve bank GL ───────────────────────────────────────────────────────
+    # Priority: row.bank_account_gl (copied from parent) → Bank Account master
+    bank_gl = (
+        row.get("bank_account_gl")
+        or frappe.db.get_value("Bank Account", bank_account_name, "account")
+    )
+    if not bank_gl:
         frappe.throw(_(
-            f"Row {row.get('idx')}: Both 'Account to Debit' and 'Account to Credit' "
-            "are required for Payment / Receipt journal entries."
+            f"Row {row.get('idx')}: Cannot determine Bank GL Account. "
+            "Set it on the processor's 'Bank Account GL' field or link a GL "
+            "Account on the Bank Account master."
         ))
+
+    # ── Resolve the non-bank leg ──────────────────────────────────────────────
+    if tt == "Payment":
+        # Money OUT — user specifies the expense/cost account to debit
+        non_bank_account = row.get("account_to_debit")
+        if not non_bank_account:
+            frappe.throw(_(
+                f"Row {row.get('idx')}: Account to Debit is required for Payment "
+                "(the expense or cost account being charged)."
+            ))
+        dr_account = non_bank_account
+        cr_account = bank_gl
+
+    elif tt == "Receipt":
+        # Money IN — user specifies the income/revenue account to credit
+        non_bank_account = row.get("account_to_credit")
+        if not non_bank_account:
+            frappe.throw(_(
+                f"Row {row.get('idx')}: Account to Credit is required for Receipt "
+                "(the income or revenue account being recognised)."
+            ))
+        dr_account = bank_gl
+        cr_account = non_bank_account
+
+    else:
+        frappe.throw(_(f"Row {row.get('idx')}: Unknown JE trans_type '{tt}'."))
 
     narration = row.get("transaction_description") or description
     if period_num:
@@ -406,15 +432,18 @@ def _build_journal_entry_single(row, company, bank_account_name, processor_name,
     je.cheque_no                = row.get("reference_no") or processor_name
     je.cheque_date              = row.get("posting_date")
 
+    # Leg 1 — Debit side
     je.append("accounts", {
-        "account":                   dr_account,
-        "debit_in_account_currency": use_amount,
+        "account":                    dr_account,
+        "debit_in_account_currency":  use_amount,
         "credit_in_account_currency": 0,
-        "exchange_rate":             exch_rate,
-        "cost_center":               row.get("cost_center") or None,
-        "project":                   row.get("project")     or None,
-        "user_remark":               narration,
+        "exchange_rate":              exch_rate,
+        "cost_center":                row.get("cost_center") or None,
+        "project":                    row.get("project")     or None,
+        "user_remark":                narration,
     })
+
+    # Leg 2 — Credit side
     je.append("accounts", {
         "account":                    cr_account,
         "debit_in_account_currency":  0,
@@ -923,13 +952,6 @@ def import_from_excel(processor_name: str, file_content: str, filename: str) -> 
                 row_errors.append("'Party Type' is required for " + tt_import)
             if not data.get("party"):
                 row_errors.append("'Party' is required for " + tt_import)
-        # For JE types: account_to_debit and account_to_credit are required
-        if tt_import in {"Payment", "Receipt"}:
-            if not data.get("account_to_debit"):
-                row_errors.append("'Account to Debit' is required for " + tt_import)
-            if not data.get("account_to_credit"):
-                row_errors.append("'Account to Credit' is required for " + tt_import)
-
         if row_errors:
             errors.append({"row": excel_row, "errors": row_errors,
                            "description": data.get("remark","")})

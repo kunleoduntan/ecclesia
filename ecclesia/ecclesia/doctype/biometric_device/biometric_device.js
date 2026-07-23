@@ -16,6 +16,13 @@ const BRAND_CONFIG = {
         show:     ["communication_key"],
         hide:     ["biostar_server_url", "cloudclox_device_id", "cloudclox_api_url", "api_key"],
     },
+    "TAMS":      {
+        protocol: "SDK",
+        port:     4370,
+        hint:     "TAMS Chrome is ZKTeco-protocol compatible. For real-time attendance, set Sync Mode to 'Push (Real-time)' below and point the device's Comm > Server IP/Port at this server instead of TAMS's own cloud — see Device Serial No field, which must match what the device reports.",
+        show:     ["communication_key", "device_serial"],
+        hide:     ["biostar_server_url", "cloudclox_device_id", "cloudclox_api_url", "api_key"],
+    },
     "Realand":   {
         protocol: "SDK",
         port:     4370,
@@ -84,6 +91,17 @@ frappe.ui.form.on("Biometric Device", {
         frappe.show_alert({ message: cfg.hint, indicator: "blue" }, 10);
     },
 
+    sync_mode(frm) {
+        if (frm.doc.device_brand === "TAMS" && frm.doc.sync_mode === "Push (Real-time)") {
+            frappe.show_alert({
+                message: __(
+                    "Remember: on the physical device, set Comm > Server Settings > Server IP/Port to this Frappe server's address (not TAMS's cloud), and enter this device's exact Serial No in Device Serial No above so pushes can be matched."
+                ),
+                indicator: "orange"
+            }, 12);
+        }
+    },
+
     refresh(frm) {
         // Re-apply field visibility whenever the form loads or refreshes
         const cfg = BRAND_CONFIG[frm.doc.device_brand];
@@ -144,6 +162,15 @@ function _ping(frm) {
 // ── Sync Now ──────────────────────────────────────────────────────────────────
 
 function _sync(frm) {
+    if (frm.doc.sync_mode === "Push (Real-time)") {
+        frappe.msgprint({
+            title: __("Push Mode Device"),
+            message: __("This device pushes attendance in real time — there is nothing to manually pull. Use 'Ping Device' to check connectivity, or check View Attendance Logs to confirm recent pushes are arriving."),
+            indicator: "blue"
+        });
+        return;
+    }
+
     frappe.confirm(
         __(`Pull attendance logs from <b>${frm.doc.device_name || frm.doc.name}</b> now?`),
         () => {
@@ -226,12 +253,25 @@ function _get_users(frm) {
 // ── Status indicator ──────────────────────────────────────────────────────────
 
 function _show_sync_indicator(frm) {
+    const status = frm.doc.device_status || "Unknown";
+    const colour = status === "Online" ? "green" : status === "Offline" ? "red" : "orange";
+
+    if (frm.doc.sync_mode === "Push (Real-time)") {
+        const heartbeat = frm.doc.last_heartbeat
+            ? frappe.datetime.str_to_user(frm.doc.last_heartbeat)
+            : __("never");
+        const last_punch = frm.doc.last_sync
+            ? frappe.datetime.str_to_user(frm.doc.last_sync)
+            : __("no punches yet");
+        frm.dashboard.add_indicator(
+            __(`${status} — Last contact: ${heartbeat} · Last punch: ${last_punch}`),
+            colour
+        );
+        return;
+    }
+
     if (!frm.doc.last_sync) return;
-
-    const status    = frm.doc.device_status || "Unknown";
-    const colour    = status === "Online" ? "green" : status === "Offline" ? "red" : "orange";
     const last_sync = frappe.datetime.str_to_user(frm.doc.last_sync);
-
     frm.dashboard.add_indicator(
         __(`${status} — Last sync: ${last_sync}`),
         colour

@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:gateway_name",
- "creation": "2026-03-10 11:15:52.201300",
+ "creation": "2026-06-18 08:41:46.787519",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -28,7 +28,20 @@
   "refund_endpoint",
   "callback_url",
   "sec_currency",
-  "currency"
+  "currency",
+  "sec_bank_export",
+  "bank_export_format",
+  "bank_bic_code",
+  "col5",
+  "company_account_no",
+  "debit_account_name",
+  "sec_debtor_address",
+  "debt_building_number",
+  "debt_street_name",
+  "col6",
+  "debt_building_name",
+  "debt_city",
+  "debt_country"
  ],
  "fields": [
   {
@@ -44,7 +57,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Provider",
-   "options": "\nPaystack\nFlutterwave\nRemita\nInterswitch\nOpay\nSquad\nStripe\nM-Pesa\nPayPal",
+   "options": "\nPaystack\nFlutterwave\nRemita\nInterswitch\nOpay\nSquad\nStripe\nM-Pesa\nPayPal\nBank Direct Export",
    "reqd": 1
   },
   {
@@ -154,15 +167,94 @@
    "fieldtype": "Link",
    "label": "Default Currency",
    "options": "Currency"
+  },
+  {
+   "collapsible": 1,
+   "description": "Configure for direct bank file generation (Zenith ISO 20022, GTB, SEPA, BACS, NACHA, SWIFT MT103)",
+   "fieldname": "sec_bank_export",
+   "fieldtype": "Section Break",
+   "label": "Bank Payment Export"
+  },
+  {
+   "description": "Format used when generating payroll payment files for this bank",
+   "fieldname": "bank_export_format",
+   "fieldtype": "Select",
+   "label": "Default Export Format",
+   "options": "\nzenith_iso20022\ngtb_csv\naccess_csv\nuba_csv\nfirstbank_csv\nsepa_xml\nbacs_csv\nach_nacha\nswift_mt103"
+  },
+  {
+   "description": "e.g. ZEIBNGLA for Zenith, GTBINGLA for GTB, UNAFNGLA for UBA",
+   "fieldname": "bank_bic_code",
+   "fieldtype": "Data",
+   "label": "Bank BIC / SWIFT Code"
+  },
+  {
+   "fieldname": "col5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "The debit account number (10 digits for Nigeria)",
+   "fieldname": "company_account_no",
+   "fieldtype": "Data",
+   "label": "Company Account Number"
+  },
+  {
+   "description": "Link to the ERPNext Bank Account used as debit source",
+   "fieldname": "debit_account_name",
+   "fieldtype": "Link",
+   "label": "ERPNext Bank Account",
+   "options": "Bank Account"
+  },
+  {
+   "collapsible": 1,
+   "description": "Used in Zenith ISO 20022 DEBT_ADDRESS_* fields. Must match bank records exactly.",
+   "fieldname": "sec_debtor_address",
+   "fieldtype": "Section Break",
+   "label": "Company Address for Bank Files"
+  },
+  {
+   "description": "e.g. 13 TH FLOOR",
+   "fieldname": "debt_building_number",
+   "fieldtype": "Data",
+   "label": "Floor / Building Number"
+  },
+  {
+   "description": "e.g. CATHOLIC MISSION STREET",
+   "fieldname": "debt_street_name",
+   "fieldtype": "Data",
+   "label": "Street Name"
+  },
+  {
+   "fieldname": "col6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "e.g. WESTERN BUSINESS PARK",
+   "fieldname": "debt_building_name",
+   "fieldtype": "Data",
+   "label": "Building Name"
+  },
+  {
+   "default": "LAGOS",
+   "fieldname": "debt_city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "default": "NG",
+   "description": "ISO 2-letter country code",
+   "fieldname": "debt_country",
+   "fieldtype": "Data",
+   "label": "Country Code"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-10 11:18:15.162661",
+ "modified": "2026-06-18 08:41:46.787519",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Payment Gateway Settings",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -179,7 +271,9 @@
   }
  ],
  "quick_entry": 1,
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

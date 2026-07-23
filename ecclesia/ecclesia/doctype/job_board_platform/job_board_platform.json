@@ -1,0 +1,287 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:platform_name",
+ "creation": "2026-07-06 15:38:11.519529",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "platform_name",
+  "platform_type",
+  "platform_logo",
+  "col_hdr",
+  "status",
+  "connection_status",
+  "last_tested",
+  "sec_creds",
+  "api_key",
+  "api_secret",
+  "access_token",
+  "col_creds",
+  "refresh_token",
+  "token_expiry",
+  "page_id",
+  "organization_id",
+  "extra_config",
+  "sec_post",
+  "character_limit",
+  "supports_image",
+  "supports_hashtags",
+  "supports_rich_text",
+  "col_post",
+  "default_hashtags",
+  "post_url_pattern",
+  "sec_template",
+  "message_template",
+  "sec_timing",
+  "best_days",
+  "best_time_utc",
+  "min_hours_between",
+  "sec_stats",
+  "total_posts",
+  "total_applications",
+  "avg_engagement",
+  "last_post_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "platform_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Platform Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "platform_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Platform Type",
+   "options": "Social Media\nJob Board\nMessaging\nCompany Website\nXML Feed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "platform_logo",
+   "fieldtype": "Attach Image",
+   "label": "Platform Logo"
+  },
+  {
+   "fieldname": "col_hdr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Testing",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nInactive\nTesting"
+  },
+  {
+   "default": "Not Tested",
+   "fieldname": "connection_status",
+   "fieldtype": "Select",
+   "label": "Connection",
+   "options": "Not Tested\nConnected\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_tested",
+   "fieldtype": "Datetime",
+   "label": "Last Tested",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_creds",
+   "fieldtype": "Section Break",
+   "label": "API Credentials (stored encrypted)"
+  },
+  {
+   "fieldname": "api_key",
+   "fieldtype": "Password",
+   "label": "API Key / Client ID"
+  },
+  {
+   "fieldname": "api_secret",
+   "fieldtype": "Password",
+   "label": "API Secret / Client Secret"
+  },
+  {
+   "fieldname": "access_token",
+   "fieldtype": "Password",
+   "label": "Access Token"
+  },
+  {
+   "fieldname": "col_creds",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "refresh_token",
+   "fieldtype": "Password",
+   "label": "Refresh Token"
+  },
+  {
+   "fieldname": "token_expiry",
+   "fieldtype": "Datetime",
+   "label": "Token Expiry"
+  },
+  {
+   "description": "Facebook Page ID, LinkedIn Company URN, Telegram Channel username",
+   "fieldname": "page_id",
+   "fieldtype": "Data",
+   "label": "Page / Channel / Company ID"
+  },
+  {
+   "fieldname": "organization_id",
+   "fieldtype": "Data",
+   "label": "Organisation / Account ID"
+  },
+  {
+   "description": "Any additional platform-specific settings as JSON",
+   "fieldname": "extra_config",
+   "fieldtype": "Code",
+   "label": "Extra Config (JSON)",
+   "options": "JSON"
+  },
+  {
+   "fieldname": "sec_post",
+   "fieldtype": "Section Break",
+   "label": "Post Settings"
+  },
+  {
+   "description": "0 = unlimited. Twitter/X=280, LinkedIn=3000, Facebook=63206",
+   "fieldname": "character_limit",
+   "fieldtype": "Int",
+   "label": "Character Limit"
+  },
+  {
+   "default": "1",
+   "fieldname": "supports_image",
+   "fieldtype": "Check",
+   "label": "Supports Image"
+  },
+  {
+   "default": "1",
+   "fieldname": "supports_hashtags",
+   "fieldtype": "Check",
+   "label": "Supports Hashtags"
+  },
+  {
+   "default": "0",
+   "fieldname": "supports_rich_text",
+   "fieldtype": "Check",
+   "label": "Supports Rich Text"
+  },
+  {
+   "fieldname": "col_post",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Always appended. e.g. #Hiring #Nigeria #Jobs",
+   "fieldname": "default_hashtags",
+   "fieldtype": "Small Text",
+   "label": "Default Hashtags"
+  },
+  {
+   "description": "e.g. https://www.linkedin.com/feed/update/{post_id}",
+   "fieldname": "post_url_pattern",
+   "fieldtype": "Data",
+   "label": "Post URL Pattern"
+  },
+  {
+   "fieldname": "sec_template",
+   "fieldtype": "Section Break",
+   "label": "Message Template"
+  },
+  {
+   "description": "Jinja2 template. Variables: job_title, company, location, requirements, apply_url, salary_display",
+   "fieldname": "message_template",
+   "fieldtype": "Text Editor",
+   "label": "Default Message Template"
+  },
+  {
+   "fieldname": "sec_timing",
+   "fieldtype": "Section Break",
+   "label": "Posting Schedule"
+  },
+  {
+   "description": "e.g. Monday, Tuesday, Wednesday",
+   "fieldname": "best_days",
+   "fieldtype": "Small Text",
+   "label": "Best Days to Post"
+  },
+  {
+   "description": "e.g. 09:00",
+   "fieldname": "best_time_utc",
+   "fieldtype": "Data",
+   "label": "Best Time (UTC)"
+  },
+  {
+   "default": "24",
+   "fieldname": "min_hours_between",
+   "fieldtype": "Int",
+   "label": "Min Hours Between Posts"
+  },
+  {
+   "fieldname": "sec_stats",
+   "fieldtype": "Section Break",
+   "label": "Performance Stats"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_posts",
+   "fieldtype": "Int",
+   "label": "Total Posts",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_applications",
+   "fieldtype": "Int",
+   "label": "Applications Generated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "avg_engagement",
+   "fieldtype": "Float",
+   "label": "Avg Engagement Rate (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_post_date",
+   "fieldtype": "Datetime",
+   "label": "Last Post Date",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-06 15:38:11.519529",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Job Board Platform",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

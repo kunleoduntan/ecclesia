@@ -1,662 +1,518 @@
 // -*- coding: utf-8 -*-
-// Copyright (c) 2025, Your Company
-// Payments List View Customization
+// Copyright (c) 2026, kunle Oduntan and contributors
+// Payments List View Script
+//
+// Consolidated from payments_list.js / payments_import_list.js (identical
+// duplicate files) — this is now the single canonical list-view script.
+//
+// All server calls point at payments.py, since payments_import_handler.py
+// and payments_dashboard.py were merged into it (see CHANGELOG.md).
+// Uses the same confirmed-correct path convention as payments.js:
+//   ecclesia.ecclesia.doctype.payments.payments.<method>
+
+const PAYMENTS_PY_PATH = 'ecclesia.ecclesia.doctype.payments.payments';
 
 frappe.listview_settings['Payments'] = {
-    // Add indicators for status
-    get_indicator: function(doc) {
-        const status_colors = {
-            'Draft': 'red',
-            'Pending Approval': 'orange',
-            'Approved': 'blue',
-            'Processing': 'yellow',
-            'Completed': 'green',
-            'Cancelled': 'darkgrey',
-            'Rejected': 'red'
-        };
-        
-        return [__(doc.payment_status || 'Draft'), status_colors[doc.payment_status || 'Draft'], 'payment_status,=,' + doc.payment_status];
-    },
-    
-    // Color-code rows based on conditions
     onload: function(listview) {
-        // Add custom buttons
-        add_custom_list_buttons(listview);
-        
-        // Add custom filters
-        add_custom_filters(listview);
-        
-        // Format list view
-        format_list_view(listview);
-        
-        // Add bulk actions
-        setup_bulk_actions(listview);
+        listview.page.add_menu_item(__('Import Payments'), function() {
+            show_import_dialog(listview);
+        }, true);
+
+        listview.page.add_action_item(__('Import Payments'), function() {
+            show_import_dialog(listview);
+        });
+
+        listview.page.add_menu_item(__('Payments Dashboard'), function() {
+            show_dashboard_dialog(listview);
+        }, true);
     },
-    
-    // Format columns
-    formatters: {
-        amount_paid: function(value, df, doc) {
-            if (!value) return '';
-            
-            let currency = doc.payment_currency || 'NGN';
-            let formatted = format_currency(value, currency);
-            
-            // Color code based on amount
-            let color = 'inherit';
-            if (value > 1000000) {
-                color = '#d32f2f'; // Red for large amounts
-            } else if (value > 500000) {
-                color = '#f57c00'; // Orange for medium amounts
-            }
-            
-            return `<span style="color: ${color}; font-weight: bold;">${formatted}</span>`;
+
+    // Per-row action button — only shown for Draft payments. Previously
+    // just showed a msgprint stub ("Processing payment: X") with no
+    // actual effect; now genuinely opens the document so the user can
+    // review and submit it, which is what "Process" implies.
+    button: {
+        show(doc) {
+            return doc.payment_status === 'Draft';
         },
-        
-        transaction_date: function(value) {
-            if (!value) return '';
-            
-            let today = frappe.datetime.get_today();
-            let days_diff = frappe.datetime.get_day_diff(today, value);
-            
-            let color = 'inherit';
-            if (days_diff < 0) {
-                color = '#1976d2'; // Blue for future dates
-            } else if (days_diff > 30) {
-                color = '#757575'; // Grey for old dates
-            }
-            
-            return `<span style="color: ${color};">${frappe.datetime.str_to_user(value)}</span>`;
+        get_label() {
+            return __('Process Payment');
         },
-        
-        payee_name: function(value, df, doc) {
-            if (!value && doc.supplier_name) {
-                value = doc.supplier_name;
-            }
-            return value || '';
+        get_description(doc) {
+            return __('Open this payment to review and submit');
+        },
+        action(doc) {
+            frappe.set_route('Form', 'Payments', doc.name);
         }
-    },
-    
-    // Quick edit fields
-    hide_name_column: false,
-    
-    // Refresh on specific events
-    refresh: function(listview) {
-        // Refresh list view when needed
     }
 };
 
+// ==================== Import Dialog ====================
 
-// ==================== Custom List Buttons ====================
-
-function add_custom_list_buttons(listview) {
-    // Bulk Approve Button
-    listview.page.add_inner_button(__('Bulk Approve'), function() {
-        let selected = listview.get_checked_items();
-        
-        if (selected.length === 0) {
-            frappe.msgprint(__('Please select payments to approve'));
-            return;
-        }
-        
-        frappe.confirm(
-            __('Are you sure you want to approve {0} payments?', [selected.length]),
-            function() {
-                bulk_approve_payments(selected);
-            }
-        );
-    }, __('Actions'));
-    
-    // Bulk Submit Button
-    listview.page.add_inner_button(__('Bulk Submit'), function() {
-        let selected = listview.get_checked_items();
-        
-        if (selected.length === 0) {
-            frappe.msgprint(__('Please select payments to submit'));
-            return;
-        }
-        
-        frappe.confirm(
-            __('Are you sure you want to submit {0} payments?', [selected.length]),
-            function() {
-                bulk_submit_payments(selected);
-            }
-        );
-    }, __('Actions'));
-    
-    // Export Selected Button
-    listview.page.add_inner_button(__('Export Selected'), function() {
-        let selected = listview.get_checked_items();
-        
-        if (selected.length === 0) {
-            frappe.msgprint(__('Please select payments to export'));
-            return;
-        }
-        
-        export_selected_payments(selected);
-    }, __('Actions'));
-    
-    // Payment Analytics Button
-    listview.page.add_inner_button(__('Analytics Dashboard'), function() {
-        show_analytics_dashboard();
-    }, __('Reports'));
-    
-    // Payment Register Button
-    listview.page.add_inner_button(__('Payment Register'), function() {
-        frappe.set_route('query-report', 'Payment Register');
-    }, __('Reports'));
-}
-
-
-// ==================== Custom Filters ====================
-
-function add_custom_filters(listview) {
-    // Add date range filter
-    listview.page.add_field({
-        fieldname: 'date_range',
-        label: __('Date Range'),
-        fieldtype: 'Select',
-        options: [
-            '',
-            'Today',
-            'Yesterday',
-            'This Week',
-            'Last Week',
-            'This Month',
-            'Last Month',
-            'This Quarter',
-            'Last Quarter',
-            'This Year',
-            'Custom'
-        ],
-        change: function() {
-            apply_date_filter(this.get_value(), listview);
-        }
-    });
-    
-    // Add amount range filter
-    listview.page.add_field({
-        fieldname: 'amount_range',
-        label: __('Amount Range'),
-        fieldtype: 'Select',
-        options: [
-            '',
-            'Less than 100,000',
-            '100,000 - 500,000',
-            '500,000 - 1,000,000',
-            'Above 1,000,000'
-        ],
-        change: function() {
-            apply_amount_filter(this.get_value(), listview);
-        }
-    });
-}
-
-
-// ==================== List View Formatting ====================
-
-function format_list_view(listview) {
-    // Add custom CSS
-    $('<style>')
-        .prop('type', 'text/css')
-        .html(`
-            .list-row-head {
-                background-color: #f5f7fa;
-                font-weight: 600;
-            }
-            
-            .payment-urgent {
-                border-left: 3px solid #d32f2f !important;
-                background-color: #ffebee !important;
-            }
-            
-            .payment-approved {
-                border-left: 3px solid #1976d2 !important;
-            }
-            
-            .payment-completed {
-                border-left: 3px solid #388e3c !important;
-                background-color: #f1f8f4 !important;
-            }
-            
-            .payment-cancelled {
-                background-color: #fafafa !important;
-                opacity: 0.7;
-            }
-            
-            .list-row-container:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                transition: all 0.2s ease;
-            }
-        `)
-        .appendTo('head');
-    
-    // Apply row formatting after render
-    listview.$result.on('DOMNodeInserted', function(e) {
-        if ($(e.target).hasClass('list-row-container')) {
-            format_payment_row($(e.target));
-        }
-    });
-}
-
-
-function format_payment_row($row) {
-    let data = $row.data();
-    
-    if (!data) return;
-    
-    // Add class based on status
-    if (data.payment_status === 'Completed') {
-        $row.addClass('payment-completed');
-    } else if (data.payment_status === 'Cancelled') {
-        $row.addClass('payment-cancelled');
-    } else if (data.payment_status === 'Approved') {
-        $row.addClass('payment-approved');
-    }
-    
-    // Mark urgent payments (large amounts)
-    if (data.amount_paid && data.amount_paid > 1000000) {
-        $row.addClass('payment-urgent');
-    }
-    
-    // Add tooltips
-    $row.attr('title', `${data.trans_type || 'Payment'} - ${data.reference_no || 'No Reference'}`);
-}
-
-
-// ==================== Bulk Actions ====================
-
-function setup_bulk_actions(listview) {
-    // Custom bulk action menu items
-    listview.page.add_actions_menu_item(__('Send Notifications'), function() {
-        let selected = listview.get_checked_items();
-        
-        if (selected.length === 0) {
-            frappe.msgprint(__('Please select payments'));
-            return;
-        }
-        
-        send_bulk_notifications(selected);
-    }, true);
-    
-    listview.page.add_actions_menu_item(__('Generate Reports'), function() {
-        let selected = listview.get_checked_items();
-        
-        if (selected.length === 0) {
-            frappe.msgprint(__('Please select payments'));
-            return;
-        }
-        
-        generate_bulk_reports(selected);
-    }, true);
-}
-
-
-function bulk_approve_payments(selected_items) {
-    let payment_names = selected_items.map(item => item.name);
-    
-    frappe.call({
-        method: 'general.general_biz_apps.doctype.payments.payment_utils.BatchPaymentProcessor.bulk_approve',
-        args: {
-            payment_names: payment_names,
-            user: frappe.session.user
-        },
-        freeze: true,
-        freeze_message: __('Approving payments...'),
-        callback: function(r) {
-            if (r.message) {
-                let success_count = r.message.filter(x => x.status === 'Approved').length;
-                
-                frappe.show_alert({
-                    message: __('Approved {0} out of {1} payments', [success_count, payment_names.length]),
-                    indicator: 'green'
-                }, 5);
-                
-                cur_list.refresh();
-            }
-        }
-    });
-}
-
-
-function bulk_submit_payments(selected_items) {
-    let payment_names = selected_items.map(item => item.name);
-    
-    frappe.call({
-        method: 'general.general_biz_apps.doctype.payments.payment_utils.batch_process_payments',
-        args: {
-            payment_names: payment_names
-        },
-        freeze: true,
-        freeze_message: __('Submitting payments...'),
-        callback: function(r) {
-            if (r.message) {
-                let success_count = r.message.filter(x => x.status === 'Success').length;
-                let error_count = r.message.filter(x => x.status === 'Error').length;
-                
-                let message = __('Submitted {0} payments', [success_count]);
-                if (error_count > 0) {
-                    message += __('<br>{0} payments failed', [error_count]);
-                }
-                
-                frappe.msgprint({
-                    title: __('Batch Submission Results'),
-                    message: message,
-                    indicator: error_count > 0 ? 'orange' : 'green'
-                });
-                
-                cur_list.refresh();
-            }
-        }
-    });
-}
-
-
-function export_selected_payments(selected_items) {
-    let payment_names = selected_items.map(item => item.name);
-    
-    frappe.call({
-        method: 'general.general_biz_apps.doctype.payments.payment_utils.export_payments_report',
-        args: {
-            filters: {
-                name: ['in', payment_names]
-            }
-        },
-        callback: function(r) {
-            frappe.show_alert({
-                message: __('Export started. Download will begin shortly.'),
-                indicator: 'green'
-            }, 3);
-        }
-    });
-}
-
-
-function send_bulk_notifications(selected_items) {
+function show_import_dialog(listview) {
     let d = new frappe.ui.Dialog({
-        title: __('Send Notifications'),
+        title: __('Import Payments'),
+        size: 'large',
         fields: [
+            { label: __('Step 1: Download Template'), fieldtype: 'Section Break' },
             {
-                fieldname: 'notification_type',
-                label: __('Notification Type'),
-                fieldtype: 'Select',
-                options: ['Confirmation', 'Approval Request', 'Reminder'],
-                reqd: 1
+                fieldtype: 'HTML',
+                options: `
+                    <div class="alert alert-info" style="margin-bottom: 15px;">
+                        <strong><i class="fa fa-info-circle"></i> Instructions:</strong>
+                        <ol style="margin-top: 10px; margin-bottom: 0;">
+                            <li>Download the CSV template below</li>
+                            <li>Fill in your payment data (mandatory fields marked with *)</li>
+                            <li>For "Amount Paid (Local Currency)" vs "Amount Paid (Foreign Currency)":
+                                use Local Currency when Payment Currency matches that row's Company's
+                                default currency, otherwise use Foreign Currency + Exchange Rate.</li>
+                            <li>Upload the completed file</li>
+                            <li>Review validation results</li>
+                            <li>Import valid records (they land as Drafts for review)</li>
+                        </ol>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="download-template-btn">
+                        <i class="fa fa-download"></i> Download Template
+                    </button>
+                `
+            },
+            { label: __('Step 2: Upload Filled Template'), fieldtype: 'Section Break' },
+            {
+                label: __('Import File'),
+                fieldname: 'import_file',
+                fieldtype: 'Attach',
+                reqd: 1,
+                description: __('Upload a CSV file with payment data')
             },
             {
-                fieldname: 'custom_message',
-                label: __('Custom Message'),
-                fieldtype: 'Text',
-                description: __('Optional custom message to include')
-            }
+                label: __('Step 3: Validation Results'),
+                fieldtype: 'Section Break',
+                depends_on: 'eval:doc.import_file'
+            },
+            { fieldname: 'validation_results', fieldtype: 'HTML' }
         ],
-        primary_action_label: __('Send'),
-        primary_action: function(values) {
-            let payment_names = selected_items.map(item => item.name);
-            
+        primary_action_label: __('Validate Data'),
+        primary_action(values) {
+            if (!values.import_file) {
+                frappe.msgprint(__('Please upload a file first'));
+                return;
+            }
+            validate_import_file(values.import_file, d);
+        }
+    });
+
+    d.show();
+
+    d.$wrapper.find('#download-template-btn').on('click', function() {
+        download_template();
+    });
+}
+
+function download_template() {
+    frappe.call({
+        method: `${PAYMENTS_PY_PATH}.get_payments_import_template`,
+        callback: function(r) {
+            if (r.message) {
+                let csv_content = r.message.columns.join(',') + '\n';
+                csv_content += r.message.sample_data.map(item => {
+                    if (typeof item === 'string' && (item.includes(',') || item.includes('"'))) {
+                        return '"' + item.replace(/"/g, '""') + '"';
+                    }
+                    return item;
+                }).join(',');
+
+                let blob = new Blob([csv_content], { type: 'text/csv;charset=utf-8;' });
+                let url = window.URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = url;
+                a.download = 'payments_import_template_' + frappe.datetime.now_date() + '.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+
+                frappe.show_alert({ message: __('Template downloaded successfully'), indicator: 'green' }, 3);
+            }
+        },
+        error: function(r) {
+            frappe.msgprint(__('Error downloading template. Please check console for details.'));
+            console.error('Template download error:', r);
+        }
+    });
+}
+
+function validate_import_file(file_url, dialog) {
+    frappe.show_alert({ message: __('Reading and validating file...'), indicator: 'blue' });
+
+    fetch(file_url)
+        .then(response => response.text())
+        .then(content => {
+            let data = parse_csv(content);
+
+            if (data.length === 0) {
+                frappe.msgprint(__('No data found in file'));
+                return;
+            }
+
             frappe.call({
-                method: 'general.general_biz_apps.doctype.payments.payment_utils.send_bulk_notifications',
-                args: {
-                    payment_names: payment_names,
-                    notification_type: values.notification_type,
-                    custom_message: values.custom_message
-                },
+                method: `${PAYMENTS_PY_PATH}.validate_payments_import`,
+                args: { data: data },
                 callback: function(r) {
-                    frappe.show_alert({
-                        message: __('Notifications sent successfully'),
-                        indicator: 'green'
-                    }, 5);
-                    
-                    d.hide();
+                    if (r.message) {
+                        display_validation_results(r.message, dialog, data);
+                    }
+                },
+                error: function(r) {
+                    frappe.msgprint(__('Validation error. Please check console for details.'));
+                    console.error('Validation error:', r);
                 }
             });
-        }
-    });
-    
-    d.show();
+        })
+        .catch(error => {
+            frappe.msgprint(__('Error reading file: {0}', [error.message]));
+            console.error('File read error:', error);
+        });
 }
 
+function display_validation_results(results, dialog, data) {
+    let html = '';
 
-function generate_bulk_reports(selected_items) {
-    let payment_names = selected_items.map(item => item.name);
-    
-    let d = new frappe.ui.Dialog({
-        title: __('Generate Reports'),
-        fields: [
-            {
-                fieldname: 'report_type',
-                label: __('Report Type'),
-                fieldtype: 'Select',
-                options: ['Payment Vouchers', 'Summary Report', 'WHT Certificates'],
-                reqd: 1
-            },
-            {
-                fieldname: 'format',
-                label: __('Format'),
-                fieldtype: 'Select',
-                options: ['PDF', 'Excel'],
-                default: 'PDF'
-            }
-        ],
-        primary_action_label: __('Generate'),
-        primary_action: function(values) {
-            frappe.show_alert(__('Generating reports...'), 3);
-            
-            // Generate reports for each payment
-            payment_names.forEach(function(name) {
-                if (values.format === 'PDF') {
-                    frappe.call({
-                        method: 'general.general_biz_apps.doctype.payments.payment_utils.generate_payment_voucher_pdf',
-                        args: {payment_name: name},
-                        callback: function(r) {
-                            if (r.message) {
-                                // Download PDF
-                                let w = window.open(
-                                    frappe.urllib.get_full_url(
-                                        `/api/method/frappe.utils.print_format.download_pdf?
-                                        doctype=Payments&name=${name}&format=Standard&no_letterhead=0`
-                                    )
-                                );
-                                if (!w) {
-                                    frappe.msgprint(__('Please enable pop-ups'));
-                                }
-                            }
+    if (results.success) {
+        html = `
+            <div class="alert alert-success">
+                <strong><i class="fa fa-check-circle"></i> Validation Successful!</strong><br>
+                <p style="margin-top: 10px; margin-bottom: 0;">
+                    ${results.validated_count} record(s) ready for import.
+                </p>
+            </div>
+        `;
+
+        dialog.set_primary_action(__('Import Data'), function() {
+            import_validated_data(data, dialog);
+        });
+        dialog.$wrapper.find('.btn-primary').removeClass('btn-primary').addClass('btn-success');
+    } else {
+        html = `
+            <div class="alert alert-danger">
+                <strong><i class="fa fa-exclamation-triangle"></i> Validation Failed!</strong><br>
+                <p style="margin-top: 10px;">
+                    ${results.error_count} error(s) found in ${results.validated_count} record(s).
+                    Please fix the following:
+                </p>
+                <div style="max-height: 300px; overflow-y: auto; margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                    <ul style="margin-bottom: 0;">
+                        ${results.errors.map(err => `<li>${err}</li>`).join('')}
+                    </ul>
+                </div>
+            </div>
+        `;
+    }
+
+    dialog.fields_dict.validation_results.$wrapper.html(html);
+    dialog.fields_dict.validation_results.$wrapper.show();
+}
+
+function import_validated_data(data, dialog) {
+    frappe.confirm(
+        __('Are you sure you want to import {0} payment record(s)?', [data.length]),
+        function() {
+            frappe.show_alert({ message: __('Importing payments...'), indicator: 'blue' });
+
+            frappe.call({
+                method: `${PAYMENTS_PY_PATH}.import_payments`,
+                args: { data: data },
+                freeze: true,
+                freeze_message: __('Importing {0} payment(s)...', [data.length]),
+                callback: function(r) {
+                    if (r.message) {
+                        display_import_results(r.message);
+                        dialog.hide();
+                        if (cur_list) {
+                            cur_list.refresh();
                         }
-                    });
+                    }
+                },
+                error: function(r) {
+                    frappe.msgprint(__('Import error. Please check console for details.'));
+                    console.error('Import error:', r);
                 }
             });
-            
-            d.hide();
         }
-    });
-    
-    d.show();
+    );
 }
 
+function display_import_results(results) {
+    let message = '';
+    let indicator = 'green';
 
-// ==================== Filter Helpers ====================
+    if (results.success) {
+        message = __('Successfully imported {0} payment(s)', [results.imported_count]);
+        frappe.show_alert({ message: message, indicator: indicator }, 5);
+    } else {
+        message = __('Imported {0} payment(s), {1} failed',
+            [results.imported_count, results.failed_count]);
+        indicator = 'orange';
 
-function apply_date_filter(range, listview) {
-    let from_date, to_date;
-    let today = frappe.datetime.get_today();
-    
-    switch(range) {
-        case 'Today':
-            from_date = to_date = today;
-            break;
-        case 'Yesterday':
-            from_date = to_date = frappe.datetime.add_days(today, -1);
-            break;
-        case 'This Week':
-            from_date = frappe.datetime.week_start();
-            to_date = frappe.datetime.week_end();
-            break;
-        case 'Last Week':
-            from_date = frappe.datetime.add_days(frappe.datetime.week_start(), -7);
-            to_date = frappe.datetime.add_days(frappe.datetime.week_end(), -7);
-            break;
-        case 'This Month':
-            from_date = frappe.datetime.month_start();
-            to_date = frappe.datetime.month_end();
-            break;
-        case 'Last Month':
-            from_date = frappe.datetime.add_months(frappe.datetime.month_start(), -1);
-            to_date = frappe.datetime.add_days(frappe.datetime.month_start(), -1);
-            break;
-        default:
-            listview.filter_area.clear();
-            return;
+        let details_html = `
+            <div>
+                <div class="alert alert-${results.imported_count > 0 ? 'warning' : 'danger'}">
+                    <strong>Import Summary:</strong><br>
+                    ✓ Successful: ${results.imported_count}<br>
+                    ✗ Failed: ${results.failed_count}
+                </div>
+        `;
+
+        if (results.imported.length > 0) {
+            details_html += `
+                <div style="margin-top: 15px;">
+                    <strong>Successfully Imported:</strong>
+                    <ul>
+                        ${results.imported.map(item =>
+                            `<li>Row ${item.row}: <a href="/app/payments/${item.name}">${item.name}</a></li>`
+                        ).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+
+        if (results.failed.length > 0) {
+            details_html += `
+                <div style="margin-top: 15px;">
+                    <strong>Failed Records:</strong>
+                    <div style="max-height: 300px; overflow-y: auto; padding: 10px; background: #f8f9fa; border-radius: 4px;">
+                        <ul>
+                            ${results.failed.map(f =>
+                                `<li><strong>Row ${f.row}:</strong> ${f.error}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        details_html += '</div>';
+
+        frappe.msgprint({
+            title: __('Import Results'),
+            message: details_html,
+            indicator: indicator,
+            primary_action: {
+                label: __('Download Error Report'),
+                action: function() {
+                    download_error_report(results.failed);
+                }
+            }
+        });
     }
-    
-    listview.filter_area.add([[
-        'Payments',
-        'transaction_date',
-        'between',
-        [from_date, to_date]
-    ]]);
 }
 
+function download_error_report(failed_records) {
+    let csv_content = 'Row Number,Error Message\n';
+    csv_content += failed_records.map(f =>
+        `${f.row},"${f.error.replace(/"/g, '""')}"`
+    ).join('\n');
 
-function apply_amount_filter(range, listview) {
-    let filters = [];
-    
-    switch(range) {
-        case 'Less than 100,000':
-            filters = [['Payments', 'amount_paid', '<', 100000]];
-            break;
-        case '100,000 - 500,000':
-            filters = [
-                ['Payments', 'amount_paid', '>=', 100000],
-                ['Payments', 'amount_paid', '<=', 500000]
-            ];
-            break;
-        case '500,000 - 1,000,000':
-            filters = [
-                ['Payments', 'amount_paid', '>=', 500000],
-                ['Payments', 'amount_paid', '<=', 1000000]
-            ];
-            break;
-        case 'Above 1,000,000':
-            filters = [['Payments', 'amount_paid', '>', 1000000]];
-            break;
-        default:
-            listview.filter_area.clear();
-            return;
+    let blob = new Blob([csv_content], { type: 'text/csv;charset=utf-8;' });
+    let url = window.URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'payment_import_errors_' + frappe.datetime.now_datetime() + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function parse_csv(content) {
+    let lines = content.split(/\r\n|\n|\r/);
+
+    if (lines.length < 2) {
+        frappe.msgprint(__('File appears to be empty or invalid'));
+        return [];
     }
-    
-    listview.filter_area.add(filters);
+
+    let headers = parse_csv_line(lines[0]);
+    let data = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim()) {
+            let values = parse_csv_line(lines[i]);
+            let row = {};
+
+            for (let j = 0; j < headers.length; j++) {
+                row[headers[j].trim()] = values[j] ? values[j].trim() : '';
+            }
+
+            data.push(row);
+        }
+    }
+
+    return data;
 }
 
+function parse_csv_line(line) {
+    let result = [];
+    let current = '';
+    let inQuotes = false;
 
-// ==================== Analytics Dashboard ====================
+    for (let i = 0; i < line.length; i++) {
+        let char = line[i];
 
-function show_analytics_dashboard() {
+        if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+                current += '"';
+                i++;
+            } else {
+                inQuotes = !inQuotes;
+            }
+        } else if (char === ',' && !inQuotes) {
+            result.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+
+    result.push(current);
+    return result;
+}
+
+// ==================== Dashboard Dialog ====================
+// New — previously payments_dashboard.py had whitelisted endpoints but no
+// consuming UI in anything you'd shared, so the dashboard logic was dead
+// code from the list view's perspective. This wires it up minimally.
+
+function show_dashboard_dialog(listview) {
     let d = new frappe.ui.Dialog({
-        title: __('Payment Analytics'),
+        title: __('Payments Dashboard'),
         size: 'extra-large',
         fields: [
             {
                 fieldname: 'company',
-                label: __('Company'),
                 fieldtype: 'Link',
                 options: 'Company',
+                label: __('Company'),
                 default: frappe.defaults.get_user_default('Company'),
-                reqd: 1,
-                onchange: function() {
-                    load_analytics(d);
-                }
+                reqd: 1
             },
+            { fieldname: 'col_break_dash1', fieldtype: 'Column Break' },
             {
                 fieldname: 'from_date',
-                label: __('From Date'),
                 fieldtype: 'Date',
-                default: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
-                reqd: 1,
-                onchange: function() {
-                    load_analytics(d);
-                }
+                label: __('From Date'),
+                default: frappe.datetime.add_days(frappe.datetime.now_date(), -30)
             },
+            { fieldname: 'col_break_dash2', fieldtype: 'Column Break' },
             {
                 fieldname: 'to_date',
-                label: __('To Date'),
                 fieldtype: 'Date',
-                default: frappe.datetime.get_today(),
-                reqd: 1,
-                onchange: function() {
-                    load_analytics(d);
-                }
+                label: __('To Date'),
+                default: frappe.datetime.now_date()
             },
-            {
-                fieldname: 'section_break',
-                fieldtype: 'Section Break'
-            },
-            {
-                fieldname: 'analytics_html',
-                fieldtype: 'HTML'
-            }
-        ]
+            { fieldname: 'section_dash_results', fieldtype: 'Section Break' },
+            { fieldname: 'dashboard_results', fieldtype: 'HTML' }
+        ],
+        primary_action_label: __('Refresh'),
+        primary_action(values) {
+            load_dashboard_data(values, d);
+        }
     });
-    
+
     d.show();
-    load_analytics(d);
+    load_dashboard_data(d.get_values() || {
+        company: frappe.defaults.get_user_default('Company'),
+        from_date: frappe.datetime.add_days(frappe.datetime.now_date(), -30),
+        to_date: frappe.datetime.now_date()
+    }, d);
 }
 
+function load_dashboard_data(values, dialog) {
+    if (!values.company) return;
 
-function load_analytics(dialog) {
-    let values = dialog.get_values();
-    
-    if (!values.company || !values.from_date || !values.to_date) {
-        return;
-    }
-    
+    dialog.fields_dict.dashboard_results.$wrapper.html(
+        '<div class="text-muted" style="padding: 20px;">Loading...</div>');
+
     frappe.call({
-        method: 'general.general_biz_apps.doctype.payments.payment_utils.get_payment_dashboard_data',
-        args: values,
+        method: `${PAYMENTS_PY_PATH}.get_payment_dashboard_data`,
+        args: {
+            company: values.company,
+            from_date: values.from_date,
+            to_date: values.to_date
+        },
         callback: function(r) {
             if (r.message) {
-                render_analytics(dialog, r.message);
+                dialog.fields_dict.dashboard_results.$wrapper.html(render_dashboard_html(r.message));
             }
+        },
+        error: function(r) {
+            dialog.fields_dict.dashboard_results.$wrapper.html(
+                '<div class="alert alert-danger">Failed to load dashboard data.</div>');
+            console.error('Dashboard load error:', r);
         }
     });
 }
 
+function render_dashboard_html(data) {
+    let cards = data.summary_cards || {};
+    let ifrs = data.cashflow_ifrs_summary || {};
 
-function render_analytics(dialog, data) {
-    let html = `
-        <div class="row">
-            <div class="col-sm-6">
-                <h4>Payment Summary</h4>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Transaction Type</th>
-                            <th>Count</th>
-                            <th>Total Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-    `;
-    
-    data.forEach(function(row) {
-        html += `
-            <tr>
-                <td>${row.trans_type}</td>
-                <td>${row.count}</td>
-                <td>${format_currency(row.total_amount, row.payment_currency)}</td>
-            </tr>
-        `;
-    });
-    
-    html += `
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-sm-6">
-                <h4>Status Distribution</h4>
-                <div id="status_chart"></div>
-            </div>
+    let card = (label, value, sub) => `
+        <div style="flex: 1; min-width: 150px; background: #f8f9fa; border-radius: 8px; padding: 15px; margin: 5px;">
+            <div style="font-size: 12px; color: #6c757d;">${label}</div>
+            <div style="font-size: 22px; font-weight: bold;">${value}</div>
+            ${sub ? `<div style="font-size: 11px; color: #6c757d;">${sub}</div>` : ''}
         </div>
     `;
-    
-    dialog.fields_dict.analytics_html.$wrapper.html(html);
+
+    let html = `
+        <div style="display: flex; flex-wrap: wrap; margin-bottom: 15px;">
+            ${card(__('Total Payments'), cards.total_payments ? cards.total_payments.value : 0)}
+            ${card(__('Total Amount'), format_currency(cards.total_amount ? cards.total_amount.value : 0))}
+            ${card(__('Avg Payment'), format_currency(cards.avg_payment ? cards.avg_payment.value : 0))}
+            ${card(__('Total WHT'), format_currency(cards.total_wht ? cards.total_wht.value : 0))}
+            ${card(__('Completed'), cards.completed || 0)}
+            ${card(__('Pending'), cards.pending || 0)}
+            ${card(__('Failed'), cards.failed || 0)}
+        </div>
+
+        <h5>${__('Cashflow — IFRS Summary')}</h5>
+        <div style="display: flex; flex-wrap: wrap; margin-bottom: 15px;">
+            ${Object.keys(ifrs).map(k => card(
+                k, format_currency(ifrs[k].amount), ifrs[k].percentage + '%'
+            )).join('')}
+        </div>
+
+        <h5>${__('By Transaction Type')}</h5>
+        ${render_simple_table(data.transaction_type_summary, ['trans_type', 'count', 'amount'])}
+
+        <h5>${__('By Cash Flow Classification')}</h5>
+        ${render_simple_table(data.cashflow_breakdown, ['cashflow_type', 'count', 'amount'])}
+
+        <h5>${__('Top Payees')}</h5>
+        ${render_simple_table(data.top_payees, ['payee', 'payment_count', 'total_amount'])}
+    `;
+
+    return html;
+}
+
+function render_simple_table(rows, columns) {
+    if (!rows || rows.length === 0) {
+        return '<div class="text-muted" style="margin-bottom: 15px;">No data</div>';
+    }
+
+    let is_currency_col = (col) => /amount/i.test(col);
+
+    let html = '<table class="table table-bordered table-sm" style="margin-bottom: 15px;"><tbody>';
+    rows.forEach(row => {
+        html += '<tr>';
+        columns.forEach(col => {
+            let val = row[col];
+            if (is_currency_col(col)) val = format_currency(val || 0);
+            html += `<td>${val != null ? val : ''}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+
+    return html;
 }

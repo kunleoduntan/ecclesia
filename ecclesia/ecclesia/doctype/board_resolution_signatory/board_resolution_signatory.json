@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 08:50:02.172130",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "board_member",
+  "signatory_name",
+  "signed",
+  "date_signed",
+  "signature_attachment"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "board_member",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Board Member",
+   "options": "Board Member"
+  },
+  {
+   "columns": 3,
+   "fetch_from": "board_member.board_member_name",
+   "fieldname": "signatory_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name",
+   "read_only": 1
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "signed",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Signed"
+  },
+  {
+   "columns": 2,
+   "fieldname": "date_signed",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Signed"
+  },
+  {
+   "fieldname": "signature_attachment",
+   "fieldtype": "Attach",
+   "label": "Signature / Signed Copy"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 08:50:02.172130",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Board Resolution Signatory",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

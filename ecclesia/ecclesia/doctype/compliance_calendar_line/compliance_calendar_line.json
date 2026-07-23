@@ -1,0 +1,113 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-15 08:04:52.331127",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "compliance_rule",
+  "obligation_type",
+  "compliance_domain",
+  "period_label",
+  "due_date",
+  "status",
+  "assigned_to",
+  "compliance_liability",
+  "filing_reference",
+  "reminder_sent"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "compliance_rule",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Rule",
+   "options": "Compliance Rule",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nData Breach Notification\nAML/KYC\nContractual Obligation\nTraining Levy\nOther"
+  },
+  {
+   "columns": 2,
+   "fieldname": "compliance_domain",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Domain",
+   "options": "Statutory Tax\nStatutory Payroll\nCorporate Governance\nContract Compliance\nData Protection\nAML & KYC\nLabour & Employment\nEnvironmental & HSE\nIndustry Regulatory\nAnti-Fraud & Integrity\nTraining & Competency"
+  },
+  {
+   "columns": 2,
+   "fieldname": "period_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period"
+  },
+  {
+   "columns": 2,
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nIn Progress\nFiled\nOverdue\nCancelled"
+  },
+  {
+   "columns": 2,
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Assigned To",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "label": "CLL",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "filing_reference",
+   "fieldtype": "Link",
+   "label": "Filing",
+   "options": "Compliance Filing"
+  },
+  {
+   "default": "0",
+   "fieldname": "reminder_sent",
+   "fieldtype": "Check",
+   "label": "Reminder Sent"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:04:52.331127",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Calendar Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

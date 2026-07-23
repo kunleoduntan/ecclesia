@@ -1,0 +1,144 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CRM-ACT-.YYYY.-.#####",
+ "creation": "2026-06-17 14:44:56.982668",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "activity_type",
+  "subject",
+  "status",
+  "col_break_1",
+  "due_date",
+  "duration_minutes",
+  "assigned_to",
+  "section_link",
+  "deal",
+  "opportunity",
+  "lead",
+  "contact",
+  "section_outcome",
+  "outcome",
+  "next_step"
+ ],
+ "fields": [
+  {
+   "default": "Call",
+   "fieldname": "activity_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Activity Type",
+   "options": "Call\nEmail\nMeeting\nNote\nDemo\nProposal\nFollow-up\nTask\nWhatsApp",
+   "reqd": 1
+  },
+  {
+   "fieldname": "subject",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Subject",
+   "reqd": 1
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nCompleted\nCancelled\nDeferred"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "duration_minutes",
+   "fieldtype": "Int",
+   "label": "Duration (min)"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_link",
+   "fieldtype": "Section Break",
+   "label": "Linked Records"
+  },
+  {
+   "fieldname": "deal",
+   "fieldtype": "Link",
+   "label": "Deal",
+   "options": "CRM Deal"
+  },
+  {
+   "fieldname": "opportunity",
+   "fieldtype": "Link",
+   "label": "Opportunity",
+   "options": "CRM Opportunity"
+  },
+  {
+   "fieldname": "lead",
+   "fieldtype": "Link",
+   "label": "Lead",
+   "options": "CRM Lead"
+  },
+  {
+   "fieldname": "contact",
+   "fieldtype": "Link",
+   "label": "Contact",
+   "options": "CRM Contact"
+  },
+  {
+   "fieldname": "section_outcome",
+   "fieldtype": "Section Break",
+   "label": "Outcome"
+  },
+  {
+   "fieldname": "outcome",
+   "fieldtype": "Small Text",
+   "label": "Outcome / Notes"
+  },
+  {
+   "fieldname": "next_step",
+   "fieldtype": "Small Text",
+   "label": "Next Step"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-17 14:44:56.982668",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "CRM Activity",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

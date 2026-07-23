@@ -1,0 +1,182 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "EXTASK-.YYYY.-.#####",
+ "creation": "2026-07-16 11:00:39.390376",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "task_title",
+  "company",
+  "assigned_by",
+  "assigned_to",
+  "category",
+  "priority",
+  "due_date",
+  "status",
+  "description",
+  "sb_source",
+  "source_doctype",
+  "source_document",
+  "sb_escalation",
+  "escalated",
+  "escalated_to",
+  "escalated_date",
+  "cb_escalation",
+  "completion_date",
+  "completion_notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "task_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Task",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "assigned_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Assigned By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Assigned To",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Follow-up",
+   "fieldname": "category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Follow-up\nDecision Required\nDelegation\nReview\nApproval\nOther"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "Urgent\nHigh\nMedium\nLow"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date"
+  },
+  {
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nCompleted\nDeferred\nCancelled"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "sb_source",
+   "fieldtype": "Section Break",
+   "label": "Origin (Optional)"
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Link",
+   "label": "Linked From (DocType)",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "source_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Linked Document",
+   "options": "source_doctype"
+  },
+  {
+   "fieldname": "sb_escalation",
+   "fieldtype": "Section Break",
+   "label": "Escalation"
+  },
+  {
+   "default": "0",
+   "fieldname": "escalated",
+   "fieldtype": "Check",
+   "label": "Escalated"
+  },
+  {
+   "fieldname": "escalated_to",
+   "fieldtype": "Link",
+   "label": "Escalated To",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "escalated_date",
+   "fieldtype": "Date",
+   "label": "Escalated Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_escalation",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "completion_date",
+   "fieldtype": "Date",
+   "label": "Completion Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "completion_notes",
+   "fieldtype": "Small Text",
+   "label": "Completion Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-16 11:00:39.390376",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Executive Task",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

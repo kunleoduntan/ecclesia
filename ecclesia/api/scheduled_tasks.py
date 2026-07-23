@@ -240,3 +240,64 @@ def send_daily_call_summary():
             message=f"Daily summary failed: {str(e)}",
             title="Scheduled Task Error"
         )
+        
+
+
+# your_app/api/scheduled_tasks.py
+
+import frappe
+from frappe.utils import nowdate, add_days
+from datetime import datetime
+
+@frappe.whitelist()
+def auto_code_unprocessed_payments():
+    """Scheduled job to auto-code unprocessed payments"""
+    
+    # Get payments created in the last 7 days that haven't been auto-coded
+    date_filter = add_days(nowdate(), -7)
+    
+    payments = frappe.get_all(
+        "Payment",
+        filters={
+            "creation": [">=", date_filter],
+            "auto_coded_account": ["in", ["", None]],
+            "docstatus": 0  # Only draft payments
+        },
+        pluck="name"
+    )
+    
+    if not payments:
+        frappe.log_error("No unprocessed payments found", "Auto Coding Info")
+        return
+    
+    from your_app.api.auto_coding import PaymentAutoCoder
+    
+    coder = PaymentAutoCoder()
+    results = coder.code_multiple_payments(payments)
+    
+    # Log the results
+    frappe.log_error(
+        f"Auto-coded {results['success']} out of {len(payments)} payments. "
+        f"Failed: {results['failed']}",
+        "Auto Coding Schedule Result"
+    )
+    
+    return results
+
+
+def create_scheduled_job():
+    """Create the scheduled job in ERPNext (run once)"""
+    
+    # Check if job already exists
+    existing = frappe.db.exists("Scheduled Job Type", "auto_code_unprocessed_payments")
+    
+    if not existing:
+        job = frappe.get_doc({
+            "doctype": "Scheduled Job Type",
+            "method": "your_app.api.scheduled_tasks.auto_code_unprocessed_payments",
+            "frequency": "Daily",  # Options: Hourly, Daily, Weekly, Monthly
+            "server_script": 0,
+            "status": "Enabled"
+        })
+        job.insert(ignore_permissions=True)
+        frappe.db.commit()

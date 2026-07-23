@@ -1,48 +1,70 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:EPR-{YYYY}-{#####}",
- "creation": "2026-03-13 17:18:56.992059",
+ "autoname": "EPRR-.YYYY.-.#####",
+ "creation": "2026-07-05 17:05:05.076415",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "cycle",
   "employee",
   "employee_name",
-  "col1",
-  "department",
-  "designation",
-  "manager",
+  "column_break_mftz",
+  "cycle",
+  "column_break_acvq",
   "status",
-  "sec_goals",
-  "goals",
   "sec_scores",
+  "col_kpi",
   "kpi_score",
   "self_score",
-  "col2",
   "peer_score",
-  "peer_review_count",
   "manager_score",
+  "col_scores_2",
+  "skip_level_score",
+  "values_score",
   "composite_score",
-  "sec_ratings",
-  "final_rating",
+  "col_scores_3",
   "calibrated_rating",
-  "sec_self",
-  "self_narrative",
+  "final_rating",
+  "sec_analytics",
+  "col_analytics_1",
+  "performance_trend",
+  "rank_in_dept",
+  "percentile_rank",
+  "col_analytics_2",
+  "dept_avg_score",
+  "cycle_avg_score",
+  "score_variance",
+  "sec_dates",
+  "col_dates_1",
   "self_appraisal_date",
-  "amended_from"
+  "peer_review_count",
+  "col_dates_2",
+  "manager_review_date",
+  "final_submission_date",
+  "sec_outcomes",
+  "col_outcomes_1",
+  "promotion_recommended",
+  "increment_recommended",
+  "increment_percentage",
+  "col_outcomes_2",
+  "bonus_recommended",
+  "bonus_amount",
+  "calibration_status",
+  "sec_appeal",
+  "col_appeal_1",
+  "appeal_outcome",
+  "col_appeal_2",
+  "hr_notes",
+  "sec_dashboard",
+  "col_dash_1",
+  "dashboard_summary",
+  "performance_band",
+  "col_dash_2",
+  "dashboard_kpi",
+  "dashboard_rating"
  ],
  "fields": [
-  {
-   "fieldname": "cycle",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Performance Cycle",
-   "options": "Performance Cycle",
-   "reqd": 1
-  },
   {
    "fieldname": "employee",
    "fieldtype": "Link",
@@ -60,160 +82,331 @@
    "read_only": 1
   },
   {
-   "fieldname": "col1",
-   "fieldtype": "Column Break"
-  },
-  {
-   "fetch_from": "employee.department",
-   "fieldname": "department",
+   "fieldname": "cycle",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
-   "label": "Department",
-   "options": "Department",
-   "read_only": 1
+   "in_list_view": 1,
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
   },
   {
-   "fetch_from": "employee.designation",
-   "fieldname": "designation",
-   "fieldtype": "Link",
-   "label": "Designation",
-   "options": "Designation",
-   "read_only": 1
-  },
-  {
-   "fetch_from": "employee.reports_to",
-   "fieldname": "manager",
-   "fieldtype": "Link",
-   "label": "Manager",
-   "options": "Employee",
-   "read_only": 1
-  },
-  {
-   "default": "Goal Setting",
+   "default": "Draft",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Status",
-   "options": "Goal Setting\nSelf Appraisal\nPeer Review\nManager Review\nCalibration\nResults Released",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sec_goals",
-   "fieldtype": "Section Break",
-   "label": "Goals & KPIs"
-  },
-  {
-   "fieldname": "goals",
-   "fieldtype": "Table",
-   "label": "Goals",
-   "options": "Performance Goal"
+   "label": "Record Status",
+   "options": "Draft\nIn Progress\nCalibrated\nFinal\nReleased\nCancelled"
   },
   {
    "fieldname": "sec_scores",
    "fieldtype": "Section Break",
-   "label": "Scores"
+   "label": "Component Scores"
+  },
+  {
+   "fieldname": "col_kpi",
+   "fieldtype": "Column Break",
+   "label": "KPI Section"
   },
   {
    "fieldname": "kpi_score",
    "fieldtype": "Float",
-   "label": "KPI Score",
-   "precision": "2",
+   "in_list_view": 1,
+   "label": "Goal Score (%)",
    "read_only": 1
   },
   {
    "fieldname": "self_score",
    "fieldtype": "Float",
-   "label": "Self-Appraisal Score",
-   "precision": "2",
+   "label": "Self Score (1-5)",
    "read_only": 1
-  },
-  {
-   "fieldname": "col2",
-   "fieldtype": "Column Break"
   },
   {
    "fieldname": "peer_score",
    "fieldtype": "Float",
-   "label": "Peer Score",
-   "precision": "2",
+   "label": "Peer Average (1-5)",
    "read_only": 1
   },
   {
+   "fieldname": "manager_score",
+   "fieldtype": "Float",
+   "label": "Manager Score (1-5)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_scores_2",
+   "fieldtype": "Column Break",
+   "label": "Secondary Scores"
+  },
+  {
+   "fieldname": "skip_level_score",
+   "fieldtype": "Float",
+   "label": "Skip-Level Score (1-5)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "values_score",
+   "fieldtype": "Float",
+   "label": "Values Score (%)",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "composite_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Composite Score (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_scores_3",
+   "fieldtype": "Column Break",
+   "label": "Calibration Section"
+  },
+  {
+   "fieldname": "calibrated_rating",
+   "fieldtype": "Float",
+   "label": "Calibrated Rating (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "final_rating",
+   "fieldtype": "Float",
+   "label": "Final Rating (%)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_analytics",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Analytics & Performance Insights"
+  },
+  {
+   "fieldname": "col_analytics_1",
+   "fieldtype": "Column Break",
+   "label": "Performance Metrics"
+  },
+  {
+   "description": "Last 3 cycles: \ud83d\udcc8 \ud83d\udcc9 \ud83d\udcc8",
+   "fieldname": "performance_trend",
+   "fieldtype": "Data",
+   "label": "Performance Trend",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rank_in_dept",
+   "fieldtype": "Int",
+   "label": "Department Rank",
+   "read_only": 1
+  },
+  {
+   "fieldname": "percentile_rank",
+   "fieldtype": "Float",
+   "label": "Percentile Rank (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_2",
+   "fieldtype": "Column Break",
+   "label": "Comparative Data"
+  },
+  {
+   "fieldname": "dept_avg_score",
+   "fieldtype": "Float",
+   "label": "Department Avg Score",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cycle_avg_score",
+   "fieldtype": "Float",
+   "label": "Cycle Company Avg",
+   "read_only": 1
+  },
+  {
+   "fieldname": "score_variance",
+   "fieldtype": "Float",
+   "label": "Variance from Avg",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_dates",
+   "fieldtype": "Section Break",
+   "label": "Submission Dates"
+  },
+  {
+   "fieldname": "col_dates_1",
+   "fieldtype": "Column Break",
+   "label": "Self & Peer"
+  },
+  {
+   "fieldname": "self_appraisal_date",
+   "fieldtype": "Date",
+   "label": "Self Appraisal Submitted",
+   "read_only": 1
+  },
+  {
+   "default": "0",
    "fieldname": "peer_review_count",
    "fieldtype": "Int",
    "label": "Peer Reviews Received",
    "read_only": 1
   },
   {
-   "fieldname": "manager_score",
-   "fieldtype": "Float",
-   "label": "Manager Score",
-   "precision": "2",
+   "fieldname": "col_dates_2",
+   "fieldtype": "Column Break",
+   "label": "Manager & Final"
+  },
+  {
+   "fieldname": "manager_review_date",
+   "fieldtype": "Date",
+   "label": "Manager Review Date",
    "read_only": 1
   },
   {
-   "fieldname": "composite_score",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Composite Score",
-   "precision": "2",
-   "read_only": 1
-  },
-  {
-   "fieldname": "sec_ratings",
-   "fieldtype": "Section Break",
-   "label": "Ratings"
-  },
-  {
-   "fieldname": "final_rating",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "System Rating",
-   "read_only": 1
-  },
-  {
-   "fieldname": "calibrated_rating",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Calibrated Rating",
+   "fieldname": "final_submission_date",
+   "fieldtype": "Date",
+   "label": "Final Submission Date",
    "read_only": 1
   },
   {
    "collapsible": 1,
-   "fieldname": "sec_self",
+   "fieldname": "sec_outcomes",
    "fieldtype": "Section Break",
-   "label": "Self-Appraisal"
+   "label": "HR Outcomes & Recommendations"
   },
   {
-   "fieldname": "self_narrative",
+   "fieldname": "col_outcomes_1",
+   "fieldtype": "Column Break",
+   "label": "Recommendations"
+  },
+  {
+   "default": "0",
+   "fieldname": "promotion_recommended",
+   "fieldtype": "Check",
+   "label": "Promotion Recommended"
+  },
+  {
+   "default": "0",
+   "fieldname": "increment_recommended",
+   "fieldtype": "Check",
+   "label": "Salary Increment Recommended"
+  },
+  {
+   "fieldname": "increment_percentage",
+   "fieldtype": "Float",
+   "label": "Increment % Recommended"
+  },
+  {
+   "fieldname": "col_outcomes_2",
+   "fieldtype": "Column Break",
+   "label": "Bonuses & Calibration"
+  },
+  {
+   "default": "0",
+   "fieldname": "bonus_recommended",
+   "fieldtype": "Check",
+   "label": "Bonus Recommended"
+  },
+  {
+   "fieldname": "bonus_amount",
+   "fieldtype": "Currency",
+   "label": "Bonus Amount Recommended"
+  },
+  {
+   "fieldname": "calibration_status",
+   "fieldtype": "Select",
+   "label": "Calibration Status",
+   "options": "\nPending\nCalibrated\nFinalised"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_appeal",
+   "fieldtype": "Section Break",
+   "label": "Appeals & HR Notes"
+  },
+  {
+   "fieldname": "col_appeal_1",
+   "fieldtype": "Column Break",
+   "label": "Appeal Details"
+  },
+  {
+   "fieldname": "appeal_outcome",
+   "fieldtype": "Select",
+   "label": "Appeal Outcome",
+   "options": "\nUpheld\nDismissed"
+  },
+  {
+   "fieldname": "col_appeal_2",
+   "fieldtype": "Column Break",
+   "label": "HR Notes"
+  },
+  {
+   "fieldname": "hr_notes",
    "fieldtype": "Text Editor",
-   "label": "Self-Appraisal Narrative"
+   "label": "HR Notes"
   },
   {
-   "fieldname": "self_appraisal_date",
-   "fieldtype": "Datetime",
-   "label": "Submitted On",
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_dashboard",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Dashboard View"
+  },
+  {
+   "fieldname": "col_dash_1",
+   "fieldtype": "Column Break",
+   "label": "Quick Stats"
+  },
+  {
+   "description": "Employee: {employee_name} | Cycle: {cycle} | Status: {status}",
+   "fieldname": "dashboard_summary",
+   "fieldtype": "Data",
+   "label": "\ud83d\udccc Summary",
    "read_only": 1
   },
   {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Employee Performance Record",
-   "print_hide": 1,
+   "fieldname": "performance_band",
+   "fieldtype": "Select",
+   "label": "\ud83c\udfc6 Performance Band",
+   "options": "\nOutstanding\nExceeds Expectations\nMeets Expectations\nNeeds Improvement\nUnsatisfactory",
    "read_only": 1
+  },
+  {
+   "fieldname": "col_dash_2",
+   "fieldtype": "Column Break",
+   "label": "Key Metrics"
+  },
+  {
+   "description": "{kpi_score}% of goals met",
+   "fieldname": "dashboard_kpi",
+   "fieldtype": "Data",
+   "label": "\ud83c\udfaf KPI Achievement",
+   "read_only": 1
+  },
+  {
+   "description": "Composite: {composite_score}% | Final: {final_rating}%",
+   "fieldname": "dashboard_rating",
+   "fieldtype": "Data",
+   "label": "\u2b50 Overall Rating",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_mftz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_acvq",
+   "fieldtype": "Column Break"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "is_submittable": 1,
  "links": [],
- "modified": "2026-03-13 17:29:02.925299",
+ "modified": "2026-07-06 10:44:22.174118",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Employee Performance Record",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -230,7 +423,9 @@
   }
  ],
  "quick_entry": 1,
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

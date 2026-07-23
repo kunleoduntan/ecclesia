@@ -1,0 +1,253 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CKS-.YYYY.-.#####",
+ "creation": "2026-06-15 09:02:36.724837",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "period",
+  "snapshot_date",
+  "col1",
+  "total_liability",
+  "total_paid",
+  "outstanding",
+  "col2",
+  "compliance_score",
+  "penalty_exposure",
+  "expired_licenses",
+  "ob_section",
+  "vat_status",
+  "wht_status",
+  "paye_status",
+  "pension_status",
+  "col3",
+  "nhf_status",
+  "nsitf_status",
+  "itf_status",
+  "open_incidents",
+  "open_audit_findings",
+  "domain_scores_section",
+  "corporate_governance_score",
+  "contract_compliance_score",
+  "ndpr_score",
+  "aml_score",
+  "labour_compliance_score",
+  "environmental_score",
+  "training_score",
+  "overall_domain_score"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period (MM-YYYY)",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "snapshot_date",
+   "fieldtype": "Date",
+   "label": "Snapshot Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_liability",
+   "fieldtype": "Currency",
+   "label": "Total Liability (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_paid",
+   "fieldtype": "Currency",
+   "label": "Total Paid (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "outstanding",
+   "fieldtype": "Currency",
+   "label": "Outstanding (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "compliance_score",
+   "fieldtype": "Float",
+   "label": "Compliance Score (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "penalty_exposure",
+   "fieldtype": "Currency",
+   "label": "Penalty Exposure (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expired_licenses",
+   "fieldtype": "Int",
+   "label": "Expired Licenses",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ob_section",
+   "fieldtype": "Section Break",
+   "label": "Per-Obligation Breakdown"
+  },
+  {
+   "fieldname": "vat_status",
+   "fieldtype": "Select",
+   "label": "VAT Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "wht_status",
+   "fieldtype": "Select",
+   "label": "WHT Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "paye_status",
+   "fieldtype": "Select",
+   "label": "PAYE Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "pension_status",
+   "fieldtype": "Select",
+   "label": "Pension Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "nhf_status",
+   "fieldtype": "Select",
+   "label": "NHF Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "nsitf_status",
+   "fieldtype": "Select",
+   "label": "NSITF Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "itf_status",
+   "fieldtype": "Select",
+   "label": "ITF Status",
+   "options": "Open\nPartially Paid\nFully Paid\nOverdue\nNot Generated"
+  },
+  {
+   "fieldname": "open_incidents",
+   "fieldtype": "Int",
+   "label": "Open Incidents"
+  },
+  {
+   "fieldname": "open_audit_findings",
+   "fieldtype": "Int",
+   "label": "Open Audit Findings"
+  },
+  {
+   "fieldname": "domain_scores_section",
+   "fieldtype": "Section Break",
+   "label": "Domain Compliance Scores"
+  },
+  {
+   "fieldname": "corporate_governance_score",
+   "fieldtype": "Float",
+   "label": "Corporate Governance %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "contract_compliance_score",
+   "fieldtype": "Float",
+   "label": "Contract Compliance %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ndpr_score",
+   "fieldtype": "Float",
+   "label": "NDPR / Data Protection %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "aml_score",
+   "fieldtype": "Float",
+   "label": "AML & KYC %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "labour_compliance_score",
+   "fieldtype": "Float",
+   "label": "Labour & Employment %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "environmental_score",
+   "fieldtype": "Float",
+   "label": "Environmental & HSE %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "training_score",
+   "fieldtype": "Float",
+   "label": "Training Compliance %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overall_domain_score",
+   "fieldtype": "Float",
+   "label": "Overall Compliance Score %",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 09:02:36.724837",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance KPI Snapshot",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

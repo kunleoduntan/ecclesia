@@ -1,0 +1,249 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "UC-.YYYY.-.#####",
+ "creation": "2026-06-14 14:13:08.012986",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "utility_meter",
+  "facility",
+  "utility_type",
+  "col_break_1",
+  "period_month",
+  "period_year",
+  "reading_date",
+  "col_break_2",
+  "opening_reading",
+  "closing_reading",
+  "consumption",
+  "cost_section",
+  "rate_per_unit",
+  "col_break_c1",
+  "consumption_cost",
+  "fixed_charges",
+  "col_break_c2",
+  "total_bill",
+  "vat_amount",
+  "invoice_no",
+  "analytics_section",
+  "previous_month_consumption",
+  "col_break_a1",
+  "variance_pct",
+  "col_break_a2",
+  "avg_daily_consumption",
+  "purchase_invoice",
+  "cost_centre",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Consumption Details"
+  },
+  {
+   "bold": 1,
+   "fieldname": "utility_meter",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Utility Meter",
+   "options": "Utility Meter",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "utility_meter.facility",
+   "fieldname": "facility",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Facility",
+   "options": "Facility",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "utility_meter.utility_type",
+   "fieldname": "utility_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Utility Type",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "period_month",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Month",
+   "options": "January\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period_year",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Year",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "reading_date",
+   "fieldtype": "Date",
+   "label": "Reading Date"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "opening_reading",
+   "fieldtype": "Float",
+   "label": "Opening Reading",
+   "reqd": 1
+  },
+  {
+   "fieldname": "closing_reading",
+   "fieldtype": "Float",
+   "label": "Closing Reading",
+   "reqd": 1
+  },
+  {
+   "fieldname": "consumption",
+   "fieldtype": "Float",
+   "label": "Consumption (units)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_section",
+   "fieldtype": "Section Break",
+   "label": "Cost"
+  },
+  {
+   "fieldname": "rate_per_unit",
+   "fieldtype": "Currency",
+   "label": "Rate Per Unit (\u20a6)"
+  },
+  {
+   "fieldname": "col_break_c1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "consumption_cost",
+   "fieldtype": "Currency",
+   "label": "Consumption Cost (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fixed_charges",
+   "fieldtype": "Currency",
+   "label": "Fixed Charges / Standing Charge (\u20a6)"
+  },
+  {
+   "fieldname": "col_break_c2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_bill",
+   "fieldtype": "Currency",
+   "label": "Total Bill (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "vat_amount",
+   "fieldtype": "Currency",
+   "label": "VAT (\u20a6)"
+  },
+  {
+   "fieldname": "invoice_no",
+   "fieldtype": "Data",
+   "label": "Utility Invoice No"
+  },
+  {
+   "fieldname": "analytics_section",
+   "fieldtype": "Section Break",
+   "label": "Analysis"
+  },
+  {
+   "fieldname": "previous_month_consumption",
+   "fieldtype": "Float",
+   "label": "Previous Month Consumption",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_a1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "variance_pct",
+   "fieldtype": "Percent",
+   "label": "Variance %",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_a2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "avg_daily_consumption",
+   "fieldtype": "Float",
+   "label": "Avg Daily Consumption",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "ERPNext Purchase Invoice",
+   "options": "Purchase Invoice"
+  },
+  {
+   "fieldname": "cost_centre",
+   "fieldtype": "Link",
+   "label": "Cost Centre",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Utility Consumption",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 14:13:08.012986",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Utility Consumption",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-02-02 15:34:36.050021",
+ "creation": "2026-06-18 08:42:13.381492",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -19,6 +19,8 @@
   "party_type",
   "cost_center",
   "payee_name",
+  "payee_account_no",
+  "payee_bank_name",
   "start_date",
   "end_date",
   "charged_amount",
@@ -182,6 +184,18 @@
    "fieldtype": "Data",
    "label": "Payee Name",
    "mandatory_depends_on": "eval:in_list([\"Payment\", \"Receipt\"], doc.trans_type)"
+  },
+  {
+   "description": "Bank account number of the beneficiary (10 digits for Nigeria)",
+   "fieldname": "payee_account_no",
+   "fieldtype": "Data",
+   "label": "Payee Account Number"
+  },
+  {
+   "description": "Used to auto-lookup BIC/SWIFT for bank export files",
+   "fieldname": "payee_bank_name",
+   "fieldtype": "Data",
+   "label": "Payee Bank Name"
   },
   {
    "fieldname": "start_date",
@@ -446,16 +460,19 @@
    "options": "Receipts"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-02-02 15:34:36.050021",
+ "modified": "2026-06-18 08:42:13.381492",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Transaction Entry",
  "owner": "Administrator",
  "permissions": [],
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

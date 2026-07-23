@@ -2050,3 +2050,142 @@ def bulk_post_catchup_depreciation(filters=None, up_to_date=None, post_as="indiv
         "asset_results": asset_results,
         "errors": global_errors,
     }
+
+# Add this method to your existing FixedAsset class in fixed_asset.py
+
+@frappe.whitelist()
+def get_dashboard_metrics(self):
+    """Return comprehensive metrics for the HTML dashboard"""
+    try:
+        # Asset values
+        gross_purchase = flt(self.gross_purchase_amount)
+        current_gross = flt(self.current_gross_value or self.gross_purchase_amount)
+        salvage = flt(self.salvage_value or 0)
+        accumulated_dep = flt(self.current_accumulated_depreciation or 0)
+        opening_dep = flt(self.opening_accumulated_depreciation or 0)
+        net_book = flt(self.current_net_book_value or 0)
+        depreciable = flt(self.depreciable_amount or 0)
+        
+        # Calculate value metrics
+        total_depreciation_posted = accumulated_dep + opening_dep
+        depreciation_percentage = (total_depreciation_posted / gross_purchase * 100) if gross_purchase else 0
+        remaining_value = gross_purchase - total_depreciation_posted
+        value_preserved = (net_book / gross_purchase * 100) if gross_purchase else 0
+        
+        # Depreciation schedule metrics
+        schedules = frappe.get_all('Depreciation Schedule Details',
+            filters={'parent': self.name},
+            fields=['name', 'schedule_date', 'depreciation_amount', 'status', 'journal_entry'],
+            order_by='schedule_date'
+        )
+        
+        total_periods = len(schedules)
+        posted_periods = len([s for s in schedules if s.journal_entry])
+        pending_periods = total_periods - posted_periods
+        
+        # Calculate total expected depreciation
+        total_expected_depreciation = sum(flt(s.depreciation_amount) for s in schedules)
+        total_posted_depreciation = sum(flt(s.depreciation_amount) for s in schedules if s.journal_entry)
+        
+        # Upcoming schedules
+        upcoming = [s for s in schedules if not s.journal_entry and getdate(s.schedule_date) >= getdate(today())]
+        overdue = [s for s in schedules if not s.journal_entry and getdate(s.schedule_date) < getdate(today())]
+        
+        next_depreciation = upcoming[0].schedule_date if upcoming else None
+        next_depreciation_amount = flt(upcoming[0].depreciation_amount) if upcoming else 0
+        
+        # Asset age calculation
+        purchase_date = getdate(self.purchase_date) if self.purchase_date else None
+        asset_age_months = 0
+        if purchase_date:
+            today_date = getdate(today())
+            asset_age_months = (today_date.year - purchase_date.year) * 12 + (today_date.month - purchase_date.month)
+        
+        # Useful life metrics
+        useful_life = cint(self.useful_life_months or 0)
+        remaining_useful_life = useful_life - asset_age_months if useful_life else 0
+        life_consumed_pct = (asset_age_months / useful_life * 100) if useful_life else 0
+        
+        # Maintenance metrics
+        maintenance_count = frappe.db.count('Asset Maintenance', 
+            filters={'asset': self.name, 'docstatus': 1})
+        
+        # Insurance status
+        insurance_expired = False
+        insurance_days = 0
+        if self.insurance_expiry_date:
+            insurance_days = frappe.utils.date_diff(self.insurance_expiry_date, today())
+            insurance_expired = insurance_days < 0
+        
+        # Warranty status
+        warranty_expired = False
+        warranty_days = 0
+        if self.warranty_expiry_date:
+            warranty_days = frappe.utils.date_diff(self.warranty_expiry_date, today())
+            warranty_expired = warranty_days < 0
+        
+        return {
+            'asset_code': self.asset_code or 'N/A',
+            'asset_name': self.asset_name or 'N/A',
+            'asset_status': self.asset_status or 'Draft',
+            'asset_category': self.asset_category or 'N/A',
+            'company': self.company or 'N/A',
+            'department': self.department or 'N/A',
+            'current_location': self.current_location or 'N/A',
+            'custodian': self.custodian or 'N/A',
+            
+            # Financial metrics
+            'gross_purchase_amount': gross_purchase,
+            'current_gross_value': current_gross,
+            'salvage_value': salvage,
+            'depreciable_amount': depreciable,
+            'total_depreciation_posted': total_depreciation_posted,
+            'current_net_book_value': net_book,
+            'remaining_value': remaining_value,
+            'depreciation_percentage': round(depreciation_percentage, 1),
+            'value_preserved': round(value_preserved, 1),
+            
+            # Schedule metrics
+            'total_schedule_periods': total_periods,
+            'posted_periods': posted_periods,
+            'pending_periods': pending_periods,
+            'total_expected_depreciation': total_expected_depreciation,
+            'total_posted_depreciation': total_posted_depreciation,
+            'upcoming_count': len(upcoming),
+            'overdue_count': len(overdue),
+            'next_depreciation_date': next_depreciation,
+            'next_depreciation_amount': next_depreciation_amount,
+            
+            # Depreciation info
+            'is_depreciable': self.is_depreciable_asset or 0,
+            'calculate_depreciation': self.calculate_depreciation or 0,
+            'depreciation_method': self.depreciation_method or 'N/A',
+            'depreciation_frequency': self.depreciation_frequency or 'N/A',
+            'depreciation_rate': flt(self.depreciation_rate or 0),
+            'depreciation_percentage_complete': flt(self.depreciation_percentage_complete or 0),
+            
+            # Age & Lifecycle
+            'purchase_date': str(self.purchase_date) if self.purchase_date else None,
+            'available_for_use_date': str(self.available_for_use_date) if self.available_for_use_date else None,
+            'asset_age_months': asset_age_months,
+            'useful_life_months': useful_life,
+            'remaining_useful_life': remaining_useful_life,
+            'life_consumed_pct': round(life_consumed_pct, 1),
+            
+            # Maintenance & Insurance
+            'maintenance_count': maintenance_count,
+            'warranty_expiry_date': str(self.warranty_expiry_date) if self.warranty_expiry_date else None,
+            'insurance_expiry_date': str(self.insurance_expiry_date) if self.insurance_expiry_date else None,
+            'insurance_expired': insurance_expired,
+            'insurance_days': insurance_days,
+            'warranty_expired': warranty_expired,
+            'warranty_days': warranty_days,
+            
+            # Additional flags
+            'is_existing_asset': self.is_existing_asset or 0,
+            'has_qr_code': bool(self.qr_code_image),
+            'asset_quantity': cint(self.asset_quantity or 1),
+        }
+    except Exception as e:
+        frappe.log_error(f"Dashboard metrics error: {str(e)}", "Asset Dashboard")
+        return {}

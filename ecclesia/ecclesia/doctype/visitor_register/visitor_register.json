@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "VIS-.YYYY.-.#####",
+ "creation": "2026-06-14 14:10:27.989375",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "visitor_name",
+  "visitor_company",
+  "visitor_phone",
+  "visitor_id_type",
+  "visitor_id_number",
+  "col_break_1",
+  "visit_date",
+  "check_in_time",
+  "check_out_time",
+  "status",
+  "col_break_2",
+  "host_employee",
+  "host_department",
+  "facility",
+  "visit_section",
+  "purpose_of_visit",
+  "items_brought_in",
+  "col_break_s1",
+  "badge_number",
+  "vehicle_plate",
+  "security_officer"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Visitor Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "visitor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Visitor Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "visitor_company",
+   "fieldtype": "Data",
+   "label": "Visitor Organisation"
+  },
+  {
+   "fieldname": "visitor_phone",
+   "fieldtype": "Phone",
+   "label": "Phone"
+  },
+  {
+   "fieldname": "visitor_id_type",
+   "fieldtype": "Select",
+   "label": "ID Type",
+   "options": "NIN\nDrivers Licence\nVoters Card\nInternational Passport\nWork ID\nOther"
+  },
+  {
+   "fieldname": "visitor_id_number",
+   "fieldtype": "Data",
+   "label": "ID Number"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "visit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Visit Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "check_in_time",
+   "fieldtype": "Time",
+   "label": "Check-In Time"
+  },
+  {
+   "fieldname": "check_out_time",
+   "fieldtype": "Time",
+   "label": "Check-Out Time"
+  },
+  {
+   "default": "Expected",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Expected\nChecked In\nChecked Out\nNo Show\nDenied Entry"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "host_employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Host (Employee)",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "host_employee.department",
+   "fieldname": "host_department",
+   "fieldtype": "Link",
+   "label": "Host Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "fieldname": "facility",
+   "fieldtype": "Link",
+   "label": "Destination Facility",
+   "options": "Facility"
+  },
+  {
+   "fieldname": "visit_section",
+   "fieldtype": "Section Break",
+   "label": "Visit Purpose & Security"
+  },
+  {
+   "fieldname": "purpose_of_visit",
+   "fieldtype": "Select",
+   "label": "Purpose of Visit",
+   "options": "Business Meeting\nDelivery\nInterview\nMaintenance\nAudit\nPersonal\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "items_brought_in",
+   "fieldtype": "Small Text",
+   "label": "Items / Equipment Brought In"
+  },
+  {
+   "fieldname": "col_break_s1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "badge_number",
+   "fieldtype": "Data",
+   "label": "Badge / Pass Number"
+  },
+  {
+   "fieldname": "vehicle_plate",
+   "fieldtype": "Data",
+   "label": "Visitor Vehicle Plate"
+  },
+  {
+   "fieldname": "security_officer",
+   "fieldtype": "Link",
+   "label": "Security Officer",
+   "options": "Employee"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-14 14:10:27.989375",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Visitor Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

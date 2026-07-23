@@ -1,0 +1,294 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "autoname",
+ "creation": "2026-07-05 19:28:33.022312",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sec_basic",
+  "rating_value",
+  "rating_label",
+  "col_basic_1",
+  "color_indicator",
+  "description",
+  "sec_score_range",
+  "col_score_left",
+  "min_score",
+  "col_score_mid",
+  "max_score",
+  "col_score_right",
+  "range_midpoint",
+  "range_width",
+  "sec_analytics",
+  "col_analytics_left",
+  "usage_count",
+  "last_used_date",
+  "col_analytics_mid",
+  "avg_score_given",
+  "variance_from_midpoint",
+  "col_analytics_right",
+  "rating_effectiveness",
+  "sec_tracking",
+  "col_tracking_left",
+  "created_date",
+  "last_modified_date",
+  "col_tracking_right",
+  "version_number",
+  "is_active",
+  "sec_dashboard",
+  "col_dashboard_left",
+  "dashboard_summary",
+  "col_dashboard_mid",
+  "dashboard_status",
+  "col_dashboard_right",
+  "dashboard_color"
+ ],
+ "fields": [
+  {
+   "fieldname": "sec_basic",
+   "fieldtype": "Section Break",
+   "label": "Rating Definition"
+  },
+  {
+   "fieldname": "rating_value",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "\u2b50 Rating Value",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rating_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "\ud83c\udff7\ufe0f Rating Label",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_basic_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Blue",
+   "fieldname": "color_indicator",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "\ud83c\udfa8 Colour",
+   "options": "Green\nBlue\nOrange\nRed\nGrey"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "\ud83d\udcdd Description"
+  },
+  {
+   "fieldname": "sec_score_range",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Score Range"
+  },
+  {
+   "fieldname": "col_score_left",
+   "fieldtype": "Column Break",
+   "label": "Minimum"
+  },
+  {
+   "fieldname": "min_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Min Score (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_score_mid",
+   "fieldtype": "Column Break",
+   "label": "Maximum"
+  },
+  {
+   "fieldname": "max_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Max Score (%)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_score_right",
+   "fieldtype": "Column Break",
+   "label": "Range Info"
+  },
+  {
+   "description": "Auto-calculated from min/max",
+   "fieldname": "range_midpoint",
+   "fieldtype": "Float",
+   "label": "Midpoint (%)",
+   "read_only": 1
+  },
+  {
+   "description": "Auto-calculated: Max - Min",
+   "fieldname": "range_width",
+   "fieldtype": "Float",
+   "label": "Range Width (%)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.parent && doc.parenttype",
+   "fieldname": "sec_analytics",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Analytics & Usage Insights"
+  },
+  {
+   "fieldname": "col_analytics_left",
+   "fieldtype": "Column Break",
+   "label": "Usage Statistics"
+  },
+  {
+   "default": "0",
+   "description": "Auto-counted from parent records",
+   "fieldname": "usage_count",
+   "fieldtype": "Int",
+   "label": "Times Used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_used_date",
+   "fieldtype": "Date",
+   "label": "Last Used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_mid",
+   "fieldtype": "Column Break",
+   "label": "Distribution"
+  },
+  {
+   "description": "Average actual score in this band",
+   "fieldname": "avg_score_given",
+   "fieldtype": "Float",
+   "label": "Avg Score Given",
+   "read_only": 1
+  },
+  {
+   "fieldname": "variance_from_midpoint",
+   "fieldtype": "Float",
+   "label": "Variance from Midpoint",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_right",
+   "fieldtype": "Column Break",
+   "label": "Effectiveness"
+  },
+  {
+   "fieldname": "rating_effectiveness",
+   "fieldtype": "Select",
+   "label": "Effectiveness",
+   "options": "\nHigh Usage\nMedium Usage\nLow Usage\nRarely Used",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.parent && doc.parenttype",
+   "fieldname": "sec_tracking",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Usage History"
+  },
+  {
+   "fieldname": "col_tracking_left",
+   "fieldtype": "Column Break",
+   "label": "Timeline"
+  },
+  {
+   "fieldname": "created_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Created On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_modified_date",
+   "fieldtype": "Date",
+   "label": "Last Modified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_tracking_right",
+   "fieldtype": "Column Break",
+   "label": "Versions"
+  },
+  {
+   "default": "1",
+   "fieldname": "version_number",
+   "fieldtype": "Int",
+   "label": "Version",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "\u2705 Active"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_dashboard",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Quick View"
+  },
+  {
+   "fieldname": "col_dashboard_left",
+   "fieldtype": "Column Break",
+   "label": "Summary"
+  },
+  {
+   "description": "{rating_label} ({rating_value}) - Range: {min_score}% - {max_score}%",
+   "fieldname": "dashboard_summary",
+   "fieldtype": "Data",
+   "label": "\ud83d\udccc Rating Summary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_mid",
+   "fieldtype": "Column Break",
+   "label": "Status"
+  },
+  {
+   "description": "Active: {is_active} | Used: {usage_count} times",
+   "fieldname": "dashboard_status",
+   "fieldtype": "Data",
+   "label": "\ud83c\udfaf Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_right",
+   "fieldtype": "Column Break",
+   "label": "Color"
+  },
+  {
+   "description": "{color_indicator}",
+   "fieldname": "dashboard_color",
+   "fieldtype": "Data",
+   "label": "\ud83c\udfa8 Color Indicator",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-05 19:32:14.543804",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Performance Rating Level",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

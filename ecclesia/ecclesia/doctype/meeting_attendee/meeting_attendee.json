@@ -1,0 +1,82 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 07:32:15.336000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "attendee_name",
+  "attendee_type",
+  "designation",
+  "attendance_status",
+  "check_in_time",
+  "email",
+  "phone"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "attendee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "attendee_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Board Member\nCommittee Member\nExecutive\nEmployee\nInvitee / Guest\nSecretary\nAuditor\nLegal Counsel"
+  },
+  {
+   "columns": 2,
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Designation"
+  },
+  {
+   "columns": 1,
+   "default": "Present",
+   "fieldname": "attendance_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Present\nAbsent\nApology\nBy Proxy"
+  },
+  {
+   "fieldname": "check_in_time",
+   "fieldtype": "Time",
+   "label": "Check-In"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Phone",
+   "label": "Phone"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 07:32:15.336000",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Meeting Attendee",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

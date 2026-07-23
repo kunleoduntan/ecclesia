@@ -37,6 +37,8 @@
   "sync_interval_minutes",
   "col_sync1",
   "last_sync",
+  "last_heartbeat",
+  "column_break_1bag",
   "device_status",
   "sec_notes",
   "notes"
@@ -59,7 +61,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Brand",
-   "options": "\nZKTeco\nHikvision\nDahua\nSuprema\nAnviz\neSSL\nVirdi\nRealand\nOther",
+   "options": "\nZKTeco\nHikvision\nDahua\nSuprema\nAnviz\neSSL\nTAMS\nVirdi\nRealand\nOther",
    "reqd": 1
   },
   {
@@ -235,11 +237,22 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Notes"
+  },
+  {
+   "description": "Last time the device made ANY contact (handshake or data push) \u2014 distinct from Last Successful Sync, which only updates when attendance data arrives. Used to detect a silently disconnected push device even during hours with no punches.",
+   "fieldname": "last_heartbeat",
+   "fieldtype": "Datetime",
+   "label": "Last Heartbeat",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_1bag",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-03-10 14:57:48.710472",
+ "modified": "2026-07-02 20:52:15.465999",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Biometric Device",
@@ -260,6 +273,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

@@ -1,0 +1,442 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "HSE-.YYYY.-.#####",
+ "creation": "2026-06-16 11:13:46.028683",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "facility",
+  "inspection_date",
+  "inspection_type",
+  "col_break_1",
+  "company",
+  "col_break_2",
+  "status",
+  "checklist_section",
+  "col_break_s1",
+  "amended_from",
+  "overview_tab",
+  "inspection_title",
+  "inspection_time",
+  "personnel_section",
+  "lead_inspector",
+  "inspector_team",
+  "col_break_3",
+  "department",
+  "accompanied_by",
+  "checklist_tab",
+  "hse_checklist",
+  "score_section",
+  "total_items",
+  "items_passed",
+  "col_break_s2",
+  "items_failed",
+  "col_break_s3",
+  "compliance_score",
+  "findings_tab",
+  "result_section",
+  "inspection_result",
+  "overall_risk_rating",
+  "col_break_r1",
+  "immediate_action_required",
+  "stop_work_order",
+  "corrective_actions_pending",
+  "findings_section",
+  "findings_summary",
+  "actions_section",
+  "corrective_actions",
+  "follow_up_date",
+  "follow_up_inspector",
+  "compliance_tab",
+  "compliance_section",
+  "compliance_incident_ref",
+  "cll_entry",
+  "col_break_c1",
+  "regulatory_authority",
+  "environmental_compliance_ref",
+  "documents_section",
+  "inspection_photos",
+  "signed_report",
+  "col_break_d1",
+  "regulator_reference",
+  "notes",
+  "overall_score",
+  "pass_fail",
+  "inspector"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Inspection Details"
+  },
+  {
+   "columns": 2,
+   "fieldname": "facility",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Facility",
+   "options": "Facility",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "default": "Today",
+   "fieldname": "inspection_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Inspection Date",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "inspection_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Inspection Type",
+   "options": "Routine HSE Inspection\nFire Safety Inspection\nElectrical Safety Inspection\nMachinery & Equipment Inspection\nHousekeeping Inspection\nEmergency Preparedness Inspection\nEnvironmental Inspection\nPPE Compliance Inspection\nChemical & Hazardous Materials Inspection\nPost-Incident Inspection\nRegulatory / External Inspection\nPre-Occupancy Inspection\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "{company}",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 2,
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nIn Progress\nCompleted\nFailed\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "checklist_section",
+   "fieldtype": "Section Break",
+   "label": "HSE Checklist"
+  },
+  {
+   "fieldname": "col_break_s1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "HSE Inspection",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "columns": 3,
+   "fieldname": "inspection_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Inspection Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inspection_time",
+   "fieldtype": "Time",
+   "label": "Time"
+  },
+  {
+   "fieldname": "personnel_section",
+   "fieldtype": "Section Break",
+   "label": "Personnel"
+  },
+  {
+   "fieldname": "lead_inspector",
+   "fieldtype": "Link",
+   "label": "Lead Inspector",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inspector_team",
+   "fieldtype": "Small Text",
+   "label": "Inspection Team"
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "accompanied_by",
+   "fieldtype": "Data",
+   "label": "Accompanied By (management)"
+  },
+  {
+   "fieldname": "checklist_tab",
+   "fieldtype": "Tab Break",
+   "label": "Inspection Checklist"
+  },
+  {
+   "fieldname": "hse_checklist",
+   "fieldtype": "Table",
+   "label": "Checklist Items",
+   "options": "HSE Checklist Item"
+  },
+  {
+   "fieldname": "score_section",
+   "fieldtype": "Section Break",
+   "label": "Scores"
+  },
+  {
+   "fieldname": "total_items",
+   "fieldtype": "Int",
+   "label": "Total Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "items_passed",
+   "fieldtype": "Int",
+   "label": "Items Passed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_s2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "items_failed",
+   "fieldtype": "Int",
+   "label": "Items Failed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_s3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "compliance_score",
+   "fieldtype": "Percent",
+   "label": "Compliance Score (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "findings_tab",
+   "fieldtype": "Tab Break",
+   "label": "Findings & Actions"
+  },
+  {
+   "fieldname": "result_section",
+   "fieldtype": "Section Break",
+   "label": "Overall Result"
+  },
+  {
+   "fieldname": "inspection_result",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Inspection Result",
+   "options": "Satisfactory\nMinor Non-Compliance\nMajor Non-Compliance\nCritical \u2014 Stop Work\nProsecution Risk"
+  },
+  {
+   "fieldname": "overall_risk_rating",
+   "fieldtype": "Select",
+   "label": "Risk Rating",
+   "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "col_break_r1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "immediate_action_required",
+   "fieldtype": "Check",
+   "label": "Immediate Action Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "stop_work_order",
+   "fieldtype": "Check",
+   "label": "Stop Work Order Issued"
+  },
+  {
+   "default": "0",
+   "fieldname": "corrective_actions_pending",
+   "fieldtype": "Int",
+   "label": "Corrective Actions Pending",
+   "read_only": 1
+  },
+  {
+   "fieldname": "findings_section",
+   "fieldtype": "Section Break",
+   "label": "Key Findings"
+  },
+  {
+   "fieldname": "findings_summary",
+   "fieldtype": "Text Editor",
+   "label": "Findings Summary"
+  },
+  {
+   "fieldname": "actions_section",
+   "fieldtype": "Section Break",
+   "label": "Corrective Action Plan"
+  },
+  {
+   "fieldname": "corrective_actions",
+   "fieldtype": "Table",
+   "label": "Corrective Actions",
+   "options": "Inspection Checklist"
+  },
+  {
+   "fieldname": "follow_up_date",
+   "fieldtype": "Date",
+   "label": "Follow-up Inspection Date"
+  },
+  {
+   "fieldname": "follow_up_inspector",
+   "fieldtype": "Link",
+   "label": "Follow-up Inspector",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "compliance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Compliance Links"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "compliance_section",
+   "fieldtype": "Section Break",
+   "label": "Compliance Module"
+  },
+  {
+   "description": "Auto-created when Major Non-Compliance or Critical result is recorded",
+   "fieldname": "compliance_incident_ref",
+   "fieldtype": "Link",
+   "label": "Compliance Incident",
+   "options": "Compliance Incident"
+  },
+  {
+   "fieldname": "cll_entry",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "col_break_c1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Set if this is an external / regulatory inspection",
+   "fieldname": "regulatory_authority",
+   "fieldtype": "Link",
+   "label": "Regulatory Authority",
+   "options": "Regulatory Authority"
+  },
+  {
+   "fieldname": "environmental_compliance_ref",
+   "fieldtype": "Link",
+   "label": "Environmental Compliance Record",
+   "options": "Environmental Compliance Record"
+  },
+  {
+   "fieldname": "documents_section",
+   "fieldtype": "Section Break",
+   "label": "Supporting Documents"
+  },
+  {
+   "fieldname": "inspection_photos",
+   "fieldtype": "Attach",
+   "label": "Inspection Photos / Evidence"
+  },
+  {
+   "fieldname": "signed_report",
+   "fieldtype": "Attach",
+   "label": "Signed Inspection Report"
+  },
+  {
+   "fieldname": "col_break_d1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "regulator_reference",
+   "fieldtype": "Data",
+   "label": "Regulator Reference No."
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Additional Notes"
+  },
+  {
+   "fieldname": "overall_score",
+   "fieldtype": "Int",
+   "label": "Overall Score"
+  },
+  {
+   "fieldname": "pass_fail",
+   "fieldtype": "Int",
+   "label": "Pass / Fail"
+  },
+  {
+   "fieldname": "inspector",
+   "fieldtype": "Data",
+   "label": "Inspector"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-21 15:48:00.680215",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "HSE Inspection",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

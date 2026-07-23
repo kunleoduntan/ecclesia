@@ -1,0 +1,289 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "FAC-.YYYY.-.#####",
+ "creation": "2026-06-14 14:07:20.024513",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "basic_info_section",
+  "facility_code",
+  "facility_name",
+  "facility_type",
+  "col_break_1",
+  "company",
+  "branch",
+  "department",
+  "col_break_2",
+  "status",
+  "capacity",
+  "floor_area_sqm",
+  "facility_details_section",
+  "building_number",
+  "floor",
+  "construction_year",
+  "col_break_3",
+  "facility_manager",
+  "maintenance_vendor",
+  "security_vendor",
+  "col_break_4",
+  "monthly_rental_cost",
+  "lease_expiry_date",
+  "is_owned",
+  "address_section",
+  "address",
+  "google_maps_link",
+  "analytics_tab",
+  "kpi_section",
+  "open_maintenance_requests",
+  "col_break_kpi1",
+  "maintenance_cost_ytd",
+  "col_break_kpi2",
+  "utility_cost_ytd",
+  "dashboard_section",
+  "html_dashboard",
+  "ai_insights"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "fieldname": "facility_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Facility Code",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "facility_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Facility Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "facility_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Facility Type",
+   "options": "Office\nWarehouse\nProduction Hall\nConference Room\nGuest House\nCanteen\nSecurity Post\nStore\nCarpark\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "{company}",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "branch",
+   "fieldtype": "Link",
+   "label": "Branch",
+   "options": "Branch"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Primary Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nUnder Maintenance\nInactive\nDecommissioned"
+  },
+  {
+   "fieldname": "capacity",
+   "fieldtype": "Int",
+   "label": "Capacity (persons)"
+  },
+  {
+   "fieldname": "floor_area_sqm",
+   "fieldtype": "Float",
+   "label": "Floor Area (sqm)"
+  },
+  {
+   "fieldname": "facility_details_section",
+   "fieldtype": "Section Break",
+   "label": "Facility Details"
+  },
+  {
+   "fieldname": "building_number",
+   "fieldtype": "Data",
+   "label": "Building / Block"
+  },
+  {
+   "fieldname": "floor",
+   "fieldtype": "Data",
+   "label": "Floor"
+  },
+  {
+   "fieldname": "construction_year",
+   "fieldtype": "Int",
+   "label": "Year Built"
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "facility_manager",
+   "fieldtype": "Link",
+   "label": "Facility Manager",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "maintenance_vendor",
+   "fieldtype": "Link",
+   "label": "Maintenance Vendor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "security_vendor",
+   "fieldtype": "Link",
+   "label": "Security Vendor",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "col_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "monthly_rental_cost",
+   "fieldtype": "Currency",
+   "label": "Monthly Rental Cost"
+  },
+  {
+   "fieldname": "lease_expiry_date",
+   "fieldtype": "Date",
+   "label": "Lease Expiry Date"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_owned",
+   "fieldtype": "Check",
+   "label": "Company-Owned"
+  },
+  {
+   "fieldname": "address_section",
+   "fieldtype": "Section Break",
+   "label": "Location & Address"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Link",
+   "label": "Address",
+   "options": "Address"
+  },
+  {
+   "fieldname": "google_maps_link",
+   "fieldtype": "Data",
+   "label": "Google Maps Link"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "kpi_section",
+   "fieldtype": "Section Break",
+   "label": "KPIs"
+  },
+  {
+   "fieldname": "open_maintenance_requests",
+   "fieldtype": "Int",
+   "label": "Open Maintenance Requests",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_kpi1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_cost_ytd",
+   "fieldtype": "Currency",
+   "label": "Maintenance Cost YTD",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_kpi2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "utility_cost_ytd",
+   "fieldtype": "Currency",
+   "label": "Utility Cost YTD",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dashboard_section",
+   "fieldtype": "Section Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "html_dashboard",
+   "fieldtype": "HTML",
+   "label": "Facility Dashboard"
+  },
+  {
+   "fieldname": "ai_insights",
+   "fieldtype": "Long Text",
+   "label": "AI Insights",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-14 14:07:20.024513",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Facility",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

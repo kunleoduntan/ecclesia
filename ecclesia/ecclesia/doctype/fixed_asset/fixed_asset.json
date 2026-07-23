@@ -140,6 +140,8 @@
   "custom_field_4",
   "column_break_custom2",
   "custom_field_5",
+  "dashboard_tab",
+  "html_dashboard",
   "amended_from"
  ],
  "fields": [
@@ -947,12 +949,22 @@
    "fieldtype": "HTML",
    "label": "QR Code Display",
    "read_only": 1
+  },
+  {
+   "fieldname": "dashboard_tab",
+   "fieldtype": "Tab Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "html_dashboard",
+   "fieldtype": "HTML",
+   "label": "HTML Dashboard"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-02-18 17:52:01.622405",
+ "modified": "2026-05-15 16:45:31.486774",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Fixed Asset",
@@ -1003,6 +1015,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

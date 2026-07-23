@@ -1,0 +1,346 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "VEH-.YYYY.-.#####",
+ "creation": "2026-06-14 14:07:59.653448",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "basic_section",
+  "vehicle_name",
+  "plate_number",
+  "vehicle_type",
+  "col_break_1",
+  "brand",
+  "model",
+  "year_of_manufacture",
+  "colour",
+  "col_break_2",
+  "department",
+  "assigned_driver",
+  "status",
+  "details_tab",
+  "purchase_section",
+  "purchase_date",
+  "purchase_cost",
+  "current_value",
+  "erpnext_asset",
+  "col_break_3",
+  "insurance_provider",
+  "insurance_policy_no",
+  "insurance_expiry",
+  "col_break_4",
+  "license_expiry",
+  "road_worthiness_expiry",
+  "hackney_permit_expiry",
+  "fuel_section",
+  "fuel_type",
+  "tank_capacity_litres",
+  "avg_consumption_km_per_litre",
+  "col_break_5",
+  "odometer_reading",
+  "next_service_km",
+  "next_service_date",
+  "analytics_tab",
+  "analytics_section",
+  "total_km_ytd",
+  "fuel_cost_ytd",
+  "col_break_a1",
+  "maintenance_cost_ytd",
+  "cost_per_km",
+  "col_break_a2",
+  "trips_ytd",
+  "dashboard_section",
+  "html_dashboard",
+  "ai_insights"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Vehicle Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "vehicle_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Vehicle Name / Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "plate_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Plate Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "vehicle_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Vehicle Type",
+   "options": "Car\nBus\nTruck\nPickup\nForklift\nMotorcycle\nSUV\nVan\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "brand",
+   "fieldtype": "Data",
+   "label": "Brand / Make"
+  },
+  {
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
+  },
+  {
+   "fieldname": "year_of_manufacture",
+   "fieldtype": "Int",
+   "label": "Year"
+  },
+  {
+   "fieldname": "colour",
+   "fieldtype": "Data",
+   "label": "Colour"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Assigned Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "assigned_driver",
+   "fieldtype": "Link",
+   "label": "Primary Driver",
+   "options": "Employee"
+  },
+  {
+   "default": "Available",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Available\nIn Use\nUnder Maintenance\nGrounded\nSold\nWritten Off"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Technical & Financial"
+  },
+  {
+   "fieldname": "purchase_section",
+   "fieldtype": "Section Break",
+   "label": "Purchase & Value"
+  },
+  {
+   "fieldname": "purchase_date",
+   "fieldtype": "Date",
+   "label": "Purchase Date"
+  },
+  {
+   "fieldname": "purchase_cost",
+   "fieldtype": "Currency",
+   "label": "Purchase Cost (\u20a6)"
+  },
+  {
+   "fieldname": "current_value",
+   "fieldtype": "Currency",
+   "label": "Current Book Value (\u20a6)"
+  },
+  {
+   "fieldname": "erpnext_asset",
+   "fieldtype": "Link",
+   "label": "ERPNext Asset (link)",
+   "options": "Asset"
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "insurance_provider",
+   "fieldtype": "Link",
+   "label": "Insurance Provider",
+   "options": "Supplier"
+  },
+  {
+   "fieldname": "insurance_policy_no",
+   "fieldtype": "Data",
+   "label": "Insurance Policy No"
+  },
+  {
+   "fieldname": "insurance_expiry",
+   "fieldtype": "Date",
+   "label": "Insurance Expiry"
+  },
+  {
+   "fieldname": "col_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "license_expiry",
+   "fieldtype": "Date",
+   "label": "Vehicle Licence Expiry"
+  },
+  {
+   "fieldname": "road_worthiness_expiry",
+   "fieldtype": "Date",
+   "label": "Road Worthiness Expiry"
+  },
+  {
+   "fieldname": "hackney_permit_expiry",
+   "fieldtype": "Date",
+   "label": "Hackney Permit Expiry"
+  },
+  {
+   "fieldname": "fuel_section",
+   "fieldtype": "Section Break",
+   "label": "Fuel & Performance"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Select",
+   "label": "Fuel Type",
+   "options": "Petrol\nDiesel\nCNG\nElectric"
+  },
+  {
+   "fieldname": "tank_capacity_litres",
+   "fieldtype": "Float",
+   "label": "Tank Capacity (Litres)"
+  },
+  {
+   "fieldname": "avg_consumption_km_per_litre",
+   "fieldtype": "Float",
+   "label": "Avg. Consumption (km/litre)"
+  },
+  {
+   "fieldname": "col_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "odometer_reading",
+   "fieldtype": "Float",
+   "label": "Current Odometer (km)"
+  },
+  {
+   "fieldname": "next_service_km",
+   "fieldtype": "Float",
+   "label": "Next Service at (km)"
+  },
+  {
+   "fieldname": "next_service_date",
+   "fieldtype": "Date",
+   "label": "Next Service Date"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "analytics_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Intelligence"
+  },
+  {
+   "fieldname": "total_km_ytd",
+   "fieldtype": "Float",
+   "label": "Total KM (YTD)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "fuel_cost_ytd",
+   "fieldtype": "Currency",
+   "label": "Fuel Cost YTD",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_a1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "maintenance_cost_ytd",
+   "fieldtype": "Currency",
+   "label": "Maintenance Cost YTD",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cost_per_km",
+   "fieldtype": "Currency",
+   "label": "Cost Per KM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_a2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "trips_ytd",
+   "fieldtype": "Int",
+   "label": "Trips YTD",
+   "read_only": 1
+  },
+  {
+   "fieldname": "dashboard_section",
+   "fieldtype": "Section Break",
+   "label": "Dashboard"
+  },
+  {
+   "fieldname": "html_dashboard",
+   "fieldtype": "HTML",
+   "label": "Vehicle Dashboard"
+  },
+  {
+   "fieldname": "ai_insights",
+   "fieldtype": "Long Text",
+   "label": "AI Insights",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-14 14:07:59.653448",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Company Vehicle",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

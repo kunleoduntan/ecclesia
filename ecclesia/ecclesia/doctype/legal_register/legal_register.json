@@ -1,0 +1,238 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "LR-.YYYY.-.#####",
+ "creation": "2026-07-16 09:56:54.246890",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "instrument_title",
+  "company",
+  "instrument_type",
+  "issuing_authority",
+  "reference_number",
+  "status",
+  "amended_from",
+  "details_tab",
+  "issue_date",
+  "expiry_date",
+  "renewal_reminder_days",
+  "auto_renewal",
+  "cb_legal",
+  "responsible_officer",
+  "compliance_status",
+  "cost_of_renewal",
+  "penalty_for_lapse",
+  "renewal_tab",
+  "renewal_history",
+  "documents_tab",
+  "document_attachment",
+  "remarks",
+  "analytics_tab",
+  "days_to_expiry",
+  "is_expiring_soon",
+  "is_expired",
+  "compliance_task_ref"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "fieldname": "instrument_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Instrument Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "instrument_type",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Instrument Type",
+   "options": "Legal Instrument Type"
+  },
+  {
+   "fieldname": "issuing_authority",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Issuing Authority"
+  },
+  {
+   "fieldname": "reference_number",
+   "fieldtype": "Data",
+   "label": "Reference / License Number"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nPending Renewal\nExpired\nRenewed\nLapsed"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Legal Register",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Validity & Compliance"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date",
+   "reqd": 1
+  },
+  {
+   "default": "30",
+   "fieldname": "renewal_reminder_days",
+   "fieldtype": "Int",
+   "label": "Reminder Period (Days Before Expiry)"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_renewal",
+   "fieldtype": "Check",
+   "label": "Auto-Renewal Arrangement"
+  },
+  {
+   "fieldname": "cb_legal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "default": "Compliant",
+   "fieldname": "compliance_status",
+   "fieldtype": "Select",
+   "label": "Compliance Status",
+   "options": "Compliant\nNon-Compliant\nUnder Review"
+  },
+  {
+   "fieldname": "cost_of_renewal",
+   "fieldtype": "Currency",
+   "label": "Cost of Renewal (\u20a6)"
+  },
+  {
+   "fieldname": "penalty_for_lapse",
+   "fieldtype": "Currency",
+   "label": "Penalty Exposure if Lapsed (\u20a6)"
+  },
+  {
+   "fieldname": "renewal_tab",
+   "fieldtype": "Tab Break",
+   "label": "Renewal History"
+  },
+  {
+   "fieldname": "renewal_history",
+   "fieldtype": "Table",
+   "label": "Renewal History",
+   "options": "Legal Register Renewal"
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "document_attachment",
+   "fieldtype": "Attach",
+   "label": "Instrument Document"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expiring_soon",
+   "fieldtype": "Check",
+   "label": "Expiring Soon",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expired",
+   "fieldtype": "Check",
+   "label": "Expired",
+   "read_only": 1
+  },
+  {
+   "fieldname": "compliance_task_ref",
+   "fieldtype": "Data",
+   "label": "Compliance Task Ref (if created)",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-16 09:56:54.246890",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Legal Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

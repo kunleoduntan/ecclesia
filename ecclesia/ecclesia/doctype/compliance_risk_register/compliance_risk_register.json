@@ -1,0 +1,195 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:register_title",
+ "creation": "2026-06-14 21:00:15.324443",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "register_title",
+  "company",
+  "assessment_date",
+  "review_period",
+  "col1",
+  "reviewer",
+  "next_review_date",
+  "linked_compliance_area",
+  "risk_status",
+  "risk_items",
+  "summary_section",
+  "overall_risk_score",
+  "overall_risk_level",
+  "col2",
+  "critical_count",
+  "high_count",
+  "medium_count",
+  "ai_risk_commentary",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "register_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Risk Register Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "assessment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Assessment Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_period",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Review Period",
+   "options": "Monthly\nQuarterly\nBi-Annual\nAnnual"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reviewer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reviewed By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "next_review_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next Review Date"
+  },
+  {
+   "fieldname": "linked_compliance_area",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Compliance Area",
+   "options": "Tax\nPension\nPayroll\nLicensing\nStatutory Reporting\nAudit\nAll"
+  },
+  {
+   "default": "Open",
+   "fieldname": "risk_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nMitigating\nMitigated\nAccepted\nEscalated"
+  },
+  {
+   "fieldname": "risk_items",
+   "fieldtype": "Table",
+   "label": "Risk Items",
+   "options": "Compliance Risk Item"
+  },
+  {
+   "fieldname": "summary_section",
+   "fieldtype": "Section Break",
+   "label": "Summary"
+  },
+  {
+   "fieldname": "overall_risk_score",
+   "fieldtype": "Float",
+   "label": "Overall Risk Score",
+   "read_only": 1
+  },
+  {
+   "fieldname": "overall_risk_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Overall Risk Level",
+   "options": "Low\nMedium\nHigh\nCritical",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "critical_count",
+   "fieldtype": "Int",
+   "label": "Critical Risks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "high_count",
+   "fieldtype": "Int",
+   "label": "High Risks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "medium_count",
+   "fieldtype": "Int",
+   "label": "Medium Risks",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_risk_commentary",
+   "fieldtype": "Long Text",
+   "label": "AI Risk Commentary",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Additional Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Risk Register",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 21:00:15.324443",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Risk Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,110 +1,55 @@
-/* ============================================
-   GLOBAL FORM STYLES — All Modules, All Doctypes
-   your_app/public/css/global_form_styles.css
-   ============================================ */
+/* =====================================================
+   SECTION CONTAINER
+===================================================== */
 
-/* === SECTION HEADERS === */
-.form-section .section-head {
-    background: linear-gradient(135deg, #1565c0, #1e88e5);
-    color: #ffffff !important;
-    font-weight: 700;
-    padding: 8px 14px;
-    border-radius: 6px 6px 0 0;
-    border-left: 4px solid #667eea !important;
-    
-}
-
-/* === CARD-STYLE SECTIONS (adapted from Debit Note) === */
 .form-section {
-    background: white !important;
-    border-radius: 12px !important;
-    padding: 20px !important;
-    margin-bottom: 20px !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-    border-left: 4px solid #667eea !important;
+    border: 1px solid #dce3ea !important;
+    border-radius: 8px !important;
+    margin-bottom: 18px !important;
+    background: #fff !important;
 }
 
-/* === CURRENCY FIELDS — Light Blue === */
-[data-fieldtype="Currency"] input,
-[data-fieldtype="Float"] input {
-    background-color: #e8f4fd !important;
-    border: 1.5px solid #90caf9 !important;
-    color: #0d47a1 !important;
-    font-weight: 600;
-    text-align: right;
-}
+/* =====================================================
+   THIN BLUE SECTION HEADER
+===================================================== */
 
-/* === SMALL TEXT FIELDS — Light Green === */
-[data-fieldtype="Small Text"] textarea,
-[data-fieldtype="Small Text"] .control-input textarea {
-    background-color: #F0FFDF !important;
-    border: 1.5px solid #C8E6C9 !important;
-    color: #0d47a1 !important;
-    font-weight: 600;
-}
-
-/* === OTHER REGULAR FIELDS === */
-[data-fieldtype="Data"] input,
-[data-fieldtype="Link"] input,
-[data-fieldtype="Date"] input,
-[data-fieldtype="Text"] textarea {
-    background-color: #fafafa !important;
-    border: 1px solid #cfd8dc !important;
-    border-radius: 4px;
-}
-
-/* === SELECT FIELD — Warm Pink === */
-[data-fieldtype="Select"] select {
-    background-color: #FFE4EF !important;
-    border: 1px solid #cfd8dc !important;
-    border-radius: 4px;
-}
-
-/* === BUTTONS === */
-.btn-primary {
-    background-color: #1565c0 !important;
-    border-color: #1565c0 !important;
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.btn-default {
-    background-color: #e3f2fd !important;
-    color: #1565c0 !important;
-    border: 1px solid #90caf9 !important;
-    border-radius: 6px;
-}
-
-/* === CHILD TABLE ROWS (adapted from Debit Note) === */
-.grid-row:nth-child(even) {
-    background-color: #f8f9fa !important;
-}
-
-.grid-row:nth-child(odd) {
-    background-color: #ffffff !important;
-}
-
-.grid-row:hover {
-    background-color: #e3f2fd !important;
-    transition: background-color 0.2s ease !important;
-}
-
-.grid-row.row-selected .data-row td {
-    background-color: #bbdefb !important;
-}
-
-/* === CHILD TABLE HEADER === */
-.grid-heading-row th {
-    background-color: #1a73e8 !important;
+.form-section .section-head {
+    background: #1565c0 !important;
     color: #ffffff !important;
-    font-weight: 600;
+    padding: 5px 12px !important;      /* Thin header */
+    min-height: 28px !important;
+    line-height: 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border-radius: 8px 8px 0 0 !important;
+    margin: -1px -1px 10px -1px !important;
 }
 
-/* === CHILD TABLE CURRENCY FIELDS === */
-.grid-row [data-fieldtype="Currency"] input {
-    background-color: #e3f2fd !important;
-    color: #0d47a1 !important;
-    font-weight: 600;
-    border: 1px solid #90caf9 !important;
-    text-align: right;
+/* =====================================================
+   GREEN TABS
+===================================================== */
+
+.form-tabs .nav-tabs {
+    border-bottom: 2px solid #4CAF50 !important;
+}
+
+.form-tabs .nav-tabs .nav-link {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
+    border: 1px solid #a5d6a7 !important;
+    border-bottom: none !important;
+    margin-right: 4px !important;
+    border-radius: 6px 6px 0 0 !important;
+    font-weight: 600 !important;
+}
+
+.form-tabs .nav-tabs .nav-link:hover {
+    background: #c8e6c9 !important;
+    color: #1b5e20 !important;
+}
+
+.form-tabs .nav-tabs .nav-link.active {
+    background: #4CAF50 !important;
+    color: #ffffff !important;
+    border-color: #4CAF50 !important;
 }

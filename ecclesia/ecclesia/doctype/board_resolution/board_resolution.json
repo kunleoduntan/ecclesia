@@ -1,0 +1,244 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "BR-.YYYY.-.#####",
+ "creation": "2026-07-16 08:50:45.901186",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "resolution_title",
+  "company",
+  "meeting_type",
+  "meeting_date",
+  "col1",
+  "resolution_number",
+  "resolution_category",
+  "quorum_met",
+  "directors_present",
+  "resolution_text",
+  "resolved_by",
+  "seconded_by",
+  "col2",
+  "implementation_status",
+  "implementation_date",
+  "responsible_officer",
+  "cac_filing_required",
+  "cac_filed",
+  "cac_filing_reference",
+  "resolution_attachment",
+  "corporate_register",
+  "sb_meeting_integration",
+  "related_meeting",
+  "sb_circulation",
+  "circulation_date",
+  "signing_deadline",
+  "cb_circulation",
+  "signatories",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "resolution_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Resolution Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "meeting_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Meeting Type",
+   "options": "Board Meeting\nAGM\nEGM\nCommittee Meeting\nWritten Resolution",
+   "reqd": 1
+  },
+  {
+   "fieldname": "meeting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Meeting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "resolution_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Resolution Number"
+  },
+  {
+   "fieldname": "resolution_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "Financial\nStrategic\nCompliance\nAppointment / Removal\nContracts\nDividend\nCapital\nPolicy\nOther"
+  },
+  {
+   "default": "1",
+   "fieldname": "quorum_met",
+   "fieldtype": "Check",
+   "label": "Quorum Met"
+  },
+  {
+   "fieldname": "directors_present",
+   "fieldtype": "Int",
+   "label": "Directors Present"
+  },
+  {
+   "fieldname": "resolution_text",
+   "fieldtype": "Text Editor",
+   "label": "Resolution Text"
+  },
+  {
+   "fieldname": "resolved_by",
+   "fieldtype": "Data",
+   "label": "Moved By"
+  },
+  {
+   "fieldname": "seconded_by",
+   "fieldtype": "Data",
+   "label": "Seconded By"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "implementation_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Implementation Status",
+   "options": "Pending\nIn Progress\nImplemented\nNot Applicable"
+  },
+  {
+   "fieldname": "implementation_date",
+   "fieldtype": "Date",
+   "label": "Implementation Date"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "default": "0",
+   "fieldname": "cac_filing_required",
+   "fieldtype": "Check",
+   "label": "CAC Filing Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "cac_filed",
+   "fieldtype": "Check",
+   "label": "CAC Form Filed"
+  },
+  {
+   "fieldname": "cac_filing_reference",
+   "fieldtype": "Data",
+   "label": "CAC Filing Reference"
+  },
+  {
+   "fieldname": "resolution_attachment",
+   "fieldtype": "Attach",
+   "label": "Signed Resolution"
+  },
+  {
+   "fieldname": "corporate_register",
+   "fieldtype": "Link",
+   "label": "Corporate Register",
+   "options": "Corporate Compliance Register"
+  },
+  {
+   "fieldname": "sb_meeting_integration",
+   "fieldtype": "Section Break",
+   "label": "Meeting Management Integration"
+  },
+  {
+   "description": "Link to the Meeting doctype entry this resolution was passed in, if recorded there.",
+   "fieldname": "related_meeting",
+   "fieldtype": "Link",
+   "label": "Related Meeting Record",
+   "options": "Meeting"
+  },
+  {
+   "depends_on": "eval:doc.meeting_type=='Written Resolution'",
+   "fieldname": "sb_circulation",
+   "fieldtype": "Section Break",
+   "label": "Circulation & Signing (Written Resolutions)"
+  },
+  {
+   "fieldname": "circulation_date",
+   "fieldtype": "Date",
+   "label": "Date Circulated to Directors"
+  },
+  {
+   "fieldname": "signing_deadline",
+   "fieldtype": "Date",
+   "label": "Signing Deadline"
+  },
+  {
+   "fieldname": "cb_circulation",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "signatories",
+   "fieldtype": "Table",
+   "label": "Signatories",
+   "options": "Board Resolution Signatory"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Board Resolution",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-16 08:50:45.901186",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Board Resolution",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

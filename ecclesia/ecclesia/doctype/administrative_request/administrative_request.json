@@ -1,0 +1,341 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "AR-.YYYY.-.#####",
+ "creation": "2026-06-14 14:09:59.541789",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "basic_info_section",
+  "request_title",
+  "request_type",
+  "priority",
+  "col_break_1",
+  "employee",
+  "department",
+  "company",
+  "col_break_2",
+  "request_date",
+  "required_by_date",
+  "status",
+  "facility",
+  "description_section",
+  "description",
+  "items_section",
+  "items",
+  "details_tab",
+  "approval_section",
+  "approved_by",
+  "approval_date",
+  "rejection_reason",
+  "col_break_ap1",
+  "assigned_to_employee",
+  "expected_completion_date",
+  "actual_completion_date",
+  "cost_section",
+  "estimated_cost",
+  "col_break_c1",
+  "approved_cost",
+  "col_break_c2",
+  "actual_cost",
+  "cost_centre",
+  "remarks",
+  "analytics_tab",
+  "analytics_section",
+  "request_age_days",
+  "col_break_an1",
+  "completion_days",
+  "col_break_an2",
+  "sla_breached",
+  "ai_insights",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "fieldname": "basic_info_section",
+   "fieldtype": "Section Break",
+   "label": "Request Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "request_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Request Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "request_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Request Type",
+   "options": "Maintenance Request\nVehicle Request\nOffice Supplies\nFacility Booking\nAccommodation Request\nUtility Complaint\nSecurity Request\nIT Support\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh\nUrgent"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Requesting Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department",
+   "read_only": 1
+  },
+  {
+   "default": "{company}",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "request_date",
+   "fieldtype": "Date",
+   "label": "Request Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "required_by_date",
+   "fieldtype": "Date",
+   "label": "Required By"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nApproved\nIn Progress\nCompleted\nRejected\nClosed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "facility",
+   "fieldtype": "Link",
+   "label": "Related Facility",
+   "options": "Facility"
+  },
+  {
+   "fieldname": "description_section",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description / Details",
+   "reqd": 1
+  },
+  {
+   "fieldname": "items_section",
+   "fieldtype": "Section Break",
+   "label": "Items / Requirements"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Request Items",
+   "options": "Admin Request Item"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Approval & Cost"
+  },
+  {
+   "fieldname": "approval_section",
+   "fieldtype": "Section Break",
+   "label": "Approval"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "Employee",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Approval Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason"
+  },
+  {
+   "fieldname": "col_break_ap1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "assigned_to_employee",
+   "fieldtype": "Link",
+   "label": "Assigned To (Admin Staff)",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "expected_completion_date",
+   "fieldtype": "Date",
+   "label": "Expected Completion"
+  },
+  {
+   "fieldname": "actual_completion_date",
+   "fieldtype": "Date",
+   "label": "Actual Completion"
+  },
+  {
+   "fieldname": "cost_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Tracking"
+  },
+  {
+   "fieldname": "estimated_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Cost (\u20a6)"
+  },
+  {
+   "fieldname": "col_break_c1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approved_cost",
+   "fieldtype": "Currency",
+   "label": "Approved Cost (\u20a6)"
+  },
+  {
+   "fieldname": "col_break_c2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "actual_cost",
+   "fieldtype": "Currency",
+   "label": "Actual Cost (\u20a6)"
+  },
+  {
+   "fieldname": "cost_centre",
+   "fieldtype": "Link",
+   "label": "Cost Centre",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / Notes"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "analytics_section",
+   "fieldtype": "Section Break",
+   "label": "SLA & Performance"
+  },
+  {
+   "fieldname": "request_age_days",
+   "fieldtype": "Int",
+   "label": "Age (Days)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_an1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "completion_days",
+   "fieldtype": "Int",
+   "label": "Days to Complete",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_an2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "sla_breached",
+   "fieldtype": "Check",
+   "label": "SLA Breached",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_insights",
+   "fieldtype": "Long Text",
+   "label": "AI Insights",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Administrative Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 14:09:59.541789",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Administrative Request",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

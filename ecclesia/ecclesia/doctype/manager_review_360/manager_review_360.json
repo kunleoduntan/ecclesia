@@ -1,0 +1,273 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "MR-.YYYY.-.#####",
+ "creation": "2026-07-04 14:46:44.033073",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "manager",
+  "performance_cycle",
+  "review_date",
+  "status",
+  "sec_scores",
+  "goal_score",
+  "competency_score",
+  "values_score",
+  "overall_manager_rating",
+  "sec_comp",
+  "competency_ratings",
+  "sec_narrative",
+  "goal_assessment",
+  "overall_comments",
+  "strengths_observed",
+  "development_needs",
+  "sec_rec",
+  "recommend_promotion",
+  "recommend_increment",
+  "increment_percentage",
+  "recommend_bonus",
+  "bonus_amount",
+  "recommend_training",
+  "training_details",
+  "recommend_pip",
+  "pip_reason",
+  "recommend_transfer",
+  "recommend_succession",
+  "succession_role",
+  "sec_ev",
+  "evidence_upload",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "manager",
+   "fieldtype": "Link",
+   "label": "Reviewing Manager",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Date",
+   "label": "Review Date"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nApproved"
+  },
+  {
+   "fieldname": "sec_scores",
+   "fieldtype": "Section Break",
+   "label": "Scores"
+  },
+  {
+   "fieldname": "goal_score",
+   "fieldtype": "Float",
+   "label": "Goal Achievement Score (1-5)"
+  },
+  {
+   "fieldname": "competency_score",
+   "fieldtype": "Float",
+   "label": "Competency Score (1-5)"
+  },
+  {
+   "fieldname": "values_score",
+   "fieldtype": "Float",
+   "label": "Values Score (1-5)"
+  },
+  {
+   "fieldname": "overall_manager_rating",
+   "fieldtype": "Float",
+   "label": "Overall Manager Rating (1-5)"
+  },
+  {
+   "fieldname": "sec_comp",
+   "fieldtype": "Section Break",
+   "label": "Competency Ratings"
+  },
+  {
+   "fieldname": "competency_ratings",
+   "fieldtype": "Table",
+   "label": "Competency Ratings",
+   "options": "Manager Review Competency"
+  },
+  {
+   "fieldname": "sec_narrative",
+   "fieldtype": "Section Break",
+   "label": "Manager Narrative"
+  },
+  {
+   "fieldname": "goal_assessment",
+   "fieldtype": "Text Editor",
+   "label": "Goal Achievement Assessment"
+  },
+  {
+   "fieldname": "overall_comments",
+   "fieldtype": "Text Editor",
+   "label": "Overall Comments"
+  },
+  {
+   "fieldname": "strengths_observed",
+   "fieldtype": "Text Editor",
+   "label": "Strengths Observed"
+  },
+  {
+   "fieldname": "development_needs",
+   "fieldtype": "Text Editor",
+   "label": "Development Needs"
+  },
+  {
+   "fieldname": "sec_rec",
+   "fieldtype": "Section Break",
+   "label": "Recommendations"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_promotion",
+   "fieldtype": "Check",
+   "label": "Recommend for Promotion"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_increment",
+   "fieldtype": "Check",
+   "label": "Recommend Salary Increment"
+  },
+  {
+   "fieldname": "increment_percentage",
+   "fieldtype": "Float",
+   "label": "Increment % Recommended"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_bonus",
+   "fieldtype": "Check",
+   "label": "Recommend Bonus"
+  },
+  {
+   "fieldname": "bonus_amount",
+   "fieldtype": "Currency",
+   "label": "Bonus Amount Recommended"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_training",
+   "fieldtype": "Check",
+   "label": "Recommend Training"
+  },
+  {
+   "fieldname": "training_details",
+   "fieldtype": "Small Text",
+   "label": "Training Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_pip",
+   "fieldtype": "Check",
+   "label": "Recommend PIP"
+  },
+  {
+   "fieldname": "pip_reason",
+   "fieldtype": "Small Text",
+   "label": "PIP Reason"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_transfer",
+   "fieldtype": "Check",
+   "label": "Recommend Transfer"
+  },
+  {
+   "default": "0",
+   "fieldname": "recommend_succession",
+   "fieldtype": "Check",
+   "label": "Recommend for Succession"
+  },
+  {
+   "fieldname": "succession_role",
+   "fieldtype": "Data",
+   "label": "Succession Role"
+  },
+  {
+   "fieldname": "sec_ev",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "evidence_upload",
+   "fieldtype": "Attach",
+   "label": "Evidence Upload"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Manager Review 360",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-04 14:46:44.033073",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Manager Review 360",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

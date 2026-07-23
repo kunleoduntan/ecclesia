@@ -1,0 +1,155 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-15 19:11:52.529491",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "resolution_no",
+  "resolution_type",
+  "resolution_title",
+  "resolution_text",
+  "moved_by",
+  "seconded_by",
+  "votes_for",
+  "votes_against",
+  "votes_abstained",
+  "shares_voted_for",
+  "shares_voted_against",
+  "voting_method",
+  "result",
+  "cac_notification_required",
+  "implementation_deadline",
+  "responsible_officer",
+  "board_resolution_ref",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "columns": 1,
+   "fieldname": "resolution_no",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Res #",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "default": "Ordinary Resolution",
+   "fieldname": "resolution_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Ordinary Resolution\nSpecial Resolution\nExtraordinary Resolution",
+   "reqd": 1
+  },
+  {
+   "columns": 4,
+   "fieldname": "resolution_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Resolution Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "resolution_text",
+   "fieldtype": "Text Editor",
+   "label": "Full Resolution Text",
+   "reqd": 1
+  },
+  {
+   "fieldname": "moved_by",
+   "fieldtype": "Data",
+   "label": "Moved By"
+  },
+  {
+   "fieldname": "seconded_by",
+   "fieldtype": "Data",
+   "label": "Seconded By"
+  },
+  {
+   "fieldname": "votes_for",
+   "fieldtype": "Int",
+   "label": "Votes For"
+  },
+  {
+   "fieldname": "votes_against",
+   "fieldtype": "Int",
+   "label": "Votes Against"
+  },
+  {
+   "fieldname": "votes_abstained",
+   "fieldtype": "Int",
+   "label": "Abstentions"
+  },
+  {
+   "fieldname": "shares_voted_for",
+   "fieldtype": "Int",
+   "label": "Shares Voted For"
+  },
+  {
+   "fieldname": "shares_voted_against",
+   "fieldtype": "Int",
+   "label": "Shares Voted Against"
+  },
+  {
+   "fieldname": "voting_method",
+   "fieldtype": "Select",
+   "label": "Voting Method",
+   "options": "Show of Hands\nPoll\nElectronic Vote\nVoice Vote"
+  },
+  {
+   "columns": 1,
+   "fieldname": "result",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Result",
+   "options": "Passed\nDefeated\nWithdrawn\nDeferred"
+  },
+  {
+   "default": "0",
+   "fieldname": "cac_notification_required",
+   "fieldtype": "Check",
+   "label": "CAC Notification Required"
+  },
+  {
+   "fieldname": "implementation_deadline",
+   "fieldtype": "Date",
+   "label": "Implementation By"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "board_resolution_ref",
+   "fieldtype": "Link",
+   "label": "Board Resolution Ref",
+   "options": "Board Resolution"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-15 19:11:52.529491",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "AGM Resolution",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

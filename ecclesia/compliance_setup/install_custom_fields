@@ -1,0 +1,194 @@
+# Copyright (c) 2026, Value Impacts Consulting
+# ecclesia/ecclesia/compliance_setup/install_custom_fields.py
+"""
+Compliance v3 — Custom Field Installer
+Run once after deploying the module:
+
+  bench --site yoursite.com execute \
+    ecclesia.ecclesia.compliance_setup.install_custom_fields.install_all
+
+This adds bridge fields to existing DocTypes (Payments, Receipts, Salary Slip,
+Sales Invoice, Company, Company Policy, Employee Document, Fixed Asset Maintenance,
+Audit Finding). Admin-module DocTypes (HSE Inspection, Facility, Security Incident,
+Service Contract) are installed separately once AdminHQ is live.
+"""
+
+import frappe
+from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+
+# ── Core Ecclesia + ERPNext bridges ──────────────────────────────────────────
+CUSTOM_FIELDS = {
+
+    "Payments": [
+        {"fieldname":"compliance_section","fieldtype":"Section Break",
+         "label":"Compliance & AML","insert_after":"cashflow_type","collapsible":1},
+        {"fieldname":"compliance_obligation_type","fieldtype":"Select",
+         "label":"Obligation Type","insert_after":"compliance_section",
+         "options":"\nVAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nAML/KYC\nContractual Obligation\nTraining Levy\nOther",
+         "description":"Set when making a compliance/statutory payment"},
+        {"fieldname":"compliance_fiscal_month","fieldtype":"Data",
+         "label":"Compliance Period (MM-YYYY)","insert_after":"compliance_obligation_type"},
+        {"fieldname":"col_break_compliance","fieldtype":"Column Break","insert_after":"compliance_fiscal_month"},
+        {"fieldname":"compliance_allocated_amount","fieldtype":"Currency",
+         "label":"Compliance Allocated Amount (₦)","insert_after":"col_break_compliance"},
+        {"fieldname":"compliance_cll_link","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"CLL Entry (auto-linked)","insert_after":"compliance_allocated_amount","read_only":1},
+        {"fieldname":"aml_kyc_section","fieldtype":"Section Break","label":"AML / KYC",
+         "insert_after":"compliance_cll_link","collapsible":1},
+        {"fieldname":"aml_kyc_cleared","fieldtype":"Check","label":"AML / KYC Cleared",
+         "insert_after":"aml_kyc_section","default":"0"},
+        {"fieldname":"aml_kyc_record","fieldtype":"Link","options":"AML KYC Record",
+         "label":"AML KYC Record","insert_after":"aml_kyc_cleared"},
+        {"fieldname":"aml_risk_flag","fieldtype":"Check","label":"AML Risk Flagged",
+         "insert_after":"aml_kyc_record","default":"0"},
+    ],
+
+    "Receipts": [
+        {"fieldname":"aml_kyc_section","fieldtype":"Section Break","label":"AML / KYC",
+         "insert_after":"deduct_wht","collapsible":1},
+        {"fieldname":"aml_kyc_cleared","fieldtype":"Check","label":"AML / KYC Cleared",
+         "insert_after":"aml_kyc_section","default":"0"},
+        {"fieldname":"aml_kyc_record","fieldtype":"Link","options":"AML KYC Record",
+         "label":"AML KYC Record","insert_after":"aml_kyc_cleared"},
+        {"fieldname":"aml_risk_flag","fieldtype":"Check","label":"AML Risk Flagged",
+         "insert_after":"aml_kyc_record","default":"0"},
+    ],
+
+    "Audit Finding": [
+        {"fieldname":"compliance_bridge_section","fieldtype":"Section Break",
+         "label":"Compliance Links","insert_after":"corrective_action_plan","collapsible":1},
+        {"fieldname":"fraud_investigation_ref","fieldtype":"Link","options":"Whistleblower Report",
+         "label":"Whistleblower Report","insert_after":"compliance_bridge_section"},
+        {"fieldname":"compliance_obligation_ref","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"Compliance Liability Ledger","insert_after":"fraud_investigation_ref"},
+        {"fieldname":"compliance_incident_ref","fieldtype":"Link","options":"Compliance Incident",
+         "label":"Compliance Incident","insert_after":"compliance_obligation_ref"},
+    ],
+
+    "Fixed Asset Maintenance": [
+        {"fieldname":"compliance_section","fieldtype":"Section Break",
+         "label":"Compliance","insert_after":"remarks","collapsible":1},
+        {"fieldname":"compliance_license_ref","fieldtype":"Link","options":"License Management",
+         "label":"License / Permit","insert_after":"compliance_section"},
+        {"fieldname":"compliance_incident_ref","fieldtype":"Link","options":"Compliance Incident",
+         "label":"Compliance Incident","insert_after":"compliance_license_ref"},
+    ],
+
+    "Employee Document": [
+        {"fieldname":"compliance_section","fieldtype":"Section Break",
+         "label":"Compliance","insert_after":"notes","collapsible":1},
+        {"fieldname":"compliance_permit_ref","fieldtype":"Link","options":"Expatriate Permit Register",
+         "label":"Expatriate Permit Register","insert_after":"compliance_section"},
+        {"fieldname":"compliance_domain","fieldtype":"Select",
+         "label":"Compliance Domain","insert_after":"compliance_permit_ref",
+         "options":"\nLabour & Employment\nData Protection\nAML & KYC\nCorporate Governance\nHSE\nTraining\nOther"},
+    ],
+
+    "Company Policy": [
+        {"fieldname":"compliance_domain","fieldtype":"Select","label":"Compliance Domain",
+         "insert_after":"category",
+         "options":"\nStatutory Tax\nStatutory Payroll\nCorporate Governance\nContract Compliance\nData Protection\nAML & KYC\nLabour & Employment\nEnvironmental & HSE\nIndustry Regulatory\nAnti-Fraud & Integrity\nTraining & Competency\nGeneral"},
+        {"fieldname":"compliance_rule_ref","fieldtype":"Link","options":"Compliance Rule",
+         "label":"Compliance Rule","insert_after":"compliance_domain"},
+    ],
+
+    "Salary Slip": [
+        {"fieldname":"paye_cll_entry","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"PAYE CLL Entry","insert_after":"total_deduction","read_only":1},
+        {"fieldname":"pension_cll_entry","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"Pension CLL Entry","insert_after":"paye_cll_entry","read_only":1},
+        {"fieldname":"nhf_cll_entry","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"NHF CLL Entry","insert_after":"pension_cll_entry","read_only":1},
+    ],
+
+    "Sales Invoice": [
+        {"fieldname":"vat_cll_entry","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"VAT CLL Entry","insert_after":"taxes_and_charges","read_only":1},
+    ],
+
+    "Company": [
+        {"fieldname":"nigerian_compliance_section","fieldtype":"Section Break",
+         "label":"Nigerian Regulatory Registrations","insert_after":"tax_id","collapsible":1},
+        {"fieldname":"cac_rc_number","fieldtype":"Data","label":"CAC RC Number","insert_after":"nigerian_compliance_section"},
+        {"fieldname":"firs_tin","fieldtype":"Data","label":"FIRS TIN","insert_after":"cac_rc_number"},
+        {"fieldname":"state_irs_tin","fieldtype":"Data","label":"State IRS TIN (PAYE)","insert_after":"firs_tin"},
+        {"fieldname":"pencom_employer_code","fieldtype":"Data","label":"PenCom Employer Code","insert_after":"state_irs_tin"},
+        {"fieldname":"itf_employer_number","fieldtype":"Data","label":"ITF Employer Number","insert_after":"pencom_employer_code"},
+        {"fieldname":"nsitf_employer_number","fieldtype":"Data","label":"NSITF Employer Number","insert_after":"itf_employer_number"},
+        {"fieldname":"nhf_employer_code","fieldtype":"Data","label":"NHF Employer Code (FMBN)","insert_after":"nsitf_employer_number"},
+        {"fieldname":"nitda_registration_number","fieldtype":"Data","label":"NITDA Registration Number (NDPR)","insert_after":"nhf_employer_code"},
+        {"fieldname":"compliance_officer","fieldtype":"Link","options":"Employee",
+         "label":"Chief Compliance Officer","insert_after":"nitda_registration_number"},
+        {"fieldname":"dpo","fieldtype":"Link","options":"Employee",
+         "label":"Data Protection Officer (DPO)","insert_after":"compliance_officer"},
+        {"fieldname":"amlco","fieldtype":"Link","options":"Employee",
+         "label":"AML Compliance Officer (AMLCO)","insert_after":"dpo"},
+    ],
+}
+
+# ── Admin module bridges (install separately after AdminHQ is live) ───────────
+ADMIN_CUSTOM_FIELDS = {
+
+    "HSE Inspection": [
+        {"fieldname":"compliance_bridge_section","fieldtype":"Section Break",
+         "label":"Compliance","insert_after":"inspection_result","collapsible":1},
+        {"fieldname":"compliance_incident_ref","fieldtype":"Link","options":"Compliance Incident",
+         "label":"Compliance Incident","insert_after":"compliance_bridge_section"},
+        {"fieldname":"cll_entry","fieldtype":"Link","options":"Compliance Liability Ledger",
+         "label":"CLL Entry","insert_after":"compliance_incident_ref"},
+        {"fieldname":"regulatory_authority","fieldtype":"Link","options":"Regulatory Authority",
+         "label":"Regulatory Authority","insert_after":"cll_entry"},
+        {"fieldname":"environmental_compliance_ref","fieldtype":"Link","options":"Environmental Compliance Record",
+         "label":"Environmental Compliance Record","insert_after":"regulatory_authority"},
+    ],
+
+    "Facility": [
+        {"fieldname":"compliance_section","fieldtype":"Section Break",
+         "label":"Compliance","insert_after":"notes","collapsible":1},
+        {"fieldname":"environmental_permit_ref","fieldtype":"Link","options":"Environmental Compliance Record",
+         "label":"Environmental Compliance Record","insert_after":"compliance_section"},
+    ],
+
+    "Security Incident": [
+        {"fieldname":"compliance_section","fieldtype":"Section Break",
+         "label":"Compliance","insert_after":"notes","collapsible":1},
+        {"fieldname":"fraud_case_ref","fieldtype":"Link","options":"Whistleblower Report",
+         "label":"Whistleblower Report","insert_after":"compliance_section"},
+        {"fieldname":"compliance_incident_ref","fieldtype":"Link","options":"Compliance Incident",
+         "label":"Compliance Incident","insert_after":"fraud_case_ref"},
+    ],
+
+    "Service Contract": [
+        {"fieldname":"compliance_section","fieldtype":"Section Break",
+         "label":"Compliance","insert_after":"notes","collapsible":1},
+        {"fieldname":"contract_compliance_ref","fieldtype":"Link","options":"Contract Compliance Record",
+         "label":"Contract Compliance Record","insert_after":"compliance_section"},
+    ],
+}
+
+
+def install_all():
+    """Run after bench migrate. Installs core compliance bridges."""
+    create_custom_fields(CUSTOM_FIELDS, ignore_validate=True)
+    frappe.db.commit()
+    print("\n✓ Core compliance custom fields installed.")
+    print("\nFields added to:")
+    for dt, fields in CUSTOM_FIELDS.items():
+        data_fields = [f for f in fields if f["fieldtype"] not in ("Section Break","Column Break")]
+        print(f"  {dt}: {len(data_fields)} field(s)")
+
+
+def install_admin_bridges():
+    """
+    Run after AdminHQ (admin module) is deployed on the same site.
+    Installs bridges between compliance and admin DocTypes.
+    """
+    # Only install for DocTypes that actually exist
+    for dt, fields in ADMIN_CUSTOM_FIELDS.items():
+        if frappe.db.exists("DocType", dt):
+            create_custom_fields({dt: fields}, ignore_validate=True)
+            print(f"  ✓ {dt}: {len([f for f in fields if f['fieldtype'] not in ('Section Break','Column Break')])} field(s)")
+        else:
+            print(f"  ⚠ Skipped {dt} — DocType not found (AdminHQ not yet installed)")
+    frappe.db.commit()
+    print("\n✓ Admin bridge fields installed.")

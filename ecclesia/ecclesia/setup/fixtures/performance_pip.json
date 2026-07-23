@@ -1,0 +1,186 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "PIP-.YYYY.-.#####",
+ "creation": "2026-07-04 14:41:50.894235",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "manager",
+  "hr_partner",
+  "coach",
+  "start_date",
+  "end_date",
+  "status",
+  "sec_detail",
+  "reason_for_pip",
+  "performance_gap",
+  "pip_objectives",
+  "sec_checkins",
+  "weekly_checkins",
+  "sec_outcome",
+  "final_outcome",
+  "outcome_notes",
+  "employee_acknowledgement",
+  "acknowledgement_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "manager",
+   "fieldtype": "Link",
+   "label": "Manager",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "hr_partner",
+   "fieldtype": "Link",
+   "label": "HR Partner",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "coach",
+   "fieldtype": "Link",
+   "label": "Coach",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "PIP Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "PIP End Date",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nExtended\nPassed\nFailed\nCancelled"
+  },
+  {
+   "fieldname": "sec_detail",
+   "fieldtype": "Section Break",
+   "label": "PIP Details"
+  },
+  {
+   "fieldname": "reason_for_pip",
+   "fieldtype": "Text Editor",
+   "label": "Reason for PIP",
+   "reqd": 1
+  },
+  {
+   "fieldname": "performance_gap",
+   "fieldtype": "Text Editor",
+   "label": "Performance Gap Description"
+  },
+  {
+   "fieldname": "pip_objectives",
+   "fieldtype": "Table",
+   "label": "PIP Objectives",
+   "options": "PIP Objective"
+  },
+  {
+   "fieldname": "sec_checkins",
+   "fieldtype": "Section Break",
+   "label": "Weekly Check-ins"
+  },
+  {
+   "fieldname": "weekly_checkins",
+   "fieldtype": "Table",
+   "label": "Weekly Check-in Log",
+   "options": "PIP Weekly Check-in"
+  },
+  {
+   "fieldname": "sec_outcome",
+   "fieldtype": "Section Break",
+   "label": "Outcome"
+  },
+  {
+   "fieldname": "final_outcome",
+   "fieldtype": "Select",
+   "label": "Final Outcome",
+   "options": "\nPassed - Performance Improved\nFailed - Termination Recommended\nExtended\nCancelled"
+  },
+  {
+   "fieldname": "outcome_notes",
+   "fieldtype": "Text Editor",
+   "label": "Outcome Notes"
+  },
+  {
+   "default": "0",
+   "fieldname": "employee_acknowledgement",
+   "fieldtype": "Check",
+   "label": "Employee Acknowledged PIP"
+  },
+  {
+   "fieldname": "acknowledgement_date",
+   "fieldtype": "Date",
+   "label": "Acknowledgement Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Performance PIP",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-04 14:41:50.894235",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Performance PIP",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

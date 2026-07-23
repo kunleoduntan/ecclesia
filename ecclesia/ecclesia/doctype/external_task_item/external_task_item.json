@@ -1,0 +1,108 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-08 11:37:27.529471",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "task_type",
+  "description",
+  "contact_or_party",
+  "status",
+  "priority",
+  "time_spent_minutes",
+  "outcome",
+  "linked_doctype",
+  "linked_document"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "task_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Phone Call\nVideo Call\nEmail\nLetter\nProposal\nSite Visit\nMeeting\nReport\nPresentation\nFollowup\nOther",
+   "reqd": 1
+  },
+  {
+   "columns": 4,
+   "description": "e.g. 'Called Dangote re: Q3 renewal'",
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "description": "Name of person or organisation contacted",
+   "fieldname": "contact_or_party",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contact / Party"
+  },
+  {
+   "columns": 1,
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nIn Progress\nDone\nDeferred\nCancelled",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "Low\nMedium\nHigh\nUrgent"
+  },
+  {
+   "columns": 1,
+   "fieldname": "time_spent_minutes",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Time (min)"
+  },
+  {
+   "description": "What was the result of this task?",
+   "fieldname": "outcome",
+   "fieldtype": "Small Text",
+   "label": "Outcome / Notes"
+  },
+  {
+   "description": "Optionally link to an ERPNext document",
+   "fieldname": "linked_doctype",
+   "fieldtype": "Link",
+   "label": "Linked DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "linked_document",
+   "fieldtype": "Dynamic Link",
+   "label": "Linked Document",
+   "options": "linked_doctype"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-05-08 11:37:27.529471",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "External Task Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

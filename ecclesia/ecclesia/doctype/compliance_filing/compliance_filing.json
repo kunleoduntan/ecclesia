@@ -1,0 +1,271 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:filing_title",
+ "creation": "2026-06-15 10:04:24.648711",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "filing_title",
+  "company",
+  "obligation_type",
+  "col1",
+  "authority",
+  "compliance_rule",
+  "fiscal_period",
+  "col2",
+  "due_date",
+  "filing_date",
+  "filing_status",
+  "late_filing_flag",
+  "links_section",
+  "compliance_liability",
+  "calendar_line",
+  "col3",
+  "compliance_rule_ref",
+  "compliance_exception",
+  "amounts_section",
+  "amount_assessed",
+  "amount_paid",
+  "col4",
+  "penalty_amount",
+  "interest_amount",
+  "payment_reference",
+  "payments_ref",
+  "evidence_section",
+  "filing_reference",
+  "attachments",
+  "filed_by",
+  "reviewed_by",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "filing_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Filing Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation Type",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nData Breach Notification\nAML/KYC\nContractual Obligation\nTraining Levy\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "authority",
+   "fieldtype": "Link",
+   "label": "Authority",
+   "options": "Regulatory Authority",
+   "reqd": 1
+  },
+  {
+   "fieldname": "compliance_rule",
+   "fieldtype": "Link",
+   "label": "Compliance Rule",
+   "options": "Compliance Rule"
+  },
+  {
+   "fieldname": "fiscal_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Fiscal Period (MM-YYYY)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Statutory Due Date"
+  },
+  {
+   "fieldname": "filing_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Actual Filing Date"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "filing_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Filing Status",
+   "options": "Pending\nFiled\nLate Filed\nAmended\nRejected"
+  },
+  {
+   "default": "0",
+   "fieldname": "late_filing_flag",
+   "fieldtype": "Check",
+   "label": "Late Filing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "links_section",
+   "fieldtype": "Section Break",
+   "label": "Links"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "label": "Compliance Liability Ledger",
+   "options": "Compliance Liability Ledger",
+   "reqd": 1
+  },
+  {
+   "fieldname": "calendar_line",
+   "fieldtype": "Link",
+   "label": "Calendar Line",
+   "options": "Compliance Calendar Line"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "compliance_rule_ref",
+   "fieldtype": "Link",
+   "label": "Rule Reference",
+   "options": "Compliance Rule"
+  },
+  {
+   "fieldname": "compliance_exception",
+   "fieldtype": "Link",
+   "label": "Exception (if rejected)",
+   "options": "Compliance Exception"
+  },
+  {
+   "fieldname": "amounts_section",
+   "fieldtype": "Section Break",
+   "label": "Amounts"
+  },
+  {
+   "fieldname": "amount_assessed",
+   "fieldtype": "Currency",
+   "label": "Assessed Amount (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amount_paid",
+   "fieldtype": "Currency",
+   "label": "Amount Paid (\u20a6)"
+  },
+  {
+   "fieldname": "col4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penalty_amount",
+   "fieldtype": "Currency",
+   "label": "Penalty (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "interest_amount",
+   "fieldtype": "Currency",
+   "label": "Interest (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_reference",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry"
+  },
+  {
+   "fieldname": "payments_ref",
+   "fieldtype": "Link",
+   "label": "Payments DocType",
+   "options": "Payments"
+  },
+  {
+   "fieldname": "evidence_section",
+   "fieldtype": "Section Break",
+   "label": "Evidence"
+  },
+  {
+   "fieldname": "filing_reference",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Regulatory Reference / Receipt No"
+  },
+  {
+   "fieldname": "attachments",
+   "fieldtype": "Attach",
+   "label": "Filing Evidence"
+  },
+  {
+   "fieldname": "filed_by",
+   "fieldtype": "Link",
+   "label": "Filed By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Filing",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 10:04:24.648711",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Filing",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-05 11:53:52.036741",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "contact",
+  "name_text",
+  "role",
+  "influence",
+  "sentiment",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "contact",
+   "fieldtype": "Link",
+   "label": "Contact",
+   "options": "CRM Contact"
+  },
+  {
+   "fieldname": "name_text",
+   "fieldtype": "Data",
+   "label": "Name"
+  },
+  {
+   "fieldname": "role",
+   "fieldtype": "Select",
+   "label": "Role",
+   "options": "Decision Maker\nInfluencer\nChampion\nBlocker\nEconomic Buyer\nUser\nOther"
+  },
+  {
+   "fieldname": "influence",
+   "fieldtype": "Select",
+   "label": "Influence",
+   "options": "High\nMedium\nLow"
+  },
+  {
+   "fieldname": "sentiment",
+   "fieldtype": "Select",
+   "label": "Sentiment",
+   "options": "Positive\nNeutral\nNegative"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-05 11:53:52.036741",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "CRM Deal Stakeholder",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

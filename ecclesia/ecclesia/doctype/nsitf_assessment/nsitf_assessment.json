@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "NSITF-.YYYY.-.#####",
+ "creation": "2026-06-14 21:22:26.873235",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "assessment_title",
+  "company",
+  "fiscal_year",
+  "fiscal_period",
+  "col1",
+  "assessment_date",
+  "annual_payroll",
+  "contribution_rate",
+  "assessment_amount",
+  "col2",
+  "status",
+  "payment_reference",
+  "compliance_liability",
+  "nsitf_certificate",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "assessment_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period (MM-YYYY)"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Today",
+   "fieldname": "assessment_date",
+   "fieldtype": "Date",
+   "label": "Assessment Date"
+  },
+  {
+   "fieldname": "annual_payroll",
+   "fieldtype": "Currency",
+   "label": "Annual Payroll (\u20a6)"
+  },
+  {
+   "default": "1.0",
+   "fieldname": "contribution_rate",
+   "fieldtype": "Percent",
+   "label": "Rate (%)"
+  },
+  {
+   "fieldname": "assessment_amount",
+   "fieldtype": "Currency",
+   "label": "Assessment (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nAssessed\nPaid\nOverdue"
+  },
+  {
+   "fieldname": "payment_reference",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "nsitf_certificate",
+   "fieldtype": "Attach",
+   "label": "NSITF Certificate"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "NSITF Assessment",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 21:22:26.873235",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "NSITF Assessment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

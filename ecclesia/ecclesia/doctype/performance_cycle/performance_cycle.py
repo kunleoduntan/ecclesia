@@ -1,167 +1,224 @@
 # Copyright (c) 2026, Kunle Oduntan and contributors
 # For license information, please see license.txt
 
+# ecclesia/doctype/performance_cycle/performance_cycle.py
 import frappe
 from frappe.model.document import Document
-from ecclesia.utils.score_engine import compute_composite_score
-from ecclesia.utils.notifications import notify_peer_reviewers, notify_results_released
-
+from frappe import _
+from frappe.utils import flt, cint, nowdate, getdate, date_diff
 
 class PerformanceCycle(Document):
 
     def validate(self):
-        self._validate_weights()
-        self._validate_deadlines()
+        self._validate_date_order()
+        self._validate_deadline_order()
+
+    def before_save(self):
+        self._compute_duration_fields()
+        self._compute_progress_metrics()
 
     def on_submit(self):
-        frappe.db.set_value("Performance Cycle", self.name, "status", "Goal Setting")
-        self._create_employee_records()
+        self.status = "Active"
+        self._close_other_active_cycles()
+        self._notify_all_employees()
 
-    # ── Phase gate ───────────────────────────────────────────────────
+    def on_cancel(self):
+        self.status = "Cancelled"
 
-    @frappe.whitelist()
-    def advance_phase(self):
-        gate = {
-            "Goal Setting":    ("Self Appraisal",  None),
-            "Self Appraisal":  ("Peer Review",     self._open_peer_review),
-            "Peer Review":     ("Manager Review",  self._open_manager_review),
-            "Manager Review":  ("Calibration",     self._open_calibration),
-            "Calibration":     ("Results Released", self._release_results),
-            "Results Released":("Closed",          None),
-        }
-        nxt, action = gate.get(self.status, (None, None))
-        if not nxt:
-            frappe.throw(f"No next phase from '{self.status}'.")
-        frappe.db.set_value("Performance Cycle", self.name, "status", nxt)
-        self.reload()
-        if action:
-            action()
-        frappe.db.commit()
-        return nxt
+    # ── Date validation ──────────────────────────────────────────────
 
-    # ── Phase actions ────────────────────────────────────────────────
+    def _validate_date_order(self):
+        if self.start_date and self.end_date:
+            if getdate(self.end_date) <= getdate(self.start_date):
+                frappe.throw(_("Cycle End Date must be after Start Date."))
 
-    def _create_employee_records(self):
-        for emp in self._resolve_employees():
-            if frappe.db.exists("Employee Performance Record",
-                                {"cycle": self.name, "employee": emp.name}):
+    def _validate_deadline_order(self):
+        if not (self.start_date and self.end_date):
+            return
+        start = getdate(self.start_date)
+        end   = getdate(self.end_date)
+        stages = [
+            ("goal_setting_deadline",   "Goal Setting"),
+            ("goal_approval_deadline",  "Goal Approval"),
+            ("self_appraisal_deadline", "Self Appraisal"),
+            ("peer_review_deadline",    "Peer Review"),
+            ("manager_review_deadline", "Manager Review"),
+            ("calibration_deadline",    "Calibration"),
+        ]
+        prev_date, prev_name = start, "Cycle Start"
+        for field, label in stages:
+            val = self.get(field)
+            if not val:
                 continue
-            frappe.get_doc({
-                "doctype": "Employee Performance Record",
-                "cycle": self.name, "employee": emp.name,
-                "status": "Goal Setting",
-            }).insert(ignore_permissions=True)
-        frappe.db.commit()
+            d = getdate(val)
+            if d < start or d > end:
+                frappe.throw(
+                    _("{0} Deadline must fall within the cycle period ({1} to {2}).").format(
+                        label, self.start_date, self.end_date))
+            if d < prev_date:
+                frappe.throw(
+                    _("{0} Deadline must be after {1}.").format(label, prev_name))
+            prev_date = d
+            prev_name = label
 
-    def _open_peer_review(self):
-        records = frappe.get_all("Employee Performance Record",
-                                 filters={"cycle": self.name},
-                                 fields=["name", "employee", "department"])
-        for rec in records:
-            peers = frappe.get_all("Employee Performance Record",
-                                   filters={"cycle": self.name,
-                                            "department": rec.department,
-                                            "employee": ["!=", rec.employee]},
-                                   fields=["employee"], limit=3)
-            for peer in peers:
-                if frappe.db.exists("Peer Review Request",
-                                    {"cycle": self.name, "reviewee": rec.employee,
-                                     "reviewer": peer.employee}):
-                    continue
-                frappe.get_doc({
-                    "doctype": "Peer Review Request",
-                    "cycle": self.name, "reviewee": rec.employee,
-                    "reviewer": peer.employee, "relationship": "Peer",
-                    "is_anonymous": 1, "status": "Pending",
-                }).insert(ignore_permissions=True)
-        frappe.db.commit()
-        notify_peer_reviewers(self.name, self.title)
+    # ── Computed duration fields ─────────────────────────────────────
 
-    def _open_manager_review(self):
-        records = frappe.get_all("Employee Performance Record",
-                                 filters={"cycle": self.name},
-                                 fields=["name", "employee", "manager"])
-        for rec in records:
-            if not rec.manager:
-                continue
-            if frappe.db.exists("Manager Review", {"performance_record": rec.name}):
-                continue
-            frappe.get_doc({
-                "doctype": "Manager Review",
-                "performance_record": rec.name,
-                "employee": rec.employee,
-                "manager": rec.manager,
-                "status": "Draft",
-            }).insert(ignore_permissions=True)
-        frappe.db.commit()
+    def _compute_duration_fields(self):
+        today = getdate(nowdate())
+        if self.start_date and self.end_date:
+            self.cycle_duration_days = date_diff(self.end_date, self.start_date)
+        if self.start_date:
+            elapsed = date_diff(today, self.start_date)
+            self.days_elapsed = max(0, elapsed)
 
-    def _open_calibration(self):
-        depts = frappe.db.sql_list("""
-            SELECT DISTINCT department FROM `tabEmployee Performance Record`
-            WHERE cycle = %s AND department IS NOT NULL
-        """, self.name)
-        hr_emp = frappe.db.get_value(
-            "Employee",
-            {"user_id": frappe.db.get_value("Has Role",
-                        {"role": "HR Manager", "parenttype": "User"}, "parent")},
-            "name"
-        )
-        for dept in depts:
-            if frappe.db.exists("Calibration Session",
-                                {"cycle": self.name, "department": dept}):
-                continue
-            session = frappe.get_doc({
-                "doctype": "Calibration Session",
-                "title": f"{self.title} — {dept}",
-                "cycle": self.name, "department": dept,
-                "facilitator": hr_emp,
-                "session_date": self.calibration_deadline,
-                "status": "Planned",
-            })
-            for rec in frappe.get_all("Employee Performance Record",
-                                      filters={"cycle": self.name, "department": dept},
-                                      fields=["name"]):
-                session.append("entries", {"performance_record": rec.name, "is_locked": 0})
-            session.insert(ignore_permissions=True)
-        frappe.db.commit()
+    # ── Progress metrics ─────────────────────────────────────────────
 
-    def _release_results(self):
-        records = frappe.get_all("Employee Performance Record",
-                                 filters={"cycle": self.name},
-                                 fields=["name", "employee",
-                                         "calibrated_rating", "composite_score"])
-        for rec in records:
-            frappe.db.set_value("Employee Performance Record",
-                                rec.name, "status", "Results Released")
-            notify_results_released(rec.employee, rec.name, self.title,
-                                    rec.composite_score or 0,
-                                    rec.calibrated_rating)
-        frappe.db.commit()
+    def _compute_progress_metrics(self):
+        if not self.company:
+            return
 
-    # ── Validation helpers ───────────────────────────────────────────
+        # Eligible employees
+        employees = frappe.get_all("Employee",
+            filters={"status": "Active", "company": self.company},
+            fields=["name"])
+        total = len(employees)
+        self.employee_count = total
+        self.total_employees = total
+        if not total:
+            return
 
-    def _validate_weights(self):
-        total = ((self.kpi_weight or 0) + (self.manager_weight or 0) +
-                 (self.peer_weight or 0) + (self.self_weight or 0))
-        if abs(total - 100) > 0.01:
-            frappe.throw(f"Score weights must sum to 100% — currently {total:.1f}%.")
+        emp_names = [e.name for e in employees]
 
-    def _validate_deadlines(self):
-        dates = [self.goal_setting_deadline, self.self_appraisal_deadline,
-                 self.peer_review_deadline, self.manager_review_deadline,
-                 self.calibration_deadline]
-        for i in range(len(dates) - 1):
-            if dates[i] and dates[i+1] and dates[i] >= dates[i+1]:
-                frappe.throw("Phase deadlines must be in ascending chronological order.")
+        # Goals
+        with_goals = frappe.db.count("Performance Goal", {
+            "performance_cycle": self.name,
+            "owner_employee": ["in", emp_names],
+            "status": ["in", ["Approved", "In Progress", "Completed"]]
+        })
+        # Unique employees with approved goals
+        with_goals_emp = len(set(frappe.db.sql_list("""
+            SELECT DISTINCT owner_employee FROM `tabPerformance Goal`
+            WHERE performance_cycle=%s AND owner_employee IN ({})
+              AND status IN ('Approved','In Progress','Completed')
+        """.format(",".join(["%s"] * len(emp_names))),
+            [self.name] + emp_names)))
+        self.goal_setting_progress = round(with_goals_emp / total * 100, 1)
 
-    def _resolve_employees(self):
-        if self.applicable_to == "All Employees":
-            return frappe.get_all("Employee", filters={"status": "Active"}, fields=["name"])
-        filters = {"status": "Active"}
-        field_map = {"Department": "department", "Designation": "designation",
-                     "Branch": "branch", "Employee Group": "employee_group"}
-        for row in (self.scope or []):
-            f = field_map.get(row.scope_type)
-            if f:
-                filters[f] = row.scope_value
-        return frappe.get_all("Employee", filters=filters, fields=["name"])
+        # Self appraisals
+        self_done = len(set(frappe.db.sql_list("""
+            SELECT DISTINCT employee FROM `tabSelf Appraisal`
+            WHERE performance_cycle=%s AND employee IN ({}) AND docstatus=1
+        """.format(",".join(["%s"] * len(emp_names))),
+            [self.name] + emp_names)))
+        self.self_appraisal_progress = round(self_done / total * 100, 1)
+
+        # Peer reviews (at least one received)
+        peer_done = len(set(frappe.db.sql_list("""
+            SELECT DISTINCT reviewee FROM `tabPeer Review`
+            WHERE performance_cycle=%s AND reviewee IN ({}) AND docstatus=1
+        """.format(",".join(["%s"] * len(emp_names))),
+            [self.name] + emp_names)))
+        self.peer_review_progress = round(peer_done / total * 100, 1)
+
+        # Manager reviews
+        mgr_done = len(set(frappe.db.sql_list("""
+            SELECT DISTINCT employee FROM `tabManager Review 360`
+            WHERE performance_cycle=%s AND employee IN ({}) AND docstatus=1
+        """.format(",".join(["%s"] * len(emp_names))),
+            [self.name] + emp_names)))
+        self.manager_review_progress = round(mgr_done / total * 100, 1)
+
+        # Calibration
+        calib_done = frappe.db.count("Employee Performance Record", {
+            "cycle": self.name,
+            "calibration_status": "Calibrated",
+            "employee": ["in", emp_names]
+        })
+        self.calibration_progress = round(calib_done / total * 100, 1)
+
+        # Overall progress (average of all stages)
+        self.overall_progress = round(
+            (self.goal_setting_progress + self.self_appraisal_progress +
+             self.peer_review_progress + self.manager_review_progress +
+             self.calibration_progress) / 5, 1)
+
+        # Submitted count and completion rate
+        self.submitted_count = mgr_done
+        self.completion_rate = round(mgr_done / total * 100, 1)
+
+        # Score averages from EPRs
+        epr_scores = frappe.db.sql("""
+            SELECT composite_score, final_rating
+            FROM `tabEmployee Performance Record`
+            WHERE cycle=%s AND status != 'Cancelled'
+              AND composite_score > 0
+        """, self.name, as_dict=True)
+        if epr_scores:
+            self.avg_composite_score = round(
+                sum(flt(r.composite_score) for r in epr_scores) / len(epr_scores), 1)
+            final_scores = [flt(r.final_rating) for r in epr_scores if flt(r.final_rating) > 0]
+            if final_scores:
+                self.avg_final_rating = round(sum(final_scores) / len(final_scores), 1)
+
+        # Rating distribution text
+        from ecclesia.doctype.employee_performance_record.employee_performance_record import _get_band
+        bands = {}
+        for r in epr_scores:
+            b = _get_band(flt(r.composite_score))
+            bands[b] = bands.get(b, 0) + 1
+        if bands:
+            parts = [f"{b}: {round(v/len(epr_scores)*100)}%" for b, v in sorted(bands.items())]
+            self.performance_breakdown = "  |  ".join(parts)
+
+    # ── Notifications ────────────────────────────────────────────────
+
+    def _close_other_active_cycles(self):
+        others = frappe.get_all("Performance Cycle",
+            filters={"status": "Active", "name": ("!=", self.name),
+                     "company": self.company},
+            fields=["name"])
+        for c in others:
+            frappe.db.set_value("Performance Cycle", c.name, "status", "Closed")
+
+    def _notify_all_employees(self):
+        if not self.description:
+            return
+        employees = frappe.get_all("Employee",
+            filters={"status": "Active", "company": self.company},
+            fields=["user_id", "employee_name"])
+        count = 0
+        for emp in employees:
+            if emp.user_id:
+                frappe.sendmail(
+                    recipients=[emp.user_id],
+                    subject=f"Performance Cycle Launched: {self.title}",
+                    message=(f"<h3>{self.title}</h3>"
+                             f"<p>Period: {self.start_date} to {self.end_date}</p>"
+                             f"<p>{self.description}</p>"
+                             + (f"<p>{self.submission_instructions}</p>"
+                                if self.submission_instructions else ""))
+                )
+                count += 1
+        frappe.msgprint(
+            _(f"Launch notification sent to {count} employees."),
+            indicator="green", alert=True)
+
+
+@frappe.whitelist()
+def refresh_cycle_analytics(docname):
+    """HR-callable to recompute all cycle progress metrics."""
+    doc = frappe.get_doc("Performance Cycle", docname)
+    doc._compute_duration_fields()
+    doc._compute_progress_metrics()
+    doc.save(ignore_permissions=True)
+    return {
+        "goal_setting_progress":    doc.goal_setting_progress,
+        "self_appraisal_progress":  doc.self_appraisal_progress,
+        "peer_review_progress":     doc.peer_review_progress,
+        "manager_review_progress":  doc.manager_review_progress,
+        "calibration_progress":     doc.calibration_progress,
+        "overall_progress":         doc.overall_progress,
+        "completion_rate":          doc.completion_rate,
+        "avg_composite_score":      doc.avg_composite_score,
+        "performance_breakdown":    doc.performance_breakdown,
+    }

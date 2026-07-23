@@ -1,0 +1,326 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-06-12 05:29:43.898582",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "company",
+  "bank_account",
+  "column_break_1",
+  "from_date",
+  "to_date",
+  "status",
+  "section_break_meta",
+  "account_currency",
+  "cashbook_opening_balance",
+  "cashbook_closing_balance",
+  "column_break_bal",
+  "bank_statement_opening_balance",
+  "bank_statement_closing_balance",
+  "adjusted_bank_balance",
+  "section_break_diff",
+  "variance",
+  "is_reconciled",
+  "section_break_ai",
+  "ai_match_summary",
+  "date_tolerance_days",
+  "name_similarity_threshold",
+  "column_break_ai2",
+  "amount_tolerance_pct",
+  "auto_accepted_count",
+  "manually_matched_count",
+  "section_break_stmt",
+  "bank_statement_entries",
+  "section_break_book",
+  "cashbook_entries",
+  "section_break_unp",
+  "unpresented_cheques",
+  "section_break_unc",
+  "uncredited_cheques",
+  "section_break_dw",
+  "direct_withdrawals",
+  "section_break_dl",
+  "direct_lodgments",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "BRS-.YYYY.-.MM.-",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Bank Account",
+   "options": "Bank Account",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "To Date",
+   "reqd": 1
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nIn Progress\nReconciled\nAmended"
+  },
+  {
+   "fieldname": "section_break_meta",
+   "fieldtype": "Section Break",
+   "label": "Balances"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "account_currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "cashbook_opening_balance",
+   "fieldtype": "Currency",
+   "label": "Cashbook Opening Balance",
+   "options": "account_currency"
+  },
+  {
+   "fieldname": "cashbook_closing_balance",
+   "fieldtype": "Currency",
+   "label": "Cashbook Closing Balance",
+   "options": "account_currency"
+  },
+  {
+   "fieldname": "column_break_bal",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_statement_opening_balance",
+   "fieldtype": "Currency",
+   "label": "Bank Statement Opening Balance",
+   "options": "account_currency"
+  },
+  {
+   "fieldname": "bank_statement_closing_balance",
+   "fieldtype": "Currency",
+   "label": "Bank Statement Closing Balance",
+   "options": "account_currency"
+  },
+  {
+   "fieldname": "adjusted_bank_balance",
+   "fieldtype": "Currency",
+   "label": "Adjusted Bank Balance",
+   "options": "account_currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_diff",
+   "fieldtype": "Section Break",
+   "label": "Reconciliation Result"
+  },
+  {
+   "fieldname": "variance",
+   "fieldtype": "Currency",
+   "label": "Variance (should be 0)",
+   "options": "account_currency",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_reconciled",
+   "fieldtype": "Check",
+   "label": "Fully Reconciled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_ai",
+   "fieldtype": "Section Break",
+   "label": "AI Matching Configuration"
+  },
+  {
+   "fieldname": "ai_match_summary",
+   "fieldtype": "Small Text",
+   "label": "AI Match Summary",
+   "read_only": 1
+  },
+  {
+   "default": "3",
+   "description": "Match bank and cashbook entries within \u00b1N days",
+   "fieldname": "date_tolerance_days",
+   "fieldtype": "Int",
+   "label": "Date Tolerance (Days)"
+  },
+  {
+   "default": "70",
+   "description": "Minimum fuzzy name match score to propose a match",
+   "fieldname": "name_similarity_threshold",
+   "fieldtype": "Percent",
+   "label": "Name Similarity Threshold (%)"
+  },
+  {
+   "fieldname": "column_break_ai2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Allow minor amount differences (rounding etc.)",
+   "fieldname": "amount_tolerance_pct",
+   "fieldtype": "Percent",
+   "label": "Amount Tolerance (%)"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_accepted_count",
+   "fieldtype": "Int",
+   "label": "Auto-Accepted (High Confidence)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "manually_matched_count",
+   "fieldtype": "Int",
+   "label": "Manually Matched",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_stmt",
+   "fieldtype": "Section Break",
+   "label": "Bank Statement Entries"
+  },
+  {
+   "fieldname": "bank_statement_entries",
+   "fieldtype": "Table",
+   "label": "Bank Statement Entries",
+   "options": "Bank Statement"
+  },
+  {
+   "fieldname": "section_break_book",
+   "fieldtype": "Section Break",
+   "label": "Cashbook / GL Entries"
+  },
+  {
+   "fieldname": "cashbook_entries",
+   "fieldtype": "Table",
+   "label": "Cashbook Entries",
+   "options": "Bank Account Entry"
+  },
+  {
+   "fieldname": "section_break_unp",
+   "fieldtype": "Section Break",
+   "label": "Unpresented Cheques (Cashbook DR not in Bank)"
+  },
+  {
+   "fieldname": "unpresented_cheques",
+   "fieldtype": "Table",
+   "label": "Unpresented Cheques",
+   "options": "Unpresented Cheque"
+  },
+  {
+   "fieldname": "section_break_unc",
+   "fieldtype": "Section Break",
+   "label": "Uncredited Cheques (Cashbook CR not in Bank)"
+  },
+  {
+   "fieldname": "uncredited_cheques",
+   "fieldtype": "Table",
+   "label": "Uncredited Cheques",
+   "options": "Uncredited Cheque"
+  },
+  {
+   "fieldname": "section_break_dw",
+   "fieldtype": "Section Break",
+   "label": "Direct Withdrawals (Bank DR not in Cashbook)"
+  },
+  {
+   "fieldname": "direct_withdrawals",
+   "fieldtype": "Table",
+   "label": "Direct Withdrawals",
+   "options": "Direct Withdrawal"
+  },
+  {
+   "fieldname": "section_break_dl",
+   "fieldtype": "Section Break",
+   "label": "Direct Lodgments (Bank CR not in Cashbook)"
+  },
+  {
+   "fieldname": "direct_lodgments",
+   "fieldtype": "Table",
+   "label": "Direct Lodgments",
+   "options": "Direct Lodgment"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Bank Reconciliation Statement",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-12 05:29:43.898582",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Bank Reconciliation Statement",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,165 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-06-27 17:23:53.550817",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "event_type",
+  "event_datetime",
+  "voucher_type",
+  "voucher_no",
+  "column_break_1",
+  "gl_account",
+  "debit_amount",
+  "credit_amount",
+  "posting_date",
+  "section_detail",
+  "event_user",
+  "transaction_code",
+  "risk_flag",
+  "flag_reason",
+  "linked_finding",
+  "previous_hash",
+  "record_hash"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "GAL-"
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Event",
+   "options": "\nGL Entry Created\nGL Entry Cancelled\nGL Entry Amended\nJournal Entry Submitted\nReconciliation Variance\nSuspense Account Used",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_datetime",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Event Date/Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "voucher_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Voucher Type"
+  },
+  {
+   "bold": 1,
+   "fieldname": "voucher_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Voucher No"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gl_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "GL Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "debit_amount",
+   "fieldtype": "Currency",
+   "label": "Debit"
+  },
+  {
+   "fieldname": "credit_amount",
+   "fieldtype": "Currency",
+   "label": "Credit"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "label": "Posting Date"
+  },
+  {
+   "fieldname": "section_detail",
+   "fieldtype": "Section Break",
+   "label": "Detail"
+  },
+  {
+   "fieldname": "event_user",
+   "fieldtype": "Link",
+   "label": "By User",
+   "options": "User"
+  },
+  {
+   "fieldname": "transaction_code",
+   "fieldtype": "Data",
+   "label": "Transaction Code"
+  },
+  {
+   "default": "0",
+   "fieldname": "risk_flag",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Risk Flagged"
+  },
+  {
+   "fieldname": "flag_reason",
+   "fieldtype": "Text",
+   "label": "Flag Reason"
+  },
+  {
+   "fieldname": "linked_finding",
+   "fieldtype": "Link",
+   "label": "Audit Finding Raised",
+   "options": "Audit Finding"
+  },
+  {
+   "fieldname": "previous_hash",
+   "fieldtype": "Data",
+   "label": "Previous Hash",
+   "read_only": 1
+  },
+  {
+   "fieldname": "record_hash",
+   "fieldtype": "Data",
+   "label": "Record Hash",
+   "read_only": 1,
+   "unique": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-27 17:23:53.550817",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "GL Audit Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

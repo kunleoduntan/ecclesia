@@ -1,0 +1,187 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "PRB-.YYYY.-.#####",
+ "creation": "2026-06-15 09:55:05.964885",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "batch_title",
+  "company",
+  "fiscal_period",
+  "pfa",
+  "col1",
+  "remittance_date",
+  "due_date",
+  "status",
+  "col2",
+  "total_employee_contribution",
+  "total_employer_contribution",
+  "total_contribution",
+  "employee_count",
+  "remittance_lines",
+  "payment_reference",
+  "payments_ref",
+  "compliance_liability",
+  "bank_receipt",
+  "pencom_receipt",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "batch_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Batch Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period (MM-YYYY)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "pfa",
+   "fieldtype": "Link",
+   "label": "PFA",
+   "options": "Pension Manager",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remittance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Remittance Date"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nReady\nRemitted\nConfirmed\nFailed"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_employee_contribution",
+   "fieldtype": "Currency",
+   "label": "Employee (8%) (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_employer_contribution",
+   "fieldtype": "Currency",
+   "label": "Employer (10%) (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_contribution",
+   "fieldtype": "Currency",
+   "label": "Total (18%) (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employee_count",
+   "fieldtype": "Int",
+   "label": "Employees",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remittance_lines",
+   "fieldtype": "Table",
+   "label": "Remittance Lines",
+   "options": "PENCOM Remittance Line"
+  },
+  {
+   "fieldname": "payment_reference",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry"
+  },
+  {
+   "fieldname": "payments_ref",
+   "fieldtype": "Link",
+   "label": "Payments DocType",
+   "options": "Payments"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "bank_receipt",
+   "fieldtype": "Attach",
+   "label": "Bank Receipt"
+  },
+  {
+   "fieldname": "pencom_receipt",
+   "fieldtype": "Attach",
+   "label": "PenCom Acknowledgement"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Pension Remittance Batch",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 09:55:05.964885",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Pension Remittance Batch",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

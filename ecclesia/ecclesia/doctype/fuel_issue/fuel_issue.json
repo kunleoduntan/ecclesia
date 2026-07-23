@@ -1,0 +1,180 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "FUI-.YYYY.-.#####",
+ "creation": "2026-06-14 14:36:36.509000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "basic_section",
+  "vehicle",
+  "driver",
+  "issue_date",
+  "col_break_1",
+  "fuel_type",
+  "litres_issued",
+  "rate_per_litre",
+  "col_break_2",
+  "total_cost",
+  "issue_method",
+  "station_name",
+  "receipt_no",
+  "odometer_at_issue",
+  "trip_log",
+  "issued_by",
+  "cost_centre",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Fuel Issue Details"
+  },
+  {
+   "bold": 1,
+   "fieldname": "vehicle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vehicle",
+   "options": "Company Vehicle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "driver",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Driver",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Issue Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "fuel_type",
+   "fieldtype": "Select",
+   "label": "Fuel Type",
+   "options": "Petrol\nDiesel\nCNG",
+   "reqd": 1
+  },
+  {
+   "fieldname": "litres_issued",
+   "fieldtype": "Float",
+   "label": "Litres Issued",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rate_per_litre",
+   "fieldtype": "Currency",
+   "label": "Rate Per Litre (\u20a6)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_cost",
+   "fieldtype": "Currency",
+   "label": "Total Cost (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "default": "Cash Purchase",
+   "fieldname": "issue_method",
+   "fieldtype": "Select",
+   "label": "Issue Method",
+   "options": "Cash Purchase\nCompany Pump\nFleet Card\nCoupon"
+  },
+  {
+   "fieldname": "station_name",
+   "fieldtype": "Data",
+   "label": "Filling Station"
+  },
+  {
+   "fieldname": "receipt_no",
+   "fieldtype": "Data",
+   "label": "Receipt No"
+  },
+  {
+   "fieldname": "odometer_at_issue",
+   "fieldtype": "Float",
+   "label": "Odometer at Issue (km)"
+  },
+  {
+   "fieldname": "trip_log",
+   "fieldtype": "Link",
+   "label": "Related Trip Log",
+   "options": "Vehicle Trip Log"
+  },
+  {
+   "fieldname": "issued_by",
+   "fieldtype": "Link",
+   "label": "Issued By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cost_centre",
+   "fieldtype": "Link",
+   "label": "Cost Centre",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Fuel Issue",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 14:36:36.509000",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Fuel Issue",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

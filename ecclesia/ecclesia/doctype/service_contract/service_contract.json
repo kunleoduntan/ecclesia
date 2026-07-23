@@ -1,0 +1,294 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SC-.YYYY.-.#####",
+ "creation": "2026-06-14 14:14:10.517302",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "basic_section",
+  "contract_title",
+  "contract_type",
+  "vendor",
+  "service_provider",
+  "col_break_1",
+  "start_date",
+  "end_date",
+  "renewal_date",
+  "renewal_reminder_days",
+  "col_break_2",
+  "contract_value",
+  "payment_frequency",
+  "currency",
+  "status",
+  "services_tab",
+  "services_section",
+  "service_details",
+  "sla_section",
+  "sla_response_hours",
+  "sla_resolution_hours",
+  "penalty_clause",
+  "documents_tab",
+  "docs_section",
+  "contract_document",
+  "insurance_certificate",
+  "purchase_order",
+  "analytics_tab",
+  "analytics_section",
+  "days_to_expiry",
+  "col_break_an1",
+  "amount_paid_to_date",
+  "col_break_an2",
+  "vendor_score",
+  "ai_insights",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "fieldname": "basic_section",
+   "fieldtype": "Section Break",
+   "label": "Contract Information"
+  },
+  {
+   "bold": 1,
+   "fieldname": "contract_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contract Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "contract_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Contract Type",
+   "options": "Security\nCleaning\nMaintenance\nInternet / ISP\nCatering\nGenerator / Power\nWaste Management\nAir Conditioning\nPest Control\nElevator\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Vendor / Supplier",
+   "options": "Supplier",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service_provider",
+   "fieldtype": "Link",
+   "label": "Service Provider Record",
+   "options": "Service Provider"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "End Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "renewal_date",
+   "fieldtype": "Date",
+   "label": "Renewal Due Date"
+  },
+  {
+   "default": "60",
+   "fieldname": "renewal_reminder_days",
+   "fieldtype": "Int",
+   "label": "Remind Before (days)"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contract_value",
+   "fieldtype": "Currency",
+   "label": "Total Contract Value (\u20a6)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payment_frequency",
+   "fieldtype": "Select",
+   "label": "Payment Frequency",
+   "options": "Monthly\nQuarterly\nBiannually\nAnnually\nOne-Off"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nActive\nExpiring Soon\nExpired\nTerminated\nRenewed"
+  },
+  {
+   "fieldname": "services_tab",
+   "fieldtype": "Tab Break",
+   "label": "Services & SLA"
+  },
+  {
+   "fieldname": "services_section",
+   "fieldtype": "Section Break",
+   "label": "Services Covered"
+  },
+  {
+   "fieldname": "service_details",
+   "fieldtype": "Table",
+   "label": "Service Details",
+   "options": "Contract Service Detail"
+  },
+  {
+   "fieldname": "sla_section",
+   "fieldtype": "Section Break",
+   "label": "SLA Terms"
+  },
+  {
+   "fieldname": "sla_response_hours",
+   "fieldtype": "Int",
+   "label": "Response Time (hours)"
+  },
+  {
+   "fieldname": "sla_resolution_hours",
+   "fieldtype": "Int",
+   "label": "Resolution Time (hours)"
+  },
+  {
+   "fieldname": "penalty_clause",
+   "fieldtype": "Small Text",
+   "label": "Penalty Clause"
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "docs_section",
+   "fieldtype": "Section Break",
+   "label": "Attachments"
+  },
+  {
+   "fieldname": "contract_document",
+   "fieldtype": "Attach",
+   "label": "Contract Document"
+  },
+  {
+   "fieldname": "insurance_certificate",
+   "fieldtype": "Attach",
+   "label": "Insurance Certificate"
+  },
+  {
+   "fieldname": "purchase_order",
+   "fieldtype": "Link",
+   "label": "ERPNext Purchase Order",
+   "options": "Purchase Order"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "analytics_section",
+   "fieldtype": "Section Break",
+   "label": "Performance"
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_an1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "amount_paid_to_date",
+   "fieldtype": "Currency",
+   "label": "Amount Paid to Date",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_an2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vendor_score",
+   "fieldtype": "Float",
+   "label": "Vendor Score (0-10)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_insights",
+   "fieldtype": "Long Text",
+   "label": "AI Insights",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Service Contract",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 14:14:10.517302",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Service Contract",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,252 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CCRE-.YYYY.-.#####",
+ "creation": "2026-06-15 08:24:50.679999",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "register_title",
+  "company",
+  "fiscal_year",
+  "rc_number",
+  "col1",
+  "date_of_incorporation",
+  "company_type",
+  "company_secretary",
+  "cac_section",
+  "annual_return_due_date",
+  "annual_return_filed_date",
+  "annual_return_status",
+  "annual_return_receipt",
+  "annual_return_attachment",
+  "col2",
+  "annual_return_penalty",
+  "cac_compliance_liability",
+  "board_section",
+  "last_agm_date",
+  "next_agm_due_date",
+  "agm_held_on_time",
+  "last_board_meeting_date",
+  "col3",
+  "director_changes_notified",
+  "shareholder_changes_notified",
+  "registered_address_current",
+  "statutory_registers_current",
+  "overall_status",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "register_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rc_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CAC RC Number"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "date_of_incorporation",
+   "fieldtype": "Date",
+   "label": "Date of Incorporation"
+  },
+  {
+   "fieldname": "company_type",
+   "fieldtype": "Select",
+   "label": "Company Type",
+   "options": "Private Limited\nPublic Limited\nIncorporated Trustee\nLimited by Guarantee\nBusiness Name"
+  },
+  {
+   "fieldname": "company_secretary",
+   "fieldtype": "Link",
+   "label": "Company Secretary",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cac_section",
+   "fieldtype": "Section Break",
+   "label": "CAC Annual Return"
+  },
+  {
+   "fieldname": "annual_return_due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Annual Return Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "annual_return_filed_date",
+   "fieldtype": "Date",
+   "label": "Date Filed"
+  },
+  {
+   "default": "Not Due",
+   "fieldname": "annual_return_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "CAC Return Status",
+   "options": "Not Due\nDue\nFiled On Time\nLate Filed\nOverdue\nExempt"
+  },
+  {
+   "fieldname": "annual_return_receipt",
+   "fieldtype": "Data",
+   "label": "CAC Receipt No"
+  },
+  {
+   "fieldname": "annual_return_attachment",
+   "fieldtype": "Attach",
+   "label": "Filing Evidence"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "annual_return_penalty",
+   "fieldtype": "Currency",
+   "label": "Penalty (\u20a6)"
+  },
+  {
+   "fieldname": "cac_compliance_liability",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "board_section",
+   "fieldtype": "Section Break",
+   "label": "Board & Governance"
+  },
+  {
+   "fieldname": "last_agm_date",
+   "fieldtype": "Date",
+   "label": "Last AGM Date"
+  },
+  {
+   "fieldname": "next_agm_due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next AGM Due Date"
+  },
+  {
+   "default": "1",
+   "fieldname": "agm_held_on_time",
+   "fieldtype": "Check",
+   "label": "AGM Held On Time"
+  },
+  {
+   "fieldname": "last_board_meeting_date",
+   "fieldtype": "Date",
+   "label": "Last Board Meeting"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "director_changes_notified",
+   "fieldtype": "Check",
+   "label": "Director Changes Notified to CAC"
+  },
+  {
+   "default": "1",
+   "fieldname": "shareholder_changes_notified",
+   "fieldtype": "Check",
+   "label": "Shareholder Changes Notified"
+  },
+  {
+   "default": "1",
+   "fieldname": "registered_address_current",
+   "fieldtype": "Check",
+   "label": "Registered Address Current"
+  },
+  {
+   "default": "1",
+   "fieldname": "statutory_registers_current",
+   "fieldtype": "Check",
+   "label": "Statutory Registers Up to Date"
+  },
+  {
+   "default": "Compliant",
+   "fieldname": "overall_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Overall Status",
+   "options": "Compliant\nMinor Issues\nMajor Issues\nNon-Compliant"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Corporate Compliance Register",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:24:50.679999",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Corporate Compliance Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

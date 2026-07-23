@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "PR-.YYYY.-.#####",
+ "creation": "2026-07-04 14:27:30.669939",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "reviewer",
+  "reviewee",
+  "reviewee_name",
+  "peer_review_request",
+  "performance_cycle",
+  "is_anonymous",
+  "submission_date",
+  "status",
+  "sec_comp",
+  "competency_ratings",
+  "sec_narrative",
+  "collaboration_feedback",
+  "communication_feedback",
+  "leadership_feedback",
+  "innovation_feedback",
+  "strengths",
+  "improvement_suggestions",
+  "overall_recommendation",
+  "overall_comments",
+  "overall_peer_rating",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "reviewer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reviewer",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reviewee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Reviewee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "reviewee.employee_name",
+   "fieldname": "reviewee_name",
+   "fieldtype": "Data",
+   "label": "Reviewee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "peer_review_request",
+   "fieldtype": "Link",
+   "label": "Peer Review Request",
+   "options": "Peer Review Request"
+  },
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_anonymous",
+   "fieldtype": "Check",
+   "label": "Anonymous"
+  },
+  {
+   "fieldname": "submission_date",
+   "fieldtype": "Date",
+   "label": "Submission Date"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted"
+  },
+  {
+   "fieldname": "sec_comp",
+   "fieldtype": "Section Break",
+   "label": "Competency Ratings"
+  },
+  {
+   "fieldname": "competency_ratings",
+   "fieldtype": "Table",
+   "label": "Competency Ratings",
+   "options": "Peer Review Competency"
+  },
+  {
+   "fieldname": "sec_narrative",
+   "fieldtype": "Section Break",
+   "label": "Narrative"
+  },
+  {
+   "fieldname": "collaboration_feedback",
+   "fieldtype": "Text Editor",
+   "label": "Collaboration & Teamwork"
+  },
+  {
+   "fieldname": "communication_feedback",
+   "fieldtype": "Text Editor",
+   "label": "Communication Skills"
+  },
+  {
+   "fieldname": "leadership_feedback",
+   "fieldtype": "Text Editor",
+   "label": "Leadership Behaviours"
+  },
+  {
+   "fieldname": "innovation_feedback",
+   "fieldtype": "Text Editor",
+   "label": "Innovation & Initiative"
+  },
+  {
+   "fieldname": "strengths",
+   "fieldtype": "Text Editor",
+   "label": "Observed Strengths"
+  },
+  {
+   "fieldname": "improvement_suggestions",
+   "fieldtype": "Text Editor",
+   "label": "Suggestions for Improvement"
+  },
+  {
+   "fieldname": "overall_recommendation",
+   "fieldtype": "Select",
+   "label": "Overall Recommendation",
+   "options": "\nHighly Recommend\nRecommend\nNeeds Development\nNot Recommend"
+  },
+  {
+   "fieldname": "overall_comments",
+   "fieldtype": "Text Editor",
+   "label": "Overall Comments"
+  },
+  {
+   "fieldname": "overall_peer_rating",
+   "fieldtype": "Float",
+   "label": "Overall Peer Rating (1-5)"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Peer Review",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-04 14:27:30.669939",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Peer Review",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

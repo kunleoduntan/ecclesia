@@ -1,0 +1,246 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "AML-.YYYY.-.#####",
+ "creation": "2026-06-16 14:34:28.025743",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "party_name_display",
+  "party_type",
+  "party_link_type",
+  "party",
+  "company",
+  "col1",
+  "kyc_level",
+  "risk_rating",
+  "kyc_date",
+  "kyc_expiry_date",
+  "verification_section",
+  "identity_verified",
+  "identity_document_type",
+  "identity_document_ref",
+  "col2",
+  "address_verified",
+  "beneficial_owner_identified",
+  "beneficial_owner_detail",
+  "pep_check_done",
+  "is_pep",
+  "sanctions_check_done",
+  "sanctions_match",
+  "screening_section",
+  "screening_results",
+  "responsible_officer",
+  "approval_officer",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "party_name_display",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Party Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Party Type",
+   "options": "Customer\nSupplier\nEmployee\nDirector\nShareholder\nAgent\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "party_link_type",
+   "fieldtype": "Link",
+   "label": "Link DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "label": "Party Record",
+   "options": "party_link_type"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Basic Customer Due Diligence (CDD)",
+   "fieldname": "kyc_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "KYC Level",
+   "options": "Simplified Due Diligence (SDD)\nBasic Customer Due Diligence (CDD)\nEnhanced Due Diligence (EDD)",
+   "reqd": 1
+  },
+  {
+   "default": "Low",
+   "fieldname": "risk_rating",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "AML Risk Rating",
+   "options": "Low\nMedium\nHigh\nPEP \u2014 High\nSanctioned \u2014 Blocked",
+   "reqd": 1
+  },
+  {
+   "fieldname": "kyc_date",
+   "fieldtype": "Date",
+   "label": "KYC Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "kyc_expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "KYC Expiry / Review Date"
+  },
+  {
+   "fieldname": "verification_section",
+   "fieldtype": "Section Break",
+   "label": "Verification Checklist"
+  },
+  {
+   "default": "0",
+   "fieldname": "identity_verified",
+   "fieldtype": "Check",
+   "label": "Identity Verified"
+  },
+  {
+   "fieldname": "identity_document_type",
+   "fieldtype": "Select",
+   "label": "ID Document Type",
+   "options": "NIN\nBVN\nPassport\nDriver Licence\nVoter Card\nRC Number\nOther"
+  },
+  {
+   "fieldname": "identity_document_ref",
+   "fieldtype": "Data",
+   "label": "ID Document Reference"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "address_verified",
+   "fieldtype": "Check",
+   "label": "Address Verified"
+  },
+  {
+   "default": "0",
+   "fieldname": "beneficial_owner_identified",
+   "fieldtype": "Check",
+   "label": "Beneficial Owner Identified"
+  },
+  {
+   "fieldname": "beneficial_owner_detail",
+   "fieldtype": "Small Text",
+   "label": "Beneficial Owner Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "pep_check_done",
+   "fieldtype": "Check",
+   "label": "PEP Check Done"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_pep",
+   "fieldtype": "Check",
+   "label": "Is PEP (Politically Exposed Person)"
+  },
+  {
+   "default": "0",
+   "fieldname": "sanctions_check_done",
+   "fieldtype": "Check",
+   "label": "Sanctions Screening Done"
+  },
+  {
+   "default": "0",
+   "fieldname": "sanctions_match",
+   "fieldtype": "Check",
+   "label": "Sanctions Match Found"
+  },
+  {
+   "fieldname": "screening_section",
+   "fieldtype": "Section Break",
+   "label": "Screening History"
+  },
+  {
+   "fieldname": "screening_results",
+   "fieldtype": "Table",
+   "label": "Screening Results",
+   "options": "AML Screening Result"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "approval_officer",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "AML KYC Record",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-21 15:47:59.276782",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "AML KYC Record",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

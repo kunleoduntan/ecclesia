@@ -1,0 +1,170 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "RES-.YYYY.-.#####",
+ "creation": "2026-07-04 14:50:09.830349",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "job_applicant",
+  "candidate_name",
+  "job_opening",
+  "resume_file",
+  "email",
+  "phone",
+  "status",
+  "sec_parsed",
+  "parsed_years_experience",
+  "parsed_education",
+  "parsed_skills",
+  "parsed_certifications",
+  "parsed_raw_text",
+  "sec_ai",
+  "ai_summary",
+  "ai_strengths",
+  "ai_gaps",
+  "ai_recommendation"
+ ],
+ "fields": [
+  {
+   "fieldname": "job_applicant",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Job Applicant",
+   "options": "Job Applicant",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job_applicant.applicant_name",
+   "fieldname": "candidate_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Candidate Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Job Opening",
+   "options": "Job Opening",
+   "reqd": 1
+  },
+  {
+   "fieldname": "resume_file",
+   "fieldtype": "Attach",
+   "label": "Resume File (PDF/Word)",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job_applicant.email_id",
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "job_applicant.phone_number",
+   "fieldname": "phone",
+   "fieldtype": "Data",
+   "label": "Phone",
+   "read_only": 1
+  },
+  {
+   "default": "Uploaded",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Uploaded\nParsing\nParsed\nScoring\nScored\nShortlisted\nRejected"
+  },
+  {
+   "fieldname": "sec_parsed",
+   "fieldtype": "Section Break",
+   "label": "Parsed Info"
+  },
+  {
+   "fieldname": "parsed_years_experience",
+   "fieldtype": "Float",
+   "label": "Experience (Years)"
+  },
+  {
+   "fieldname": "parsed_education",
+   "fieldtype": "Data",
+   "label": "Highest Education"
+  },
+  {
+   "fieldname": "parsed_skills",
+   "fieldtype": "Small Text",
+   "label": "Skills (comma-separated)"
+  },
+  {
+   "fieldname": "parsed_certifications",
+   "fieldtype": "Small Text",
+   "label": "Certifications"
+  },
+  {
+   "fieldname": "parsed_raw_text",
+   "fieldtype": "Text",
+   "hidden": 1,
+   "label": "Raw Parsed Text"
+  },
+  {
+   "fieldname": "sec_ai",
+   "fieldtype": "Section Break",
+   "label": "AI Analysis"
+  },
+  {
+   "fieldname": "ai_summary",
+   "fieldtype": "Text Editor",
+   "label": "AI Executive Summary"
+  },
+  {
+   "fieldname": "ai_strengths",
+   "fieldtype": "Small Text",
+   "label": "AI-Identified Strengths"
+  },
+  {
+   "fieldname": "ai_gaps",
+   "fieldtype": "Small Text",
+   "label": "AI-Identified Gaps"
+  },
+  {
+   "fieldname": "ai_recommendation",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "AI Recommendation",
+   "options": "\nStrong Hire\nHire\nMaybe\nNo Hire"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-04 14:50:09.830349",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Resume",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

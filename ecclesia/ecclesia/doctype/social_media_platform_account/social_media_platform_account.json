@@ -25,6 +25,10 @@
   "last_api_call",
   "remaining_calls_today",
   "column_break_10",
+  "followers_count",
+  "following_count",
+  "total_posts",
+  "engagement_rate_avg",
   "webhook_verify_token",
   "webhook_subscribed",
   "webhook_last_ping",
@@ -366,17 +370,39 @@
    "fieldname": "best_posting_times",
    "fieldtype": "JSON",
    "label": "Best Posting Times (AI Generated)"
+  },
+  {
+   "fieldname": "followers_count",
+   "fieldtype": "Int",
+   "label": "Followers Count"
+  },
+  {
+   "fieldname": "following_count",
+   "fieldtype": "Int",
+   "label": "Following Count"
+  },
+  {
+   "fieldname": "total_posts",
+   "fieldtype": "Int",
+   "label": "Total Posts"
+  },
+  {
+   "fieldname": "engagement_rate_avg",
+   "fieldtype": "Int",
+   "label": "Engagement Rate"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-03-18 18:31:22.197822",
+ "modified": "2026-06-05 09:14:44.305232",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Social Media Platform Account",
+ "naming_rule": "Expression (old style)",
  "owner": "Administrator",
  "permissions": [],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

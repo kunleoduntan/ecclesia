@@ -1,0 +1,298 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "LCT-.YYYY.-.#####",
+ "creation": "2026-06-15 08:32:17.900443",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "tracker_title",
+  "company",
+  "period_label",
+  "review_date",
+  "col1",
+  "total_employees",
+  "responsible_officer",
+  "overall_status",
+  "wages_section",
+  "current_min_wage",
+  "lowest_gross_paid",
+  "minimum_wage_compliant",
+  "col2",
+  "employees_below_minimum",
+  "wage_remediation_plan",
+  "hours_section",
+  "max_weekly_hours",
+  "working_hours_compliant",
+  "annual_leave_days_granted",
+  "statutory_leave_compliant",
+  "col3",
+  "maternity_leave_compliant",
+  "paternity_leave_available",
+  "contracts_section",
+  "employees_with_contracts_pct",
+  "employment_contracts_compliant",
+  "disciplinary_procedure_current",
+  "col4",
+  "pencom_all_registered",
+  "nhf_all_registered",
+  "inspection_section",
+  "labour_inspection_date",
+  "labour_inspection_result",
+  "inspection_ref",
+  "issues_identified",
+  "corrective_actions",
+  "cll_entry",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "tracker_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period (MM-YYYY)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Date",
+   "label": "Review Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_employees",
+   "fieldtype": "Int",
+   "label": "Total Employees"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "HR Compliance Officer",
+   "options": "Employee"
+  },
+  {
+   "default": "Compliant",
+   "fieldname": "overall_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Overall Status",
+   "options": "Compliant\nMinor Issues\nMajor Issues\nNon-Compliant"
+  },
+  {
+   "fieldname": "wages_section",
+   "fieldtype": "Section Break",
+   "label": "Minimum Wage Compliance"
+  },
+  {
+   "default": "70000",
+   "fieldname": "current_min_wage",
+   "fieldtype": "Currency",
+   "label": "Current National Minimum Wage (\u20a6)"
+  },
+  {
+   "fieldname": "lowest_gross_paid",
+   "fieldtype": "Currency",
+   "label": "Lowest Gross in Organisation (\u20a6)"
+  },
+  {
+   "default": "1",
+   "fieldname": "minimum_wage_compliant",
+   "fieldtype": "Check",
+   "label": "Minimum Wage Compliant"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "employees_below_minimum",
+   "fieldtype": "Int",
+   "label": "Employees Below Minimum (if any)"
+  },
+  {
+   "fieldname": "wage_remediation_plan",
+   "fieldtype": "Small Text",
+   "label": "Remediation Plan"
+  },
+  {
+   "fieldname": "hours_section",
+   "fieldtype": "Section Break",
+   "label": "Working Hours & Leave"
+  },
+  {
+   "default": "40",
+   "fieldname": "max_weekly_hours",
+   "fieldtype": "Int",
+   "label": "Max Hours per Week (legal = 40)"
+  },
+  {
+   "default": "1",
+   "fieldname": "working_hours_compliant",
+   "fieldtype": "Check",
+   "label": "Working Hours Compliant"
+  },
+  {
+   "fieldname": "annual_leave_days_granted",
+   "fieldtype": "Int",
+   "label": "Annual Leave Days Granted (min 6 pa)"
+  },
+  {
+   "default": "1",
+   "fieldname": "statutory_leave_compliant",
+   "fieldtype": "Check",
+   "label": "Statutory Leave Compliant"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "maternity_leave_compliant",
+   "fieldtype": "Check",
+   "label": "Maternity Leave Compliant (3 months)"
+  },
+  {
+   "default": "0",
+   "fieldname": "paternity_leave_available",
+   "fieldtype": "Check",
+   "label": "Paternity Leave Available"
+  },
+  {
+   "fieldname": "contracts_section",
+   "fieldtype": "Section Break",
+   "label": "Employment Contracts"
+  },
+  {
+   "fieldname": "employees_with_contracts_pct",
+   "fieldtype": "Percent",
+   "label": "% Employees with Signed Contracts"
+  },
+  {
+   "default": "1",
+   "fieldname": "employment_contracts_compliant",
+   "fieldtype": "Check",
+   "label": "Employment Contracts Compliant"
+  },
+  {
+   "default": "1",
+   "fieldname": "disciplinary_procedure_current",
+   "fieldtype": "Check",
+   "label": "Disciplinary Procedure Policy Current"
+  },
+  {
+   "fieldname": "col4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "pencom_all_registered",
+   "fieldtype": "Check",
+   "label": "All Eligible Employees Registered with PenCom"
+  },
+  {
+   "default": "1",
+   "fieldname": "nhf_all_registered",
+   "fieldtype": "Check",
+   "label": "All Employees Registered with FMBN (NHF)"
+  },
+  {
+   "fieldname": "inspection_section",
+   "fieldtype": "Section Break",
+   "label": "Labour Inspection"
+  },
+  {
+   "fieldname": "labour_inspection_date",
+   "fieldtype": "Date",
+   "label": "Last Labour Inspection Date"
+  },
+  {
+   "fieldname": "labour_inspection_result",
+   "fieldtype": "Select",
+   "label": "Inspection Result",
+   "options": "Not Yet Inspected\nSatisfactory\nMinor Issues\nMajor Issues\nProsecution Initiated"
+  },
+  {
+   "fieldname": "inspection_ref",
+   "fieldtype": "Data",
+   "label": "Inspection Reference"
+  },
+  {
+   "fieldname": "issues_identified",
+   "fieldtype": "Small Text",
+   "label": "Issues Identified"
+  },
+  {
+   "fieldname": "corrective_actions",
+   "fieldtype": "Small Text",
+   "label": "Corrective Actions Taken"
+  },
+  {
+   "fieldname": "cll_entry",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Labour Compliance Tracker",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:32:17.900443",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Labour Compliance Tracker",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

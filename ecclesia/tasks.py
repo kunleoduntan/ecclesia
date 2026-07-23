@@ -548,8 +548,63 @@ def on_employee_update(doc, method):
         "custom_pending_leave_policy_assignment", 1
     )
     frappe.db.commit()
+    
 
+def on_employee_update(doc, method):
+    """
+    Frappe doc_events entry point for Employee.on_update.
 
+    hooks.py references this as:
+        "Employee": {
+            "on_update": "ecclesia.tasks.on_employee_update"
+        }
+
+    Fires on every Employee save. Only acts when the status field
+    transitions to Active for the first time — sets a flag that
+    triggers the leave policy assignment dialog on next form load.
+
+    Cannot live in doctype/employee/employee.py because Employee
+    is a standard ERPNext DocType — custom apps must not create
+    that folder.
+    """
+    if doc.status != "Active":
+        return
+
+    # Only act on a genuine Active transition, not every save
+    prev = doc.get_doc_before_save()
+    if prev and prev.status == "Active":
+        return
+
+    from ecclesia.api.leave_policy import get_policy_for_employee
+    from frappe.utils import getdate, today
+
+    policy = get_policy_for_employee(doc)
+    if not policy:
+        frappe.logger().info(
+            f"[Ecclesia] No leave policy matched for {doc.employee_name} "
+            f"(gender={doc.gender}) — skipping assignment prompt."
+        )
+        return
+
+    year = getdate(today()).year
+    existing = frappe.db.exists("Leave Policy Assignment", {
+        "employee":       doc.name,
+        "effective_from": ["between", [
+            f"{year}-01-01",
+            f"{year}-12-31"
+        ]],
+    })
+    if existing:
+        return
+
+    frappe.db.set_value(
+        "Employee", doc.name,
+        "custom_pending_leave_policy_assignment", 1
+    )
+    frappe.db.commit()
+    
+    
+    
 # ══════════════════════════════════════════════════════════════════════
 # Policy module
 # ══════════════════════════════════════════════════════════════════════
@@ -1262,3 +1317,5 @@ def send_upcoming_loan_deduction_reminders():
             f"[Ecclesia] Loan deduction reminders sent for "
             f"{len(upcoming)} upcoming instalment(s)."
         )
+  
+  

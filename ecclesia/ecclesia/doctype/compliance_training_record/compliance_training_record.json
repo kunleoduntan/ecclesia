@@ -1,0 +1,214 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CTR-.YYYY.-.#####",
+ "creation": "2026-06-15 10:01:02.824384",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "training_title",
+  "employee",
+  "company",
+  "training_category",
+  "col1",
+  "training_date",
+  "training_provider",
+  "duration_hours",
+  "is_mandatory",
+  "completion_section",
+  "completion_status",
+  "score",
+  "passed",
+  "col2",
+  "certificate_number",
+  "certificate_attachment",
+  "certificate_expiry",
+  "links_section",
+  "training_calendar",
+  "linked_policy",
+  "compliance_rule",
+  "cll_entry",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "training_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Training Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "training_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "AML & KYC\nNDPR / Data Protection\nHSE / Safety\nLabour Law\nTax Compliance\nCorporate Governance\nFraud Awareness\nWhistleblowing\nConflict of Interest\nCode of Conduct\nIndustry Regulatory\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "training_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Training Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "training_provider",
+   "fieldtype": "Data",
+   "label": "Training Provider"
+  },
+  {
+   "fieldname": "duration_hours",
+   "fieldtype": "Float",
+   "label": "Duration (Hours)"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Mandatory Training"
+  },
+  {
+   "fieldname": "completion_section",
+   "fieldtype": "Section Break",
+   "label": "Completion"
+  },
+  {
+   "default": "Enrolled",
+   "fieldname": "completion_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Enrolled\nIn Progress\nCompleted\nFailed\nExempted",
+   "reqd": 1
+  },
+  {
+   "fieldname": "score",
+   "fieldtype": "Float",
+   "label": "Assessment Score (%)"
+  },
+  {
+   "default": "0",
+   "fieldname": "passed",
+   "fieldtype": "Check",
+   "label": "Passed"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "certificate_number",
+   "fieldtype": "Data",
+   "label": "Certificate Number"
+  },
+  {
+   "fieldname": "certificate_attachment",
+   "fieldtype": "Attach",
+   "label": "Certificate"
+  },
+  {
+   "fieldname": "certificate_expiry",
+   "fieldtype": "Date",
+   "label": "Certificate Expiry"
+  },
+  {
+   "fieldname": "links_section",
+   "fieldtype": "Section Break",
+   "label": "Links"
+  },
+  {
+   "fieldname": "training_calendar",
+   "fieldtype": "Link",
+   "label": "Training Calendar",
+   "options": "Compliance Training Calendar"
+  },
+  {
+   "fieldname": "linked_policy",
+   "fieldtype": "Link",
+   "label": "Linked Policy",
+   "options": "Company Policy"
+  },
+  {
+   "fieldname": "compliance_rule",
+   "fieldtype": "Link",
+   "label": "Compliance Rule",
+   "options": "Compliance Rule"
+  },
+  {
+   "fieldname": "cll_entry",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Training Record",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 10:01:02.824384",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Training Record",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

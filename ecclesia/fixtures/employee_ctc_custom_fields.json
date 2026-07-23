@@ -1,0 +1,115 @@
+[
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-ctc_section_break",
+  "dt": "Employee",
+  "fieldname": "ctc_section_break",
+  "fieldtype": "Section Break",
+  "label": "CTC Breakdown",
+  "insert_after": "grade",
+  "collapsible": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-annual_gross_pay",
+  "dt": "Employee",
+  "fieldname": "annual_gross_pay",
+  "fieldtype": "Currency",
+  "label": "Annual Gross Pay",
+  "insert_after": "ctc_section_break",
+  "options": "currency"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-ctc_components",
+  "dt": "Employee",
+  "fieldname": "ctc_components",
+  "fieldtype": "Table",
+  "label": "CTC Components",
+  "insert_after": "annual_gross_pay",
+  "options": "CTC Component"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-total_components",
+  "dt": "Employee",
+  "fieldname": "total_components",
+  "fieldtype": "Currency",
+  "label": "Total of Components",
+  "insert_after": "ctc_components",
+  "options": "currency",
+  "read_only": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-column_break_ctc",
+  "dt": "Employee",
+  "fieldname": "column_break_ctc",
+  "fieldtype": "Column Break",
+  "insert_after": "total_components"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-pensionable_emoluments",
+  "dt": "Employee",
+  "fieldname": "pensionable_emoluments",
+  "fieldtype": "Currency",
+  "label": "Pensionable Emoluments",
+  "insert_after": "column_break_ctc",
+  "options": "currency",
+  "read_only": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-pension_ee_percent",
+  "dt": "Employee",
+  "fieldname": "pension_ee_percent",
+  "fieldtype": "Percent",
+  "label": "Pension EE %",
+  "insert_after": "pensionable_emoluments",
+  "default": "8"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-pension_ee_amount",
+  "dt": "Employee",
+  "fieldname": "pension_ee_amount",
+  "fieldtype": "Currency",
+  "label": "Pension EE",
+  "insert_after": "pension_ee_percent",
+  "options": "currency",
+  "read_only": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-pension_er_percent",
+  "dt": "Employee",
+  "fieldname": "pension_er_percent",
+  "fieldtype": "Percent",
+  "label": "Pension ER %",
+  "insert_after": "pension_ee_amount",
+  "default": "10"
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-pension_er_amount",
+  "dt": "Employee",
+  "fieldname": "pension_er_amount",
+  "fieldtype": "Currency",
+  "label": "Pension ER",
+  "insert_after": "pension_er_percent",
+  "options": "currency",
+  "read_only": 1
+ },
+ {
+  "doctype": "Custom Field",
+  "name": "Employee-labour_group",
+  "dt": "Employee",
+  "fieldname": "labour_group",
+  "fieldtype": "Link",
+  "label": "Labour Group",
+  "insert_after": "pension_er_amount",
+  "options": "Labour Group"
+  
+ }
+]

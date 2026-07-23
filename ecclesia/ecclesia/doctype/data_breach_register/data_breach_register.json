@@ -1,0 +1,238 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "DBR-.YYYY.-.#####",
+ "creation": "2026-06-15 08:13:05.858334",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "breach_title",
+  "company",
+  "breach_date",
+  "breach_type",
+  "col1",
+  "severity",
+  "data_subjects_affected",
+  "data_categories_breached",
+  "likely_consequences",
+  "notification_section",
+  "nitda_notification_required",
+  "nitda_notified",
+  "nitda_notification_date",
+  "nitda_notification_reference",
+  "col2",
+  "hours_to_notification",
+  "late_notification_flag",
+  "data_subjects_notified",
+  "subject_notification_date",
+  "remediation_section",
+  "root_cause",
+  "immediate_action_taken",
+  "corrective_measures",
+  "status",
+  "compliance_incident_ref",
+  "dpo_sign_off",
+  "related_data_processing_record",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "breach_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Breach Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "breach_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Breach Discovered",
+   "reqd": 1
+  },
+  {
+   "fieldname": "breach_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Breach Type",
+   "options": "Unauthorised Access\nUnauthorised Disclosure\nData Loss\nData Theft\nAccidental Deletion\nSystem Compromise\nPhysical Theft\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Severity",
+   "options": "Low\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "data_subjects_affected",
+   "fieldtype": "Int",
+   "label": "No. of Data Subjects Affected"
+  },
+  {
+   "fieldname": "data_categories_breached",
+   "fieldtype": "Small Text",
+   "label": "Data Categories Breached"
+  },
+  {
+   "fieldname": "likely_consequences",
+   "fieldtype": "Small Text",
+   "label": "Likely Consequences"
+  },
+  {
+   "fieldname": "notification_section",
+   "fieldtype": "Section Break",
+   "label": "NITDA Notification (72-hour rule)"
+  },
+  {
+   "default": "0",
+   "fieldname": "nitda_notification_required",
+   "fieldtype": "Check",
+   "label": "NITDA Notification Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "nitda_notified",
+   "fieldtype": "Check",
+   "label": "NITDA Notified"
+  },
+  {
+   "fieldname": "nitda_notification_date",
+   "fieldtype": "Date",
+   "label": "NITDA Notification Date"
+  },
+  {
+   "fieldname": "nitda_notification_reference",
+   "fieldtype": "Data",
+   "label": "NITDA Reference Number"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hours_to_notification",
+   "fieldtype": "Float",
+   "label": "Hours From Discovery to Notification"
+  },
+  {
+   "default": "0",
+   "fieldname": "late_notification_flag",
+   "fieldtype": "Check",
+   "label": "Late Notification (>72 hrs)",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "data_subjects_notified",
+   "fieldtype": "Check",
+   "label": "Affected Subjects Notified"
+  },
+  {
+   "fieldname": "subject_notification_date",
+   "fieldtype": "Date",
+   "label": "Subjects Notification Date"
+  },
+  {
+   "fieldname": "remediation_section",
+   "fieldtype": "Section Break",
+   "label": "Remediation"
+  },
+  {
+   "fieldname": "root_cause",
+   "fieldtype": "Small Text",
+   "label": "Root Cause"
+  },
+  {
+   "fieldname": "immediate_action_taken",
+   "fieldtype": "Small Text",
+   "label": "Immediate Action Taken"
+  },
+  {
+   "fieldname": "corrective_measures",
+   "fieldtype": "Small Text",
+   "label": "Long-term Corrective Measures"
+  },
+  {
+   "default": "Reported",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Reported\nInvestigating\nContained\nRemediated\nClosed"
+  },
+  {
+   "fieldname": "compliance_incident_ref",
+   "fieldtype": "Link",
+   "label": "Compliance Incident",
+   "options": "Compliance Incident"
+  },
+  {
+   "fieldname": "dpo_sign_off",
+   "fieldtype": "Link",
+   "label": "DPO Sign-off",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "related_data_processing_record",
+   "fieldtype": "Link",
+   "label": "Related DPR",
+   "options": "Data Processing Record"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Data Breach Register",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:13:05.858334",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Data Breach Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

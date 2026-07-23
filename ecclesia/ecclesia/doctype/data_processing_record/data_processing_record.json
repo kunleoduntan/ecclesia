@@ -1,0 +1,239 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "DPR-.YYYY.-.#####",
+ "creation": "2026-06-15 08:12:42.671643",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "processing_title",
+  "company",
+  "data_controller",
+  "dpo",
+  "col1",
+  "department",
+  "processing_purpose",
+  "legal_basis",
+  "is_sensitive_data",
+  "data_section",
+  "processing_activities",
+  "third_parties_shared",
+  "international_transfer",
+  "transfer_countries",
+  "transfer_safeguards",
+  "col2",
+  "retention_period",
+  "deletion_schedule",
+  "security_section",
+  "security_measures",
+  "privacy_impact_done",
+  "dpia_date",
+  "col3",
+  "nitda_registered",
+  "nitda_registration_no",
+  "last_reviewed",
+  "next_review_date",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "processing_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Processing Activity Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "data_controller",
+   "fieldtype": "Data",
+   "label": "Data Controller (Organisation Name)"
+  },
+  {
+   "fieldname": "dpo",
+   "fieldtype": "Link",
+   "label": "Data Protection Officer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Processing Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "processing_purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose of Processing",
+   "reqd": 1
+  },
+  {
+   "fieldname": "legal_basis",
+   "fieldtype": "Select",
+   "label": "Legal Basis",
+   "options": "Consent\nContract\nLegal Obligation\nVital Interest\nPublic Task\nLegitimate Interest",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_sensitive_data",
+   "fieldtype": "Check",
+   "label": "Sensitive / Special Category Data"
+  },
+  {
+   "fieldname": "data_section",
+   "fieldtype": "Section Break",
+   "label": "Data Details"
+  },
+  {
+   "fieldname": "processing_activities",
+   "fieldtype": "Table",
+   "label": "Processing Activities",
+   "options": "Data Processing Activity Line"
+  },
+  {
+   "fieldname": "third_parties_shared",
+   "fieldtype": "Small Text",
+   "label": "Third Parties Data Is Shared With"
+  },
+  {
+   "default": "0",
+   "fieldname": "international_transfer",
+   "fieldtype": "Check",
+   "label": "International Data Transfer"
+  },
+  {
+   "fieldname": "transfer_countries",
+   "fieldtype": "Small Text",
+   "label": "Countries Data Is Transferred To"
+  },
+  {
+   "fieldname": "transfer_safeguards",
+   "fieldtype": "Small Text",
+   "label": "Transfer Safeguards"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "retention_period",
+   "fieldtype": "Data",
+   "label": "Retention Period",
+   "reqd": 1
+  },
+  {
+   "fieldname": "deletion_schedule",
+   "fieldtype": "Data",
+   "label": "Deletion / Review Schedule"
+  },
+  {
+   "fieldname": "security_section",
+   "fieldtype": "Section Break",
+   "label": "Security & Compliance"
+  },
+  {
+   "fieldname": "security_measures",
+   "fieldtype": "Small Text",
+   "label": "Technical & Organisational Measures"
+  },
+  {
+   "default": "0",
+   "fieldname": "privacy_impact_done",
+   "fieldtype": "Check",
+   "label": "Privacy Impact Assessment (DPIA) Done"
+  },
+  {
+   "fieldname": "dpia_date",
+   "fieldtype": "Date",
+   "label": "DPIA Date"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "nitda_registered",
+   "fieldtype": "Check",
+   "label": "Registered with NITDA"
+  },
+  {
+   "fieldname": "nitda_registration_no",
+   "fieldtype": "Data",
+   "label": "NITDA Registration Number"
+  },
+  {
+   "fieldname": "last_reviewed",
+   "fieldtype": "Date",
+   "label": "Last Reviewed"
+  },
+  {
+   "fieldname": "next_review_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next Review Date"
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nUnder Review\nDiscontinued"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Data Processing Record",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:12:42.671643",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Data Processing Record",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,198 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "EPR-.YYYY.-.#####",
+ "creation": "2026-06-15 08:32:45.255948",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "permit_title",
+  "employee",
+  "company",
+  "nationality",
+  "col1",
+  "permit_type",
+  "permit_number",
+  "quota_position",
+  "issue_date",
+  "expiry_date",
+  "days_to_expiry",
+  "status",
+  "renewal_section",
+  "renewal_cost",
+  "renewal_lead_time_days",
+  "alert_90_days",
+  "alert_30_days",
+  "col2",
+  "issuing_authority",
+  "permit_attachment",
+  "compliance_liability_link",
+  "notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "permit_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Permit Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nationality"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "permit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Permit Type",
+   "options": "Expatriate Quota\nCombined Expatriate Residence Permit & Alien Card (CERPAC)\nShort-Term Residence (STR)\nVisit Visa\nWork Permit\nBusiness Permit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "permit_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Permit / Quota Number"
+  },
+  {
+   "fieldname": "quota_position",
+   "fieldtype": "Data",
+   "label": "Quota Position Held"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nExpiring Soon\nExpired\nRenewing\nCancelled"
+  },
+  {
+   "fieldname": "renewal_section",
+   "fieldtype": "Section Break",
+   "label": "Renewal"
+  },
+  {
+   "fieldname": "renewal_cost",
+   "fieldtype": "Currency",
+   "label": "Renewal Cost (\u20a6)"
+  },
+  {
+   "default": "90",
+   "fieldname": "renewal_lead_time_days",
+   "fieldtype": "Int",
+   "label": "Renewal Lead Time (days)"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_90_days",
+   "fieldtype": "Check",
+   "label": "Alert 90 Days"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_30_days",
+   "fieldtype": "Check",
+   "label": "Alert 30 Days"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issuing_authority",
+   "fieldtype": "Link",
+   "label": "Issuing Authority",
+   "options": "Regulatory Authority"
+  },
+  {
+   "fieldname": "permit_attachment",
+   "fieldtype": "Attach",
+   "label": "Permit Document"
+  },
+  {
+   "fieldname": "compliance_liability_link",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 08:32:45.255948",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Expatriate Permit Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,319 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "JP-.YYYY.-.#####",
+ "creation": "2026-07-06 15:40:28.205171",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "job_opening",
+  "job_title",
+  "company",
+  "posting_status",
+  "col_hdr",
+  "priority",
+  "post_immediately",
+  "scheduled_date",
+  "scheduled_time",
+  "expiry_date",
+  "sec_content",
+  "posting_title",
+  "base_description",
+  "key_requirements",
+  "col_content",
+  "salary_display",
+  "location_display",
+  "work_mode",
+  "apply_url",
+  "featured_image",
+  "sec_ai",
+  "ai_optimize",
+  "tone",
+  "target_audience",
+  "col_ai",
+  "ai_status",
+  "ai_last_run",
+  "sec_platforms",
+  "targets",
+  "sec_results",
+  "total_platforms",
+  "successfully_posted",
+  "total_views",
+  "total_likes",
+  "total_applications",
+  "col_results",
+  "last_posted_on",
+  "post_log",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Job Opening",
+   "options": "Job Opening",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "job_opening.job_title",
+   "fieldname": "job_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Job Title",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "job_opening.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "default": "Draft",
+   "fieldname": "posting_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nScheduled\nPosting\nPosted\nPartially Posted\nFailed\nExpired"
+  },
+  {
+   "fieldname": "col_hdr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Normal",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Priority",
+   "options": "Urgent\nHigh\nNormal\nLow"
+  },
+  {
+   "default": "0",
+   "fieldname": "post_immediately",
+   "fieldtype": "Check",
+   "label": "Post Immediately on Submit"
+  },
+  {
+   "fieldname": "scheduled_date",
+   "fieldtype": "Date",
+   "label": "Scheduled Date"
+  },
+  {
+   "default": "09:00:00",
+   "fieldname": "scheduled_time",
+   "fieldtype": "Time",
+   "label": "Scheduled Time"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Remove Listings After"
+  },
+  {
+   "fieldname": "sec_content",
+   "fieldtype": "Section Break",
+   "label": "Post Content"
+  },
+  {
+   "description": "Custom headline for posts. Defaults to job title if blank.",
+   "fieldname": "posting_title",
+   "fieldtype": "Data",
+   "label": "Post Headline"
+  },
+  {
+   "description": "Core description used as the basis for all platform posts",
+   "fieldname": "base_description",
+   "fieldtype": "Text Editor",
+   "label": "Job Description"
+  },
+  {
+   "description": "Shown in posts. e.g. \u2022 5+ years ERPNext \u2022 ICAN certified",
+   "fieldname": "key_requirements",
+   "fieldtype": "Small Text",
+   "label": "Key Requirements (bullet points)"
+  },
+  {
+   "fieldname": "col_content",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "e.g. \u20a6350k \u2013 \u20a6500k/month  or  Competitive",
+   "fieldname": "salary_display",
+   "fieldtype": "Data",
+   "label": "Salary Display"
+  },
+  {
+   "description": "e.g. Lagos, Nigeria (Hybrid)",
+   "fieldname": "location_display",
+   "fieldtype": "Data",
+   "label": "Location Display"
+  },
+  {
+   "fieldname": "work_mode",
+   "fieldtype": "Select",
+   "label": "Work Mode",
+   "options": "On-site\nHybrid\nFully Remote\nFlexible"
+  },
+  {
+   "description": "Auto-populated from your /apply portal. Override if needed.",
+   "fieldname": "apply_url",
+   "fieldtype": "Data",
+   "label": "Application URL"
+  },
+  {
+   "description": "Banner image used on social platforms (min 1200\u00d7630px recommended)",
+   "fieldname": "featured_image",
+   "fieldtype": "Attach Image",
+   "label": "Featured Image"
+  },
+  {
+   "fieldname": "sec_ai",
+   "fieldtype": "Section Break",
+   "label": "AI Content Optimization"
+  },
+  {
+   "default": "1",
+   "fieldname": "ai_optimize",
+   "fieldtype": "Check",
+   "label": "Auto-optimize content per platform using AI"
+  },
+  {
+   "default": "Professional",
+   "fieldname": "tone",
+   "fieldtype": "Select",
+   "label": "Tone",
+   "options": "Professional\nEngaging\nUrgent\nFriendly\nAuthoritative"
+  },
+  {
+   "default": "Mid-level",
+   "fieldname": "target_audience",
+   "fieldtype": "Select",
+   "label": "Target Audience",
+   "options": "Graduate\nMid-level\nSenior\nExecutive\nAll Levels"
+  },
+  {
+   "fieldname": "col_ai",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "ai_status",
+   "fieldtype": "Small Text",
+   "label": "AI Generation Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_last_run",
+   "fieldtype": "Datetime",
+   "label": "AI Last Run",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sec_platforms",
+   "fieldtype": "Section Break",
+   "label": "Target Platforms"
+  },
+  {
+   "fieldname": "targets",
+   "fieldtype": "Table",
+   "label": "Platform Targets",
+   "options": "Job Post Target"
+  },
+  {
+   "fieldname": "sec_results",
+   "fieldtype": "Section Break",
+   "label": "Results Summary"
+  },
+  {
+   "fieldname": "total_platforms",
+   "fieldtype": "Int",
+   "label": "Platforms Selected",
+   "read_only": 1
+  },
+  {
+   "fieldname": "successfully_posted",
+   "fieldtype": "Int",
+   "label": "Successfully Posted",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_views",
+   "fieldtype": "Int",
+   "label": "Total Views",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_likes",
+   "fieldtype": "Int",
+   "label": "Total Reactions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_applications",
+   "fieldtype": "Int",
+   "label": "Applications Generated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_results",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_posted_on",
+   "fieldtype": "Datetime",
+   "label": "Last Posted On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "post_log",
+   "fieldtype": "Text",
+   "label": "Activity Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Job Post",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-06 15:40:28.205171",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Job Post",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

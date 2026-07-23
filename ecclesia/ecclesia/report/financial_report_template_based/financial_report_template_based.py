@@ -1,1049 +1,1444 @@
-# Copyright (c) 2026, kunle Oduntan and contributors
+# Copyright (c) 2026, Kunle Oduntan and contributors
 # For license information, please see license.txt
+"""
+Financial Report — Template-Based Dynamic Reporting System
+===========================================================
+Supports P&L, Balance Sheet, Cash Flow and any custom layout.
 
-#!/usr/bin/env python3
+KEY DESIGN DECISIONS
+────────────────────
+1. Report Type awareness
+   • P&L / Cash Flow  → period movement  (GL entries within the date window)
+   • Balance Sheet    → accumulated balance (GL entries from inception up to
+                        the closing date of the period — "as at" balance)
+
+2. Balance method
+   get_period_movement() — SUM of GL entries between from_date and to_date
+   get_closing_balance() — SUM of ALL GL entries up to and including to_date
+
+3. Retained Earnings
+   Special line_type "Retained Earnings" accumulates net profit from all prior
+   years plus the current year's YTD profit.
+   Formula: RE(year N) = Σ Net_Profit(year 1..N-1) + Net_Profit_YTD(year N)
+   The line references a line_code (e.g. NET_PROFIT) to identify which
+   calculated line holds net profit.
+
+4. Formula token safety
+   Tokens replaced with word-boundary regex — 'GP' never corrupts 'GROSS_PROFIT'.
+
+5. Header / Blank rows
+   All numeric column keys are set to None so Frappe renders blank cells,
+   not 0.00 or undefined.
+
+6. Cutoff Date for Balance Sheet
+   Supports partial current period reporting up to a cutoff date.
+   Past periods always show full period data.
 """
-Financial Report - Template-Based Dynamic Reporting System
-Supports flexible P&L, Balance Sheet, and custom reports with optional budget comparison
-"""
+
+import calendar
+import re
 
 import frappe
 from frappe import _
 from frappe.utils import flt, getdate, nowdate, formatdate
-import re
-from datetime import datetime
+
+_BALANCE_SHEET_TYPES = {"Balance Sheet"}
+
+# Sentinel: marks a column value as "blank" for Header/Blank rows
+_BLANK = None
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# MAIN ENTRY POINT
+# ═════════════════════════════════════════════════════════════════════════════
 
 def execute(filters=None):
-    """
-    Main entry point for the report
-    """
-    if not filters:
-        filters = {}
-    
-    # Load template
+    filters = filters or {}
+
     template_name = filters.get("template")
     if not template_name:
-        frappe.throw(_("Please select a Financial Report Template"))
-    
+        frappe.throw(_("Please select a Financial Report Template."))
+
     template = frappe.get_doc("Financial Report Template", template_name)
-    
     if not template.is_active:
-        frappe.throw(_("Selected template is not active"))
-    
-    # Get report parameters
+        frappe.throw(_("The selected template is not active."))
+
     company = filters.get("company")
     if not company:
-        frappe.throw(_("Please select a Company"))
+        frappe.throw(_("Please select a Company."))
+
+    year          = int(filters.get("year") or getdate(nowdate()).year)
+    frequency     = filters.get("frequency") or "Monthly"
+    current_month = getdate(nowdate()).month
+    is_bs         = template.report_type in _BALANCE_SHEET_TYPES
+    show_budget   = bool(filters.get("show_budget")) and bool(template.enable_budget_comparison)
+    budget_plan   = filters.get("budget_plan") if show_budget else None
     
-    year = int(filters.get("year", getdate(nowdate()).year))
-    frequency = filters.get("frequency", "Monthly")
-    hide_detail = int(filters.get("hide_detail") or 0)
-    current_month = getdate().month
-    
-    # Budget comparison (optional)
-    show_budget = filters.get("show_budget", 0) and template.enable_budget_comparison
-    budget_plan = filters.get("budget_plan") if show_budget else None
-    
-    # Check if using custom column definition
-    frappe.msgprint(f"Template: {template.template_name}, use_column_definition: {template.use_column_definition}")
-    
+    # Get cutoff date settings (only relevant for Balance Sheet)
+    cutoff_mode = filters.get("cutoff_mode", "Today (Partial Current Period)")
+    custom_cutoff_date = filters.get("custom_cutoff_date")
+    cutoff_date = _get_cutoff_date(cutoff_mode, year, current_month, custom_cutoff_date)
+
     if template.use_column_definition:
-        # Dynamic columns (INLINE - no imports!)
-        columns = build_dynamic_columns_inline(template, filters)
-        data = build_dynamic_data_inline(template, filters, company, year, current_month, budget_plan)
+        columns = _build_custom_columns(template)
+        data    = _build_custom_data(
+            template, company, year, current_month, budget_plan, is_bs, cutoff_date, cutoff_mode
+        )
     else:
-        # EXISTING: Default logic (unchanged)
-        frappe.msgprint("Using STANDARD columns")
-        # Define periods based on frequency
-        periods = get_periods(frequency, current_month, year)
-        
-        # Build columns
-        columns = build_columns(periods, template, show_budget)
-        
-        # Build data
-        data = build_data(template, periods, company, year, current_month, hide_detail, show_budget, budget_plan)
-    
-    # Return results
+        periods = _get_periods_with_flags(frequency, current_month, year, cutoff_date, is_bs, cutoff_mode)
+        columns = _build_standard_columns(periods, template, show_budget)
+        data    = _build_standard_data(
+            template, periods, company, year, current_month,
+            show_budget, budget_plan, is_bs, cutoff_date, cutoff_mode
+        )
+
     report_title = template.report_title or template.template_name
     return columns, data, report_title, None, None
 
 
-def get_periods(frequency, current_month, year):
+# ═════════════════════════════════════════════════════════════════════════════
+# CUTOFF DATE HELPERS
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _get_cutoff_date(cutoff_mode, year, current_month, custom_cutoff_date=None):
     """
-    Generate period definitions based on frequency
+    Determine the cutoff date based on filter settings.
+    Returns a date object.
     """
+    if cutoff_mode == "Custom Date" and custom_cutoff_date:
+        return getdate(custom_cutoff_date)
+    
+    if cutoff_mode == "End of Period (Full Periods)":
+        # Return the last day of current month
+        last_day = calendar.monthrange(year, current_month)[1]
+        return getdate(f"{year}-{current_month:02d}-{last_day}")
+    
+    # Default: Today (Partial Current Period)
+    return getdate(nowdate())
+
+
+def _is_current_period(year, month, cutoff_date):
+    """
+    Determine if a given period (year, month) is the current period
+    that contains the cutoff date.
+    """
+    cutoff_year = cutoff_date.year
+    cutoff_month = cutoff_date.month
+    
+    return (year == cutoff_year and month == cutoff_month)
+
+
+def _get_period_end_date(year, month, is_current, cutoff_date, cutoff_mode):
+    """
+    Get the end date for a period.
+    - If it's the current period and cutoff mode is partial: return cutoff_date
+    - Otherwise: return last day of the month
+    """
+    if is_current and cutoff_mode != "End of Period (Full Periods)":
+        return cutoff_date
+    else:
+        last_day = calendar.monthrange(year, month)[1]
+        return getdate(f"{year}-{month:02d}-{last_day}")
+
+
+def _get_period_start_date(year, month):
+    """Get the start date for a period."""
+    return getdate(f"{year}-{month:02d}-01")
+
+
+def _get_balance_with_cutoff(accounts, company, year, month, sign, is_bs, 
+                               cutoff_date, cutoff_mode, is_current_period):
+    """
+    Get balance for a period, respecting cutoff date for current period.
+    For P&L reports, always use full period (cutoff doesn't apply).
+    """
+    if not is_bs:
+        # P&L: Always use full period movement
+        return get_period_movement(
+            accounts, company, 
+            _month_start(year, month), 
+            _month_end(year, month), 
+            sign
+        )
+    
+    # Balance Sheet: respect cutoff
+    end_date = _get_period_end_date(year, month, is_current_period, cutoff_date, cutoff_mode)
+    return get_closing_balance(accounts, company, end_date, sign)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# PERIOD HELPERS
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _get_periods_with_flags(frequency, current_month, year, cutoff_date, is_bs, cutoff_mode):
+    """
+    Returns list of (label, months, is_current) where is_current indicates
+    if this period contains the cutoff date.
+    For P&L reports, is_current is always False (no partial periods).
+    """
+    periods = []
+    
+    # For P&L, we never use partial periods
+    if not is_bs:
+        cutoff_mode = "End of Period (Full Periods)"
+    
     if frequency == "Monthly":
-        periods = []
         for m in range(1, current_month + 1):
-            label = formatdate(f"{year}-{m:02d}-01", "MMM")
-            periods.append((label, [m]))
+            is_current = _is_current_period(year, m, cutoff_date) if is_bs else False
+            periods.append((formatdate(f"{year}-{m:02d}-01", "MMM"), [m], is_current))
+    
     elif frequency == "Half-Yearly":
-        periods = [("H1", [1,2,3,4,5,6]), ("H2", [7,8,9,10,11,12])]
+        h1_months = list(range(1, 7))
+        h2_months = list(range(7, 13))
+        cutoff_month = cutoff_date.month if is_bs else 1
+        is_h1_current = (cutoff_date.year == year and cutoff_month in h1_months) if is_bs else False
+        is_h2_current = (cutoff_date.year == year and cutoff_month in h2_months) if is_bs else False
+        periods = [
+            ("H1", h1_months, is_h1_current),
+            ("H2", h2_months, is_h2_current),
+        ]
+        # Filter to only show periods up to current month
+        if current_month < 7:
+            periods = periods[:1]
+    
     else:  # Quarterly
-        periods = [("Q1", [1,2,3]), ("Q2", [4,5,6]), ("Q3", [7,8,9]), ("Q4", [10,11,12])]
+        quarters = [
+            ("Q1", [1,2,3], (_is_current_period(year, 1, cutoff_date) or 
+                             _is_current_period(year, 2, cutoff_date) or 
+                             _is_current_period(year, 3, cutoff_date)) if is_bs else False),
+            ("Q2", [4,5,6], (_is_current_period(year, 4, cutoff_date) or 
+                             _is_current_period(year, 5, cutoff_date) or 
+                             _is_current_period(year, 6, cutoff_date)) if is_bs else False),
+            ("Q3", [7,8,9], (_is_current_period(year, 7, cutoff_date) or 
+                             _is_current_period(year, 8, cutoff_date) or 
+                             _is_current_period(year, 9, cutoff_date)) if is_bs else False),
+            ("Q4", [10,11,12], (_is_current_period(year, 10, cutoff_date) or 
+                                _is_current_period(year, 11, cutoff_date) or 
+                                _is_current_period(year, 12, cutoff_date)) if is_bs else False),
+        ]
+        periods = [q for q in quarters if q[1][0] <= current_month]
     
     return periods
 
 
-def build_columns(periods, template, show_budget):
-    """
-    Build column definitions based on template settings
-    """
-    columns = [{"label": "Account Name", "fieldname": "account_name", "fieldtype": "Data", "width": 300}]
-    
-    # Add period columns
-    for p in periods:
-        # Current period
-        columns.append({
-            "label": p[0], 
-            "fieldname": p[0].lower(), 
-            "fieldtype": "Currency", 
-            "width": 120
-        })
-        
-        # Last year comparison (if enabled)
-        if template.show_comparison:
-            columns.append({
-                "label": f"{p[0]} LY", 
-                "fieldname": f"{p[0].lower()}_ly", 
-                "fieldtype": "Currency", 
-                "width": 120
-            })
-            columns.append({
-                "label": f"{p[0]} Var %", 
-                "fieldname": f"{p[0].lower()}_var", 
-                "fieldtype": "Percent", 
-                "width": 90
-            })
-        
-        # Budget comparison (if enabled)
-        if show_budget:
-            columns.append({
-                "label": f"{p[0]} Bud", 
-                "fieldname": f"{p[0].lower()}_bud", 
-                "fieldtype": "Currency", 
-                "width": 120
-            })
-            columns.append({
-                "label": f"{p[0]} Bud Var %", 
-                "fieldname": f"{p[0].lower()}_bud_var", 
-                "fieldtype": "Percent", 
-                "width": 90
-            })
-        
-        # Spacer column
-        columns.append({
-            "label": "", 
-            "fieldname": f"{p[0].lower()}_col", 
-            "fieldtype": "Data", 
-            "width": 15
-        })
-    
-    # YTD columns
-    columns.extend([
-        {"label": "YTD", "fieldname": "year_to_date", "fieldtype": "Currency", "width": 130},
-    ])
-    
-    if template.show_comparison:
-        columns.extend([
-            {"label": "YTD LY", "fieldname": "last_year_ytd", "fieldtype": "Currency", "width": 130},
-            {"label": "YTD Var %", "fieldname": "achievement_ytd_pct", "fieldtype": "Percent", "width": 100}
-        ])
-    
-    if show_budget:
-        columns.extend([
-            {"label": "YTD Budget", "fieldname": "ytd_budget", "fieldtype": "Currency", "width": 130},
-            {"label": "YTD Bud Var %", "fieldname": "ytd_budget_var", "fieldtype": "Percent", "width": 100}
-        ])
-    
-    # Percentage column (if enabled)
-    if template.show_percentage_column:
-        columns.append({
-            "label": "% of Revenue", 
-            "fieldname": "pct_revenue", 
-            "fieldtype": "Percent", 
-            "width": 100
-        })
-    
-    return columns
+def _get_periods(frequency, current_month, year):
+    """Legacy function for backward compatibility"""
+    if frequency == "Monthly":
+        return [
+            (formatdate(f"{year}-{m:02d}-01", "MMM"), [m])
+            for m in range(1, current_month + 1)
+        ]
+    if frequency == "Half-Yearly":
+        return [("H1", list(range(1, 7))), ("H2", list(range(7, 13)))]
+    return [
+        ("Q1", [1,2,3]), ("Q2", [4,5,6]),
+        ("Q3", [7,8,9]), ("Q4", [10,11,12]),
+    ]
 
 
-def build_data(template, periods, company, year, current_month, hide_detail, show_budget, budget_plan):
-    """
-    Build report data based on template lines
-    """
-    data = []
-    line_values = {}  # Store calculated values for use in formulas
-    
-    # Process each line in template
-    for line in sorted(template.report_lines, key=lambda x: x.line_number):
-        
-        if line.line_type == "Blank Line":
-            data.append({"account_name": ""})
-            continue
-        
-        if line.line_type == "Header":
-            row = {
-                "account_name": get_formatted_label(line.line_label, line.indent_level, line.is_bold),
-                "_style": "font-weight: bold; background-color: #f5f5f5;"
-            }
-            data.append(row)
-            continue
-        
-        if line.line_type == "Account Aggregate":
-            result = process_account_aggregate_line(
-                line, periods, company, year, current_month, 
-                show_budget, budget_plan, template
-            )
-            
-            # Handle None return (skipped line)
-            if result[0] is None:
-                continue
-            
-            row, period_values, ytd_value, period_ly_values, ytd_ly_value, period_bud_values, ytd_bud_value = result
-            
-            # Store values for formula calculations
-            if line.line_code:
-                line_values[line.line_code] = {
-                    'periods': period_values,
-                    'ytd': ytd_value,
-                    'periods_ly': period_ly_values,
-                    'ytd_ly': ytd_ly_value,
-                    'periods_bud': period_bud_values,
-                    'ytd_bud': ytd_bud_value
-                }
-            
-            data.append(row)
-        
-        elif line.line_type == "Calculated":
-            row, period_values, ytd_value, period_ly_values, ytd_ly_value, period_bud_values, ytd_bud_value = process_calculated_line(
-                line, periods, line_values, template, show_budget
-            )
-            
-            # Store values for formula calculations
-            if line.line_code:
-                line_values[line.line_code] = {
-                    'periods': period_values,
-                    'ytd': ytd_value,
-                    'periods_ly': period_ly_values,
-                    'ytd_ly': ytd_ly_value,
-                    'periods_bud': period_bud_values,
-                    'ytd_bud': ytd_bud_value
-                }
-            
-            data.append(row)
-    
-    return data
+def _month_end(year, month):
+    last = calendar.monthrange(year, month)[1]
+    return f"{year}-{month:02d}-{last:02d}"
 
 
-def process_account_aggregate_line(line, periods, company, year, current_month, 
-                                   show_budget, budget_plan, template):
-    """
-    Process a line that aggregates account balances
-    """
-    # Get list of accounts based on mapping method
-    accounts = get_accounts_for_line(line, company)
-    
-    if not accounts and not template.show_zero_values:
-        # Skip this line if no accounts and zero values hidden
-        return None, None, None, None, None, None, None
-    
-    # Initialize row
-    row = {
-        "account_name": get_formatted_label(line.line_label, line.indent_level, line.is_bold)
-    }
-    
-    # Apply styling with borders
-    style = apply_row_styling(line, template)
-    if style:
-        row["_style"] = style
-    
-    period_values = {}
-    period_ly_values = {}
-    period_bud_values = {}
-    ytd_total = 0
-    ytd_last_year = 0
-    ytd_budget = 0
-    
-    # Get sign multiplier
-    sign_multiplier = line.sign_multiplier
-    if sign_multiplier == "-1":
-        sign = -1
-    elif sign_multiplier == "1":
-        sign = 1
-    else:
-        sign = int(sign_multiplier) if sign_multiplier else 1
-    
-    # Process each period
-    for period_label, months_list in periods:
-        period_total = 0
-        period_last_year = 0
-        period_budget = 0
-        
-        for month in months_list:
-            # Initialize budget value for this month
-            month_budget_value = 0
-            month_ly_value = 0
-            
-            # Current year actuals
-            month_value = get_month_balance(accounts, company, year, month, sign)
-            period_total += month_value
-            
-            # Last year actuals (if comparison enabled)
-            if template.show_comparison:
-                month_ly_value = get_month_balance(accounts, company, year - 1, month, sign)
-                period_last_year += month_ly_value
-            
-            # Budget values (if enabled)
-            if show_budget and budget_plan:
-                month_budget_value = get_month_budget(accounts, budget_plan, month, sign)
-                period_budget += month_budget_value
-            
-            # Add to YTD if month is in current period
-            if month <= current_month:
-                ytd_total += month_value
-                if template.show_comparison:
-                    ytd_last_year += month_ly_value
-                if show_budget:
-                    ytd_budget += month_budget_value
-        
-        # Store period values
-        period_values[period_label.lower()] = period_total
-        period_ly_values[period_label.lower()] = period_last_year
-        period_bud_values[period_label.lower()] = period_budget
-        row[period_label.lower()] = period_total
-        
-        # Last year comparison
-        if template.show_comparison:
-            row[f"{period_label.lower()}_ly"] = period_last_year
-            row[f"{period_label.lower()}_var"] = calculate_variance_pct(period_total, period_last_year)
-        
-        # Budget comparison
-        if show_budget:
-            row[f"{period_label.lower()}_bud"] = period_budget
-            row[f"{period_label.lower()}_bud_var"] = calculate_variance_pct(period_total, period_budget)
-    
-    # YTD columns
-    row["year_to_date"] = ytd_total
-    
-    if template.show_comparison:
-        row["last_year_ytd"] = ytd_last_year
-        row["achievement_ytd_pct"] = calculate_variance_pct(ytd_total, ytd_last_year)
-    
-    if show_budget:
-        row["ytd_budget"] = ytd_budget
-        row["ytd_budget_var"] = calculate_variance_pct(ytd_total, ytd_budget)
-    
-    return row, period_values, ytd_total, period_ly_values, ytd_last_year, period_bud_values, ytd_budget
+def _month_start(year, month):
+    return f"{year}-{month:02d}-01"
 
 
-def process_calculated_line(line, periods, line_values, template, show_budget):
-    """
-    Process a calculated line using formula
-    """
-    if not line.calculation_formula:
-        return {"account_name": line.line_label}, {}, 0
-    
-    # Initialize row
-    row = {
-        "account_name": get_formatted_label(line.line_label, line.indent_level, line.is_bold)
-    }
-    
-    # Apply styling with borders
-    style = apply_row_styling(line, template)
-    if style:
-        row["_style"] = style
-    
-    period_values = {}
-    period_ly_values = {}
-    period_bud_values = {}
-    ytd_total = 0
-    ytd_ly = 0
-    ytd_bud = 0
-    
-    # Process each period
-    for period_label, months_list in periods:
-        period_value = evaluate_formula(line.calculation_formula, line_values, period_label.lower())
-        period_values[period_label.lower()] = period_value
-        # Only show value if it's not zero or if we're showing zeros
-        row[period_label.lower()] = period_value if (period_value != 0 or template.show_zero_values) else None
-        
-        # Last year comparison (calculate from LY values)
-        if template.show_comparison:
-            period_ly_value = evaluate_formula(line.calculation_formula, line_values, period_label.lower(), suffix='_ly')
-            period_ly_values[period_label.lower()] = period_ly_value
-            row[f"{period_label.lower()}_ly"] = period_ly_value if (period_ly_value != 0 or template.show_zero_values) else None
-            row[f"{period_label.lower()}_var"] = calculate_variance_pct(period_value, period_ly_value)
-        
-        # Budget comparison
-        if show_budget:
-            period_bud_value = evaluate_formula(line.calculation_formula, line_values, period_label.lower(), suffix='_bud')
-            period_bud_values[period_label.lower()] = period_bud_value
-            row[f"{period_label.lower()}_bud"] = period_bud_value if (period_bud_value != 0 or template.show_zero_values) else None
-            row[f"{period_label.lower()}_bud_var"] = calculate_variance_pct(period_value, period_bud_value)
-    
-    # YTD calculation
-    ytd_total = evaluate_formula_ytd(line.calculation_formula, line_values)
-    row["year_to_date"] = ytd_total if (ytd_total != 0 or template.show_zero_values) else None
-    
-    if template.show_comparison:
-        ytd_ly = evaluate_formula_ytd(line.calculation_formula, line_values, suffix='_ytd_ly')
-        row["last_year_ytd"] = ytd_ly if (ytd_ly != 0 or template.show_zero_values) else None
-        row["achievement_ytd_pct"] = calculate_variance_pct(ytd_total, ytd_ly)
-    
-    if show_budget:
-        ytd_bud = evaluate_formula_ytd(line.calculation_formula, line_values, suffix='_ytd_bud')
-        row["ytd_budget"] = ytd_bud if (ytd_bud != 0 or template.show_zero_values) else None
-        row["ytd_budget_var"] = calculate_variance_pct(ytd_total, ytd_bud)
-    
-    return row, period_values, ytd_total, period_ly_values, ytd_ly, period_bud_values, ytd_bud
+# ═════════════════════════════════════════════════════════════════════════════
+# GL BALANCE FUNCTIONS
+# ═════════════════════════════════════════════════════════════════════════════
+
+_GL_MOVEMENT_SQL = """
+    SELECT COALESCE(SUM(
+        CASE
+            WHEN acc.root_type IN ('Income','Liability','Equity')
+            THEN gle.credit - gle.debit
+            ELSE gle.debit - gle.credit
+        END
+    ), 0) AS balance
+    FROM `tabGL Entry` gle
+    INNER JOIN `tabAccount` acc ON gle.account = acc.name
+    WHERE gle.account IN %(accounts)s
+      AND gle.company   = %(company)s
+      AND gle.posting_date BETWEEN %(from_date)s AND %(to_date)s
+      AND gle.is_cancelled = 0
+"""
+
+_GL_CLOSING_SQL = """
+    SELECT COALESCE(SUM(
+        CASE
+            WHEN acc.root_type IN ('Income','Liability','Equity')
+            THEN gle.credit - gle.debit
+            ELSE gle.debit - gle.credit
+        END
+    ), 0) AS balance
+    FROM `tabGL Entry` gle
+    INNER JOIN `tabAccount` acc ON gle.account = acc.name
+    WHERE gle.account IN %(accounts)s
+      AND gle.company   = %(company)s
+      AND gle.posting_date <= %(as_at_date)s
+      AND gle.is_cancelled = 0
+"""
 
 
-def apply_row_styling(line, template):
-    """
-    Apply styling including background color, font weight, and borders
-    """
-    styles = []
-    
-    # Custom row color from doctype (takes priority)
-    row_color = getattr(line, 'row_color', None)
-    if row_color:
-        styles.append(f"background-color: {row_color}")
-    # Background color from template (fallback)
-    elif line.is_total_row:
-        styles.append(f"background-color: {template.excel_total_row_color}")
-    elif line.is_subtotal_row:
-        styles.append(f"background-color: {template.excel_subtotal_color}")
-    
-    # Font weight
-    if line.is_bold or line.is_total_row or line.is_subtotal_row:
-        styles.append("font-weight: bold")
-    
-    # Borders from doctype
-    border_style = getattr(line, 'border_style', None)
-    
-    if border_style == "Top Border":
-        styles.append("border-top: 1px solid #000")
-    elif border_style == "Bottom Border":
-        styles.append("border-bottom: 1px solid #000")
-    elif border_style == "Top and Bottom":
-        styles.append("border-top: 1px solid #000")
-        styles.append("border-bottom: 1px solid #000")
-    elif border_style == "Top Single Bottom Double":
-        styles.append("border-top: 1px solid #000")
-        styles.append("border-bottom: 3px double #000")
-    elif border_style == "Top and Bottom Double":
-        styles.append("border-top: 3px double #000")
-        styles.append("border-bottom: 3px double #000")
-    
-    return "; ".join(styles) + ";" if styles else None
-
-
-def get_accounts_for_line(line, company):
-    """
-    Get list of accounts based on line's mapping method
-    """
-    method = line.account_mapping_method
-    
-    if method == "Account Range":
-        return get_accounts_by_range(line.account_from, line.account_to, company)
-    
-    elif method == "Account Numbers Pattern":
-        return get_accounts_by_pattern(line.account_number_pattern, company)
-    
-    elif method == "Specific Accounts":
-        return get_accounts_by_list(line.specific_accounts, company)
-    
-    elif method == "Financial Reporting Group":
-        return get_accounts_by_group(line.financial_reporting_group, company)
-    
-    elif method == "Root Type":
-        return get_accounts_by_root_type(line.root_type_filter, company)
-    
-    return []
-
-
-def get_accounts_by_range(account_from, account_to, company):
-    """
-    Get accounts within a range
-    """
-    if not account_from or not account_to:
-        return []
-    
-    # Get account numbers for comparison
-    from_num = extract_account_number(account_from)
-    to_num = extract_account_number(account_to)
-    
-    if from_num is None or to_num is None:
-        return []
-    
-    accounts = frappe.get_all(
-        "Account",
-        filters={"company": company, "is_group": 0},
-        fields=["name", "account_number"]
-    )
-    
-    result = []
-    for acc in accounts:
-        acc_num = extract_account_number(acc.name)
-        if acc_num and from_num <= acc_num <= to_num:
-            result.append(acc.name)
-    
-    return result
-
-
-def get_accounts_by_pattern(pattern, company):
-    """
-    Get accounts matching a pattern
-    Examples: "7000-7599", "7%", "7[0-5]%"
-    """
-    if not pattern:
-        return []
-    
-    # Check if it's a range pattern (7000-7599)
-    if '-' in pattern and not pattern.startswith('-'):
-        parts = pattern.split('-')
-        if len(parts) == 2:
-            try:
-                from_num = int(parts[0].strip())
-                to_num = int(parts[1].strip())
-                
-                accounts = frappe.get_all(
-                    "Account",
-                    filters={"company": company, "is_group": 0},
-                    fields=["name", "account_number"]
-                )
-                
-                result = []
-                for acc in accounts:
-                    acc_num = extract_account_number(acc.name)
-                    if acc_num and from_num <= acc_num <= to_num:
-                        result.append(acc.name)
-                
-                return result
-            except ValueError:
-                pass
-    
-    # Convert pattern to SQL LIKE pattern
-    sql_pattern = pattern.replace('%', '%').replace('_', '_')
-    
-    # Get accounts
-    accounts = frappe.get_all(
-        "Account",
-        filters={
-            "company": company, 
-            "is_group": 0,
-            "account_number": ["like", sql_pattern]
-        },
-        fields=["name"]
-    )
-    
-    return [acc.name for acc in accounts]
-
-
-def get_accounts_by_list(account_list, company):
-    """
-    Get specific accounts from comma-separated list
-    """
-    if not account_list:
-        return []
-    
-    accounts = [acc.strip() for acc in account_list.split(',')]
-    
-    # Verify accounts exist
-    valid_accounts = frappe.get_all(
-        "Account",
-        filters={
-            "company": company,
-            "name": ["in", accounts],
-            "is_group": 0
-        },
-        fields=["name"]
-    )
-    
-    return [acc.name for acc in valid_accounts]
-
-
-def get_accounts_by_group(group_name, company):
-    """
-    Get accounts by Financial Reporting Group
-    """
-    if not group_name:
-        return []
-    
-    accounts = frappe.get_all(
-        "Account",
-        filters={
-            "company": company,
-            "custom_financial_reporting_group": group_name,
-            "is_group": 0
-        },
-        fields=["name"]
-    )
-    
-    return [acc.name for acc in accounts]
-
-
-def get_accounts_by_root_type(root_type, company):
-    """
-    Get accounts by root type (Income, Expense, etc.)
-    """
-    if not root_type:
-        return []
-    
-    accounts = frappe.get_all(
-        "Account",
-        filters={
-            "company": company,
-            "root_type": root_type,
-            "is_group": 0
-        },
-        fields=["name"]
-    )
-    
-    return [acc.name for acc in accounts]
-
-
-def get_month_balance(accounts, company, year, month, sign=1):
-    """
-    Get total balance for accounts in a specific month
-    """
+def get_period_movement(accounts, company, from_date, to_date, sign=1):
+    """Period movement — for P&L and Cash Flow lines."""
     if not accounts:
-        return 0
-    
-    day = get_month_end_day(year, month)
+        return 0.0
+    r = frappe.db.sql(
+        _GL_MOVEMENT_SQL,
+        {"accounts": accounts, "company": company,
+         "from_date": from_date, "to_date": to_date},
+        as_dict=True,
+    )
+    return flt(r[0]["balance"]) * sign if r else 0.0
+
+
+def get_closing_balance(accounts, company, as_at_date, sign=1):
+    """Accumulated closing balance up to as_at_date — for Balance Sheet lines."""
+    if not accounts:
+        return 0.0
+    # Ensure as_at_date is a string in YYYY-MM-DD format
+    if hasattr(as_at_date, 'strftime'):
+        as_at_date = as_at_date.strftime('%Y-%m-%d')
+    r = frappe.db.sql(
+        _GL_CLOSING_SQL,
+        {"accounts": accounts, "company": company, "as_at_date": as_at_date},
+        as_dict=True,
+    )
+    return flt(r[0]["balance"]) * sign if r else 0.0
+
+
+def _get_balance(accounts, company, year, month, sign, is_bs):
+    if is_bs:
+        return get_closing_balance(accounts, company, _month_end(year, month), sign)
+    return get_period_movement(
+        accounts, company, _month_start(year, month), _month_end(year, month), sign
+    )
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# RETAINED EARNINGS — ACCUMULATED NET PROFIT ACROSS ALL PERIODS
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _get_net_profit_accumulated(company, as_at_date):
+    """
+    Get accumulated net profit (Income - Expense) from inception up to as_at_date.
+    This is used for Retained Earnings calculation.
+    """
+    # Ensure as_at_date is a string
+    if hasattr(as_at_date, 'strftime'):
+        as_at_date = as_at_date.strftime('%Y-%m-%d')
     
     result = frappe.db.sql("""
-        SELECT SUM(
-            CASE 
-                WHEN acc.root_type = 'Income' THEN gle.credit - gle.debit
-                ELSE gle.debit - gle.credit
-            END
-        ) AS balance
+        SELECT
+            COALESCE(SUM(
+                CASE WHEN acc.root_type = 'Income'
+                THEN gle.credit - gle.debit
+                ELSE 0 END
+            ), 0) AS total_income,
+            COALESCE(SUM(
+                CASE WHEN acc.root_type = 'Expense'
+                THEN gle.debit - gle.credit
+                ELSE 0 END
+            ), 0) AS total_expense
         FROM `tabGL Entry` gle
         INNER JOIN `tabAccount` acc ON gle.account = acc.name
-        WHERE gle.account IN %(accounts)s
-        AND gle.posting_date BETWEEN %(from_date)s AND %(to_date)s
-        AND gle.company = %(company)s
-    """, {
-        "accounts": accounts,
-        "from_date": f"{year}-{month:02d}-01",
-        "to_date": f"{year}-{month:02d}-{day}",
-        "company": company
-    }, as_dict=1)
+        WHERE acc.root_type IN ('Income', 'Expense')
+          AND gle.company = %(company)s
+          AND gle.posting_date <= %(as_at_date)s
+          AND gle.is_cancelled = 0
+    """, {"company": company, "as_at_date": as_at_date}, as_dict=True)
     
-    return flt(result[0].get("balance", 0)) * sign if result else 0
+    if result:
+        return flt(result[0]["total_income"]) - flt(result[0]["total_expense"])
+    return 0.0
 
 
-def get_month_budget(accounts, budget_plan, month, sign=1):
+def _get_retained_earnings_for_period_with_cutoff(line, company, year, end_date, 
+                                                   line_values, cutoff_mode):
     """
-    Get budget amount for accounts in a specific month
+    Compute retained earnings as at end_date.
     """
+    net_profit_code = getattr(line, "net_profit_line_code", None) or \
+                      getattr(line, "calculation_formula", None)
+
+    accounts = get_accounts_for_line(line, company)
+
+    # If actual RE accounts are mapped, use their closing balance
+    if accounts:
+        return get_closing_balance(accounts, company, end_date, _sign(line))
+
+    # If formula references another line's computed net profit
+    if net_profit_code and net_profit_code in line_values:
+        # Use the referenced line's YTD value
+        return line_values.get(net_profit_code, {}).get("ytd", 0.0)
+
+    # Otherwise, accumulate net profit from all P&L accounts
+    return _get_net_profit_accumulated(company, end_date)
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# BUDGET HELPER
+# ═════════════════════════════════════════════════════════════════════════════
+
+_MONTH_FIELDS = ["jan","feb","mar","apr","may","jun",
+                 "jul","aug","sep","oct","nov","dec"]
+
+
+def _get_month_budget(accounts, budget_plan, month, sign=1):
     if not accounts or not budget_plan:
-        return 0
-    
-    # Get budget plan document
+        return 0.0
     try:
         budget = frappe.get_doc("Budget Plan", budget_plan)
-    except:
-        return 0
-    
-    total = 0
-    month_field = ["jan", "feb", "mar", "apr", "may", "jun", 
-                   "jul", "aug", "sep", "oct", "nov", "dec"][month - 1]
-    
-    # Sum up budget for matching accounts
-    for budget_line in budget.monthly_budget:
-        if budget_line.gl_account in accounts:
-            total += flt(budget_line.get(month_field, 0))
-    
+    except Exception:
+        return 0.0
+    field = _MONTH_FIELDS[month - 1]
+    total = sum(
+        flt(bl.get(field, 0))
+        for bl in budget.monthly_budget
+        if bl.gl_account in accounts
+    )
     return total * sign
 
 
-def get_month_end_day(year, month):
-    """
-    Get the last day of a month
-    """
-    if month in [1, 3, 5, 7, 8, 10, 12]:
-        return 31
-    elif month in [4, 6, 9, 11]:
-        return 30
-    elif month == 2:
-        return 29 if (year % 4 == 0 and year % 100 != 0) or (year % 400 == 0) else 28
+# ═════════════════════════════════════════════════════════════════════════════
+# ACCOUNT RESOLUTION
+# ═════════════════════════════════════════════════════════════════════════════
+
+def get_accounts_for_line(line, company):
+    method = line.account_mapping_method
+    if method == "Account Range":
+        return _accounts_by_range(line.account_from, line.account_to, company)
+    if method == "Account Numbers Pattern":
+        return _accounts_by_pattern(line.account_number_pattern, company)
+    if method == "Specific Accounts":
+        return _accounts_by_list(line.specific_accounts, company)
+    if method == "Financial Reporting Group":
+        return _accounts_by_group(line.financial_reporting_group, company)
+    if method == "Root Type":
+        return _accounts_by_root_type(line.root_type_filter, company)
+    return []
 
 
-def extract_account_number(account_name):
-    """
-    Extract numeric account number from account name
-    """
+def _extract_account_number(account_name):
     if not account_name:
         return None
-    
-    # Try to get account_number field
-    acc = frappe.db.get_value("Account", account_name, "account_number")
-    if acc:
+    num = frappe.db.get_value("Account", account_name, "account_number")
+    if num:
         try:
-            return int(acc)
-        except:
+            return int(num)
+        except (ValueError, TypeError):
             pass
-    
-    # Extract from name (e.g., "7000 - Sales Revenue" -> 7000)
-    match = re.match(r'^(\d+)', str(account_name))
-    if match:
+    m = re.match(r"^(\d+)", str(account_name))
+    if m:
         try:
-            return int(match.group(1))
-        except:
+            return int(m.group(1))
+        except (ValueError, TypeError):
             pass
-    
     return None
 
 
-def evaluate_formula(formula, line_values, period_key, suffix=''):
+def _accounts_by_range(account_from, account_to, company):
+    if not account_from or not account_to:
+        return []
+    from_num = _extract_account_number(account_from)
+    to_num   = _extract_account_number(account_to)
+    if from_num is None or to_num is None:
+        return []
+    all_accs = frappe.get_all("Account",
+        filters={"company": company, "is_group": 0}, fields=["name"])
+    return [a.name for a in all_accs
+            if (n := _extract_account_number(a.name)) is not None
+            and from_num <= n <= to_num]
+
+
+def _accounts_by_pattern(pattern, company):
+    if not pattern:
+        return []
+    m = re.match(r"^(\d+)-(\d+)$", pattern.strip())
+    if m:
+        lo, hi = int(m.group(1)), int(m.group(2))
+        all_accs = frappe.get_all("Account",
+            filters={"company": company, "is_group": 0}, fields=["name"])
+        return [a.name for a in all_accs
+                if (n := _extract_account_number(a.name)) is not None
+                and lo <= n <= hi]
+    accs = frappe.get_all("Account",
+        filters={"company": company, "is_group": 0,
+                 "account_number": ["like", pattern]}, fields=["name"])
+    return [a.name for a in accs]
+
+
+def _accounts_by_list(account_list, company):
+    if not account_list:
+        return []
+    names = [a.strip() for a in account_list.split(",") if a.strip()]
+    valid = frappe.get_all("Account",
+        filters={"company": company, "name": ["in", names], "is_group": 0},
+        fields=["name"])
+    return [a.name for a in valid]
+
+
+def _accounts_by_group(group_name, company):
+    if not group_name:
+        return []
+    accs = frappe.get_all("Account",
+        filters={"company": company,
+                 "custom_financial_reporting_group": group_name, "is_group": 0},
+        fields=["name"])
+    return [a.name for a in accs]
+
+
+def _accounts_by_root_type(root_type, company):
+    if not root_type:
+        return []
+    accs = frappe.get_all("Account",
+        filters={"company": company, "root_type": root_type, "is_group": 0},
+        fields=["name"])
+    return [a.name for a in accs]
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# FORMULA ENGINE
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _safe_replace(formula, token, value):
+    """Word-boundary safe token replacement — 'GP' never mangles 'GROSS_PROFIT'."""
+    return re.sub(r"\b" + re.escape(token) + r"\b", str(flt(value)), formula)
+
+
+def _evaluate_formula(formula, line_values, period_key, data_key="periods"):
     """
-    Evaluate a formula for a specific period
-    Example: "REV - COS" or "GP - ADMIN - SELL"
+    Evaluate a row formula for one period column.
+
+    line_values structure:
+      { "LINE_CODE": { "periods": {"jan": 1000, "feb": 2000, ...},
+                       "periods_ly": {...},
+                       "periods_bud": {...},
+                       "ytd": 3000,
+                       "ytd_ly": 2500,
+                       "ytd_bud": 3500 } }
+
+    data_key selects which sub-dict to read:
+      "periods"     → current year per-period actuals
+      "periods_ly"  → prior year per-period actuals
+      "periods_bud" → budget per-period
     """
     if not formula:
-        return 0
-    
-    # Replace line codes with actual values
-    formula_eval = formula
-    
-    # Find all line codes in formula (uppercase alphanumeric + underscore)
-    tokens = re.findall(r'\b[A-Z_][A-Z0-9_]*\b', formula)
-    
-    for token in tokens:
+        return 0.0
+
+    expr   = formula.strip()
+    tokens = re.findall(r"\b[A-Z_][A-Z0-9_]*\b", expr)
+
+    # Replace longest tokens first to avoid partial-token corruption
+    for token in sorted(tokens, key=len, reverse=True):
         if token in line_values:
-            value = 0
-            if suffix == '_ly':
-                # Get LY value from periods_ly
-                value = line_values[token].get('periods_ly', {}).get(period_key, 0)
-            elif suffix == '_bud':
-                # Get Budget value from periods_bud  
-                value = line_values[token].get('periods_bud', {}).get(period_key, 0)
-            else:
-                # Get current period value
-                value = line_values[token]['periods'].get(period_key, 0)
-            
-            formula_eval = formula_eval.replace(token, str(value))
-    
+            sub_dict = line_values[token].get(data_key, {})
+            val      = sub_dict.get(period_key, 0) if isinstance(sub_dict, dict) else 0
+            expr     = _safe_replace(expr, token, val)
+
     try:
-        return flt(eval(formula_eval))
-    except:
-        return 0
+        return flt(eval(expr))   # noqa: S307 — formula is admin-configured
+    except Exception:
+        return 0.0
 
 
-def evaluate_formula_ytd(formula, line_values, suffix=''):
-    """
-    Evaluate a formula for YTD
-    """
+def _evaluate_formula_ytd(formula, line_values, ytd_key="ytd"):
+    """Evaluate a row formula for the YTD / Total column."""
     if not formula:
-        return 0
-    
-    formula_eval = formula
-    
-    # Find all line codes in formula
-    tokens = re.findall(r'\b[A-Z_][A-Z0-9_]*\b', formula)
-    
-    for token in tokens:
+        return 0.0
+
+    expr   = formula.strip()
+    tokens = re.findall(r"\b[A-Z_][A-Z0-9_]*\b", expr)
+
+    for token in sorted(tokens, key=len, reverse=True):
         if token in line_values:
-            if suffix == '_ytd_ly':
-                value = line_values[token].get('ytd_ly', 0)
-            elif suffix == '_ytd_bud':
-                value = line_values[token].get('ytd_bud', 0)
-            else:
-                value = line_values[token].get('ytd', 0)
-            formula_eval = formula_eval.replace(token, str(value))
-    
+            val  = line_values[token].get(ytd_key, 0)
+            expr = _safe_replace(expr, token, val)
+
     try:
-        return flt(eval(formula_eval))
-    except:
-        return 0
+        return flt(eval(expr))   # noqa: S307
+    except Exception:
+        return 0.0
 
 
-def calculate_variance_pct(current, previous):
-    """
-    Calculate variance percentage
-    """
-    if not previous or previous == 0:
+def _variance_pct(current, previous):
+    if not previous:
         return None
-    
-    return ((current - previous) / abs(previous)) * 100
+    return round(((current - previous) / abs(previous)) * 100, 2)
 
 
-def get_formatted_label(label, indent_level, is_bold):
-    """
-    Format label with indentation and styling
-    """
-    indent = "    " * int(indent_level or 0)
-    
-    if is_bold:
-        return f'{indent}<span style="font-weight:bold;">{label}</span>'
-    
-    return f'{indent}{label}'
+# ═════════════════════════════════════════════════════════════════════════════
+# ROW FORMATTING
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _format_label(label, indent_level, is_bold):
+    indent = "&nbsp;&nbsp;&nbsp;&nbsp;" * int(indent_level or 0)
+    # Cast is_bold — may arrive as string "0"/"1" from CSV import
+    if bool(int(is_bold or 0)):
+        return f'{indent}<b>{label}</b>'
+    return f"{indent}{label}"
 
 
-# ============================================================================
-# DYNAMIC COLUMN FUNCTIONS (INLINE - NO IMPORT NEEDED)
-# ============================================================================
+def _row_style(line, template):
+    # FIX 2: Fields from CSV import arrive as strings ("0", "1", "").
+    # Cast them properly before use — "0" is truthy as a string but falsy as int.
+    def _bool(attr):
+        return bool(int(getattr(line, attr, 0) or 0))
 
-def resolve_column_code_inline(column_code, base_year, current_month=12):
-    """Resolve column code to period details - M1, Q1, Y1, -Y1, M1:M3, etc."""
-    code = column_code.upper().strip()
-    year_offset = 0
-    data_source = 'GL Entry'
-    
-    # Parse modifiers  
-    if code.startswith('-'):
-        match = re.match(r'^-Y(\d+)$', code)
-        if match:
-            year_offset = -int(match.group(1))
-            code = 'FY'
-        else:
-            year_offset = -1
-            code = code[1:]
-    elif '_LY' in code:
-        year_offset = -1
-        code = code.replace('_LY', '')
-    elif '_BUD' in code:
-        data_source = 'Budget Plan'
-        code = code.replace('_BUD', '')
-    
-    actual_year = base_year + year_offset
-    
-    # Range syntax (M1:M3, Q1:Q2)
-    if ':' in code:
-        parts = code.split(':')
-        if len(parts) == 2:
-            start_code = parts[0].strip()
-            end_code = parts[1].strip()
-            
-            if start_code.startswith('M') and end_code.startswith('M'):
-                start_month = int(start_code[1:])
-                end_month = int(end_code[1:])
-                if 1 <= start_month <= 12 and 1 <= end_month <= 12 and start_month <= end_month:
-                    return {
-                        'type': 'period',
-                        'year': actual_year,
-                        'month_from': start_month,
-                        'month_to': end_month,
-                        'data_source': data_source
-                    }
-            elif start_code.startswith('Q') and end_code.startswith('Q'):
-                start_q = int(start_code[1:])
-                end_q = int(end_code[1:])
-                if 1 <= start_q <= 4 and 1 <= end_q <= 4 and start_q <= end_q:
-                    start_month = (start_q - 1) * 3 + 1
-                    end_month = end_q * 3
-                    return {
-                        'type': 'period',
-                        'year': actual_year,
-                        'month_from': start_month,
-                        'month_to': end_month,
-                        'data_source': data_source
-                    }
-    
-    # Month codes (M1-M12)
-    if code.startswith('M') and code[1:].isdigit():
-        month_num = int(code[1:])
-        if 1 <= month_num <= 12:
-            return {
-                'type': 'period',
-                'year': actual_year,
-                'month_from': month_num,
-                'month_to': month_num,
-                'data_source': data_source
-            }
-    
-    # Quarter codes (Q1-Q4)
-    elif code.startswith('Q') and code[1:].isdigit():
-        quarter_num = int(code[1:])
-        if 1 <= quarter_num <= 4:
-            start_month = (quarter_num - 1) * 3 + 1
-            return {
-                'type': 'period',
-                'year': actual_year,
-                'month_from': start_month,
-                'month_to': start_month + 2,
-                'data_source': data_source
-            }
-    
-    # Half-year codes (H1-H2)
-    elif code.startswith('H') and code[1:].isdigit():
-        half_num = int(code[1:])
-        if 1 <= half_num <= 2:
-            start_month = (half_num - 1) * 6 + 1
-            return {
-                'type': 'period',
-                'year': actual_year,
-                'month_from': start_month,
-                'month_to': start_month + 5,
-                'data_source': data_source
-            }
-    
-    # YTD
-    elif code == 'YTD':
-        return {
-            'type': 'ytd',
-            'year': actual_year,
-            'month_from': 1,
-            'month_to': current_month,
-            'data_source': data_source
-        }
-    
-    # Year codes (Y1, FY)
-    elif code in ['FY', 'Y1']:
-        return {
-            'type': 'period',
-            'year': actual_year,
-            'month_from': 1,
-            'month_to': 12,
-            'data_source': data_source
-        }
-    
-    return None
+    is_total    = _bool("is_total_row")
+    is_subtotal = _bool("is_subtotal_row")
+    is_bold_row = _bool("is_bold")
+
+    parts = []
+    row_color = getattr(line, "row_color", None) or ""
+    if row_color.strip():
+        parts.append(f"background-color:{row_color.strip()}")
+    elif is_total:
+        clr = (template.excel_total_row_color or "#E7E6E6").strip()
+        parts.append(f"background-color:{clr}")
+    elif is_subtotal:
+        clr = (template.excel_subtotal_color or "#F2F2F2").strip()
+        parts.append(f"background-color:{clr}")
+
+    if is_bold_row or is_total or is_subtotal:
+        parts.append("font-weight:bold")
+
+    border_map = {
+        "Top Border":              ["border-top:1px solid #000"],
+        "Bottom Border":           ["border-bottom:1px solid #000"],
+        "Top and Bottom":          ["border-top:1px solid #000", "border-bottom:1px solid #000"],
+        "Top Single Bottom Double":["border-top:1px solid #000", "border-bottom:3px double #000"],
+        "Top and Bottom Double":   ["border-top:3px double #000", "border-bottom:3px double #000"],
+    }
+    border = (getattr(line, "border_style", None) or "").strip()
+    parts.extend(border_map.get(border, []))
+    return ";".join(parts) + ";" if parts else None
 
 
-def build_dynamic_columns_inline(template, filters):
-    """Build columns from template's column definitions"""
-    if not template.report_columns:
-        frappe.throw(_("No columns defined. Add columns or disable 'Use Custom Column Definition'."))
-    
-    columns = [{"label": _("Account Name"), "fieldname": "account_name", "fieldtype": "Data", "width": 300}]
-    
-    for col in sorted(template.report_columns, key=lambda x: x.column_number):
-        if col.is_hidden:
-            continue
-        
-        fieldtype = 'Currency'
-        if col.number_format == 'Percent':
-            fieldtype = 'Percent'
-        elif col.number_format == 'Integer':
-            fieldtype = 'Int'
-        elif col.number_format == 'Decimal':
-            fieldtype = 'Float'
-        
-        columns.append({
-            "label": col.column_label or col.column_code,
-            "fieldname": f"col_{col.column_number}",
-            "fieldtype": fieldtype,
-            "width": col.column_width or 120
-        })
-    
-    return columns
+def _sign(line):
+    v = str(getattr(line, "sign_multiplier", "1") or "1").strip()
+    # Handle CSV import where value may be "" or "None"
+    if v in ("", "None", "none"):
+        return 1
+    try:
+        return int(v)
+    except (ValueError, TypeError):
+        return 1
 
 
-def build_dynamic_data_inline(template, filters, company, base_year, current_month, budget_plan):
-    """Build report data using dynamic columns"""
-    data = []
+def _blank_numeric_row(col_fieldnames):
+    """Return a dict with None for every numeric column — renders as blank cell."""
+    return {fn: None for fn in col_fieldnames}
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# STANDARD (FREQUENCY-BASED) REPORT
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _build_standard_columns(periods, template, show_budget):
+    cols = [{"label": "Account", "fieldname": "account_name",
+             "fieldtype": "Data", "width": 300}]
+    for lbl, _, _ in periods:
+        key = lbl.lower()
+        cols.append({"label": lbl, "fieldname": key,
+                     "fieldtype": "Currency", "width": 120})
+        if template.show_comparison:
+            cols += [
+                {"label": f"{lbl} PY",   "fieldname": f"{key}_ly",  "fieldtype": "Currency", "width": 120},
+                {"label": f"{lbl} Var%", "fieldname": f"{key}_var", "fieldtype": "Percent",  "width": 90},
+            ]
+        if show_budget:
+            cols += [
+                {"label": f"{lbl} Bud",  "fieldname": f"{key}_bud",     "fieldtype": "Currency", "width": 120},
+                {"label": f"{lbl} Bud%", "fieldname": f"{key}_bud_var", "fieldtype": "Percent",  "width": 90},
+            ]
+        # visual spacer
+        cols.append({"label": "", "fieldname": f"{key}_sp", "fieldtype": "Data", "width": 12})
+
+    cols.append({"label": "YTD / Total", "fieldname": "ytd",
+                 "fieldtype": "Currency", "width": 140})
+    if template.show_comparison:
+        cols += [
+            {"label": "PY YTD",   "fieldname": "ytd_ly",  "fieldtype": "Currency", "width": 130},
+            {"label": "YTD Var%", "fieldname": "ytd_var", "fieldtype": "Percent",  "width": 100},
+        ]
+    if show_budget:
+        cols += [
+            {"label": "YTD Bud",  "fieldname": "ytd_bud",     "fieldtype": "Currency", "width": 130},
+            {"label": "Bud Var%", "fieldname": "ytd_bud_var", "fieldtype": "Percent",  "width": 100},
+        ]
+    return cols
+
+
+def _standard_numeric_fieldnames(periods, template, show_budget):
+    """Return every numeric fieldname used in standard columns."""
+    fns = []
+    for lbl, _, _ in periods:
+        key = lbl.lower()
+        fns.append(key)
+        if template.show_comparison:
+            fns += [f"{key}_ly", f"{key}_var"]
+        if show_budget:
+            fns += [f"{key}_bud", f"{key}_bud_var"]
+    fns.append("ytd")
+    if template.show_comparison:
+        fns += ["ytd_ly", "ytd_var"]
+    if show_budget:
+        fns += ["ytd_bud", "ytd_bud_var"]
+    return fns
+
+
+def _build_standard_data(template, periods, company, year, current_month,
+                          show_budget, budget_plan, is_bs, cutoff_date, cutoff_mode):
+    data        = []
     line_values = {}
-    
+    numeric_fns = _standard_numeric_fieldnames(periods, template, show_budget)
+    auto_insert = getattr(template, "auto_insert_retained_earnings", False)
+    re_inserted = False
+
     for line in sorted(template.report_lines, key=lambda x: x.line_number):
-        if line.line_type == "Blank Line":
-            data.append({"account_name": ""})
-            continue
-        
-        if line.line_type == "Header":
-            row = {
-                "account_name": get_formatted_label(line.line_label, line.indent_level, line.is_bold),
-                "_style": "font-weight: bold; background-color: #f5f5f5;"
-            }
+        lt = line.line_type
+
+        # ── Blank line ────────────────────────────────────────────────────────
+        if lt == "Blank Line":
+            row = {"account_name": ""}
+            row.update(_blank_numeric_row(numeric_fns))
             data.append(row)
             continue
-        
-        row = process_line_inline(line, template, company, base_year, current_month, budget_plan, line_values)
-        if row:
+
+        # ── Header ────────────────────────────────────────────────────────────
+        if lt == "Header":
+            row = {"account_name": _format_label(line.line_label, line.indent_level, True)}
+            row.update(_blank_numeric_row(numeric_fns))
+            style = _row_style(line, template)
+            if style:
+                row["_style"] = style
             data.append(row)
-    
+            continue
+
+        # ── Account Aggregate ─────────────────────────────────────────────────
+        if lt == "Account Aggregate":
+            row, vals = _standard_aggregate_with_cutoff(
+                line, periods, company, year, current_month,
+                show_budget, budget_plan, template, is_bs, cutoff_date, cutoff_mode
+            )
+            if line.line_code:
+                line_values[line.line_code] = vals
+            if row is None:
+                continue
+            data.append(row)
+
+        # ── Calculated ────────────────────────────────────────────────────────
+        elif lt == "Calculated":
+            row, vals = _standard_calculated(
+                line, periods, line_values, template, show_budget
+            )
+            if line.line_code:
+                line_values[line.line_code] = vals
+            data.append(row)
+
+        # ── Retained Earnings (explicit template row) ─────────────────────────
+        elif lt == "Retained Earnings":
+            row, vals = _standard_retained_earnings_with_cutoff(
+                line, periods, company, year, current_month,
+                line_values, template, show_budget, budget_plan, cutoff_date, cutoff_mode
+            )
+            if line.line_code:
+                line_values[line.line_code] = vals
+            data.append(row)
+
+    # Auto-insert Retained Earnings after processing all lines (if enabled)
+    if auto_insert and not re_inserted:
+        has_re_row = any(l.line_type == "Retained Earnings" for l in template.report_lines)
+        if not has_re_row:
+            re_row, re_vals = _make_auto_re_row_with_cutoff(
+                periods, company, year, current_month,
+                template, show_budget, numeric_fns,
+                indent_level=1, cutoff_date=cutoff_date, cutoff_mode=cutoff_mode
+            )
+            line_values["_AUTO_RE"] = re_vals
+            data.append(re_row)
+
     return data
 
 
-def process_line_inline(line, template, company, base_year, current_month, budget_plan, line_values):
-    """Process a single line with dynamic columns"""
-    
-    # Calculated lines
-    if line.line_type == 'Calculated':
-        if not line.calculation_formula:
-            return None
-        
-        row = {"account_name": get_formatted_label(line.line_label, line.indent_level, line.is_bold)}
-        
-        style = apply_row_styling(line, template)
-        if style:
-            row["_style"] = style
-        
-        row_column_values = {}
-        for col in sorted(template.report_columns, key=lambda x: x.column_number):
-            if col.is_hidden:
-                continue
-            
-            col_key = f"col_{col.column_number}"
-            
-            if col.column_type != 'Calculated':
-                # Evaluate row formula
-                formula_eval = line.calculation_formula
-                tokens = re.findall(r'\b[A-Z_][\w]*\b', formula_eval)
-                
-                for token in tokens:
-                    if token in line_values and col_key in line_values[token]:
-                        formula_eval = formula_eval.replace(token, str(line_values[token][col_key]))
-                
-                try:
-                    value = flt(eval(formula_eval))
-                except:
-                    value = 0
-                
-                row[col_key] = value if (value != 0 or template.show_zero_values) else None
-                row_column_values[col_key] = value
-        
-        if line.line_code:
-            line_values[line.line_code] = row_column_values
-        
-        return row
-    
-    # Account aggregate lines
+def _standard_aggregate_with_cutoff(line, periods, company, year, current_month,
+                                     show_budget, budget_plan, template, is_bs, 
+                                     cutoff_date, cutoff_mode):
     accounts = get_accounts_for_line(line, company)
-    
-    if not accounts and not template.show_zero_values:
-        return None
-    
-    row = {"account_name": get_formatted_label(line.line_label, line.indent_level, line.is_bold)}
-    
-    style = apply_row_styling(line, template)
+    if not accounts:
+        if not template.show_zero_values:
+            zero_pv = {}
+            for lbl, _, _ in periods:
+                zero_pv[lbl.lower()] = 0.0
+            zero_vals = {"periods": zero_pv, "periods_ly": dict(zero_pv),
+                         "periods_bud": dict(zero_pv),
+                         "ytd": 0.0, "ytd_ly": 0.0, "ytd_bud": 0.0}
+            return None, zero_vals
+
+    sign = _sign(line)
+    row = {"account_name": _format_label(line.line_label, line.indent_level, int(line.is_bold or 0))}
+    style = _row_style(line, template)
     if style:
         row["_style"] = style
-    
-    # Get sign
-    sign_multiplier = line.sign_multiplier
-    if sign_multiplier == "-1":
-        sign = -1
-    elif sign_multiplier == "1":
-        sign = 1
+
+    pv = {}; pv_ly = {}; pv_bud = {}
+    ytd_sum = 0.0
+
+    for lbl, months, is_current in periods:
+        key = lbl.lower()
+        period_act = period_ly = period_bud = 0.0
+
+        for m in months:
+            # Current year with cutoff awareness
+            act = _get_balance_with_cutoff(accounts, company, year, m, sign, is_bs, 
+                                            cutoff_date, cutoff_mode, is_current)
+            
+            # Prior year (full period)
+            ly = _get_balance(accounts, company, year - 1, m, sign, is_bs) \
+                 if template.show_comparison else 0.0
+            
+            bud = _get_month_budget(accounts, budget_plan, m, sign) \
+                  if show_budget else 0.0
+
+            if is_bs:
+                period_act = act
+                period_ly = ly
+                period_bud = bud
+            else:
+                period_act += act
+                period_ly += ly
+                period_bud += bud
+
+        pv[key] = period_act
+        pv_ly[key] = period_ly
+        pv_bud[key] = period_bud
+
+        row[key] = period_act if (period_act != 0 or template.show_zero_values) else None
+        if template.show_comparison:
+            row[f"{key}_ly"] = period_ly if (period_ly != 0 or template.show_zero_values) else None
+            row[f"{key}_var"] = _variance_pct(period_act, period_ly)
+        if show_budget:
+            row[f"{key}_bud"] = period_bud if (period_bud != 0 or template.show_zero_values) else None
+            row[f"{key}_bud_var"] = _variance_pct(period_act, period_bud)
+
+        ytd_sum += period_act
+
+    # YTD calculation
+    if is_bs:
+        ytd = get_closing_balance(accounts, company, cutoff_date, sign)
+        if template.show_comparison:
+            ly_cutoff = getdate(f"{year - 1}-{cutoff_date.month:02d}-{cutoff_date.day}")
+            ytd_ly = get_closing_balance(accounts, company, ly_cutoff, sign)
+        else:
+            ytd_ly = 0.0
     else:
-        sign = int(sign_multiplier) if sign_multiplier else 1
+        ytd = ytd_sum
+        ytd_ly = 0.0
+
+    row["ytd"] = ytd if (ytd != 0 or template.show_zero_values) else None
+    if template.show_comparison:
+        row["ytd_ly"] = ytd_ly if (ytd_ly != 0 or template.show_zero_values) else None
+        row["ytd_var"] = _variance_pct(ytd, ytd_ly)
+    if show_budget:
+        row["ytd_bud"] = None
+        row["ytd_bud_var"] = None
+
+    vals = {"periods": pv, "periods_ly": pv_ly, "periods_bud": pv_bud,
+            "ytd": ytd, "ytd_ly": ytd_ly, "ytd_bud": 0.0}
+    return row, vals
+
+
+def _standard_calculated(line, periods, line_values, template, show_budget):
+    """
+    Process a Calculated line using a formula that references other line codes.
+    """
+    row   = {"account_name": _format_label(line.line_label, line.indent_level, int(line.is_bold or 0))}
+    style = _row_style(line, template)
+    if style:
+        row["_style"] = style
+
+    if not line.calculation_formula:
+        return row, {}
+
+    formula = line.calculation_formula.strip()
+    pv = {}; pv_ly = {}; pv_bud = {}
+    ytd = ytd_ly = ytd_bud = 0.0
+
+    for lbl, _, _ in periods:
+        key = lbl.lower()
+
+        v     = _evaluate_formula(formula, line_values, key, "periods")
+        v_ly  = _evaluate_formula(formula, line_values, key, "periods_ly")  \
+                if template.show_comparison else 0.0
+        v_bud = _evaluate_formula(formula, line_values, key, "periods_bud") \
+                if show_budget else 0.0
+
+        pv[key]     = v
+        pv_ly[key]  = v_ly
+        pv_bud[key] = v_bud
+
+        row[key] = v if (v != 0 or template.show_zero_values) else None
+        if template.show_comparison:
+            row[f"{key}_ly"]  = v_ly if (v_ly != 0 or template.show_zero_values) else None
+            row[f"{key}_var"] = _variance_pct(v, v_ly)
+        if show_budget:
+            row[f"{key}_bud"]     = v_bud if (v_bud != 0 or template.show_zero_values) else None
+            row[f"{key}_bud_var"] = _variance_pct(v, v_bud)
+
+    ytd    = _evaluate_formula_ytd(formula, line_values, "ytd")
+    ytd_ly = _evaluate_formula_ytd(formula, line_values, "ytd_ly") \
+             if template.show_comparison else 0.0
+    ytd_bud = _evaluate_formula_ytd(formula, line_values, "ytd_bud") \
+              if show_budget else 0.0
+
+    row["ytd"] = ytd if (ytd != 0 or template.show_zero_values) else None
+    if template.show_comparison:
+        row["ytd_ly"]  = ytd_ly if (ytd_ly != 0 or template.show_zero_values) else None
+        row["ytd_var"] = _variance_pct(ytd, ytd_ly)
+    if show_budget:
+        row["ytd_bud"]     = ytd_bud if (ytd_bud != 0 or template.show_zero_values) else None
+        row["ytd_bud_var"] = _variance_pct(ytd, ytd_bud)
+
+    vals = {"periods": pv, "periods_ly": pv_ly, "periods_bud": pv_bud,
+            "ytd": ytd, "ytd_ly": ytd_ly, "ytd_bud": ytd_bud}
+    return row, vals
+
+
+def _standard_retained_earnings_with_cutoff(line, periods, company, year, current_month,
+                                              line_values, template, show_budget, budget_plan,
+                                              cutoff_date, cutoff_mode):
+    """
+    Retained Earnings — PRIMARY METHOD: Uses line_type == "Retained Earnings"
     
-    # Process each column
-    row_column_values = {}
+    The calculation accumulates net profit from inception up to each period end,
+    respecting cutoff date for current period.
+    """
+    row   = {"account_name": _format_label(line.line_label, line.indent_level, int(line.is_bold or 0))}
+    style = _row_style(line, template)
+    if style:
+        row["_style"] = style
+
+    net_profit_code = getattr(line, "net_profit_line_code", None) or \
+                      getattr(line, "calculation_formula", None)
+
+    pv = {}; pv_ly = {}
+    ytd = ytd_ly = 0.0
+
+    for lbl, months, is_current in periods:
+        key       = lbl.lower()
+        end_month = months[-1]
+
+        # Determine end date for this period
+        if is_current and cutoff_mode != "End of Period (Full Periods)":
+            end_date = cutoff_date
+        else:
+            last_day = calendar.monthrange(year, end_month)[1]
+            end_date = getdate(f"{year}-{end_month:02d}-{last_day}")
+
+        # Get RE value
+        if net_profit_code and net_profit_code in line_values:
+            val = line_values.get(net_profit_code, {}).get("ytd", 0.0)
+        else:
+            val = _get_net_profit_accumulated(company, end_date)
+        
+        pv[key] = val
+        row[key] = val if (val != 0 or template.show_zero_values) else None
+
+        if template.show_comparison:
+            # Prior year: use same day-of-month for current period, full for others
+            if is_current and cutoff_mode != "End of Period (Full Periods)":
+                ly_end_date = getdate(f"{year - 1}-{cutoff_date.month:02d}-{cutoff_date.day}")
+            else:
+                last_day_ly = calendar.monthrange(year - 1, end_month)[1]
+                ly_end_date = getdate(f"{year - 1}-{end_month:02d}-{last_day_ly}")
+            
+            ly_val = _get_net_profit_accumulated(company, ly_end_date)
+            pv_ly[key] = ly_val
+            row[f"{key}_ly"] = ly_val if (ly_val != 0 or template.show_zero_values) else None
+            row[f"{key}_var"] = _variance_pct(val, ly_val)
+
+        if show_budget:
+            row[f"{key}_bud"] = None
+            row[f"{key}_bud_var"] = None
+
+    # YTD = accumulated up to cutoff_date
+    if net_profit_code and net_profit_code in line_values:
+        ytd = line_values.get(net_profit_code, {}).get("ytd", 0.0)
+        ytd_ly = line_values.get(net_profit_code, {}).get("ytd_ly", 0.0) if template.show_comparison else 0.0
+    else:
+        ytd = _get_net_profit_accumulated(company, cutoff_date)
+        if template.show_comparison:
+            ly_cutoff = getdate(f"{year - 1}-{cutoff_date.month:02d}-{cutoff_date.day}")
+            ytd_ly = _get_net_profit_accumulated(company, ly_cutoff)
+
+    row["ytd"] = ytd if (ytd != 0 or template.show_zero_values) else None
+    if template.show_comparison:
+        row["ytd_ly"] = ytd_ly if (ytd_ly != 0 or template.show_zero_values) else None
+        row["ytd_var"] = _variance_pct(ytd, ytd_ly)
+    if show_budget:
+        row["ytd_bud"] = None
+        row["ytd_bud_var"] = None
+
+    vals = {"periods": pv, "periods_ly": pv_ly, "periods_bud": {},
+            "ytd": ytd, "ytd_ly": ytd_ly, "ytd_bud": 0.0}
+    return row, vals
+
+
+def _make_auto_re_row_with_cutoff(periods, company, year, current_month, template,
+                                   show_budget, numeric_fns, indent_level=1, 
+                                   cutoff_date=None, cutoff_mode=None):
+    """
+    Build a Retained Earnings data row automatically — used when
+    auto_insert_retained_earnings = 1 on the template AND no explicit
+    Retained Earnings row exists in the template.
+    """
+    indent  = "&nbsp;&nbsp;&nbsp;&nbsp;" * indent_level
+    row     = {"account_name": f"{indent}Retained Earnings"}
+    pv      = {}; pv_ly = {}
+    
+    # Use today as default cutoff if not provided
+    if cutoff_date is None:
+        cutoff_date = getdate(nowdate())
+    if cutoff_mode is None:
+        cutoff_mode = "Today (Partial Current Period)"
+
+    for lbl, months, is_current in periods:
+        key       = lbl.lower()
+        end_month = months[-1]
+
+        if is_current and cutoff_mode != "End of Period (Full Periods)":
+            end_date = cutoff_date
+        else:
+            last_day = calendar.monthrange(year, end_month)[1]
+            end_date = getdate(f"{year}-{end_month:02d}-{last_day}")
+
+        val = _get_net_profit_accumulated(company, end_date)
+        pv[key]  = val
+        row[key] = val if (val != 0 or template.show_zero_values) else None
+
+        if template.show_comparison:
+            if is_current and cutoff_mode != "End of Period (Full Periods)":
+                ly_end_date = getdate(f"{year - 1}-{cutoff_date.month:02d}-{cutoff_date.day}")
+            else:
+                last_day_ly = calendar.monthrange(year - 1, end_month)[1]
+                ly_end_date = getdate(f"{year - 1}-{end_month:02d}-{last_day_ly}")
+            
+            ly_val = _get_net_profit_accumulated(company, ly_end_date)
+            pv_ly[key] = ly_val
+            row[f"{key}_ly"] = ly_val if (ly_val != 0 or template.show_zero_values) else None
+            row[f"{key}_var"] = _variance_pct(val, ly_val)
+
+        if show_budget:
+            row[f"{key}_bud"] = None
+            row[f"{key}_bud_var"] = None
+
+    ytd = _get_net_profit_accumulated(company, cutoff_date)
+    row["ytd"] = ytd if (ytd != 0 or template.show_zero_values) else None
+    
+    if template.show_comparison:
+        ly_cutoff = getdate(f"{year - 1}-{cutoff_date.month:02d}-{cutoff_date.day}")
+        ytd_ly = _get_net_profit_accumulated(company, ly_cutoff)
+        row["ytd_ly"] = ytd_ly if (ytd_ly != 0 or template.show_zero_values) else None
+        row["ytd_var"] = _variance_pct(ytd, ytd_ly)
+    
+    if show_budget:
+        row["ytd_bud"] = None
+        row["ytd_bud_var"] = None
+
+    vals = {"periods": pv, "periods_ly": pv_ly, "periods_bud": {},
+            "ytd": ytd, "ytd_ly": ytd_ly if template.show_comparison else 0.0, "ytd_bud": 0.0}
+    return row, vals
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# CUSTOM COLUMN DEFINITION REPORT
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _resolve_col(col_code, base_year, current_month):
+    """
+    Resolve a column code string to a time-window descriptor dict.
+    Returns None if the code is unrecognisable.
+    """
+    code        = col_code.upper().strip()
+    year_offset = 0
+    data_source = "actual"
+
+    # Prior-year prefix: -M1, -Q1, -YTD, -Y1
+    if code.startswith("-"):
+        m = re.match(r"^-Y(\d+)$", code)
+        if m:
+            return {"year": base_year - int(m.group(1)),
+                    "from_month": 1, "to_month": 12, "data_source": "actual"}
+        year_offset = -1
+        code = code[1:]
+
+    # Budget suffix
+    if code.endswith("_BUD"):
+        data_source = "budget"
+        code = code[:-4]
+
+    actual_year = base_year + year_offset
+
+    # Range: M1:M6, Q1:Q3
+    if ":" in code:
+        left, right = [c.strip() for c in code.split(":", 1)]
+        def _month_of(c):
+            if c.startswith("M") and c[1:].isdigit(): return int(c[1:])
+            if c.startswith("Q") and c[1:].isdigit(): return (int(c[1:]) - 1) * 3 + 1
+            return None
+        lm = _month_of(left)
+        rm = _month_of(right)
+        if lm and rm:
+            rm_end = rm + 2 if right.startswith("Q") else rm
+            return {"year": actual_year, "from_month": lm, "to_month": rm_end,
+                    "data_source": data_source}
+        return None
+
+    # M1–M12
+    m = re.fullmatch(r"M(\d{1,2})", code)
+    if m:
+        mn = int(m.group(1))
+        if 1 <= mn <= 12:
+            return {"year": actual_year, "from_month": mn, "to_month": mn,
+                    "data_source": data_source}
+
+    # Q1–Q4
+    m = re.fullmatch(r"Q(\d)", code)
+    if m:
+        q = int(m.group(1))
+        if 1 <= q <= 4:
+            sm = (q - 1) * 3 + 1
+            return {"year": actual_year, "from_month": sm, "to_month": sm + 2,
+                    "data_source": data_source}
+
+    # H1–H2
+    m = re.fullmatch(r"H([12])", code)
+    if m:
+        h = int(m.group(1))
+        sm = 1 if h == 1 else 7
+        return {"year": actual_year, "from_month": sm, "to_month": sm + 5,
+                "data_source": data_source}
+
+    # YTD
+    if code == "YTD":
+        return {"year": actual_year, "from_month": 1, "to_month": current_month,
+                "data_source": data_source}
+
+    # FY / Y1
+    if code in ("FY", "Y1"):
+        return {"year": actual_year, "from_month": 1, "to_month": 12,
+                "data_source": data_source}
+
+    return None
+
+
+def _col_value_with_cutoff(col_def, accounts, company, budget_plan, sign, is_bs, 
+                            cutoff_date, cutoff_mode):
+    if not accounts or not col_def:
+        return 0.0
+    ds   = col_def["data_source"]
+    year = col_def["year"]
+    fm   = col_def["from_month"]
+    tm   = col_def["to_month"]
+
+    if ds == "budget":
+        return sum(_get_month_budget(accounts, budget_plan, m, sign)
+                   for m in range(fm, tm + 1))
+    
+    if is_bs:
+        # Check if this column represents the current period
+        cutoff_year = cutoff_date.year
+        cutoff_month = cutoff_date.month
+        is_current_column = (year == cutoff_year and tm == cutoff_month and fm == cutoff_month)
+        
+        if is_current_column and cutoff_mode != "End of Period (Full Periods)":
+            # Use cutoff date for current period
+            return get_closing_balance(accounts, company, cutoff_date, sign)
+        else:
+            # Use full period end for past periods
+            return get_closing_balance(accounts, company, _month_end(year, tm), sign)
+    
+    # P&L: always use full period
+    return get_period_movement(
+        accounts, company, _month_start(year, fm), _month_end(year, tm), sign
+    )
+
+
+def _build_custom_columns(template):
+    if not template.report_columns:
+        frappe.throw(_("No columns defined. Add columns or disable "
+                       "'Use Custom Column Definition'."))
+    cols = [{"label": "Account", "fieldname": "account_name",
+             "fieldtype": "Data", "width": 300}]
+    ft_map = {"Currency": "Currency", "Percent": "Percent",
+               "Integer": "Int", "Decimal": "Float"}
     for col in sorted(template.report_columns, key=lambda x: x.column_number):
         if col.is_hidden:
             continue
-        
-        col_key = f"col_{col.column_number}"
-        
-        if col.column_type != 'Calculated':
-            col_def = resolve_column_code_inline(col.column_code, base_year, current_month)
-            if col_def:
-                total = 0
-                for month in range(col_def['month_from'], col_def['month_to'] + 1):
-                    if col_def['data_source'] == 'Budget Plan':
-                        total += get_month_budget(accounts, budget_plan, month, sign)
-                    else:
-                        total += get_month_balance(accounts, company, col_def['year'], month, sign)
+        cols.append({
+            "label":     col.column_label or col.column_code,
+            "fieldname": f"col_{col.column_number}",
+            "fieldtype": ft_map.get(col.number_format, "Currency"),
+            "width":     col.column_width or 120,
+        })
+    return cols
+
+
+def _custom_numeric_fieldnames(template):
+    return [
+        f"col_{col.column_number}"
+        for col in sorted(template.report_columns, key=lambda x: x.column_number)
+        if not col.is_hidden
+    ]
+
+
+def _build_custom_data(template, company, base_year, current_month, budget_plan, is_bs,
+                        cutoff_date, cutoff_mode):
+    """
+    Build data rows for Custom Column Definition mode.
+
+    PRIMARY METHOD for Retained Earnings: Uses line_type == "Retained Earnings"
+    to insert RE rows with assignable line_code for formula references.
+    """
+    data        = []
+    line_values = {}
+    sorted_cols = sorted(template.report_columns, key=lambda x: x.column_number)
+    numeric_fns = _custom_numeric_fieldnames(template)
+    auto_insert = getattr(template, "auto_insert_retained_earnings", False)
+    has_re_row = False
+
+    for line in sorted(template.report_lines, key=lambda x: x.line_number):
+        lt = line.line_type
+
+        # ── Blank ─────────────────────────────────────────────────────────────
+        if lt == "Blank Line":
+            row = {"account_name": ""}
+            row.update(_blank_numeric_row(numeric_fns))
+            data.append(row)
+            continue
+
+        # ── Header ────────────────────────────────────────────────────────────
+        if lt == "Header":
+            row = {"account_name": _format_label(line.line_label, line.indent_level, True)}
+            row.update(_blank_numeric_row(numeric_fns))
+            style = _row_style(line, template)
+            if style:
+                row["_style"] = style
+            data.append(row)
+            continue
+
+        # ── All data lines share this base row dict ────────────────────────────
+        row   = {"account_name": _format_label(line.line_label, line.indent_level, int(line.is_bold or 0))}
+        style = _row_style(line, template)
+        if style:
+            row["_style"] = style
+
+        col_vals = {}
+
+        # ── Pass 1: data columns based on line type ──────────────────────────
+        if lt == "Account Aggregate":
+            accounts = get_accounts_for_line(line, company)
+            sign = _sign(line)
+            for col in sorted_cols:
+                if col.is_hidden or col.column_type == "Calculated":
+                    continue
+                col_key = f"col_{col.column_number}"
+                col_def = _resolve_col(col.column_code, base_year, current_month)
+                val = _col_value_with_cutoff(col_def, accounts, company, budget_plan, sign, is_bs, 
+                                              cutoff_date, cutoff_mode) if accounts else 0.0
+                row[col_key]      = val if (val != 0 or template.show_zero_values) else None
+                col_vals[col_key] = val
+            
+            if line.line_code:
+                line_values[line.line_code] = col_vals
+            if not accounts and not template.show_zero_values:
+                continue
+
+        elif lt == "Calculated":
+            formula = (line.calculation_formula or "").strip()
+            if not formula:
+                continue
+
+            for col in sorted_cols:
+                if col.is_hidden or col.column_type == "Calculated":
+                    continue
+                col_key = f"col_{col.column_number}"
+                expr   = formula
+                tokens = re.findall(r"\b[A-Z_][A-Z0-9_]*\b", expr)
+                for tok in sorted(tokens, key=len, reverse=True):
+                    if tok in line_values:
+                        val = line_values[tok].get(col_key, 0)
+                        expr = _safe_replace(expr, tok, val)
+                try:
+                    val = flt(eval(expr))
+                except Exception:
+                    val = 0.0
+                row[col_key]      = val if (val != 0 or template.show_zero_values) else None
+                col_vals[col_key] = val
+
+            if line.line_code:
+                line_values[line.line_code] = col_vals
+
+        elif lt == "Retained Earnings":
+            has_re_row = True
+            net_profit_code = getattr(line, "net_profit_line_code", None) or \
+                              getattr(line, "calculation_formula", None)
+            
+            for col in sorted_cols:
+                if col.is_hidden or col.column_type == "Calculated":
+                    continue
+                col_key = f"col_{col.column_number}"
+                col_def = _resolve_col(col.column_code, base_year, current_month)
                 
-                row[col_key] = total if (total != 0 or template.show_zero_values) else None
-                row_column_values[col_key] = total
+                if col_def:
+                    # Check if this is the current period column
+                    cutoff_year = cutoff_date.year
+                    cutoff_month = cutoff_date.month
+                    is_current_column = (col_def["year"] == cutoff_year and 
+                                         col_def["to_month"] == cutoff_month and
+                                         col_def["from_month"] == cutoff_month)
+                    
+                    if net_profit_code and net_profit_code in line_values:
+                        val = line_values.get(net_profit_code, {}).get(col_key, 0.0)
+                    else:
+                        if is_current_column and cutoff_mode != "End of Period (Full Periods)":
+                            end_date = cutoff_date
+                        else:
+                            end_date = getdate(_month_end(col_def["year"], col_def["to_month"]))
+                        val = _get_net_profit_accumulated(company, end_date)
+                else:
+                    val = 0.0
+                
+                row[col_key]      = val if (val != 0 or template.show_zero_values) else None
+                col_vals[col_key] = val
+            
+            if line.line_code:
+                line_values[line.line_code] = col_vals
+
+        # ── Pass 2: Calculated columns (same-row column formulas) ─────────────
+        code_to_val = {}
+        for c2 in sorted_cols:
+            if not c2.is_hidden and c2.column_type != "Calculated":
+                code_to_val[c2.column_code.upper()] = col_vals.get(f"col_{c2.column_number}", 0)
+
+        for col in sorted_cols:
+            if col.is_hidden or col.column_type != "Calculated":
+                continue
+            col_key = f"col_{col.column_number}"
+            if not col.calculation_formula:
+                continue
+
+            expr   = col.calculation_formula.strip()
+            tokens = re.findall(r"\b[A-Z0-9_:]+\b", expr)
+
+            for tok in sorted(tokens, key=len, reverse=True):
+                if tok in code_to_val:
+                    expr = _safe_replace(expr, tok, code_to_val[tok])
+                elif tok in line_values:
+                    val_from_lv = line_values[tok].get(col_key, 0)
+                    expr = _safe_replace(expr, tok, val_from_lv)
+
+            try:
+                val = flt(eval(expr))
+            except Exception:
+                val = 0.0
+
+            row[col_key]          = val if (val != 0 or template.show_zero_values) else None
+            col_vals[col_key]     = val
+            code_to_val[col.column_code.upper()] = val
+
+        if line.line_code:
+            line_values[line.line_code] = col_vals
+
+        data.append(row)
+
+    # Auto-insert Retained Earnings if enabled and no explicit RE row exists
+    if auto_insert and not has_re_row:
+        re_row, re_vals = _make_auto_re_row_custom_with_cutoff(
+            sorted_cols, company, base_year, current_month, template,
+            numeric_fns, indent_level=1, budget_plan=budget_plan,
+            cutoff_date=cutoff_date, cutoff_mode=cutoff_mode
+        )
+        line_values["_AUTO_RE"] = re_vals
+        data.append(re_row)
+
+    return data
+
+
+def _make_auto_re_row_custom_with_cutoff(sorted_cols, company, base_year, current_month,
+                                          template, numeric_fns, indent_level=1, budget_plan=None,
+                                          cutoff_date=None, cutoff_mode=None):
+    """
+    Build a Retained Earnings row for custom-column-definition templates (auto-insert).
+    Used only when auto_insert_retained_earnings is enabled AND no explicit RE row exists.
+    """
+    if cutoff_date is None:
+        cutoff_date = getdate(nowdate())
+    if cutoff_mode is None:
+        cutoff_mode = "Today (Partial Current Period)"
     
-    if line.line_code:
-        line_values[line.line_code] = row_column_values
-    
-    return row
+    indent = "&nbsp;&nbsp;&nbsp;&nbsp;" * indent_level
+    row    = {"account_name": f"{indent}Retained Earnings"}
+    row.update({fn: None for fn in numeric_fns})
+    col_vals = {}
+
+    for col in sorted_cols:
+        if col.is_hidden or col.column_type == "Calculated":
+            continue
+        col_key = f"col_{col.column_number}"
+        col_def = _resolve_col(col.column_code, base_year, current_month)
+        if not col_def:
+            row[col_key] = None
+            col_vals[col_key] = 0.0
+            continue
+        
+        # Check if this is the current period column
+        cutoff_year = cutoff_date.year
+        cutoff_month = cutoff_date.month
+        is_current_column = (col_def["year"] == cutoff_year and 
+                             col_def["to_month"] == cutoff_month and
+                             col_def["from_month"] == cutoff_month)
+        
+        if is_current_column and cutoff_mode != "End of Period (Full Periods)":
+            end_date = cutoff_date
+        else:
+            end_date = getdate(_month_end(col_def["year"], col_def["to_month"]))
+        
+        val = _get_net_profit_accumulated(company, end_date)
+        row[col_key]      = val if val != 0 else None
+        col_vals[col_key] = val
+
+    # Calculated columns
+    code_to_val = {}
+    for c2 in sorted_cols:
+        if not c2.is_hidden and c2.column_type != "Calculated":
+            code_to_val[c2.column_code.upper()] = col_vals.get(f"col_{c2.column_number}", 0)
+
+    for col in sorted_cols:
+        if col.is_hidden or col.column_type != "Calculated" or not col.calculation_formula:
+            continue
+        col_key = f"col_{col.column_number}"
+        expr    = col.calculation_formula.strip()
+        tokens  = re.findall(r"\b[A-Z0-9_:]+\b", expr)
+        for tok in sorted(tokens, key=len, reverse=True):
+            if tok in code_to_val:
+                expr = _safe_replace(expr, tok, code_to_val[tok])
+        try:
+            val = flt(eval(expr))
+        except Exception:
+            val = 0.0
+        row[col_key]      = val if val != 0 else None
+        col_vals[col_key] = val
+        code_to_val[col.column_code.upper()] = val
+
+    return row, col_vals
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# VARIANCE HELPER — re-exported for excel_export module
+# ═════════════════════════════════════════════════════════════════════════════
+calculate_variance_pct = _variance_pct

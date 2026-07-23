@@ -1,0 +1,386 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "MTG-.YYYY.-.#####",
+ "creation": "2026-07-16 07:27:03.356450",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "meeting_title",
+  "company",
+  "meeting_category",
+  "meeting_type",
+  "committee",
+  "status",
+  "amended_from",
+  "details_tab",
+  "meeting_date",
+  "meeting_time",
+  "meeting_mode",
+  "meeting_room",
+  "venue",
+  "virtual_platform",
+  "virtual_link",
+  "meeting_password",
+  "cb_details",
+  "notice_date",
+  "notice_days",
+  "notice_compliant",
+  "quorum_required",
+  "quorum_met",
+  "members_notified",
+  "chairperson",
+  "meeting_secretary",
+  "agenda_tab",
+  "agenda_items",
+  "notices_tab",
+  "notice_logs",
+  "attendance_tab",
+  "total_invitees",
+  "total_attendees",
+  "attendees",
+  "resolutions_tab",
+  "resolutions",
+  "minutes_tab",
+  "minutes",
+  "action_items",
+  "documents_tab",
+  "notice_attachment",
+  "board_pack",
+  "signed_minutes",
+  "analytics_tab",
+  "days_to_meeting",
+  "days_notice_given",
+  "resolutions_passed",
+  "resolutions_failed",
+  "open_action_items",
+  "ai_insights"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "fieldname": "meeting_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Meeting Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Board Meeting",
+   "fieldname": "meeting_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Meeting Category",
+   "options": "Board Meeting\nCommittee Meeting\nManagement Meeting\nStaff Meeting\nGeneral Meeting\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "meeting_type",
+   "fieldtype": "Link",
+   "label": "Meeting Type",
+   "options": "Meeting Type"
+  },
+  {
+   "depends_on": "eval:doc.meeting_category=='Committee Meeting'",
+   "fieldname": "committee",
+   "fieldtype": "Link",
+   "label": "Committee",
+   "options": "Committee"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nScheduled\nNotice Sent\nHeld\nMinutes Draft\nMinutes Approved\nCancelled"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Meeting",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Meeting Details"
+  },
+  {
+   "fieldname": "meeting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Meeting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "meeting_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "default": "Physical",
+   "fieldname": "meeting_mode",
+   "fieldtype": "Select",
+   "label": "Meeting Mode",
+   "options": "Physical\nVirtual (Online)\nHybrid",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.meeting_mode!='Virtual (Online)'",
+   "fieldname": "meeting_room",
+   "fieldtype": "Link",
+   "label": "Meeting Room",
+   "options": "Meeting Room"
+  },
+  {
+   "fieldname": "venue",
+   "fieldtype": "Data",
+   "label": "Venue / Physical Address"
+  },
+  {
+   "fieldname": "virtual_platform",
+   "fieldtype": "Select",
+   "label": "Virtual Platform",
+   "options": "\nZoom\nMicrosoft Teams\nGoogle Meet\nWebex\nOther"
+  },
+  {
+   "fieldname": "virtual_link",
+   "fieldtype": "Data",
+   "label": "Meeting Link / URL"
+  },
+  {
+   "fieldname": "meeting_password",
+   "fieldtype": "Password",
+   "label": "Meeting Access Code"
+  },
+  {
+   "fieldname": "cb_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "notice_date",
+   "fieldtype": "Date",
+   "label": "Notice Date Issued"
+  },
+  {
+   "fieldname": "notice_days",
+   "fieldtype": "Int",
+   "label": "Notice Period (Days)"
+  },
+  {
+   "default": "0",
+   "fieldname": "notice_compliant",
+   "fieldtype": "Check",
+   "label": "Notice Period Compliant",
+   "read_only": 1
+  },
+  {
+   "default": "2",
+   "fieldname": "quorum_required",
+   "fieldtype": "Int",
+   "label": "Quorum Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "quorum_met",
+   "fieldtype": "Check",
+   "label": "Quorum Met"
+  },
+  {
+   "fieldname": "members_notified",
+   "fieldtype": "Int",
+   "label": "Members Notified"
+  },
+  {
+   "fieldname": "chairperson",
+   "fieldtype": "Link",
+   "label": "Chairperson",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "meeting_secretary",
+   "fieldtype": "Link",
+   "label": "Meeting Secretary / Minute Taker",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "agenda_tab",
+   "fieldtype": "Tab Break",
+   "label": "Agenda"
+  },
+  {
+   "fieldname": "agenda_items",
+   "fieldtype": "Table",
+   "label": "Agenda Items",
+   "options": "Meeting Agenda Item"
+  },
+  {
+   "fieldname": "notices_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notices"
+  },
+  {
+   "fieldname": "notice_logs",
+   "fieldtype": "Table",
+   "label": "Notice Delivery Log",
+   "options": "Meeting Notice Log"
+  },
+  {
+   "fieldname": "attendance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Attendance"
+  },
+  {
+   "fieldname": "total_invitees",
+   "fieldtype": "Int",
+   "label": "Total Invitees"
+  },
+  {
+   "fieldname": "total_attendees",
+   "fieldtype": "Int",
+   "label": "Total Present",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attendees",
+   "fieldtype": "Table",
+   "label": "Attendance Register",
+   "options": "Meeting Attendee"
+  },
+  {
+   "fieldname": "resolutions_tab",
+   "fieldtype": "Tab Break",
+   "label": "Resolutions"
+  },
+  {
+   "fieldname": "resolutions",
+   "fieldtype": "Table",
+   "label": "Resolutions",
+   "options": "Meeting Resolution"
+  },
+  {
+   "fieldname": "minutes_tab",
+   "fieldtype": "Tab Break",
+   "label": "Minutes & Actions"
+  },
+  {
+   "fieldname": "minutes",
+   "fieldtype": "Table",
+   "label": "Minutes of Meeting",
+   "options": "Meeting Minutes"
+  },
+  {
+   "fieldname": "action_items",
+   "fieldtype": "Table",
+   "label": "Action Items / Follow-ups",
+   "options": "Meeting Action Item"
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "notice_attachment",
+   "fieldtype": "Attach",
+   "label": "Meeting Notice (PDF)"
+  },
+  {
+   "fieldname": "board_pack",
+   "fieldtype": "Attach",
+   "label": "Board Pack / Meeting Papers"
+  },
+  {
+   "fieldname": "signed_minutes",
+   "fieldtype": "Attach",
+   "label": "Signed Minutes"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "days_to_meeting",
+   "fieldtype": "Int",
+   "label": "Days to Meeting",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_notice_given",
+   "fieldtype": "Int",
+   "label": "Days Notice Given",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolutions_passed",
+   "fieldtype": "Int",
+   "label": "Resolutions Passed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolutions_failed",
+   "fieldtype": "Int",
+   "label": "Resolutions Defeated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "open_action_items",
+   "fieldtype": "Int",
+   "label": "Open Action Items",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_insights",
+   "fieldtype": "Long Text",
+   "label": "AI Meeting Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-16 07:27:03.356450",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Meeting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

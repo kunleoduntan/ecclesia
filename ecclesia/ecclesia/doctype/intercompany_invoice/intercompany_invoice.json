@@ -1,0 +1,410 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-07-18 14:53:10.560063",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "transaction_type",
+  "posting_date",
+  "due_date",
+  "col_break_header",
+  "company",
+  "counterparty_company",
+  "currency",
+  "exchange_rate",
+  "section_intercompany",
+  "intercompany_direction",
+  "intercompany_account",
+  "counterparty_intercompany_account",
+  "col_break_ic",
+  "reference_document",
+  "reference_doctype",
+  "reference_name",
+  "section_items",
+  "items",
+  "section_totals",
+  "total_base_amount",
+  "col_break_totals",
+  "total_tax_amount",
+  "col_break_totals2",
+  "total_interest_amount",
+  "col_break_totals3",
+  "grand_total",
+  "section_tax",
+  "tax_template",
+  "withholding_tax_rate",
+  "withholding_tax_amount",
+  "col_break_tax",
+  "vat_applicable",
+  "vat_rate",
+  "vat_amount",
+  "section_interest",
+  "interest_period_from",
+  "interest_period_to",
+  "days_outstanding",
+  "col_break_int",
+  "annual_interest_rate",
+  "interest_basis",
+  "total_interest_charged",
+  "section_gl",
+  "gl_entry_status",
+  "journal_entry",
+  "col_break_gl",
+  "remarks",
+  "section_status",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "IC-INV-.YYYY.-.####\nIC-CDT-.YYYY.-.####\nIC-DBT-.YYYY.-.####",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Type",
+   "options": "Intercompany Sale\nIntercompany Purchase\nIntercompany Loan\nIntercompany Recharge\nManagement Fee\nDividend\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "label": "Due Date"
+  },
+  {
+   "fieldname": "col_break_header",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Issuing Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "counterparty_company",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Counterparty Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "exchange_rate",
+   "fieldtype": "Float",
+   "label": "Exchange Rate",
+   "precision": "6"
+  },
+  {
+   "fieldname": "section_intercompany",
+   "fieldtype": "Section Break",
+   "label": "Intercompany GL Accounts"
+  },
+  {
+   "description": "Debit = Receivable from counterparty. Credit = Payable to counterparty.",
+   "fieldname": "intercompany_direction",
+   "fieldtype": "Select",
+   "label": "GL Direction (Issuer)",
+   "options": "Debit Intercompany Account\nCredit Intercompany Account",
+   "reqd": 1
+  },
+  {
+   "description": "Due From / Due To intercompany account in the issuing company's books",
+   "fieldname": "intercompany_account",
+   "fieldtype": "Link",
+   "label": "Intercompany Account (Issuer)",
+   "options": "Account",
+   "reqd": 1
+  },
+  {
+   "description": "Corresponding Due To / Due From account in counterparty's books",
+   "fieldname": "counterparty_intercompany_account",
+   "fieldtype": "Link",
+   "label": "Intercompany Account (Counterparty)",
+   "options": "Account"
+  },
+  {
+   "fieldname": "col_break_ic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "reference_document",
+   "fieldtype": "Section Break",
+   "label": "Source Reference"
+  },
+  {
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_doctype"
+  },
+  {
+   "fieldname": "section_items",
+   "fieldtype": "Section Break",
+   "label": "Items / Services"
+  },
+  {
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "label": "Items",
+   "options": "Intercompany Invoice Item",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_totals",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_base_amount",
+   "fieldtype": "Currency",
+   "label": "Total Base Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_totals",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_tax_amount",
+   "fieldtype": "Currency",
+   "label": "Total Tax Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_totals2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_interest_amount",
+   "fieldtype": "Currency",
+   "label": "Total Interest Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_totals3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "bold": 1,
+   "fieldname": "grand_total",
+   "fieldtype": "Currency",
+   "label": "Grand Total",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_tax",
+   "fieldtype": "Section Break",
+   "label": "Tax (Document Level)"
+  },
+  {
+   "fieldname": "tax_template",
+   "fieldtype": "Link",
+   "label": "Tax Template",
+   "options": "Purchase Taxes and Charges Template"
+  },
+  {
+   "default": "0",
+   "description": "Nigerian WHT as applicable (CITA / PITA)",
+   "fieldname": "withholding_tax_rate",
+   "fieldtype": "Percent",
+   "label": "WHT Rate (%)"
+  },
+  {
+   "fieldname": "withholding_tax_amount",
+   "fieldtype": "Currency",
+   "label": "WHT Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_tax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "vat_applicable",
+   "fieldtype": "Check",
+   "label": "VAT Applicable"
+  },
+  {
+   "default": "7.5",
+   "depends_on": "eval:doc.vat_applicable == 1",
+   "fieldname": "vat_rate",
+   "fieldtype": "Percent",
+   "label": "VAT Rate (%)"
+  },
+  {
+   "depends_on": "eval:doc.vat_applicable == 1",
+   "fieldname": "vat_amount",
+   "fieldtype": "Currency",
+   "label": "VAT Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_interest",
+   "fieldtype": "Section Break",
+   "label": "Arms-Length Interest Computation"
+  },
+  {
+   "fieldname": "interest_period_from",
+   "fieldtype": "Date",
+   "label": "Interest Period From"
+  },
+  {
+   "fieldname": "interest_period_to",
+   "fieldtype": "Date",
+   "label": "Interest Period To"
+  },
+  {
+   "fieldname": "days_outstanding",
+   "fieldtype": "Int",
+   "label": "Days Outstanding",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_int",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Use CBN MPR or agreed arms-length rate",
+   "fieldname": "annual_interest_rate",
+   "fieldtype": "Percent",
+   "label": "Annual Interest Rate (% p.a.)"
+  },
+  {
+   "default": "Actual/365",
+   "fieldname": "interest_basis",
+   "fieldtype": "Select",
+   "label": "Interest Basis",
+   "options": "Actual/365\nActual/360\n30/360"
+  },
+  {
+   "bold": 1,
+   "fieldname": "total_interest_charged",
+   "fieldtype": "Currency",
+   "label": "Total Interest Charged",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_gl",
+   "fieldtype": "Section Break",
+   "label": "GL / Journal Entry"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "gl_entry_status",
+   "fieldtype": "Select",
+   "label": "GL Entry Status",
+   "options": "Pending\nPosted\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_gl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks / Narration"
+  },
+  {
+   "fieldname": "section_status",
+   "fieldtype": "Section Break",
+   "label": "Document Status"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Draft\nSubmitted\nPartially Settled\nSettled\nCancelled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Intercompany Invoice",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-18 14:53:10.560063",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Intercompany Invoice",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

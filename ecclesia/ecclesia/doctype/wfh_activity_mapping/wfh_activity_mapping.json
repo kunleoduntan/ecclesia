@@ -1,0 +1,107 @@
+{
+  "actions": [],
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "document_type": "Document",
+  "engine": "InnoDB",
+  "field_order": [
+    "section_intro",
+    "is_active",
+    "strict_wfh_only",
+    "column_break_intro",
+    "default_daily_cap",
+    "inactivity_threshold_hours",
+    "section_mappings",
+    "mappings",
+    "section_help"
+  ],
+  "fields": [
+    {
+      "fieldname": "section_intro",
+      "fieldtype": "Section Break",
+      "label": "Global Settings"
+    },
+    {
+      "fieldname": "is_active",
+      "fieldtype": "Check",
+      "label": "Enable Activity Tracking",
+      "default": 1,
+      "bold": 1,
+      "description": "Master switch. When off, no activity logs are written regardless of mappings."
+    },
+    {
+      "fieldname": "strict_wfh_only",
+      "fieldtype": "Check",
+      "label": "Track Only During WFH Sessions",
+      "default": 1,
+      "description": "If enabled, activities are only logged when the employee has an open WFH Session today."
+    },
+    {
+      "fieldname": "column_break_intro",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "default_daily_cap",
+      "fieldtype": "Float",
+      "label": "Default Daily Points Cap",
+      "default": 200,
+      "precision": 0,
+      "description": "Used for any mapping that has no cap set in Activity Configuration."
+    },
+    {
+      "fieldname": "inactivity_threshold_hours",
+      "fieldtype": "Float",
+      "label": "Inactivity Flag Threshold (hours)",
+      "default": 3,
+      "precision": 1,
+      "description": "Sessions with no activity for this many hours get flagged automatically."
+    },
+    {
+      "fieldname": "section_mappings",
+      "fieldtype": "Section Break",
+      "label": "DocType → Event Mappings",
+      "description": "Add each DocType you want to track. The engine will hook into the selected events at runtime — no bench restart required."
+    },
+    {
+      "fieldname": "mappings",
+      "fieldtype": "Table",
+      "label": "Mappings",
+      "options": "WFH DocType Event Map",
+      "reqd": 0
+    },
+    {
+      "fieldname": "section_help",
+      "fieldtype": "Section Break",
+      "label": "How It Works",
+      "collapsible": 1
+    },
+    {
+      "fieldname": "help_text",
+      "fieldtype": "HTML",
+      "label": "Help",
+      "options": "<div style='padding:12px;background:#f0fdf4;border-radius:8px;font-size:13px;line-height:1.7;'><b>1.</b> Add a row for each DocType you want to monitor.<br><b>2.</b> Tick the events to capture (Submit, Update, Cancel, Create).<br><b>3.</b> The engine reads this table at runtime — changes take effect immediately.<br><b>4.</b> Scoring rules (points, dampening, caps) are configured in <b>Activity Configuration</b> — one record per DocType.<br><b>5.</b> If no Activity Configuration exists for a DocType, the engine uses base defaults.</div>"
+    }
+  ],
+  "is_single": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Ecclesia",
+  "name": "WFH Activity Mapping",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "read": 1, "write": 1, "create": 1, "role": "HR Manager"
+    },
+    {
+      "read": 1, "write": 1, "create": 1, "delete": 1, "role": "System Manager"
+    },
+    {
+      "read": 1, "role": "Line Manager"
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "title_field": "",
+  "track_changes": 1
+}

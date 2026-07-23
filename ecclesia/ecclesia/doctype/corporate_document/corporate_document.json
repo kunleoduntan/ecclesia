@@ -1,0 +1,299 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CDOC-.YYYY.-.#####",
+ "creation": "2026-07-16 09:36:26.241331",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "document_title",
+  "company",
+  "document_type",
+  "document_category",
+  "confidential",
+  "status",
+  "amended_from",
+  "details_tab",
+  "version_no",
+  "effective_date",
+  "expiry_date",
+  "review_date",
+  "cb_details",
+  "owner_department",
+  "document_owner",
+  "related_party",
+  "contract_value",
+  "auto_renew",
+  "renewal_reminder_days",
+  "sb_desc",
+  "description",
+  "version_tab",
+  "version_history",
+  "approval_tab",
+  "requires_approval",
+  "approved_by",
+  "approval_date",
+  "approval_remarks",
+  "documents_tab",
+  "primary_file",
+  "filing_location",
+  "barcode",
+  "superseded_by",
+  "analytics_tab",
+  "days_to_expiry",
+  "is_expiring_soon",
+  "ai_summary"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "fieldname": "document_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Document Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Document Type",
+   "options": "Policy\nProcedure\nContract\nAgreement\nCertificate\nMemorandum & Articles\nLegal Document\nShareholder Register\nAnnual Report\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "document_category",
+   "fieldtype": "Link",
+   "label": "Category",
+   "options": "Document Category"
+  },
+  {
+   "default": "0",
+   "fieldname": "confidential",
+   "fieldtype": "Check",
+   "label": "Confidential"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nUnder Review\nApproved\nExpired\nSuperseded\nArchived"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Corporate Document",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "default": "1.0",
+   "fieldname": "version_no",
+   "fieldtype": "Data",
+   "label": "Version"
+  },
+  {
+   "fieldname": "effective_date",
+   "fieldtype": "Date",
+   "label": "Effective Date"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Date",
+   "label": "Next Review Date"
+  },
+  {
+   "fieldname": "cb_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "owner_department",
+   "fieldtype": "Link",
+   "label": "Owner Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "document_owner",
+   "fieldtype": "Link",
+   "label": "Document Owner",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "related_party",
+   "fieldtype": "Data",
+   "label": "Counterparty / Related Party"
+  },
+  {
+   "fieldname": "contract_value",
+   "fieldtype": "Currency",
+   "label": "Contract Value (\u20a6)"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_renew",
+   "fieldtype": "Check",
+   "label": "Auto-Renews"
+  },
+  {
+   "default": "30",
+   "fieldname": "renewal_reminder_days",
+   "fieldtype": "Int",
+   "label": "Reminder Period (Days Before Expiry)"
+  },
+  {
+   "fieldname": "sb_desc",
+   "fieldtype": "Section Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description / Scope"
+  },
+  {
+   "fieldname": "version_tab",
+   "fieldtype": "Tab Break",
+   "label": "Version History"
+  },
+  {
+   "fieldname": "version_history",
+   "fieldtype": "Table",
+   "label": "Version History",
+   "options": "Document Version"
+  },
+  {
+   "fieldname": "approval_tab",
+   "fieldtype": "Tab Break",
+   "label": "Approval"
+  },
+  {
+   "default": "1",
+   "fieldname": "requires_approval",
+   "fieldtype": "Check",
+   "label": "Requires Approval"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Approval Date"
+  },
+  {
+   "fieldname": "approval_remarks",
+   "fieldtype": "Small Text",
+   "label": "Approval Remarks"
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents & Filing"
+  },
+  {
+   "fieldname": "primary_file",
+   "fieldtype": "Attach",
+   "label": "Primary Document File"
+  },
+  {
+   "fieldname": "filing_location",
+   "fieldtype": "Data",
+   "label": "Physical Filing Location"
+  },
+  {
+   "fieldname": "barcode",
+   "fieldtype": "Data",
+   "label": "Barcode / Archive Reference"
+  },
+  {
+   "fieldname": "superseded_by",
+   "fieldtype": "Link",
+   "label": "Superseded By",
+   "options": "Corporate Document"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_expiring_soon",
+   "fieldtype": "Check",
+   "label": "Expiring Soon",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_summary",
+   "fieldtype": "Long Text",
+   "label": "AI Summary"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-16 09:36:26.241331",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Corporate Document",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

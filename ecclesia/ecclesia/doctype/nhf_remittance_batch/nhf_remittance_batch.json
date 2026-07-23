@@ -1,0 +1,176 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "NHF-.YYYY.-.#####",
+ "creation": "2026-06-14 21:22:50.586758",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "batch_title",
+  "company",
+  "fiscal_period",
+  "col1",
+  "remittance_date",
+  "status",
+  "col2",
+  "total_employees",
+  "payment_reference",
+  "column_break_ip0f",
+  "total_nhf_amount",
+  "payments_ref",
+  "details_section",
+  "nhf_lines",
+  "section_break_dprq",
+  "compliance_liability",
+  "column_break_2ph0",
+  "fmbn_receipt",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "batch_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Batch Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period (MM-YYYY)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remittance_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Remittance Date"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nRemitted\nConfirmed"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "total_employees",
+   "fieldtype": "Int",
+   "label": "Employees",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_nhf_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total NHF (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "nhf_lines",
+   "fieldtype": "Table",
+   "label": "Employee Lines",
+   "options": "NHF Remittance Line"
+  },
+  {
+   "fieldname": "payment_reference",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry"
+  },
+  {
+   "fieldname": "payments_ref",
+   "fieldtype": "Link",
+   "label": "Payments DocType",
+   "options": "Payments"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "fmbn_receipt",
+   "fieldtype": "Attach",
+   "label": "FMBN Receipt"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "NHF Remittance Batch",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_ip0f",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "details_section",
+   "fieldtype": "Section Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "section_break_dprq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_2ph0",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 21:54:54.925384",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "NHF Remittance Batch",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

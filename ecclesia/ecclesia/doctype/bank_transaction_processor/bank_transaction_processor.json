@@ -13,6 +13,7 @@
   "bank_account",
   "bank_account_no",
   "column_break_1",
+  "bank_account_gl",
   "company",
   "status",
   "column_break_2gsr",
@@ -163,13 +164,20 @@
   {
    "fieldname": "column_break_2gsr",
    "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "bank_account.account",
+   "fieldname": "bank_account_gl",
+   "fieldtype": "Data",
+   "label": "Bank Account GL",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-15 11:22:42.125714",
+ "modified": "2026-04-20 12:37:44.465287",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Bank Transaction Processor",

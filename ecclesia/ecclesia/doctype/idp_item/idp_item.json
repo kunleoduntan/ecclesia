@@ -1,0 +1,85 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "autoname",
+ "creation": "2026-07-04 14:19:39.737242",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "activity",
+  "activity_type",
+  "target_completion",
+  "column_break_xaim",
+  "status",
+  "progress",
+  "column_break_s2cd",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "activity",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Development Activity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "activity_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "\nTraining\nMentorship\nCertification\nStretch Assignment\nShadowing\nConference\nSelf Study"
+  },
+  {
+   "fieldname": "target_completion",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Target Date"
+  },
+  {
+   "default": "Not Started",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Not Started\nIn Progress\nCompleted"
+  },
+  {
+   "fieldname": "progress",
+   "fieldtype": "Float",
+   "label": "Progress (%)"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "column_break_xaim",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_s2cd",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-04 14:43:11.324259",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "IDP Item",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

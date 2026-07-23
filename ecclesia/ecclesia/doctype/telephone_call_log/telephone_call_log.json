@@ -24,7 +24,9 @@
   "ended_at",
   "column_break_timing",
   "duration",
+  "outcome_notes",
   "duration_formatted",
+  "duration_seconds",
   "crm_links_section",
   "lead",
   "contact",
@@ -220,15 +222,25 @@
    "fieldname": "transcription",
    "fieldtype": "Long Text",
    "label": "Transcription"
+  },
+  {
+   "fieldname": "outcome_notes",
+   "fieldtype": "Small Text",
+   "label": "Outcome Notes"
+  },
+  {
+   "fieldname": "duration_seconds",
+   "fieldtype": "Int",
+   "label": "Duration (Secs)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-02-28 08:18:13.559000",
+ "modified": "2026-06-05 14:25:11.430346",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Telephone Call Log",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -245,6 +257,7 @@
   }
  ],
  "quick_entry": 1,
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

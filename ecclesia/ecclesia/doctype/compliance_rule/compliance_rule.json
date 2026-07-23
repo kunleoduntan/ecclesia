@@ -1,0 +1,210 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:rule_code",
+ "creation": "2026-06-15 08:52:28.860688",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "rule_name",
+  "obligation_category",
+  "rule_code",
+  "obligation_type",
+  "authority",
+  "company",
+  "col1",
+  "frequency",
+  "due_day",
+  "due_month_offset",
+  "col2",
+  "calculation_method",
+  "rate",
+  "base_doctype",
+  "responsibility_section",
+  "responsible_officer",
+  "backup_officer",
+  "reminder_days_before",
+  "escalation_days_before",
+  "col3",
+  "penalty_description",
+  "penalty_rate_pct",
+  "active"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Rule Name",
+   "reqd": 1
+  },
+  {
+   "description": "Which compliance domain this rule belongs to",
+   "fieldname": "obligation_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation Domain",
+   "options": "Statutory Tax\nStatutory Payroll\nCorporate Governance\nContract Compliance\nData Protection\nAML & KYC\nLabour & Employment\nEnvironmental & HSE\nIndustry Regulatory\nAnti-Fraud & Integrity\nTraining & Competency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "rule_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Rule Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation Type",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax",
+   "reqd": 1
+  },
+  {
+   "fieldname": "authority",
+   "fieldtype": "Link",
+   "label": "Authority",
+   "options": "Regulatory Authority",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Frequency",
+   "options": "Monthly\nQuarterly\nBi-Annual\nAnnual\nOne-Off\nEvent Based",
+   "reqd": 1
+  },
+  {
+   "description": "e.g. 21 = 21st of following month",
+   "fieldname": "due_day",
+   "fieldtype": "Int",
+   "label": "Due Day of Month"
+  },
+  {
+   "default": "1",
+   "description": "0=same month, 1=following month",
+   "fieldname": "due_month_offset",
+   "fieldtype": "Int",
+   "label": "Month Offset"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "ERP Derived",
+   "fieldname": "calculation_method",
+   "fieldtype": "Select",
+   "label": "Calculation Method",
+   "options": "ERP Derived\nFixed Rate\nFormula\nScript"
+  },
+  {
+   "fieldname": "rate",
+   "fieldtype": "Float",
+   "label": "Rate (%)"
+  },
+  {
+   "description": "e.g. Sales Invoice for VAT",
+   "fieldname": "base_doctype",
+   "fieldtype": "Link",
+   "label": "Base DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "responsibility_section",
+   "fieldtype": "Section Break",
+   "label": "Responsibility"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "backup_officer",
+   "fieldtype": "Link",
+   "label": "Backup Officer",
+   "options": "Employee"
+  },
+  {
+   "default": "7",
+   "fieldname": "reminder_days_before",
+   "fieldtype": "Int",
+   "label": "Remind (days before)"
+  },
+  {
+   "default": "2",
+   "fieldname": "escalation_days_before",
+   "fieldtype": "Int",
+   "label": "Escalate (days before)"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "penalty_description",
+   "fieldtype": "Small Text",
+   "label": "Penalty Description"
+  },
+  {
+   "fieldname": "penalty_rate_pct",
+   "fieldtype": "Percent",
+   "label": "Penalty Rate (% per month)"
+  },
+  {
+   "default": "1",
+   "fieldname": "active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 08:52:28.860688",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Rule",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

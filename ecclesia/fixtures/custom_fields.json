@@ -1,33 +1,94 @@
 [
   {
     "doctype": "Custom Field",
-    "name": "Communication-mail_starred",
-    "dt": "Communication",
-    "label": "Starred",
-    "fieldname": "mail_starred",
-    "fieldtype": "Check",
-    "default": "0",
-    "insert_after": "status",
-    "in_standard_filter": 1,
-    "no_copy": 1
+    "name": "Employee-custom_monthly_gross_pay",
+    "dt": "Employee",
+    "fieldname": "monthly_gross_pay",
+    "label": "Monthly Gross Pay",
+    "fieldtype": "Currency",
+    "insert_after": "annual_gross_salary",
+    "module": "Ecclesia"
   },
   {
     "doctype": "Custom Field",
-    "name": "Communication-mail_label",
+    "name": "Employee-custom_annual_gross_salary",
+    "dt": "Employee",
+    "fieldname": "annual_gross_salary",
+    "label": "Annual Gross Salary",
+    "fieldtype": "Currency",
+    "insert_after": "ctc",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Leave Policy-custom_grade",
+    "dt": "Leave Policy",
+    "fieldname": "custom_grade",
+    "label": "Grade",
+    "fieldtype": "Link",
+    "options": "Employee Grade",
+    "insert_after": "custom_employment_type",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Leave Policy-custom_employment_type",
+    "dt": "Leave Policy",
+    "fieldname": "custom_employment_type",
+    "label": "Employment Type",
+    "fieldtype": "Link",
+    "options": "Employment Type",
+    "insert_after": "custom_is_default",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Leave Policy-custom_is_default",
+    "dt": "Leave Policy",
+    "fieldname": "custom_is_default",
+    "label": "Is Default",
+    "fieldtype": "Check",
+    "insert_after": "disabled",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Leave Policy-custom_disabled",
+    "dt": "Leave Policy",
+    "fieldname": "disabled",
+    "label": "Disabled",
+    "fieldtype": "Check",
+    "insert_after": "custom_gender",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Leave Policy-custom_gender",
+    "dt": "Leave Policy",
+    "fieldname": "custom_gender",
+    "label": "Gender",
+    "fieldtype": "Link",
+    "options": "Gender",
+    "insert_after": "title",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Communication-read_by_current_user",
     "dt": "Communication",
-    "label": "Mail Labels",
-    "fieldname": "mail_label",
-    "fieldtype": "Small Text",
-    "insert_after": "mail_starred",
-    "description": "Comma-separated MailVault label names",
-    "no_copy": 0
+    "fieldname": "read_by_current_user",
+    "label": "Read by Current User",
+    "fieldtype": "Check",
+    "insert_after": "mail_folder",
+    "default": "0",
+    "no_copy": 1
   },
   {
     "doctype": "Custom Field",
     "name": "Communication-mail_folder",
     "dt": "Communication",
-    "label": "Mail Folder",
     "fieldname": "mail_folder",
+    "label": "Mail Folder",
     "fieldtype": "Data",
     "insert_after": "mail_label",
     "description": "Custom folder classification (Archive, or user-defined)",
@@ -35,14 +96,106 @@
   },
   {
     "doctype": "Custom Field",
-    "name": "Communication-read_by_current_user",
+    "name": "Communication-mail_label",
     "dt": "Communication",
-    "label": "Read by Current User",
-    "fieldname": "read_by_current_user",
+    "fieldname": "mail_label",
+    "label": "Mail Labels",
+    "fieldtype": "Small Text",
+    "insert_after": "mail_starred",
+    "description": "Comma-separated MailVault label names"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Communication-mail_starred",
+    "dt": "Communication",
+    "fieldname": "mail_starred",
+    "label": "Starred",
     "fieldtype": "Check",
+    "insert_after": "status",
     "default": "0",
-    "insert_after": "mail_folder",
     "no_copy": 1,
-    "hidden": 0
+    "in_standard_filter": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Request for Quotation-custom_rfq_number",
+    "dt": "Request for Quotation",
+    "fieldname": "rfq_number",
+    "label": "RFQ Number",
+    "fieldtype": "Data",
+    "insert_after": "status",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_portal_session_expiry",
+    "dt": "Supplier",
+    "fieldname": "portal_session_expiry",
+    "label": "Portal Session Expiry",
+    "fieldtype": "Datetime",
+    "insert_after": "portal_session_token",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_portal_session_token",
+    "dt": "Supplier",
+    "fieldname": "portal_session_token",
+    "label": "Portal Session Token",
+    "fieldtype": "Data",
+    "insert_after": "portal_password",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_portal_password",
+    "dt": "Supplier",
+    "fieldname": "portal_password",
+    "label": "Portal Password",
+    "fieldtype": "Password",
+    "insert_after": "ec_portal_user",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Journal Entry-custom_counterparty",
+    "dt": "Journal Entry",
+    "fieldname": "paid_to_or_received_from",
+    "label": "Counterparty",
+    "fieldtype": "Data",
+    "insert_after": "voucher_type",
+    "module": "Ecclesia",
+    "in_list_view": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_phone",
+    "dt": "Supplier",
+    "fieldname": "phone",
+    "label": "Phone",
+    "fieldtype": "Data",
+    "insert_after": "ec_portal_user",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_address",
+    "dt": "Supplier",
+    "fieldname": "address",
+    "label": "Address",
+    "fieldtype": "Small Text",
+    "insert_after": "email",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Supplier-custom_email",
+    "dt": "Supplier",
+    "fieldname": "email",
+    "label": "Email",
+    "fieldtype": "Data",
+    "insert_after": "supplier_group",
+    "module": "Ecclesia"
   }
+ 
 ]

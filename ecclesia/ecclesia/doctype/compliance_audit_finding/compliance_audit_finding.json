@@ -1,0 +1,123 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-15 08:05:51.122180",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "finding_title",
+  "finding_type",
+  "severity",
+  "root_cause",
+  "corrective_action",
+  "responsible_person",
+  "target_completion_date",
+  "status",
+  "related_obligation",
+  "related_license",
+  "related_risk",
+  "risk_score"
+ ],
+ "fields": [
+  {
+   "columns": 4,
+   "fieldname": "finding_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Finding",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "finding_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Tax Non-Compliance\nPayroll Error\nPension Default\nLicense Violation\nMissing Filing\nControl Weakness\nFraud Risk\nOther"
+  },
+  {
+   "columns": 1,
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Severity",
+   "options": "Low\nMedium\nHigh\nCritical",
+   "reqd": 1
+  },
+  {
+   "fieldname": "root_cause",
+   "fieldtype": "Small Text",
+   "label": "Root Cause"
+  },
+  {
+   "fieldname": "corrective_action",
+   "fieldtype": "Small Text",
+   "label": "Corrective Action"
+  },
+  {
+   "columns": 2,
+   "fieldname": "responsible_person",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Owner",
+   "options": "Employee"
+  },
+  {
+   "columns": 2,
+   "fieldname": "target_completion_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Target"
+  },
+  {
+   "columns": 1,
+   "default": "Open",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Open\nIn Progress\nResolved\nAccepted Risk\nEscalated"
+  },
+  {
+   "fieldname": "related_obligation",
+   "fieldtype": "Link",
+   "label": "Related CLL",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "related_license",
+   "fieldtype": "Link",
+   "label": "Related License",
+   "options": "License Management"
+  },
+  {
+   "fieldname": "related_risk",
+   "fieldtype": "Link",
+   "label": "Related Risk",
+   "options": "Compliance Risk Register"
+  },
+  {
+   "fieldname": "risk_score",
+   "fieldtype": "Float",
+   "label": "Risk Score",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:05:51.122180",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Audit Finding",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

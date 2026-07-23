@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2026-06-05 14:10:52.019986",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-06-05 14:10:52.019986",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "crms-dashboard",
+ "owner": "Administrator",
+ "page_name": "crms-dashboard",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "CRM One Dashboard"
+}

@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "COI-.YYYY.-.#####",
+ "creation": "2026-06-16 14:38:15.603063",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "declaration_title",
+  "employee",
+  "declaration_date",
+  "declaration_type",
+  "col1",
+  "company",
+  "department",
+  "designation",
+  "fiscal_year",
+  "conflict_section",
+  "has_conflict",
+  "conflict_description",
+  "conflict_type",
+  "col2",
+  "related_parties",
+  "financial_interest",
+  "financial_value",
+  "mitigation_section",
+  "mitigation",
+  "recusal_required",
+  "line_manager_acknowledged",
+  "acknowledged_by",
+  "col3",
+  "approval_status",
+  "linked_policy",
+  "company_policy",
+  "next_review_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "declaration_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Declaration Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "declaration_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Declaration Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "declaration_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Declaration Type",
+   "options": "Annual Declaration\nEvent-Triggered\nAppointment Declaration\nOnboarding",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "label": "Designation"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year"
+  },
+  {
+   "fieldname": "conflict_section",
+   "fieldtype": "Section Break",
+   "label": "Conflict Details"
+  },
+  {
+   "default": "0",
+   "fieldname": "has_conflict",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "I Have a Conflict of Interest to Declare"
+  },
+  {
+   "fieldname": "conflict_description",
+   "fieldtype": "Text Editor",
+   "label": "Description of Conflict"
+  },
+  {
+   "fieldname": "conflict_type",
+   "fieldtype": "Select",
+   "label": "Conflict Type",
+   "options": "Financial Interest in Supplier\nFinancial Interest in Customer\nFamily Member Employed\nOutside Employment\nDirectorship\nGift or Hospitality\nOther"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "related_parties",
+   "fieldtype": "Small Text",
+   "label": "Related Party Names"
+  },
+  {
+   "default": "0",
+   "fieldname": "financial_interest",
+   "fieldtype": "Check",
+   "label": "Financial Interest Involved"
+  },
+  {
+   "fieldname": "financial_value",
+   "fieldtype": "Currency",
+   "label": "Estimated Value (\u20a6)"
+  },
+  {
+   "fieldname": "mitigation_section",
+   "fieldtype": "Section Break",
+   "label": "Mitigation & Approval"
+  },
+  {
+   "fieldname": "mitigation",
+   "fieldtype": "Small Text",
+   "label": "Proposed Mitigation"
+  },
+  {
+   "default": "0",
+   "fieldname": "recusal_required",
+   "fieldtype": "Check",
+   "label": "Recusal from Decisions Required"
+  },
+  {
+   "default": "0",
+   "fieldname": "line_manager_acknowledged",
+   "fieldtype": "Check",
+   "label": "Line Manager Acknowledged"
+  },
+  {
+   "fieldname": "acknowledged_by",
+   "fieldtype": "Link",
+   "label": "Acknowledged By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Approval Status",
+   "options": "Pending\nApproved \u2014 No Further Action\nApproved with Conditions\nEscalated to Board"
+  },
+  {
+   "fieldname": "linked_policy",
+   "fieldtype": "Link",
+   "label": "Related COI Policy",
+   "options": "Compliance Policy"
+  },
+  {
+   "fieldname": "company_policy",
+   "fieldtype": "Link",
+   "label": "Company Policy Ref",
+   "options": "Company Policy"
+  },
+  {
+   "fieldname": "next_review_date",
+   "fieldtype": "Date",
+   "label": "Next Declaration Due"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Conflict of Interest Declaration",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-16 14:38:15.603063",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Conflict of Interest Declaration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

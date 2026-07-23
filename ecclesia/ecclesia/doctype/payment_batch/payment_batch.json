@@ -1,0 +1,272 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:ZNB-{YYYY}{MM}{DD}-{####}",
+ "creation": "2026-05-29 17:15:07.441975",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "batch_ref",
+  "payment_type",
+  "company",
+  "originating_account",
+  "prepared_by",
+  "col_break_1",
+  "debit_date",
+  "currency",
+  "workflow_state",
+  "approved_by",
+  "approved_on",
+  "uploaded_by",
+  "section_records",
+  "payment_records",
+  "section_totals",
+  "total_records",
+  "total_amount",
+  "col_break_2",
+  "valid_records",
+  "invalid_records",
+  "section_zenith",
+  "dispatch_method",
+  "zenith_portal_ref",
+  "col_break_3",
+  "upload_status",
+  "zenith_response_log",
+  "section_notes",
+  "rejection_reason",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "batch_ref",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Batch Reference",
+   "read_only": 1
+  },
+  {
+   "fieldname": "payment_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Payment Type",
+   "options": "\nSalary/Payroll\nVendor/Supplier\nBulk Transfer",
+   "reqd": 1
+  },
+  {
+   "default": "{company}",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "description": "10-digit Zenith Bank account to be debited",
+   "fieldname": "originating_account",
+   "fieldtype": "Data",
+   "label": "Originating Account (NUBAN)",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "debit_date",
+   "fieldtype": "Date",
+   "label": "Debit Date",
+   "reqd": 1
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Workflow State",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "owner",
+   "fieldname": "prepared_by",
+   "fieldtype": "Link",
+   "label": "Prepared By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Approved By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "approved_on",
+   "fieldtype": "Datetime",
+   "label": "Approved On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "uploaded_by",
+   "fieldtype": "Link",
+   "label": "Uploaded By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_records",
+   "fieldtype": "Section Break",
+   "label": "Payment Records"
+  },
+  {
+   "fieldname": "payment_records",
+   "fieldtype": "Table",
+   "label": "Payment Records",
+   "options": "Payment Record",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_totals",
+   "fieldtype": "Section Break",
+   "label": "Totals"
+  },
+  {
+   "fieldname": "total_records",
+   "fieldtype": "Int",
+   "label": "Total Records",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "label": "Total Amount (\u20a6)",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "valid_records",
+   "fieldtype": "Int",
+   "label": "Valid Records",
+   "read_only": 1
+  },
+  {
+   "fieldname": "invalid_records",
+   "fieldtype": "Int",
+   "label": "Invalid Records",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_zenith",
+   "fieldtype": "Section Break",
+   "label": "Zenith Bank Upload"
+  },
+  {
+   "fieldname": "dispatch_method",
+   "fieldtype": "Select",
+   "label": "Dispatch Method",
+   "options": "\nAPI (Primary)\nManual Upload (Fallback)",
+   "read_only": 1
+  },
+  {
+   "description": "Reference number returned by Zenith Bank after upload",
+   "fieldname": "zenith_portal_ref",
+   "fieldtype": "Data",
+   "label": "Zenith Portal Reference",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Not Uploaded",
+   "fieldname": "upload_status",
+   "fieldtype": "Select",
+   "label": "Upload Status",
+   "options": "\nNot Uploaded\nUploaded - Processing\nCompleted\nFailed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "zenith_response_log",
+   "fieldtype": "Long Text",
+   "hidden": 1,
+   "label": "Zenith API Response Log",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason",
+   "read_only": 1
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Payment Batch",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-29 17:18:01.450538",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Payment Batch",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

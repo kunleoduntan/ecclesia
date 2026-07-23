@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:territory_name",
+ "creation": "2026-06-05 18:43:54.257049",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "territory_name",
+  "territory_manager",
+  "parent_territory",
+  "states"
+ ],
+ "fields": [
+  {
+   "fieldname": "territory_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Territory Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "territory_manager",
+   "fieldtype": "Link",
+   "label": "Territory Manager",
+   "options": "User"
+  },
+  {
+   "fieldname": "parent_territory",
+   "fieldtype": "Link",
+   "label": "Parent Territory",
+   "options": "CRM Territory"
+  },
+  {
+   "fieldname": "states",
+   "fieldtype": "Small Text",
+   "label": "States (comma-separated)"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-05 18:43:54.257049",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "CRM Territory",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-15 08:07:41.969976",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "payment_reference",
+  "payments_doc",
+  "obligation_type",
+  "period_label",
+  "allocated_amount",
+  "allocation_method",
+  "allocation_date",
+  "compliance_liability_ledger"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "payment_reference",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "payments_doc",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payments DocType Ref",
+   "options": "Payments"
+  },
+  {
+   "columns": 2,
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nData Breach Notification\nAML/KYC\nContractual Obligation\nTraining Levy\nOther"
+  },
+  {
+   "columns": 2,
+   "fieldname": "period_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period"
+  },
+  {
+   "columns": 2,
+   "fieldname": "allocated_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Allocated (\u20a6)",
+   "reqd": 1
+  },
+  {
+   "columns": 1,
+   "default": "Auto",
+   "fieldname": "allocation_method",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Method",
+   "options": "Auto\nManual"
+  },
+  {
+   "fieldname": "allocation_date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "compliance_liability_ledger",
+   "fieldtype": "Link",
+   "label": "CLL Ref",
+   "options": "Compliance Liability Ledger",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:07:41.969976",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Allocation Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

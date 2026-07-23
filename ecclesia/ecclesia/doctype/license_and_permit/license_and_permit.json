@@ -1,0 +1,276 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:license_number",
+ "creation": "2026-06-15 21:09:06.758192",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "license_name",
+  "license_number",
+  "license_type",
+  "expiry_date",
+  "responsible_officer",
+  "authority",
+  "col1",
+  "issuing_authority",
+  "company",
+  "assigned_to",
+  "dates_section",
+  "initial_issue_date",
+  "current_expiry_date",
+  "renewal_cycle_months",
+  "col2",
+  "days_to_expiry",
+  "status",
+  "auto_status_update",
+  "alerts_section",
+  "alert_90_days",
+  "alert_60_days",
+  "alert_30_days",
+  "alert_7_days",
+  "col3",
+  "alert_email",
+  "renewal_cost",
+  "links_section",
+  "compliance_liability_link",
+  "license_copy",
+  "col4",
+  "renewal_history",
+  "notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "columns": 3,
+   "fieldname": "license_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "License / Permit Name",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "license_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "License / Permit Number",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "license_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "License Type",
+   "options": "Operating License\nBusiness Permit\nEnvironmental Permit (NESREA)\nEnvironmental Permit (FEPA)\nState EPA Permit\nHealth & Safety Certificate\nFire Safety Certificate\nNAFDAC Registration\nSON Registration\nFactory License\nElectrical Installation Certificate\nPressure Vessel Certificate\nLift / Elevator Certificate\nSignage Permit\nFood Handler Certificate\nNSITF Compliance Certificate\nITF Compliance Certificate\nProfessional License\nAML License\nRegulatory License\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 2,
+   "fieldname": "issuing_authority",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Issuing Authority",
+   "options": "Regulatory Authority",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Responsible Person",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "dates_section",
+   "fieldtype": "Section Break",
+   "label": "Dates"
+  },
+  {
+   "fieldname": "initial_issue_date",
+   "fieldtype": "Date",
+   "label": "Initial Issue Date",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "current_expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Current Expiry Date",
+   "reqd": 1
+  },
+  {
+   "default": "12",
+   "description": "Used to suggest next expiry date on renewal",
+   "fieldname": "renewal_cycle_months",
+   "fieldtype": "Int",
+   "label": "Renewal Cycle (Months)"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "columns": 2,
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "columns": 2,
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nExpiring Soon\nExpired\nUnder Renewal\nSuspended\nRevoked"
+  },
+  {
+   "default": "1",
+   "description": "Automatically set status based on expiry date (via daily scheduler)",
+   "fieldname": "auto_status_update",
+   "fieldtype": "Check",
+   "label": "Auto Status Update"
+  },
+  {
+   "fieldname": "alerts_section",
+   "fieldtype": "Section Break",
+   "label": "Alert Settings"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_90_days",
+   "fieldtype": "Check",
+   "label": "Alert 90 Days Before Expiry"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_60_days",
+   "fieldtype": "Check",
+   "label": "Alert 60 Days Before Expiry"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_30_days",
+   "fieldtype": "Check",
+   "label": "Alert 30 Days Before Expiry"
+  },
+  {
+   "default": "1",
+   "fieldname": "alert_7_days",
+   "fieldtype": "Check",
+   "label": "Alert 7 Days Before Expiry"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Override alert email. Defaults to Responsible Person's company email.",
+   "fieldname": "alert_email",
+   "fieldtype": "Data",
+   "label": "Alert Email (override)",
+   "options": "Email"
+  },
+  {
+   "fieldname": "renewal_cost",
+   "fieldtype": "Currency",
+   "label": "Estimated Renewal Cost (\u20a6)"
+  },
+  {
+   "fieldname": "links_section",
+   "fieldtype": "Section Break",
+   "label": "Links & Documents"
+  },
+  {
+   "description": "Link to the Compliance Liability Ledger entry for this license's fee obligation",
+   "fieldname": "compliance_liability_link",
+   "fieldtype": "Link",
+   "label": "Linked CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "license_copy",
+   "fieldtype": "Attach",
+   "label": "Current License / Certificate"
+  },
+  {
+   "fieldname": "col4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "renewal_history",
+   "fieldtype": "Table",
+   "label": "Renewal History",
+   "options": "License Renewal History"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Data",
+   "label": "Responsible Office"
+  },
+  {
+   "fieldname": "authority",
+   "fieldtype": "Select",
+   "label": "Authority"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 21:14:32.768848",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "License and Permit",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

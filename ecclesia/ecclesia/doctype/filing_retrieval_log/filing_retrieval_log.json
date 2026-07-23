@@ -1,0 +1,70 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 09:53:33.613470",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "requested_by",
+  "request_date",
+  "purpose",
+  "returned",
+  "return_date"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Requested By",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "default": "Today",
+   "fieldname": "request_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Requested"
+  },
+  {
+   "columns": 4,
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Purpose"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "returned",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Returned"
+  },
+  {
+   "fieldname": "return_date",
+   "fieldtype": "Date",
+   "label": "Return Date"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 09:53:33.613470",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Filing Retrieval Log",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

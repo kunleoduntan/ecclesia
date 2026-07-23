@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-14 14:02:13.195473",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "fuel_type",
+  "litres",
+  "rate_per_litre",
+  "amount",
+  "station",
+  "receipt_no"
+ ],
+ "fields": [
+  {
+   "columns": 2,
+   "fieldname": "fuel_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Fuel Type",
+   "options": "Petrol\nDiesel\nCNG\nElectric",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "litres",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Litres"
+  },
+  {
+   "columns": 2,
+   "fieldname": "rate_per_litre",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Rate / Litre"
+  },
+  {
+   "columns": 2,
+   "fieldname": "amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Amount"
+  },
+  {
+   "fieldname": "station",
+   "fieldtype": "Data",
+   "label": "Filling Station"
+  },
+  {
+   "fieldname": "receipt_no",
+   "fieldtype": "Data",
+   "label": "Receipt No"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-14 14:02:13.195473",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Vehicle Fuel Detail",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

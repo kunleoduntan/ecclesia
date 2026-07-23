@@ -1,0 +1,210 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "EXAP-.YYYY.-.#####",
+ "creation": "2026-07-16 14:08:01.298415",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "appointment_title",
+  "company",
+  "executive",
+  "appointment_date",
+  "start_time",
+  "end_time",
+  "appointment_type",
+  "status",
+  "cb_appt",
+  "priority",
+  "meeting_with",
+  "requested_by",
+  "sb_location",
+  "location",
+  "virtual_link",
+  "sb_notes",
+  "purpose",
+  "prep_notes",
+  "sb_followup",
+  "follow_up_required",
+  "follow_up_notes",
+  "cb_followup",
+  "reminder_minutes_before",
+  "calendar_event_ref"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "appointment_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Appointment Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "executive",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Executive (Diary Owner)",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "appointment_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Start Time",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "default": "Internal Meeting",
+   "fieldname": "appointment_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Internal Meeting\nExternal Meeting\nCall\nTravel\nPersonal\nEvent\nOther"
+  },
+  {
+   "default": "Scheduled",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Scheduled\nConfirmed\nCompleted\nCancelled\nRescheduled"
+  },
+  {
+   "fieldname": "cb_appt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Medium",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "High\nMedium\nLow"
+  },
+  {
+   "fieldname": "meeting_with",
+   "fieldtype": "Data",
+   "label": "Meeting With (External Party)"
+  },
+  {
+   "fieldname": "requested_by",
+   "fieldtype": "Link",
+   "label": "Requested By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "sb_location",
+   "fieldtype": "Section Break",
+   "label": "Location"
+  },
+  {
+   "fieldname": "location",
+   "fieldtype": "Data",
+   "label": "Physical Location"
+  },
+  {
+   "fieldname": "virtual_link",
+   "fieldtype": "Data",
+   "label": "Virtual Meeting Link"
+  },
+  {
+   "fieldname": "sb_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Small Text",
+   "label": "Purpose"
+  },
+  {
+   "fieldname": "prep_notes",
+   "fieldtype": "Text Editor",
+   "label": "Preparation Notes / Briefing"
+  },
+  {
+   "fieldname": "sb_followup",
+   "fieldtype": "Section Break",
+   "label": "Follow-up & Reminders"
+  },
+  {
+   "default": "0",
+   "fieldname": "follow_up_required",
+   "fieldtype": "Check",
+   "label": "Follow-up Required"
+  },
+  {
+   "fieldname": "follow_up_notes",
+   "fieldtype": "Small Text",
+   "label": "Follow-up Notes"
+  },
+  {
+   "fieldname": "cb_followup",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "30",
+   "fieldname": "reminder_minutes_before",
+   "fieldtype": "Int",
+   "label": "Reminder (Minutes Before)"
+  },
+  {
+   "fieldname": "calendar_event_ref",
+   "fieldtype": "Link",
+   "label": "Linked Event (Calendar)",
+   "options": "Event",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-16 14:08:01.298415",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Executive Appointment",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

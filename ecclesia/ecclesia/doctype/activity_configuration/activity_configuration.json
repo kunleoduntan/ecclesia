@@ -1,0 +1,185 @@
+{
+  "actions": [],
+  "autoname": "field:doctype_name",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "document_type": "Setup",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "doctype_name", "event", "module", "column_break_1",
+    "is_active", "track_only_on_wfh",
+    "section_break_scoring",
+    "points_rule", "base_points", "value_field",
+    "value_multiplier_enabled", "value_divisor", "max_value_bonus",
+    "column_break_2",
+    "frequency_dampening_enabled", "dampening_window_minutes",
+    "dampening_multiplier", "daily_cap_points",
+    "section_break_role",
+    "role_weights"
+  ],
+  "fields": [
+    {
+      "fieldname": "doctype_name",
+      "fieldtype": "Link",
+      "label": "DocType",
+      "options": "DocType",
+      "reqd": 1,
+      "in_list_view": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "event",
+      "fieldtype": "Select",
+      "label": "Trigger Event",
+      "options": "on_submit\non_update\non_cancel\non_amend",
+      "default": "on_submit",
+      "reqd": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "module",
+      "fieldtype": "Data",
+      "label": "Module Tag",
+      "description": "e.g. Sales, Accounts, CRM — for filtering in reports",
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "column_break_1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "is_active",
+      "fieldtype": "Check",
+      "label": "Is Active",
+      "default": 1,
+      "in_list_view": 1
+    },
+    {
+      "fieldname": "track_only_on_wfh",
+      "fieldtype": "Check",
+      "label": "Track Only During WFH Sessions",
+      "default": 1,
+      "description": "If unchecked, activities are logged even on office days"
+    },
+    {
+      "fieldname": "section_break_scoring",
+      "fieldtype": "Section Break",
+      "label": "Scoring Rules"
+    },
+    {
+      "fieldname": "points_rule",
+      "fieldtype": "Select",
+      "label": "Points Rule",
+      "options": "Fixed\nPercentage of Value\nFormula",
+      "default": "Fixed",
+      "reqd": 1
+    },
+    {
+      "fieldname": "base_points",
+      "fieldtype": "Float",
+      "label": "Base Points",
+      "default": 10,
+      "precision": 2,
+      "description": "Points awarded per action (before multipliers)"
+    },
+    {
+      "fieldname": "value_field",
+      "fieldtype": "Data",
+      "label": "Value Field Name",
+      "description": "Field on the source DocType that holds monetary value (e.g. grand_total)",
+      "depends_on": "eval:doc.points_rule !== 'Fixed'"
+    },
+    {
+      "fieldname": "value_multiplier_enabled",
+      "fieldtype": "Check",
+      "label": "Enable Value Multiplier",
+      "default": 0
+    },
+    {
+      "fieldname": "value_divisor",
+      "fieldtype": "Float",
+      "label": "Value Divisor",
+      "default": 100000,
+      "precision": 0,
+      "depends_on": "value_multiplier_enabled",
+      "description": "Bonus points = business_value / divisor (e.g. 1 pt per 100k)"
+    },
+    {
+      "fieldname": "max_value_bonus",
+      "fieldtype": "Float",
+      "label": "Max Value Bonus Points",
+      "default": 50,
+      "depends_on": "value_multiplier_enabled",
+      "description": "Cap value-based bonus to prevent gaming"
+    },
+    {
+      "fieldname": "column_break_2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "frequency_dampening_enabled",
+      "fieldtype": "Check",
+      "label": "Enable Frequency Dampening",
+      "default": 1,
+      "description": "Reduce points for rapid repeated actions"
+    },
+    {
+      "fieldname": "dampening_window_minutes",
+      "fieldtype": "Int",
+      "label": "Dampening Window (minutes)",
+      "default": 30,
+      "depends_on": "frequency_dampening_enabled",
+      "description": "Look-back window for counting repeated actions"
+    },
+    {
+      "fieldname": "dampening_multiplier",
+      "fieldtype": "Float",
+      "label": "Dampening Multiplier",
+      "default": 0.5,
+      "precision": 2,
+      "depends_on": "frequency_dampening_enabled",
+      "description": "Applied after 3+ identical actions in the window (e.g. 0.5 = half points)"
+    },
+    {
+      "fieldname": "daily_cap_points",
+      "fieldtype": "Float",
+      "label": "Daily Cap (points)",
+      "default": 200,
+      "precision": 0,
+      "description": "Max points this action type can earn per employee per day"
+    },
+    {
+      "fieldname": "section_break_role",
+      "fieldtype": "Section Break",
+      "label": "Role Weight Overrides"
+    },
+    {
+      "fieldname": "role_weights",
+      "fieldtype": "Table",
+      "label": "Role Weights",
+      "options": "Activity Role Weight"
+    }
+  ],
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Ecclesia",
+  "name": "Activity Configuration",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "read": 1, "role": "Employee"
+    },
+    {
+      "read": 1, "write": 1, "create": 1, "delete": 1, "role": "HR Manager"
+    },
+    {
+      "read": 1, "write": 1, "create": 1, "delete": 1, "role": "System Manager"
+    }
+  ],
+  "sort_field": "doctype_name",
+  "sort_order": "ASC",
+  "title_field": "doctype_name",
+  "track_changes": 1
+}

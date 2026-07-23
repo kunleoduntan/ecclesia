@@ -6,6 +6,14 @@ Brand          Protocol          Connector Class
 ------         --------          ---------------
 ZKTeco         SDK / UDP         ZKTecoConnector
 eSSL           SDK (ZK-compat)   ZKTecoConnector
+TAMS           SDK (ZK-compat)   ZKTecoConnector   -- Pull/ping/get_users only.
+                                                       Real-time attendance for TAMS
+                                                       devices normally arrives via
+                                                       ADMS push instead (see
+                                                       ecclesia.biometric_attendance.push) —
+                                                       this connector is the Pull-mode
+                                                       fallback/manual-sync path, used
+                                                       when sync_mode = "Pull (Scheduled)".
 Hikvision      ISAPI / REST      HikvisionConnector
 Dahua          HTTP API (CGI)    DahuaConnector
 Suprema        BioStar2 REST     SupremaConnector
@@ -25,6 +33,7 @@ def get_connector(device_doc):
     CONNECTORS = {
         "ZKTeco":    ZKTecoConnector,
         "eSSL":      ZKTecoConnector,      # eSSL is ZKTeco-protocol compatible
+        "TAMS":      ZKTecoConnector,      # TAMS Chrome is ZKTeco-protocol compatible
         "Hikvision": HikvisionConnector,
         "Dahua":     DahuaConnector,
         "Suprema":   SupremaConnector,
@@ -73,7 +82,15 @@ class BaseConnector:
 class ZKTecoConnector(BaseConnector):
     """
     Uses pyzk (pip install pyzk).
-    Works for ZKTeco and eSSL — both share the same binary SDK protocol.
+    Works for ZKTeco, eSSL, and TAMS Chrome — all share the same binary SDK
+    protocol over the device's own port (4370 by default).
+
+    NOTE for TAMS: this connector is only used when a TAMS device is set to
+    sync_mode = "Pull (Scheduled)" (or for the manual Ping/Sync Now/Enrolled
+    Users buttons regardless of mode). When sync_mode = "Push (Real-time)",
+    attendance never goes through this connector at all — the device pushes
+    directly to ecclesia.biometric_attendance.push.cdata instead, and this
+    class is unused for that device's attendance flow.
     """
 
     def __init__(self, device):

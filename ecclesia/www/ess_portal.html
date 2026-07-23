@@ -1,0 +1,2554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MyWork · Employee Self-Service</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<!-- Frappe www controller injects ESS_BOOT before this page renders.
+     In standalone/demo mode (no Frappe backend) ESS_BOOT will be undefined
+     and the login screen will show instead. -->
+{% if employee %}
+<script>
+window.ESS_BOOT = {
+  employee: {{ employee | tojson }},
+  today: "{{ today }}",
+  pending_leave: {{ pending_leave }},
+  pending_tasks: {{ pending_tasks }},
+  unread_notifications: {{ unread_notifs }},
+  pulse: {{ pulse | tojson }},
+  csrf_token: "{{ csrf_token }}"
+};
+// Inject CSRF into frappe namespace so getCsrf() works immediately
+window.frappe = window.frappe || {};
+window.frappe.csrf_token = "{{ csrf_token }}";
+</script>
+<style>
+  /* Server confirmed session — hide login, show app before JS runs to prevent flash */
+  #login { display: none !important; }
+  #app   { display: flex !important; }
+</style>
+{% endif %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:#F0F2F8;color:#1E293B;min-height:100vh;display:flex;line-height:1.5}
+:root{
+  --in:#312E81;--in2:#4338CA;--vi:#7C3AED;--vi2:#8B5CF6;
+  --am:#F59E0B;--am2:#FCD34D;
+  --teal:#0D9488;--rose:#E11D48;--sky:#0284C7;--em:#059669;
+  --bg:#F0F2F8;--surf:#FFFFFF;--surf2:#F8FAFC;--bdr:#E2E8F0;
+  --tx:#1E293B;--tx2:#475569;--mu:#94A3B8;
+  --grad:linear-gradient(135deg,#312E81 0%,#7C3AED 60%,#A78BFA 100%);
+  --grad-am:linear-gradient(135deg,#F59E0B,#F97316);
+  --sh:0 2px 12px rgba(49,46,129,.08);--sh2:0 8px 32px rgba(49,46,129,.14);
+  --r:12px;--sb:256px;
+}
+
+/* ── SCROLLBAR ─────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#C4C9D9;border-radius:99px}
+
+/* ── LOGIN ─────────────────────────────────── */
+#login{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#0f0c29,#302b63,#24243e);display:flex;align-items:center;justify-content:center;padding:20px}
+.lw{background:#fff;border-radius:24px;padding:48px 44px;width:min(420px,94vw);box-shadow:0 40px 100px rgba(0,0,0,.4)}
+.lw-logo{width:72px;height:72px;background:var(--grad);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px;box-shadow:0 8px 28px rgba(124,58,237,.35)}
+.lw h1{text-align:center;font-size:26px;font-weight:900;color:var(--in);letter-spacing:-.5px}
+.lw-sub{text-align:center;font-size:13px;color:var(--mu);margin-top:4px;margin-bottom:30px}
+.lf{margin-bottom:16px}
+.lf label{display:block;font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.lf input{width:100%;padding:13px 15px;border:1.5px solid var(--bdr);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:.15s;background:#FAFBFF}
+.lf input:focus{border-color:var(--vi);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+.l-btn{width:100%;padding:15px;border-radius:11px;background:var(--grad);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:opacity .15s;box-shadow:0 6px 20px rgba(124,58,237,.35)}
+.l-btn:hover{opacity:.92}
+.l-demo{margin-top:14px;text-align:center;font-size:12px;color:var(--mu)}
+.l-demo b{color:var(--vi);cursor:pointer}
+
+/* ── SIDEBAR ───────────────────────────────── */
+.sidebar{width:var(--sb);min-height:100vh;background:var(--in);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;overflow:hidden}
+.sidebar::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(167,139,250,.25) 0%,transparent 70%);pointer-events:none}
+.sb-brand{padding:20px 20px 16px;display:flex;align-items:center;gap:11px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-brand-icon{width:38px;height:38px;background:var(--grad-am);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 4px 12px rgba(245,158,11,.4)}
+.sb-brand-txt{font-weight:900;font-size:17px;color:#fff;letter-spacing:-.3px}
+.sb-brand-sub{font-size:10px;color:rgba(255,255,255,.45);font-weight:500;margin-top:1px}
+
+.sb-me{margin:12px 14px;background:rgba(255,255,255,.07);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.sb-me::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 20%,rgba(167,139,250,.18),transparent 60%);pointer-events:none}
+.sb-av{width:50px;height:50px;border-radius:14px;background:var(--grad-am);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;color:#fff;margin-bottom:8px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.sb-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.sb-role{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px}
+.sb-dept{font-size:10px;color:rgba(255,255,255,.35);margin-top:1px}
+.sb-pulse{display:flex;align-items:center;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.08)}
+.pulse-dot{width:6px;height:6px;border-radius:50%;background:#34D399;animation:pulse-anim 2s infinite}
+@keyframes pulse-anim{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.pulse-txt{font-size:10px;color:rgba(255,255,255,.5);font-weight:500}
+.pulse-score{margin-left:auto;font-size:11px;font-weight:800;color:#A78BFA}
+
+.sb-nav{flex:1;padding:8px;overflow-y:auto;overflow-x:hidden}
+.sb-sec{font-size:9px;text-transform:uppercase;letter-spacing:.9px;color:rgba(255,255,255,.3);padding:14px 10px 5px;font-weight:700}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:10px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.65);transition:all .15s;margin-bottom:2px;user-select:none;position:relative}
+.ni:hover{background:rgba(255,255,255,.08);color:#fff}
+.ni.active{background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+.ni.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:22px;background:var(--am);border-radius:0 3px 3px 0}
+.ni .ico{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.ni .lbl{flex:1}
+.ni .bx{background:#EF4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;min-width:18px;text-align:center}
+.ni.active .bx{background:rgba(255,255,255,.25)}
+
+.sb-foot{padding:12px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.theme-row{display:flex;gap:6px;margin-bottom:10px}
+.tdot{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:.15s;flex-shrink:0}
+.tdot.active,.tdot:hover{border-color:rgba(255,255,255,.7);transform:scale(1.1)}
+.sb-out{width:100%;padding:9px;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;cursor:pointer;font-size:12px;color:rgba(255,255,255,.55);font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.sb-out:hover{border-color:rgba(239,68,68,.7);color:#FCA5A5}
+
+/* ── MAIN ──────────────────────────────────── */
+.main{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:14px 28px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--surf);position:sticky;top:0;z-index:50;box-shadow:var(--sh)}
+.tb-left{display:flex;align-items:center;gap:14px}
+.tb-title{font-size:18px;font-weight:800;color:var(--in);letter-spacing:-.4px}
+.tb-breadcrumb{font-size:11px;color:var(--mu);background:var(--surf2);padding:3px 10px;border-radius:99px;border:1px solid var(--bdr)}
+.tb-right{display:flex;align-items:center;gap:12px}
+.tb-date{font-size:12px;color:var(--mu);display:flex;align-items:center;gap:5px}
+.tb-search{position:relative}
+.tb-search input{padding:8px 12px 8px 34px;border:1.5px solid var(--bdr);border-radius:8px;font-size:12px;font-family:inherit;outline:none;width:180px;transition:.15s;background:var(--surf2)}
+.tb-search input:focus{border-color:var(--vi);width:220px}
+.tb-search .ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--mu)}
+.icon-btn{position:relative;width:36px;height:36px;border-radius:9px;border:1.5px solid var(--bdr);background:var(--surf);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:.15s;color:var(--tx2)}
+.icon-btn:hover{border-color:var(--vi);color:var(--vi);background:#F5F3FF}
+.notif-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:#EF4444;border-radius:50%;border:2px solid #fff}
+.content{padding:26px 28px;flex:1}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── COMMON COMPONENTS ─────────────────────── */
+.btn{padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.3)}.btn-primary:hover{opacity:.9}
+.btn-outline{background:#fff;color:var(--tx2);border:1.5px solid var(--bdr)}.btn-outline:hover{border-color:var(--vi);color:var(--vi)}
+.btn-success{background:#059669;color:#fff}.btn-success:hover{background:#047857}
+.btn-am{background:var(--grad-am);color:#fff}.btn-am:hover{opacity:.9}
+.btn-danger{background:#EF4444;color:#fff}.btn-danger:hover{background:#DC2626}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-xs{padding:4px 10px;font-size:11px;border-radius:6px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-title{font-size:13px;font-weight:700;color:var(--tx);display:flex;align-items:center;gap:8px}
+.card-body{padding:16px 18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:600}
+.pill-green{background:#D1FAE5;color:#065F46}.pill-blue{background:#DBEAFE;color:#1E40AF}
+.pill-yellow{background:#FEF3C7;color:#92400E}.pill-red{background:#FEE2E2;color:#991B1B}
+.pill-purple{background:#EDE9FE;color:#6D28D9}.pill-grey{background:#F3F4F6;color:#4B5563}
+.pill-orange{background:#FFF7ED;color:#C2410C}.pill-teal{background:#CCFBF1;color:#115E59}
+.table-wrap{overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:13px}
+table.dt th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--mu);background:var(--surf2);border-bottom:1px solid var(--bdr);white-space:nowrap}
+table.dt td{padding:10px 14px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tbody tr:hover td{background:var(--surf2)}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.fi{width:100%;padding:10px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:var(--surf);color:var(--tx);outline:none;transition:.15s}
+.fi:focus{border-color:var(--vi);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.fi:disabled{background:var(--surf2);color:var(--mu);cursor:not-allowed}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(30,41,59,.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal-box{background:#fff;border-radius:18px;padding:30px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);animation:modalIn .2s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-size:18px;font-weight:800;color:var(--in);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--bdr);margin-bottom:20px;overflow-x:auto}
+.tab{padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;white-space:nowrap}
+.tab.active{color:var(--vi);border-bottom-color:var(--vi);font-weight:700}
+.empty{text-align:center;padding:44px 20px;color:var(--mu)}
+.empty-ico{font-size:44px;margin-bottom:12px}
+.empty h3{font-size:15px;color:var(--tx2);margin-bottom:4px}
+.fbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.si{padding:9px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;outline:none;width:200px;transition:.15s}
+.si:focus{border-color:var(--vi)}
+.ssel{padding:9px 11px;border:1.5px solid var(--bdr);border-radius:8px;font-size:12px;font-family:inherit;outline:none;background:#fff;color:var(--tx)}
+.prog-bar{height:8px;background:var(--bdr);border-radius:99px;overflow:hidden;flex:1}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s ease}
+#toast{position:fixed;bottom:22px;right:22px;background:var(--in);color:#fff;border-radius:12px;padding:13px 20px;font-size:13px;font-weight:600;box-shadow:var(--sh2);z-index:9998;display:none;max-width:360px;animation:slideUp .2s ease}
+@keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── HOME PANEL ────────────────────────────── */
+.home-welcome{background:var(--grad);border-radius:18px;padding:28px 32px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;margin-bottom:22px;position:relative;overflow:hidden}
+.home-welcome::before{content:'';position:absolute;right:-40px;top:-40px;width:240px;height:240px;background:radial-gradient(circle,rgba(255,255,255,.1),transparent 70%);pointer-events:none}
+.hw-txt h2{font-size:24px;font-weight:900;letter-spacing:-.4px;margin-bottom:4px}
+.hw-txt p{opacity:.8;font-size:14px}
+.hw-quick{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.hw-q-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s;display:flex;align-items:center;gap:6px;font-family:inherit}
+.hw-q-btn:hover{background:rgba(255,255,255,.25)}
+.hw-right{text-align:center;flex-shrink:0}
+.hw-day{font-size:48px;font-weight:900;line-height:1;color:#FCD34D}
+.hw-date-lbl{font-size:13px;opacity:.75;margin-top:2px}
+
+/* Pulse Ring */
+.pulse-ring-wrap{display:flex;align-items:center;justify-content:center;gap:32px;padding:20px;flex-wrap:wrap}
+.pulse-canvas-wrap{position:relative;width:180px;height:180px;flex-shrink:0}
+.pulse-canvas-wrap canvas{position:absolute;top:0;left:0}
+.pulse-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.pulse-score-big{font-size:38px;font-weight:900;color:var(--in);letter-spacing:-2px}
+.pulse-score-lbl{font-size:11px;color:var(--mu);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pulse-legend{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1}
+.pulse-leg-item{padding:12px 14px;border-radius:10px;border:1px solid var(--bdr)}
+.pl-val{font-size:20px;font-weight:800;color:var(--in)}
+.pl-lbl{font-size:11px;color:var(--mu);font-weight:500;margin-top:2px}
+.pl-bar{margin-top:8px;height:4px;border-radius:99px;background:var(--bdr);overflow:hidden}
+.pl-bar-fill{height:100%;border-radius:99px}
+
+/* Today snapshot */
+.snapshot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.snap-card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:.2s;cursor:default}
+.snap-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.snap-card.c1::after{background:var(--grad)}
+.snap-card.c2::after{background:var(--grad-am)}
+.snap-card.c3::after{background:linear-gradient(90deg,#059669,#34D399)}
+.snap-card.c4::after{background:linear-gradient(90deg,#E11D48,#FB7185)}
+.snap-card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.sc-ico{font-size:26px;position:absolute;right:14px;top:16px;opacity:.15}
+.sc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);font-weight:700;margin-bottom:6px}
+.sc-val{font-size:26px;font-weight:900;color:var(--tx);line-height:1;letter-spacing:-1px}
+.sc-sub{font-size:11px;color:var(--mu);margin-top:4px}
+
+/* Pending actions */
+.pa-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:10px;background:var(--surf2);margin-bottom:8px;border:1px solid var(--bdr);transition:.15s}
+.pa-item:hover{border-color:var(--vi);background:#FAFAFF}
+.pa-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.pa-txt{flex:1}
+.pa-title{font-size:13px;font-weight:600;color:var(--tx)}
+.pa-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.pa-action{align-self:center}
+
+/* ── PROFILE PANEL ─────────────────────────── */
+.profile-banner{background:var(--grad);border-radius:18px;padding:24px 28px;color:#fff;margin-bottom:22px;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px}
+.profile-banner::before{content:'';position:absolute;right:-60px;top:-60px;width:250px;height:250px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%)}
+.prof-av{width:80px;height:80px;border-radius:18px;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:#fff;flex-shrink:0}
+.prof-meta h2{font-size:22px;font-weight:900;letter-spacing:-.4px}
+.prof-meta .role{font-size:14px;opacity:.85;margin-top:3px}
+.prof-meta .dept{font-size:12px;opacity:.6;margin-top:2px}
+.prof-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pc-chip{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;color:#fff}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.ib{background:var(--surf2);border:1px solid var(--bdr);border-radius:9px;padding:11px 14px}
+.ib-lbl{font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.ib-val{font-size:13px;font-weight:600;color:var(--tx)}
+.doc-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;transition:.15s}
+.doc-card:hover{border-color:var(--vi)}
+.doc-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;background:#EDE9FE;color:var(--vi);flex-shrink:0}
+.doc-name{font-size:13px;font-weight:600;color:var(--tx);flex:1}
+.doc-meta{font-size:11px;color:var(--mu);margin-top:1px}
+
+/* ── ATTENDANCE & LEAVE ─────────────────────── */
+.leave-bal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.lb-card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:16px;overflow:hidden;position:relative}
+.lb-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:3px 0 0 3px}
+.lb-card.annual::before{background:var(--vi)}
+.lb-card.sick::before{background:var(--rose)}
+.lb-card.exam::before{background:var(--am)}
+.lb-card.casual::before{background:var(--em)}
+.lb-card.maternity::before{background:#EC4899}
+.lb-label{font-size:11px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.lb-days{font-size:28px;font-weight:900;color:var(--in);letter-spacing:-1px}
+.lb-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.lb-prog{margin-top:10px;height:5px;background:var(--bdr);border-radius:99px;overflow:hidden}
+.lb-prog-fill{height:100%;border-radius:99px}
+.att-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px}
+.att-day-head{text-align:center;font-weight:700;color:var(--mu);padding:6px 0;font-size:10px;text-transform:uppercase}
+.att-day{width:100%;aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;cursor:default;transition:.15s;border:1px solid transparent}
+.att-day.p{background:#D1FAE5;color:#065F46}
+.att-day.a{background:#FEE2E2;color:#991B1B}
+.att-day.h{background:#DBEAFE;color:#1E40AF}
+.att-day.w{background:#EDE9FE;color:#6D28D9}
+.att-day.future{color:var(--mu);background:var(--surf2)}
+.att-day.today{border-color:var(--vi);background:#F5F3FF;color:var(--vi);font-weight:900}
+.att-day.empty{background:transparent;border:none}
+.att-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tx2)}
+.leg-dot{width:10px;height:10px;border-radius:3px}
+
+/* ── PAYROLL PANEL ─────────────────────────── */
+.payslip-list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.payslip-card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:18px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.payslip-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
+.payslip-card:hover{transform:translateY(-3px);box-shadow:var(--sh2);border-color:var(--vi2)}
+.ps-month{font-size:12px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.ps-net{font-size:24px;font-weight:900;color:var(--in);letter-spacing:-1px}
+.ps-sub{font-size:11px;color:var(--mu);margin-top:4px}
+.ps-badges{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.salary-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bdr);font-size:13px}
+.salary-row:last-child{border-bottom:none}
+.salary-row .lbl{color:var(--tx2)}
+.salary-row .val{font-weight:600;color:var(--tx)}
+.salary-row.total{padding-top:14px;font-size:16px;font-weight:900;color:var(--in)}
+.salary-row.deduction .val{color:var(--rose)}
+.chart-wrap{height:200px;position:relative}
+
+/* ── LOANS PANEL ─────────────────────────────── */
+.loan-hero{background:linear-gradient(135deg,#065F46,#059669);border-radius:14px;padding:22px 24px;color:#fff;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.loan-hero h3{font-size:13px;opacity:.8;font-weight:500}
+.loan-hero .amount{font-size:34px;font-weight:900;letter-spacing:-1px;margin:4px 0}
+.loan-active-card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.lac-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.lac-type{font-size:14px;font-weight:700;color:var(--tx)}
+.lac-ref{font-size:11px;color:var(--mu);margin-top:2px}
+.lac-amounts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.lac-a{background:var(--surf2);border-radius:8px;padding:10px 12px}
+.lac-a-lbl{font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.lac-a-val{font-size:16px;font-weight:800;color:var(--tx)}
+.lac-prog{margin-top:4px}
+.lac-prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-bottom:5px}
+.sched-row{display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.sched-row:last-child{border-bottom:none}
+.sched-no{width:26px;height:26px;border-radius:8px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:var(--mu);flex-shrink:0}
+
+/* ── PERFORMANCE PANEL ────────────────────── */
+.perf-score-banner{background:var(--grad);border-radius:16px;padding:24px;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+.perf-ring{width:90px;height:90px;position:relative;flex-shrink:0}
+.perf-ring canvas{position:absolute;top:0;left:0}
+.perf-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.perf-score-num{font-size:24px;font-weight:900}
+.perf-score-lbl{font-size:9px;opacity:.7;text-transform:uppercase;letter-spacing:.4px}
+.perf-info h3{font-size:18px;font-weight:800;letter-spacing:-.3px}
+.perf-info p{opacity:.75;font-size:13px;margin-top:4px}
+.perf-stats{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px}
+.perf-stat{text-align:center}
+.perf-stat .v{font-size:20px;font-weight:900}
+.perf-stat .l{font-size:10px;opacity:.65;text-transform:uppercase;letter-spacing:.4px;margin-top:1px}
+.goal-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border:1px solid var(--bdr);border-radius:10px;margin-bottom:10px;background:var(--surf);transition:.15s}
+.goal-item:hover{border-color:var(--vi2)}
+.goal-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.goal-txt{flex:1}
+.goal-title{font-size:13px;font-weight:600;color:var(--tx)}
+.goal-meta{font-size:11px;color:var(--mu);margin-top:2px}
+.goal-prog{margin-top:8px}
+.goal-prog-row{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--tx2)}
+
+/* ── TASKS & WFH PANEL ───────────────────── */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px}
+.kb-col{background:var(--surf2);border-radius:12px;padding:12px}
+.kb-col-header{font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.kb-count{background:var(--bdr);color:var(--mu);padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.task-card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:13px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.task-card:hover{border-color:var(--vi2);box-shadow:var(--sh)}
+.tc-title{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:6px;line-height:1.4}
+.tc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.wfh-today{background:linear-gradient(135deg,#F59E0B,#F97316);border-radius:14px;padding:20px 22px;color:#fff;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+.wfh-today h3{font-size:16px;font-weight:800}
+.wfh-today p{font-size:13px;opacity:.85;margin-top:3px}
+.wfh-clock{font-size:36px;font-weight:900;letter-spacing:-1px}
+.session-row{display:flex;align-items:center;gap:14px;padding:10px 14px;border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;font-size:12px;background:var(--surf)}
+.session-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── POLICY PANEL ────────────────────────── */
+.policy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.policy-card{background:var(--surf);border:1px solid var(--bdr);border-radius:14px;padding:20px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.policy-card:hover{border-color:var(--vi2);transform:translateY(-2px);box-shadow:var(--sh2)}
+.policy-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.pc-cat{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--vi);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.pc-title{font-size:15px;font-weight:800;color:var(--in);margin-bottom:6px}
+.pc-desc{font-size:12px;color:var(--tx2);line-height:1.6;margin-bottom:12px}
+.pc-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--bdr)}
+.pc-ack{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}
+.pc-ack.done{color:#059669}.pc-ack.pending{color:#D97706}
+.pc-date{font-size:11px;color:var(--mu)}
+
+/* ── MESSAGES PANEL ─────────────────────── */
+.msg-layout{display:grid;grid-template-columns:280px 1fr;gap:0;border:1px solid var(--bdr);border-radius:14px;overflow:hidden;height:560px;background:var(--surf)}
+.msg-sidebar{border-right:1px solid var(--bdr);display:flex;flex-direction:column}
+.msg-sb-head{padding:14px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between}
+.msg-sb-head h4{font-size:14px;font-weight:700;color:var(--tx)}
+.msg-search{padding:10px 14px;border-bottom:1px solid var(--bdr)}
+.msg-search input{width:100%;padding:8px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-size:12px;font-family:inherit;outline:none}
+.msg-search input:focus{border-color:var(--vi)}
+.thread-list{flex:1;overflow-y:auto}
+.thread-item{padding:12px 15px;cursor:pointer;transition:.1s;border-bottom:1px solid var(--bdr);display:flex;gap:10px;align-items:flex-start}
+.thread-item:hover{background:var(--surf2)}
+.thread-item.active{background:#F5F3FF;border-left:3px solid var(--vi)}
+.thread-av{width:38px;height:38px;border-radius:10px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff;flex-shrink:0}
+.thread-av.ann{background:var(--grad-am)}
+.thread-meta{flex:1;min-width:0}
+.thread-name{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:center;justify-content:space-between}
+.thread-time{font-size:10px;color:var(--mu);font-weight:400}
+.thread-preview{font-size:11px;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.thread-unread{background:var(--vi);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;margin-top:2px;display:inline-block}
+.msg-main{display:flex;flex-direction:column}
+.msg-head{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
+.msg-head-av{width:36px;height:36px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0}
+.msg-head-name{font-size:14px;font-weight:700;color:var(--tx)}
+.msg-head-sub{font-size:11px;color:var(--mu)}
+.msg-body{flex:1;overflow-y:auto;padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.msg-bubble-wrap{display:flex;gap:10px;align-items:flex-end}
+.msg-bubble-wrap.me{flex-direction:row-reverse}
+.msg-bubble-av{width:28px;height:28px;border-radius:8px;background:var(--surf2);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--mu);flex-shrink:0}
+.msg-bubble{padding:10px 14px;border-radius:14px;max-width:72%;font-size:13px;line-height:1.5;position:relative}
+.msg-bubble.them{background:var(--surf2);border:1px solid var(--bdr);border-bottom-left-radius:4px;color:var(--tx)}
+.msg-bubble.me{background:var(--grad);color:#fff;border-bottom-right-radius:4px}
+.msg-bubble .msg-time{font-size:10px;opacity:.6;margin-top:4px;text-align:right}
+.msg-input-area{padding:14px 16px;border-top:1px solid var(--bdr);display:flex;gap:10px;align-items:flex-end}
+.msg-input{flex:1;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:10px;font-size:13px;font-family:inherit;outline:none;resize:none;min-height:42px;max-height:120px;transition:.15s}
+.msg-input:focus{border-color:var(--vi)}
+.ann-card{background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border:1px solid #FDE68A;border-radius:12px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:.15s}
+.ann-card:hover{border-color:var(--am)}
+.ann-tag{font-size:10px;font-weight:700;text-transform:uppercase;color:#D97706;margin-bottom:5px;display:flex;align-items:center;gap:5px;letter-spacing:.4px}
+.ann-title{font-size:14px;font-weight:700;color:#92400E;margin-bottom:4px}
+.ann-body{font-size:12px;color:#B45309;line-height:1.6}
+.ann-meta{font-size:11px;color:#D97706;margin-top:8px}
+
+/* ── STATUTORY PANEL ─────────────────────── */
+.stat-compliance-card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:18px;margin-bottom:14px}
+.scc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.scc-title{font-size:14px;font-weight:700;color:var(--tx);display:flex;align-items:center;gap:8px}
+.scc-amount{font-size:22px;font-weight:900;color:var(--in);letter-spacing:-.5px}
+.scc-meta{font-size:11px;color:var(--mu);margin-top:3px}
+.scc-progress{margin-top:12px}
+.scc-progress-head{display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-bottom:5px}
+.ytd-bar{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;align-items:flex-end;height:80px;margin:10px 0}
+.ytd-month{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default}
+.ytd-bar-fill{width:100%;border-radius:4px 4px 0 0;transition:.5s;min-height:4px}
+.ytd-label{font-size:8px;color:var(--mu);font-weight:600}
+
+/* ── SETTINGS PANEL ──────────────────────── */
+.settings-section{margin-bottom:28px}
+.ss-title{font-size:16px;font-weight:800;color:var(--in);margin-bottom:16px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:2px solid var(--bdr)}
+.notif-pref{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;transition:.15s}
+.notif-pref:hover{border-color:var(--vi2)}
+.np-left{flex:1}
+.np-title{font-size:13px;font-weight:600;color:var(--tx)}
+.np-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.tog-slider{position:absolute;inset:0;border-radius:99px;background:var(--bdr);transition:.2s;cursor:pointer}
+.tog-slider::before{content:'';position:absolute;height:18px;width:18px;border-radius:50%;background:#fff;left:3px;bottom:3px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.toggle input:checked+.tog-slider{background:var(--vi)}
+.toggle input:checked+.tog-slider::before{transform:translateX(20px)}
+.theme-palette{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.theme-opt{border:2px solid var(--bdr);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;text-align:center}
+.theme-opt:hover,.theme-opt.active{border-color:var(--vi)}
+.theme-opt.active{background:#F5F3FF}
+.theme-swatch{width:40px;height:40px;border-radius:10px;margin:0 auto 8px}
+.theme-name{font-size:12px;font-weight:600;color:var(--tx2)}
+
+/* ── RESPONSIVE ──────────────────────────── */
+@media(max-width:1200px){.grid4{grid-template-columns:repeat(2,1fr)}.payslip-list{grid-template-columns:repeat(2,1fr)}.snapshot-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:1024px){.kanban{grid-template-columns:1fr 1fr}.leave-bal-grid{grid-template-columns:repeat(2,1fr)}.msg-layout{grid-template-columns:1fr;height:auto}.msg-sidebar{display:none}}
+@media(max-width:768px){
+  .sidebar{width:0;overflow:hidden;transition:.25s}.sidebar.open{width:var(--sb)}
+  .main{margin-left:0}.content{padding:16px}.grid2,.grid3,.fr{grid-template-columns:1fr}
+  .info-grid{grid-template-columns:1fr 1fr}.home-welcome{flex-direction:column}
+  .pulse-ring-wrap{flex-direction:column}.policy-grid{grid-template-columns:1fr}
+  .topbar{padding:12px 16px;flex-wrap:wrap}.tb-search input{width:140px}
+  .leave-bal-grid{grid-template-columns:1fr}.snapshot-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ──────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ══════════════ LOGIN ══════════════════════ -->
+<div id="login">
+  <div class="lw">
+    <div class="lw-logo">💼</div>
+    <h1>MyWork Portal</h1>
+    <p class="lw-sub">Your workspace, your way</p>
+    <div class="lf">
+      <label>Employee ID / Email</label>
+      <input id="l-user" type="text" placeholder="e.g. EMP-0042 or adaeze@company.com" value="EMP-0042"/>
+    </div>
+    <div class="lf">
+      <label>Password</label>
+      <input id="l-pass" type="password" placeholder="••••••••" value="password"/>
+    </div>
+    <div id="l-err" style="display:none;background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:9px 13px;font-size:12px;color:#991B1B;margin-bottom:12px"></div>
+    <button class="l-btn" id="l-btn" onclick="doLogin()">Sign In to MyWork</button>
+    <p class="l-demo">Enter your Ecclesia / ERPNext credentials</p>
+  </div>
+</div>
+
+<!-- ══════════════ NOTIFICATIONS DRAWER ══════ -->
+<div id="notif-drawer" style="display:none;position:fixed;top:0;right:0;bottom:0;width:360px;background:#fff;z-index:800;border-left:1px solid var(--bdr);flex-direction:column;box-shadow:-8px 0 32px rgba(0,0,0,.12)">
+  <div style="padding:18px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:16px;font-weight:800;color:var(--in)">🔔 Notifications</span>
+    <div style="display:flex;gap:10px;align-items:center">
+      <span style="font-size:12px;color:var(--vi);cursor:pointer;font-weight:600">Mark all read</span>
+      <button onclick="toggleNotif()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mu)">✕</button>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px" id="notif-list"></div>
+</div>
+
+<!-- ══════════════ APP SHELL ══════════════════ -->
+<div id="app" style="display:none;width:100%">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon">💼</div>
+    <div>
+      <div class="sb-brand-txt">MyWork</div>
+      <div class="sb-brand-sub">Employee Self-Service</div>
+    </div>
+  </div>
+  <div class="sb-me">
+    <div class="sb-av" id="sb-initials">AO</div>
+    <div class="sb-name" id="sb-name">Adaeze Okonkwo</div>
+    <div class="sb-role" id="sb-role">Senior Accountant</div>
+    <div class="sb-dept" id="sb-dept">Finance & Treasury · Lagos HQ</div>
+    <div class="sb-pulse">
+      <div class="pulse-dot"></div>
+      <span class="pulse-txt">Active today · Checked in 08:14</span>
+      <span class="pulse-score">87%</span>
+    </div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Workspace</div>
+    <div class="ni active" onclick="showPanel('home')"><span class="ico">🏠</span><span class="lbl">Home</span></div>
+    <div class="ni" onclick="showPanel('profile')"><span class="ico">👤</span><span class="lbl">My Profile</span></div>
+    <div class="ni" onclick="showPanel('messages')"><span class="ico">💬</span><span class="lbl">Messages</span><span class="bx" style="display:inline-block">3</span></div>
+
+    <div class="sb-sec">HR & Attendance</div>
+    <div class="ni" onclick="showPanel('attendance')"><span class="ico">⏰</span><span class="lbl">Attendance & Leave</span><span class="bx" style="display:inline-block">1</span></div>
+    <div class="ni" onclick="showPanel('payroll')"><span class="ico">💰</span><span class="lbl">My Payroll</span></div>
+    <div class="ni" onclick="showPanel('loans')"><span class="ico">💳</span><span class="lbl">Loans & Advances</span></div>
+
+    <div class="sb-sec">Growth & Compliance</div>
+    <div class="ni" onclick="showPanel('performance')"><span class="ico">⭐</span><span class="lbl">Performance & Goals</span></div>
+    <div class="ni" onclick="showPanel('tasks')"><span class="ico">✅</span><span class="lbl">Tasks & WFH</span><span class="bx" style="display:inline-block">4</span></div>
+    <div class="ni" onclick="showPanel('policies')"><span class="ico">📜</span><span class="lbl">Policy Library</span></div>
+    <div class="ni" onclick="showPanel('statutory')"><span class="ico">🛡️</span><span class="lbl">Statutory & Tax</span></div>
+
+    <div class="sb-sec">Account</div>
+    <div class="ni" onclick="showPanel('settings')"><span class="ico">⚙️</span><span class="lbl">Settings</span></div>
+  </nav>
+  <div class="sb-foot">
+    <div class="theme-row">
+      <div class="tdot active" style="background:var(--grad)" title="Indigo" onclick="setTheme('indigo')"></div>
+      <div class="tdot" style="background:linear-gradient(135deg,#065F46,#34D399)" title="Emerald" onclick="setTheme('emerald')"></div>
+      <div class="tdot" style="background:linear-gradient(135deg,#0C4A6E,#38BDF8)" title="Ocean" onclick="setTheme('ocean')"></div>
+      <div class="tdot" style="background:linear-gradient(135deg,#7F1D1D,#F97316)" title="Sunset" onclick="setTheme('sunset')"></div>
+      <div class="tdot" style="background:linear-gradient(135deg,#0F172A,#6366F1)" title="Midnight" onclick="setTheme('midnight')"></div>
+    </div>
+    <button class="sb-out" onclick="doLogout()">🚪 Sign Out</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-left">
+      <button onclick="toggleSidebar()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mu);display:none" id="sb-toggle">☰</button>
+      <div class="tb-title" id="tb-title">Home</div>
+      <span class="tb-breadcrumb" id="tb-breadcrumb">MyWork · Dashboard</span>
+    </div>
+    <div class="tb-right">
+      <div class="tb-date">📅 <span id="today-date"></span></div>
+      <div class="tb-search">
+        <span class="ico">🔎</span>
+        <input type="text" placeholder="Search anything..." oninput="globalSearch(this.value)"/>
+      </div>
+      <div class="icon-btn" onclick="showPanel('messages')" title="Messages">💬<div class="notif-dot"></div></div>
+      <div class="icon-btn" onclick="toggleNotif()" title="Notifications">🔔<div class="notif-dot"></div></div>
+      <div class="icon-btn" onclick="showPanel('profile')" title="My Profile" style="background:var(--grad);border-color:transparent;color:#fff;font-weight:700;font-size:13px" id="av-btn">AO</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- ═══ HOME PANEL ═══════════════════════ -->
+    <div class="panel active" id="panel-home">
+      <div class="home-welcome">
+        <div class="hw-txt">
+          <h2 id="greet-msg">Good morning, Adaeze! 👋</h2>
+          <p>You have <strong>3 pending actions</strong> and your pulse score is looking great this week.</p>
+          <div class="hw-quick">
+            <button class="hw-q-btn" onclick="openModal('modal-leave')">🌴 Apply Leave</button>
+            <button class="hw-q-btn" onclick="openModal('modal-wfh')">🏠 Log WFH</button>
+            <button class="hw-q-btn" onclick="openModal('modal-loan-apply')">💳 Apply Loan</button>
+            <button class="hw-q-btn" onclick="openModal('modal-expense')">🧾 Claim Expense</button>
+          </div>
+        </div>
+        <div class="hw-right">
+          <div class="hw-day" id="hw-day">1</div>
+          <div class="hw-date-lbl" id="hw-date-lbl">July 2026 · Wednesday</div>
+        </div>
+      </div>
+
+      <div class="snapshot-grid">
+        <div class="snap-card c1"><div class="sc-ico">⏰</div><div class="sc-lbl">Present Days</div><div class="sc-val">18</div><div class="sc-sub">of 22 working days this month</div></div>
+        <div class="snap-card c2"><div class="sc-ico">🌴</div><div class="sc-lbl">Leave Balance</div><div class="sc-val">12</div><div class="sc-sub">Annual days remaining</div></div>
+        <div class="snap-card c3"><div class="sc-ico">✅</div><div class="sc-lbl">Tasks Complete</div><div class="sc-val">7/9</div><div class="sc-sub">77.8% completion this cycle</div></div>
+        <div class="snap-card c4"><div class="sc-ico">⭐</div><div class="sc-lbl">Performance Score</div><div class="sc-val">87%</div><div class="sc-sub">Exceeds expectations · Q2 2026</div></div>
+      </div>
+
+      <div class="grid2" style="gap:20px">
+        <!-- Pulse Ring -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">💗 My Pulse <span class="pill pill-purple" style="font-size:10px;margin-left:4px">Live</span></span>
+            <span style="font-size:11px;color:var(--mu)">Overall engagement score</span>
+          </div>
+          <div class="card-body">
+            <div class="pulse-ring-wrap">
+              <div class="pulse-canvas-wrap">
+                <canvas id="pulseRingCanvas" width="180" height="180"></canvas>
+                <div class="pulse-center">
+                  <div class="pulse-score-big">87</div>
+                  <div class="pulse-score-lbl">Pulse Score</div>
+                </div>
+              </div>
+              <div class="pulse-legend">
+                <div class="pulse-leg-item">
+                  <div class="pl-val" style="color:#7C3AED">82%</div>
+                  <div class="pl-lbl">Attendance</div>
+                  <div class="pl-bar"><div class="pl-bar-fill" style="width:82%;background:#7C3AED"></div></div>
+                </div>
+                <div class="pulse-leg-item">
+                  <div class="pl-val" style="color:#F59E0B">78%</div>
+                  <div class="pl-lbl">Tasks Done</div>
+                  <div class="pl-bar"><div class="pl-bar-fill" style="width:78%;background:#F59E0B"></div></div>
+                </div>
+                <div class="pulse-leg-item">
+                  <div class="pl-val" style="color:#059669">90%</div>
+                  <div class="pl-lbl">Leave Health</div>
+                  <div class="pl-bar"><div class="pl-bar-fill" style="width:90%;background:#059669"></div></div>
+                </div>
+                <div class="pulse-leg-item">
+                  <div class="pl-val" style="color:#E11D48">87%</div>
+                  <div class="pl-lbl">Performance</div>
+                  <div class="pl-bar"><div class="pl-bar-fill" style="width:87%;background:#E11D48"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Actions -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">⚡ Pending Actions</span>
+            <span class="pill pill-red">3 items</span>
+          </div>
+          <div class="card-body">
+            <div class="pa-item">
+              <div class="pa-ico" style="background:#FEF3C7;color:#D97706">📋</div>
+              <div class="pa-txt">
+                <div class="pa-title">Policy Acknowledgement Due</div>
+                <div class="pa-sub">Information Security Policy — expires in 3 days</div>
+              </div>
+              <div class="pa-action"><button class="btn btn-sm btn-am" onclick="showPanel('policies')">Review</button></div>
+            </div>
+            <div class="pa-item">
+              <div class="pa-ico" style="background:#EDE9FE;color:#7C3AED">⭐</div>
+              <div class="pa-txt">
+                <div class="pa-title">Self-Appraisal Form Open</div>
+                <div class="pa-sub">Q2 2026 Appraisal Cycle · Due 15 Jul 2026</div>
+              </div>
+              <div class="pa-action"><button class="btn btn-sm btn-primary" onclick="showPanel('performance')">Fill Now</button></div>
+            </div>
+            <div class="pa-item">
+              <div class="pa-ico" style="background:#D1FAE5;color:#059669">💰</div>
+              <div class="pa-txt">
+                <div class="pa-title">June Payslip Available</div>
+                <div class="pa-sub">Net Pay: ₦485,600 · Click to download</div>
+              </div>
+              <div class="pa-action"><button class="btn btn-sm btn-success" onclick="showPanel('payroll')">View</button></div>
+            </div>
+            <div class="pa-item">
+              <div class="pa-ico" style="background:#DBEAFE;color:#1D4ED8">📅</div>
+              <div class="pa-txt">
+                <div class="pa-title">Leave Application Approved</div>
+                <div class="pa-sub">Annual Leave · 14–18 Jul 2026 approved by Mr Okafor</div>
+              </div>
+              <div class="pa-action"><span class="pill pill-green">✓ Done</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><span class="card-title">🕐 Recent Activity</span><span style="font-size:12px;color:var(--vi);cursor:pointer">View all</span></div>
+        <div class="card-body" style="padding:0">
+          <table class="dt">
+            <thead><tr><th>Action</th><th>Document</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody>
+              <tr><td>Leave Application</td><td>Annual Leave · 14–18 Jul</td><td><span class="pill pill-green">Approved</span></td><td>01 Jul 2026</td></tr>
+              <tr><td>Loan Repayment</td><td>Staff Loan · ELA-0023 — ₦25,000</td><td><span class="pill pill-blue">Processed</span></td><td>30 Jun 2026</td></tr>
+              <tr><td>WFH Session</td><td>Work From Home · 8hr session</td><td><span class="pill pill-purple">Completed</span></td><td>27 Jun 2026</td></tr>
+              <tr><td>Expense Claim</td><td>Transport to Abuja · ₦18,500</td><td><span class="pill pill-yellow">Pending</span></td><td>26 Jun 2026</td></tr>
+              <tr><td>Policy Acknowledged</td><td>Employee Code of Conduct v2.1</td><td><span class="pill pill-teal">Signed</span></td><td>20 Jun 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PROFILE PANEL ═════════════════════ -->
+    <div class="panel" id="panel-profile">
+      <div class="profile-banner">
+        <div class="prof-av">AO</div>
+        <div class="prof-meta">
+          <h2>Adaeze Okonkwo</h2>
+          <div class="role">Senior Accountant · Finance & Treasury</div>
+          <div class="dept">Lagos HQ · Reports to: Chukwuemeka Nwachukwu (CFO)</div>
+          <div class="prof-chips">
+            <span class="pc-chip">📋 EMP-0042</span>
+            <span class="pc-chip">🗓️ Joined 03 Jan 2022</span>
+            <span class="pc-chip">🎯 Grade: E4</span>
+            <span class="pc-chip">🏷️ Permanent</span>
+            <span class="pc-chip">📍 Lagos</span>
+          </div>
+        </div>
+        <div style="margin-left:auto;display:flex;flex-direction:column;gap:8px">
+          <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="openModal('modal-edit-profile')">✏️ Edit Profile</button>
+          <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="openModal('modal-handover')">🤲 New Handover Note</button>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="profileTab(this,'pt-info')">👤 Personal Info</div>
+        <div class="tab" onclick="profileTab(this,'pt-docs')">📁 Documents</div>
+        <div class="tab" onclick="profileTab(this,'pt-skills')">🧠 Skills & Training</div>
+        <div class="tab" onclick="profileTab(this,'pt-handover')">🤲 Handover Notes</div>
+      </div>
+
+      <div id="pt-info">
+        <div class="info-grid">
+          <div class="ib"><div class="ib-lbl">Full Name</div><div class="ib-val">Adaeze Perpetua Okonkwo</div></div>
+          <div class="ib"><div class="ib-lbl">Date of Birth</div><div class="ib-val">14 March 1994</div></div>
+          <div class="ib"><div class="ib-lbl">Gender</div><div class="ib-val">Female</div></div>
+          <div class="ib"><div class="ib-lbl">Phone</div><div class="ib-val">+234 803 456 7890</div></div>
+          <div class="ib"><div class="ib-lbl">Personal Email</div><div class="ib-val">adaeze.okonkwo@gmail.com</div></div>
+          <div class="ib"><div class="ib-lbl">Work Email</div><div class="ib-val">adaeze@ecclesia.ng</div></div>
+          <div class="ib"><div class="ib-lbl">NIN</div><div class="ib-val">••••••••••••</div></div>
+          <div class="ib"><div class="ib-lbl">BVN</div><div class="ib-val">••••••••••••</div></div>
+          <div class="ib"><div class="ib-lbl">Bank</div><div class="ib-val">GTBank — 014xxxxxxx</div></div>
+          <div class="ib"><div class="ib-lbl">Pension RSA</div><div class="ib-val">ARM Pension · PEN000987654</div></div>
+          <div class="ib"><div class="ib-lbl">Tax ID (TIN)</div><div class="ib-val">1234567890-0001</div></div>
+          <div class="ib"><div class="ib-lbl">NHF Number</div><div class="ib-val">NHF-02-4567891</div></div>
+        </div>
+        <div class="grid2" style="margin-top:4px">
+          <div class="card"><div class="card-header"><span class="card-title">🏥 HMO Details</span></div><div class="card-body">
+            <div class="salary-row"><span class="lbl">HMO Provider</span><span class="val">Leadway Health</span></div>
+            <div class="salary-row"><span class="lbl">Plan</span><span class="val">Silver — Family Cover</span></div>
+            <div class="salary-row"><span class="lbl">Member ID</span><span class="val">LWH-0042-2022</span></div>
+            <div class="salary-row"><span class="lbl">Renewal Date</span><span class="val">31 Dec 2026</span></div>
+          </div></div>
+          <div class="card"><div class="card-header"><span class="card-title">👨‍👩‍👧 Emergency Contact</span></div><div class="card-body">
+            <div class="salary-row"><span class="lbl">Name</span><span class="val">Emeka Okonkwo</span></div>
+            <div class="salary-row"><span class="lbl">Relationship</span><span class="val">Spouse</span></div>
+            <div class="salary-row"><span class="lbl">Phone</span><span class="val">+234 806 789 0123</span></div>
+            <div class="salary-row"><span class="lbl">Address</span><span class="val">12 Adeola Drive, VI, Lagos</span></div>
+          </div></div>
+        </div>
+      </div>
+
+      <div id="pt-docs" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span style="font-size:14px;font-weight:700;color:var(--tx)">Employee Documents (6)</span>
+          <button class="btn btn-primary btn-sm">📎 Upload Document</button>
+        </div>
+        <div class="doc-card"><div class="doc-ico">🪪</div><div><div class="doc-name">National ID Card</div><div class="doc-meta">NIN — Uploaded 15 Jan 2022 · Expires 14 Jan 2032</div></div><span class="pill pill-green" style="margin-left:auto">Valid</span></div>
+        <div class="doc-card"><div class="doc-ico">📜</div><div><div class="doc-name">Offer Letter</div><div class="doc-meta">Signed Offer — 28 Dec 2021</div></div><span class="pill pill-blue" style="margin-left:auto">On file</span></div>
+        <div class="doc-card"><div class="doc-ico">🎓</div><div><div class="doc-name">University Degree (BSc Accounting)</div><div class="doc-meta">University of Lagos · 2016 · Uploaded 03 Jan 2022</div></div><span class="pill pill-blue" style="margin-left:auto">On file</span></div>
+        <div class="doc-card"><div class="doc-ico">📋</div><div><div class="doc-name">ICAN Membership Certificate</div><div class="doc-meta">Associate — 2020 · Expires Dec 2026</div></div><span class="pill pill-yellow" style="margin-left:auto">Renewal due</span></div>
+        <div class="doc-card"><div class="doc-ico">🏦</div><div><div class="doc-name">Bank Account Confirmation Letter</div><div class="doc-meta">GTBank — Jan 2022</div></div><span class="pill pill-green" style="margin-left:auto">Valid</span></div>
+        <div class="doc-card"><div class="doc-ico">🛡️</div><div><div class="doc-name">Pension Statement (ARM)</div><div class="doc-meta">Latest — Mar 2026</div></div><span class="pill pill-green" style="margin-left:auto">Current</span></div>
+      </div>
+
+      <div id="pt-skills" style="display:none">
+        <div class="grid2">
+          <div class="card"><div class="card-header"><span class="card-title">🧠 Skills</span><button class="btn btn-sm btn-outline">+ Add Skill</button></div><div class="card-body">
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <span class="pill pill-purple">Financial Reporting</span><span class="pill pill-blue">ERPNext</span><span class="pill pill-green">IFRS</span><span class="pill pill-yellow">Tax Advisory</span><span class="pill pill-teal">Data Analysis</span><span class="pill pill-purple">ICAN</span><span class="pill pill-blue">Microsoft Excel</span><span class="pill pill-orange">Internal Audit</span>
+            </div>
+          </div></div>
+          <div class="card"><div class="card-header"><span class="card-title">🎓 Training History</span></div><div class="card-body" style="padding:0">
+            <table class="dt"><thead><tr><th>Course</th><th>Date</th><th>Result</th></tr></thead>
+            <tbody>
+              <tr><td>ERPNext Advanced</td><td>May 2026</td><td><span class="pill pill-green">Pass</span></td></tr>
+              <tr><td>ICAN CPD (Tax Updates)</td><td>Mar 2026</td><td><span class="pill pill-green">Pass</span></td></tr>
+              <tr><td>Leadership Essentials</td><td>Jan 2026</td><td><span class="pill pill-blue">Attended</span></td></tr>
+              <tr><td>Data Analytics (Excel)</td><td>Oct 2025</td><td><span class="pill pill-green">Pass</span></td></tr>
+            </tbody></table>
+          </div></div>
+        </div>
+      </div>
+
+      <div id="pt-handover" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span style="font-size:14px;font-weight:700;color:var(--tx)">Handover Notes</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-handover')">+ New Note</button>
+        </div>
+        <div class="doc-card"><div class="doc-ico" style="font-size:22px">🤲</div><div><div class="doc-name">Q2 Month-End Close Handover</div><div class="doc-meta">Delegated to Ngozi Eze · 28 Jun 2026 · Completed</div></div><span class="pill pill-green" style="margin-left:auto">Done</span></div>
+        <div class="doc-card"><div class="doc-ico" style="font-size:22px">🤲</div><div><div class="doc-name">Annual Leave Handover — July 2026</div><div class="doc-meta">Delegated to Michael Adeyemi · Active</div></div><span class="pill pill-yellow" style="margin-left:auto">Active</span></div>
+      </div>
+    </div>
+
+    <!-- ═══ ATTENDANCE PANEL ════════════════════ -->
+    <div class="panel" id="panel-attendance">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div>
+          <h2 style="font-size:20px;font-weight:800;color:var(--in)">Attendance & Leave</h2>
+          <p style="font-size:13px;color:var(--mu);margin-top:2px">July 2026 · 22 working days</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" onclick="openModal('modal-leave')">🌴 Apply for Leave</button>
+          <button class="btn btn-primary" onclick="openModal('modal-checkin')">⏰ Log Attendance</button>
+        </div>
+      </div>
+
+      <div class="leave-bal-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="lb-card annual"><div class="lb-label">Annual Leave</div><div class="lb-days">12</div><div class="lb-sub">of 20 remaining</div><div class="lb-prog"><div class="lb-prog-fill" style="width:60%;background:#7C3AED"></div></div></div>
+        <div class="lb-card sick"><div class="lb-label">Sick Leave</div><div class="lb-days">14</div><div class="lb-sub">of 15 remaining</div><div class="lb-prog"><div class="lb-prog-fill" style="width:93%;background:#E11D48"></div></div></div>
+        <div class="lb-card exam"><div class="lb-label">Exam Leave</div><div class="lb-days">3</div><div class="lb-sub">of 5 remaining</div><div class="lb-prog"><div class="lb-prog-fill" style="width:60%;background:#F59E0B"></div></div></div>
+        <div class="lb-card casual"><div class="lb-label">Casual Leave</div><div class="lb-days">5</div><div class="lb-sub">of 7 remaining</div><div class="lb-prog"><div class="lb-prog-fill" style="width:71%;background:#059669"></div></div></div>
+        <div class="lb-card maternity" style="--b:#EC4899"><div class="lb-label">Maternity</div><div class="lb-days">90</div><div class="lb-sub">days (unused)</div><div class="lb-prog"><div class="lb-prog-fill" style="width:100%;background:#EC4899"></div></div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">📅 June 2026 Attendance</span>
+            <div class="att-legend">
+              <div class="leg-item"><div class="leg-dot" style="background:#D1FAE5;border:1px solid #059669"></div>Present</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#FEE2E2;border:1px solid #EF4444"></div>Absent</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#DBEAFE;border:1px solid #3B82F6"></div>Holiday</div>
+              <div class="leg-item"><div class="leg-dot" style="background:#EDE9FE;border:1px solid #7C3AED"></div>WFH</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="att-cal" id="att-cal"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🌴 Leave History</span><button class="btn btn-sm btn-primary" onclick="openModal('modal-leave')">+ Apply</button></div>
+          <div class="card-body" style="padding:0">
+            <table class="dt"><thead><tr><th>Type</th><th>Duration</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Annual Leave</td><td>14–18 Jul 2026 <small style="color:var(--mu)">(5 days)</small></td><td><span class="pill pill-green">Approved</span></td></tr>
+              <tr><td>Sick Leave</td><td>05 Jun 2026 <small style="color:var(--mu)">(1 day)</small></td><td><span class="pill pill-green">Approved</span></td></tr>
+              <tr><td>Exam Leave</td><td>22–23 Apr 2026 <small style="color:var(--mu)">(2 days)</small></td><td><span class="pill pill-green">Approved</span></td></tr>
+              <tr><td>Annual Leave</td><td>24–28 Feb 2026 <small style="color:var(--mu)">(5 days)</small></td><td><span class="pill pill-green">Approved</span></td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PAYROLL PANEL ══════════════════════ -->
+    <div class="panel" id="panel-payroll">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="font-size:20px;font-weight:800;color:var(--in)">My Payroll</h2><p style="font-size:13px;color:var(--mu)">Salary slips, deductions & year-to-date summary</p></div>
+        <button class="btn btn-outline" onclick="openModal('modal-expense')">🧾 Claim Expense</button>
+      </div>
+
+      <div class="payslip-list">
+        <div class="payslip-card" onclick="openModal('modal-payslip')">
+          <div class="ps-month">June 2026</div>
+          <div class="ps-net">₦485,600</div>
+          <div class="ps-sub">Net Pay after all deductions</div>
+          <div class="ps-badges"><span class="pill pill-green">Paid</span><span class="pill pill-blue">Latest</span></div>
+        </div>
+        <div class="payslip-card" onclick="openModal('modal-payslip')">
+          <div class="ps-month">May 2026</div>
+          <div class="ps-net">₦485,600</div>
+          <div class="ps-sub">Net Pay after all deductions</div>
+          <div class="ps-badges"><span class="pill pill-green">Paid</span></div>
+        </div>
+        <div class="payslip-card" onclick="openModal('modal-payslip')">
+          <div class="ps-month">April 2026</div>
+          <div class="ps-net">₦485,600</div>
+          <div class="ps-sub">Net Pay after all deductions</div>
+          <div class="ps-badges"><span class="pill pill-green">Paid</span></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">💰 June 2026 Breakdown</span><button class="btn btn-sm btn-outline" onclick="openModal('modal-payslip')">📥 Download PDF</button></div>
+          <div class="card-body">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)">EARNINGS</div>
+            <div class="salary-row"><span class="lbl">Basic Salary</span><span class="val">₦350,000</span></div>
+            <div class="salary-row"><span class="lbl">Housing Allowance</span><span class="val">₦90,000</span></div>
+            <div class="salary-row"><span class="lbl">Transport Allowance</span><span class="val">₦40,000</span></div>
+            <div class="salary-row"><span class="lbl">Meal Allowance</span><span class="val">₦20,000</span></div>
+            <div class="salary-row" style="font-weight:700;color:var(--em)"><span class="lbl">Gross Pay</span><span class="val">₦500,000</span></div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin:12px 0 8px;padding-top:8px;border-top:1px solid var(--bdr)">DEDUCTIONS</div>
+            <div class="salary-row deduction"><span class="lbl">PAYE Tax</span><span class="val">−₦8,400</span></div>
+            <div class="salary-row deduction"><span class="lbl">Pension (8%)</span><span class="val">−₦4,000</span></div>
+            <div class="salary-row deduction"><span class="lbl">NHF (2.5%)</span><span class="val">−₦1,000</span></div>
+            <div class="salary-row deduction"><span class="lbl">Loan Repayment</span><span class="val">−₦25,000</span></div>
+            <div class="salary-row total"><span class="lbl">Net Pay</span><span class="val">₦485,600</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 YTD Gross Earnings</span></div>
+          <div class="card-body">
+            <div class="chart-wrap"><canvas id="payrollChart"></canvas></div>
+            <div class="grid2" style="gap:10px;margin-top:14px">
+              <div style="background:var(--surf2);border-radius:9px;padding:12px 14px"><div style="font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;margin-bottom:3px">YTD Gross</div><div style="font-size:20px;font-weight:900;color:var(--in)">₦3.0M</div></div>
+              <div style="background:var(--surf2);border-radius:9px;padding:12px 14px"><div style="font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;margin-bottom:3px">YTD Tax</div><div style="font-size:20px;font-weight:900;color:var(--rose)">₦50,400</div></div>
+              <div style="background:var(--surf2);border-radius:9px;padding:12px 14px"><div style="font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;margin-bottom:3px">YTD Pension</div><div style="font-size:20px;font-weight:900;color:var(--vi)">₦24,000</div></div>
+              <div style="background:var(--surf2);border-radius:9px;padding:12px 14px"><div style="font-size:10px;color:var(--mu);font-weight:700;text-transform:uppercase;margin-bottom:3px">YTD Net</div><div style="font-size:20px;font-weight:900;color:var(--em)">₦2.91M</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ LOANS PANEL ════════════════════════ -->
+    <div class="panel" id="panel-loans">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="font-size:20px;font-weight:800;color:var(--in)">Loans & Advances</h2><p style="font-size:13px;color:var(--mu)">Staff loans, expenses & repayment schedules</p></div>
+        <div style="display:flex;gap:10px"><button class="btn btn-outline" onclick="openModal('modal-expense')">🧾 Claim Expense</button><button class="btn btn-primary" onclick="openModal('modal-loan-apply')">💳 Apply for Loan</button></div>
+      </div>
+
+      <div class="loan-hero">
+        <div><h3>Total Outstanding Balance</h3><div class="amount">₦175,000</div><div style="font-size:12px;opacity:.8;margin-top:2px">Across 1 active loan · ₦25,000/month repayment</div></div>
+        <div style="text-align:right"><div style="font-size:13px;opacity:.8;margin-bottom:4px">Next Deduction</div><div style="font-size:24px;font-weight:900">₦25,000</div><div style="font-size:12px;opacity:.7">31 July 2026 via Payroll</div></div>
+      </div>
+
+      <div class="loan-active-card">
+        <div class="lac-header">
+          <div>
+            <div class="lac-type">🏠 Housing Support Loan</div>
+            <div class="lac-ref">ELA-2025-0023 · Applied 01 Sep 2025 · Approved by CFO</div>
+          </div>
+          <span class="pill pill-green">Active</span>
+        </div>
+        <div class="lac-amounts">
+          <div class="lac-a"><div class="lac-a-lbl">Principal</div><div class="lac-a-val">₦300,000</div></div>
+          <div class="lac-a"><div class="lac-a-lbl">Paid to Date</div><div class="lac-a-val">₦125,000</div></div>
+          <div class="lac-a"><div class="lac-a-lbl">Balance</div><div class="lac-a-val" style="color:var(--rose)">₦175,000</div></div>
+        </div>
+        <div class="lac-prog">
+          <div class="lac-prog-lbl"><span>Repayment Progress</span><span style="font-weight:700;color:var(--em)">41.7%</span></div>
+          <div class="prog-bar"><div class="prog-fill" style="width:41.7%;background:linear-gradient(90deg,#059669,#34D399)"></div></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">📅 Repayment Schedule</span></div>
+          <div class="card-body" style="padding:0">
+            <table class="dt"><thead><tr><th>#</th><th>Month</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td><span style="font-size:11px;color:var(--mu)">#6</span></td><td>Jul 2026</td><td>₦25,000</td><td><span class="pill pill-yellow">Upcoming</span></td></tr>
+              <tr><td><span style="font-size:11px;color:var(--mu)">#5</span></td><td>Jun 2026</td><td>₦25,000</td><td><span class="pill pill-green">Paid</span></td></tr>
+              <tr><td><span style="font-size:11px;color:var(--mu)">#4</span></td><td>May 2026</td><td>₦25,000</td><td><span class="pill pill-green">Paid</span></td></tr>
+              <tr><td><span style="font-size:11px;color:var(--mu)">#3</span></td><td>Apr 2026</td><td>₦25,000</td><td><span class="pill pill-green">Paid</span></td></tr>
+              <tr><td><span style="font-size:11px;color:var(--mu)">#2</span></td><td>Mar 2026</td><td>₦25,000</td><td><span class="pill pill-green">Paid</span></td></tr>
+              <tr><td><span style="font-size:11px;color:var(--mu)">#1</span></td><td>Feb 2026</td><td>₦25,000</td><td><span class="pill pill-green">Paid</span></td></tr>
+            </tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">🧾 Expense Claims</span><button class="btn btn-sm btn-primary" onclick="openModal('modal-expense')">+ New</button></div>
+          <div class="card-body" style="padding:0">
+            <table class="dt"><thead><tr><th>Description</th><th>Amount</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Transport to Abuja</td><td>₦18,500</td><td><span class="pill pill-yellow">Pending</span></td></tr>
+              <tr><td>Client Entertainment</td><td>₦32,000</td><td><span class="pill pill-green">Approved</span></td></tr>
+              <tr><td>Stationery Purchase</td><td>₦4,200</td><td><span class="pill pill-green">Paid</span></td></tr>
+              <tr><td>Staff Training</td><td>₦75,000</td><td><span class="pill pill-green">Paid</span></td></tr>
+            </tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PERFORMANCE PANEL ══════════════════ -->
+    <div class="panel" id="panel-performance">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="font-size:20px;font-weight:800;color:var(--in)">Performance & Goals</h2><p style="font-size:13px;color:var(--mu)">Q2 2026 Appraisal Cycle · Active</p></div>
+        <div style="display:flex;gap:10px"><button class="btn btn-outline">📥 Download Appraisal</button><button class="btn btn-primary btn-am" onclick="openModal('modal-self-appraisal')">⭐ Complete Self-Appraisal</button></div>
+      </div>
+
+      <div class="perf-score-banner">
+        <div class="perf-ring">
+          <canvas id="perfRingCanvas" width="90" height="90"></canvas>
+          <div class="perf-ring-center">
+            <div class="perf-score-num">87</div>
+            <div class="perf-score-lbl">Score</div>
+          </div>
+        </div>
+        <div class="perf-info">
+          <h3>Exceeds Expectations 🌟</h3>
+          <p>Q2 2026 · Reviewed by Chukwuemeka Nwachukwu · 25 Jun 2026</p>
+          <div class="perf-stats">
+            <div class="perf-stat"><div class="v">5/6</div><div class="l">Goals Met</div></div>
+            <div class="perf-stat"><div class="v">4.3</div><div class="l">Manager Rating</div></div>
+            <div class="perf-stat"><div class="v">4.1</div><div class="l">Peer Rating</div></div>
+            <div class="perf-stat"><div class="v">4</div><div class="l">Trainings Done</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header"><span class="card-title">🎯 My Goals — Q2 2026</span><button class="btn btn-sm btn-outline" onclick="openModal('modal-add-goal')">+ Add Goal</button></div>
+        <div class="card-body">
+          <div class="goal-item">
+            <div class="goal-ico" style="background:#D1FAE5;color:#059669">📊</div>
+            <div class="goal-txt">
+              <div class="goal-title">Complete IFRS 17 Financial Statements for FY2025</div>
+              <div class="goal-meta">Category: Financial Reporting · Due: 30 Jun 2026</div>
+              <div class="goal-prog"><div class="goal-prog-row"><span>Progress</span><span style="font-weight:700;color:#059669">100%</span></div><div class="prog-bar" style="margin-top:4px"><div class="prog-fill" style="width:100%;background:#059669"></div></div></div>
+            </div>
+            <span class="pill pill-green">✓ Done</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-ico" style="background:#EDE9FE;color:#7C3AED">🤖</div>
+            <div class="goal-txt">
+              <div class="goal-title">ERPNext Customization Certification</div>
+              <div class="goal-meta">Category: Professional Development · Due: 31 Jul 2026</div>
+              <div class="goal-prog"><div class="goal-prog-row"><span>Progress</span><span style="font-weight:700;color:#7C3AED">70%</span></div><div class="prog-bar" style="margin-top:4px"><div class="prog-fill" style="width:70%;background:#7C3AED"></div></div></div>
+            </div>
+            <span class="pill pill-purple">In Progress</span>
+          </div>
+          <div class="goal-item">
+            <div class="goal-ico" style="background:#FEF3C7;color:#D97706">🎯</div>
+            <div class="goal-txt">
+              <div class="goal-title">Reduce Month-End Close Cycle from 7 to 5 days</div>
+              <div class="goal-meta">Category: Process Improvement · Due: 30 Sep 2026</div>
+              <div class="goal-prog"><div class="goal-prog-row"><span>Progress</span><span style="font-weight:700;color:#D97706">45%</span></div><div class="prog-bar" style="margin-top:4px"><div class="prog-fill" style="width:45%;background:#F59E0B"></div></div></div>
+            </div>
+            <span class="pill pill-yellow">On Track</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card"><div class="card-header"><span class="card-title">📜 Appraisal History</span></div><div class="card-body" style="padding:0">
+          <table class="dt"><thead><tr><th>Cycle</th><th>Rating</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>Q2 2026</td><td><span class="pill pill-green">Exceeds Expectations</span></td><td><strong>87%</strong></td></tr>
+            <tr><td>Q1 2026</td><td><span class="pill pill-blue">Meets Expectations</span></td><td><strong>80%</strong></td></tr>
+            <tr><td>FY2025</td><td><span class="pill pill-green">Exceeds Expectations</span></td><td><strong>85%</strong></td></tr>
+            <tr><td>FY2024</td><td><span class="pill pill-blue">Meets Expectations</span></td><td><strong>78%</strong></td></tr>
+          </tbody></table>
+        </div></div>
+        <div class="card"><div class="card-header"><span class="card-title">🎓 Training Plan</span><button class="btn btn-sm btn-outline" onclick="showToast('Training request sent to HR')">+ Request</button></div><div class="card-body" style="padding:0">
+          <table class="dt"><thead><tr><th>Training</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>ICAN CPD 2026</td><td>Sep 2026</td><td><span class="pill pill-yellow">Planned</span></td></tr>
+            <tr><td>Leadership in Finance</td><td>Aug 2026</td><td><span class="pill pill-blue">Registered</span></td></tr>
+            <tr><td>ERPNext Advanced</td><td>May 2026</td><td><span class="pill pill-green">Completed</span></td></tr>
+          </tbody></table>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ═══ TASKS & WFH PANEL ══════════════════ -->
+    <div class="panel" id="panel-tasks">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="font-size:20px;font-weight:800;color:var(--in)">Tasks & Work From Home</h2><p style="font-size:13px;color:var(--mu)">ESS Tasks, WFH sessions & work activity log</p></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" onclick="openModal('modal-wfh')">🏠 Log WFH</button>
+          <button class="btn btn-primary" onclick="openModal('modal-task')">+ New Task</button>
+        </div>
+      </div>
+
+      <div class="wfh-today">
+        <div><h3>🏠 WFH Status — Today</h3><p>You are currently working from home · Session started 08:14 AM</p></div>
+        <div style="text-align:right"><div class="wfh-clock" id="wfh-clock">00:00:00</div><div style="font-size:12px;opacity:.85;margin-top:4px">Session duration</div></div>
+      </div>
+
+      <div class="kanban">
+        <div class="kb-col">
+          <div class="kb-col-header">📋 To Do <span class="kb-count">2</span></div>
+          <div class="task-card"><div class="tc-title">Submit variance analysis for Q2 budget</div><div class="tc-meta"><span class="pill pill-red" style="font-size:10px">Urgent</span><span style="font-size:10px;color:var(--mu)">Due 05 Jul</span></div></div>
+          <div class="task-card"><div class="tc-title">Reconcile petty cash for June 2026</div><div class="tc-meta"><span class="pill pill-yellow" style="font-size:10px">Medium</span><span style="font-size:10px;color:var(--mu)">Due 10 Jul</span></div></div>
+        </div>
+        <div class="kb-col">
+          <div class="kb-col-header">⚡ In Progress <span class="kb-count">4</span></div>
+          <div class="task-card"><div class="tc-title">Prepare IFRS 9 ECL model for FY2026</div><div class="tc-meta"><span class="pill pill-purple" style="font-size:10px">Ongoing</span></div></div>
+          <div class="task-card"><div class="tc-title">ERPNext customization module testing</div><div class="tc-meta"><span class="pill pill-blue" style="font-size:10px">In Review</span></div></div>
+          <div class="task-card"><div class="tc-title">Draft Management Accounts — June</div><div class="tc-meta"><span class="pill pill-yellow" style="font-size:10px">65%</span></div></div>
+          <div class="task-card"><div class="tc-title">Vendor payment batch authorization</div><div class="tc-meta"><span class="pill pill-purple" style="font-size:10px">Pending Approval</span></div></div>
+        </div>
+        <div class="kb-col">
+          <div class="kb-col-header">✅ Done <span class="kb-count">7</span></div>
+          <div class="task-card"><div class="tc-title">Month-end journal entries — June 2026</div><div class="tc-meta"><span class="pill pill-green" style="font-size:10px">Complete</span></div></div>
+          <div class="task-card"><div class="tc-title">Bank reconciliation — all accounts</div><div class="tc-meta"><span class="pill pill-green" style="font-size:10px">Complete</span></div></div>
+          <div class="task-card"><div class="tc-title">Staff payroll processing — June</div><div class="tc-meta"><span class="pill pill-green" style="font-size:10px">Complete</span></div></div>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:4px">
+        <div class="card">
+          <div class="card-header"><span class="card-title">🕐 Today's Work Sessions</span></div>
+          <div class="card-body">
+            <div class="session-row"><div class="session-dot" style="background:#059669"></div><div style="flex:1"><strong>WFH Session</strong> — Started 08:14 AM<div style="font-size:11px;color:var(--mu)">ERPNext module testing · Still active</div></div><span class="pill pill-green">Active</span></div>
+            <div class="session-row"><div class="session-dot" style="background:#7C3AED"></div><div style="flex:1"><strong>Break</strong> — 12:30–13:15 PM<div style="font-size:11px;color:var(--mu)">Lunch break · 45 min</div></div><span class="pill pill-grey">Done</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 This Week's Activity</span></div>
+          <div class="card-body">
+            <div class="chart-wrap" style="height:150px"><canvas id="activityChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ POLICIES PANEL ════════════════════ -->
+    <div class="panel" id="panel-policies">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+        <div><h2 style="font-size:20px;font-weight:800;color:var(--in)">Company Policy Library</h2><p style="font-size:13px;color:var(--mu)">Read, download & acknowledge company policies</p></div>
+        <div class="fbar">
+          <input type="text" class="si" placeholder="Search policies..." oninput="filterPolicies(this.value)"/>
+          <select class="ssel" onchange="filterPolicies()"><option>All Categories</option><option>HR Policies</option><option>Finance</option><option>Compliance</option><option>IT & Security</option></select>
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-bottom:16px;gap:10px">
+        <div style="background:linear-gradient(135deg,#F5F3FF,#EDE9FE);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;border:1px solid #DDD6FE">
+          <span style="font-size:28px">📜</span>
+          <div><div style="font-size:18px;font-weight:900;color:var(--vi)">8/10</div><div style="font-size:12px;color:var(--mu)">Policies acknowledged</div></div>
+        </div>
+        <div style="background:linear-gradient(135deg,#FFF7ED,#FEF3C7);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;border:1px solid #FDE68A">
+          <span style="font-size:28px">⚠️</span>
+          <div><div style="font-size:18px;font-weight:900;color:#D97706">2</div><div style="font-size:12px;color:var(--mu)">Pending acknowledgements</div></div>
+        </div>
+      </div>
+
+      <div class="policy-grid" id="policy-grid">
+        <div class="policy-card" style="--before-bg:var(--vi)" onclick="openModal('modal-policy')">
+          <div class="policy-card" style="position:static;padding:0;border:none;box-shadow:none">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:var(--vi)"></div>
+          <div class="pc-cat">🛡️ Compliance</div>
+          <div class="pc-title">Information Security Policy</div>
+          <div class="pc-desc">Guidelines for data handling, access control, password management and information security best practices across all company systems and devices.</div>
+          <div class="pc-footer"><div class="pc-ack pending">⚠️ Acknowledgement required</div><div class="pc-date">Updated 01 Jun 2026 · v3.0</div></div>
+          </div>
+        </div>
+        <div class="policy-card" onclick="openModal('modal-policy')">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#059669"></div>
+          <div class="pc-cat">👤 HR Policies</div>
+          <div class="pc-title">Employee Code of Conduct</div>
+          <div class="pc-desc">Standards of professional behavior, ethics, dress code and workplace conduct expected of all Ecclesia employees across all locations.</div>
+          <div class="pc-footer"><div class="pc-ack done">✅ Acknowledged — 20 Jun 2026</div><div class="pc-date">Updated 15 May 2026 · v2.1</div></div>
+        </div>
+        <div class="policy-card" onclick="openModal('modal-policy')">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#F59E0B"></div>
+          <div class="pc-cat">⏰ HR Policies</div>
+          <div class="pc-title">Leave & Absence Policy</div>
+          <div class="pc-desc">Procedures for annual leave, sick leave, emergency leave, maternity/paternity leave and other types of absence including application and approval processes.</div>
+          <div class="pc-footer"><div class="pc-ack done">✅ Acknowledged — 15 Jan 2026</div><div class="pc-date">Updated 01 Jan 2026 · v4.2</div></div>
+        </div>
+        <div class="policy-card" onclick="openModal('modal-policy')">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#E11D48"></div>
+          <div class="pc-cat">⚠️ Compliance</div>
+          <div class="pc-title">Anti-Money Laundering (AML) Policy</div>
+          <div class="pc-desc">Know Your Customer procedures, suspicious transaction reporting obligations and compliance with CBN AML/CFT guidelines for all relevant staff.</div>
+          <div class="pc-footer"><div class="pc-ack pending">⚠️ Acknowledgement required</div><div class="pc-date">Updated 10 Jun 2026 · v2.0</div></div>
+        </div>
+        <div class="policy-card" onclick="openModal('modal-policy')">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#0284C7"></div>
+          <div class="pc-cat">💰 Finance</div>
+          <div class="pc-title">Expense Claim & Reimbursement Policy</div>
+          <div class="pc-desc">Procedures and approval thresholds for submitting, approving and reimbursing employee expense claims including travel, accommodation and entertainment.</div>
+          <div class="pc-footer"><div class="pc-ack done">✅ Acknowledged — 03 Jan 2026</div><div class="pc-date">Updated 01 Jan 2026 · v1.5</div></div>
+        </div>
+        <div class="policy-card" onclick="openModal('modal-policy')">
+          <div style="position:absolute;top:0;left:0;right:0;height:4px;background:#7C3AED"></div>
+          <div class="pc-cat">🏠 HR Policies</div>
+          <div class="pc-title">Remote Work (WFH) Policy</div>
+          <div class="pc-desc">Eligibility, scheduling, productivity tracking and IT security requirements for employees approved to work from home on a regular or occasional basis.</div>
+          <div class="pc-footer"><div class="pc-ack done">✅ Acknowledged — 02 Feb 2026</div><div class="pc-date">Updated 01 Feb 2026 · v1.0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MESSAGES PANEL ════════════════════ -->
+    <div class="panel" id="panel-messages">
+      <div style="margin-bottom:20px"><h2 style="font-size:20px;font-weight:800;color:var(--in)">Messages & Announcements</h2><p style="font-size:13px;color:var(--mu)">Internal chats, communiqués & company-wide announcements</p></div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="msgTab(this,'mt-chats')">💬 Chats <span class="pill pill-purple" style="font-size:10px;margin-left:4px">3</span></div>
+        <div class="tab" onclick="msgTab(this,'mt-announcements')">📢 Announcements</div>
+        <div class="tab" onclick="msgTab(this,'mt-communiques')">📋 Communiqués</div>
+      </div>
+
+      <div id="mt-chats">
+        <div class="msg-layout">
+          <div class="msg-sidebar">
+            <div class="msg-sb-head"><h4>Conversations</h4><button class="btn btn-sm btn-primary" onclick="showToast('New conversation started')">+ New</button></div>
+            <div class="msg-search"><input type="text" placeholder="Search conversations..."/></div>
+            <div class="thread-list">
+              <div class="thread-item active">
+                <div class="thread-av">EN</div>
+                <div class="thread-meta">
+                  <div class="thread-name">Emeka Nwachukwu<span class="thread-time">2m</span></div>
+                  <div class="thread-preview">Can you send the June payroll summary...</div>
+                  <div class="thread-unread">2</div>
+                </div>
+              </div>
+              <div class="thread-item">
+                <div class="thread-av ann">📢</div>
+                <div class="thread-meta">
+                  <div class="thread-name">HR Announcements<span class="thread-time">1h</span></div>
+                  <div class="thread-preview">New leave policy effective August 1...</div>
+                </div>
+              </div>
+              <div class="thread-item">
+                <div class="thread-av" style="background:linear-gradient(135deg,#059669,#34D399)">NG</div>
+                <div class="thread-meta">
+                  <div class="thread-name">Ngozi Eze<span class="thread-time">3h</span></div>
+                  <div class="thread-preview">The budget file is ready for review</div>
+                  <div class="thread-unread">1</div>
+                </div>
+              </div>
+              <div class="thread-item">
+                <div class="thread-av" style="background:linear-gradient(135deg,#0284C7,#38BDF8)">MA</div>
+                <div class="thread-meta">
+                  <div class="thread-name">Michael Adeyemi<span class="thread-time">1d</span></div>
+                  <div class="thread-preview">Thanks for the handover note!</div>
+                </div>
+              </div>
+              <div class="thread-item">
+                <div class="thread-av" style="background:linear-gradient(135deg,#E11D48,#FB7185)">HR</div>
+                <div class="thread-meta">
+                  <div class="thread-name">HR Team<span class="thread-time">2d</span></div>
+                  <div class="thread-preview">Your leave for July 14–18 has been approved</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="msg-main">
+            <div class="msg-head">
+              <div class="msg-head-av">EN</div>
+              <div><div class="msg-head-name">Emeka Nwachukwu</div><div class="msg-head-sub">CFO · Online now</div></div>
+              <div style="margin-left:auto;display:flex;gap:8px">
+                <button class="btn btn-sm btn-outline">📞 Call</button>
+                <button class="btn btn-sm btn-outline">📁 Files</button>
+              </div>
+            </div>
+            <div class="msg-body">
+              <div class="msg-bubble-wrap">
+                <div class="msg-bubble-av">EN</div>
+                <div class="msg-bubble them">Good morning Adaeze! Can you send the June payroll summary to me by 11 AM?<div class="msg-time">09:02 AM</div></div>
+              </div>
+              <div class="msg-bubble-wrap me">
+                <div class="msg-bubble me">Good morning sir! Of course, I'm working on it right now. Will have it with you by 10:30 AM.<div class="msg-time">09:05 AM</div></div>
+                <div class="msg-bubble-av" style="background:var(--grad);color:#fff;font-size:11px;font-weight:700;border:none">AO</div>
+              </div>
+              <div class="msg-bubble-wrap">
+                <div class="msg-bubble-av">EN</div>
+                <div class="msg-bubble them">Perfect, thank you. Also please include the YTD variance report.<div class="msg-time">09:07 AM</div></div>
+              </div>
+              <div class="msg-bubble-wrap me">
+                <div class="msg-bubble me">Understood. I'll attach both the payroll summary and variance report. Should be ready shortly.<div class="msg-time">09:10 AM</div></div>
+                <div class="msg-bubble-av" style="background:var(--grad);color:#fff;font-size:11px;font-weight:700;border:none">AO</div>
+              </div>
+            </div>
+            <div class="msg-input-area">
+              <textarea class="msg-input" rows="1" placeholder="Type a message..." onkeydown="sendMsg(event)"></textarea>
+              <button class="btn btn-primary" onclick="showToast('Message sent')">Send ➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="mt-announcements" style="display:none">
+        <div class="ann-card"><div class="ann-tag">📢 Company-Wide · HR</div><div class="ann-title">Updated Leave Policy — Effective 1 August 2026</div><div class="ann-body">The board has approved updates to the Leave & Absence Policy. Key changes include: increased annual leave allocation from 18 to 20 days, introduction of 3-day paternity leave, and revised carry-over rules. All employees must acknowledge the updated policy by 25 July 2026.</div><div class="ann-meta">Posted by HR Team · 30 Jun 2026</div></div>
+        <div class="ann-card"><div class="ann-tag">📢 Finance · Reminder</div><div class="ann-title">Q2 2026 Financial Reporting Deadline — 10 July 2026</div><div class="ann-body">All departments are reminded to complete Q2 budget reconciliations and submit supporting documents to Finance by 10 July 2026. Late submissions will delay the Board presentation scheduled for 15 July.</div><div class="ann-meta">Posted by CFO Office · 29 Jun 2026</div></div>
+        <div class="ann-card"><div class="ann-tag">🎉 Culture</div><div class="ann-title">Employee of the Quarter — Q1 2026</div><div class="ann-body">We are pleased to announce that Ngozi Eze (IT Department) has been selected as Employee of the Quarter for Q1 2026. Please join us in congratulating her for her outstanding contributions to the ERP implementation project.</div><div class="ann-meta">Posted by MD Office · 15 Apr 2026</div></div>
+      </div>
+
+      <div id="mt-communiques" style="display:none">
+        <div class="card"><div class="card-body" style="padding:0">
+          <table class="dt"><thead><tr><th>Title</th><th>From</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Board Directive — Cost Reduction Measures</strong></td><td>Managing Director</td><td>28 Jun 2026</td><td><button class="btn btn-xs btn-outline" onclick="showToast('Opening communiqué...')">Read</button></td></tr>
+            <tr><td><strong>IT Policy: Acceptable Use of Company Systems</strong></td><td>IT Department</td><td>20 Jun 2026</td><td><button class="btn btn-xs btn-outline" onclick="showToast('Opening communiqué...')">Read</button></td></tr>
+            <tr><td><strong>Q2 Town Hall Recap — Key Decisions</strong></td><td>HR Team</td><td>10 Jun 2026</td><td><button class="btn btn-xs btn-outline" onclick="showToast('Opening communiqué...')">Read</button></td></tr>
+          </tbody></table>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ═══ STATUTORY PANEL ═══════════════════ -->
+    <div class="panel" id="panel-statutory">
+      <div style="margin-bottom:20px"><h2 style="font-size:20px;font-weight:800;color:var(--in)">Statutory & Tax</h2><p style="font-size:13px;color:var(--mu)">Your statutory contributions & tax position · FY2026</p></div>
+
+      <div class="grid4" style="margin-bottom:22px">
+        <div style="background:linear-gradient(135deg,#059669,#34D399);border-radius:12px;padding:16px 18px;color:#fff"><div style="font-size:10px;opacity:.8;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">YTD Pension (8%+10%)</div><div style="font-size:24px;font-weight:900">₦216,000</div><div style="font-size:11px;opacity:.8;margin-top:3px">ARM Pension Managers</div></div>
+        <div style="background:linear-gradient(135deg,#0284C7,#38BDF8);border-radius:12px;padding:16px 18px;color:#fff"><div style="font-size:10px;opacity:.8;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">YTD PAYE Tax</div><div style="font-size:24px;font-weight:900">₦50,400</div><div style="font-size:11px;opacity:.8;margin-top:3px">Lagos State IRS</div></div>
+        <div style="background:linear-gradient(135deg,#D97706,#FCD34D);border-radius:12px;padding:16px 18px;color:#fff"><div style="font-size:10px;opacity:.8;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">YTD NHF (2.5%)</div><div style="font-size:24px;font-weight:900">₦6,000</div><div style="font-size:11px;opacity:.8;margin-top:3px">Federal Mortgage Bank</div></div>
+        <div style="background:linear-gradient(135deg,#7C3AED,#A78BFA);border-radius:12px;padding:16px 18px;color:#fff"><div style="font-size:10px;opacity:.8;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Tax Relief Balance</div><div style="font-size:24px;font-weight:900">₦340K</div><div style="font-size:11px;opacity:.8;margin-top:3px">Consolidated Relief Allowance</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-header"><span class="card-title">📊 2026 Tax Computation</span><button class="btn btn-sm btn-outline" onclick="showToast('Downloading tax computation...')">📥 Download</button></div>
+          <div class="card-body">
+            <div class="salary-row"><span class="lbl">Annual Gross Income</span><span class="val">₦6,000,000</span></div>
+            <div class="salary-row deduction"><span class="lbl">Consolidated Relief Allowance (20% + ₦200k)</span><span class="val">−₦1,400,000</span></div>
+            <div class="salary-row deduction"><span class="lbl">Pension Deduction (Employee 8%)</span><span class="val">−₦480,000</span></div>
+            <div class="salary-row deduction"><span class="lbl">NHF Deduction</span><span class="val">−₦72,000</span></div>
+            <div class="salary-row" style="font-weight:700"><span class="lbl">Taxable Income</span><span class="val">₦4,048,000</span></div>
+            <hr style="border:none;border-top:1px solid var(--bdr);margin:8px 0"/>
+            <div class="salary-row"><span class="lbl">Tax on ₦300k @ 7%</span><span class="val">₦21,000</span></div>
+            <div class="salary-row"><span class="lbl">Tax on ₦300k @ 11%</span><span class="val">₦33,000</span></div>
+            <div class="salary-row"><span class="lbl">Tax on balance @ 15%</span><span class="val">₦52,200</span></div>
+            <div class="salary-row total"><span class="lbl">Annual PAYE Tax</span><span class="val">₦106,200</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">🏦 Pension Details</span><button class="btn btn-sm btn-outline" onclick="showToast('Downloading pension statement...')">📥 Statement</button></div>
+          <div class="card-body">
+            <div style="background:linear-gradient(135deg,#F0FDF4,#D1FAE5);border-radius:10px;padding:14px;margin-bottom:14px;border:1px solid #A7F3D0">
+              <div style="font-size:11px;color:#059669;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">Estimated RSA Balance</div>
+              <div style="font-size:32px;font-weight:900;color:#065F46">₦1,240,500</div>
+              <div style="font-size:11px;color:#059669;margin-top:3px">ARM Pension Managers · As at Jun 2026</div>
+            </div>
+            <div class="salary-row"><span class="lbl">PFA</span><span class="val">ARM Pension Managers</span></div>
+            <div class="salary-row"><span class="lbl">RSA PIN</span><span class="val">PEN000987654</span></div>
+            <div class="salary-row"><span class="lbl">Employee Contribution (8%)</span><span class="val">₦40,000/month</span></div>
+            <div class="salary-row"><span class="lbl">Employer Contribution (10%)</span><span class="val">₦50,000/month</span></div>
+            <div class="salary-row"><span class="lbl">Total Monthly</span><span class="val" style="color:#059669;font-weight:700">₦90,000</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SETTINGS PANEL ════════════════════ -->
+    <div class="panel" id="panel-settings">
+      <h2 style="font-size:20px;font-weight:800;color:var(--in);margin-bottom:22px">Settings & Preferences</h2>
+
+      <div class="settings-section">
+        <div class="ss-title">🎨 Portal Theme</div>
+        <div class="theme-palette">
+          <div class="theme-opt active" onclick="setTheme('indigo');settingsTheme(this)"><div class="theme-swatch" style="background:linear-gradient(135deg,#312E81,#7C3AED)"></div><div class="theme-name">Indigo</div></div>
+          <div class="theme-opt" onclick="setTheme('emerald');settingsTheme(this)"><div class="theme-swatch" style="background:linear-gradient(135deg,#065F46,#34D399)"></div><div class="theme-name">Emerald</div></div>
+          <div class="theme-opt" onclick="setTheme('ocean');settingsTheme(this)"><div class="theme-swatch" style="background:linear-gradient(135deg,#0C4A6E,#38BDF8)"></div><div class="theme-name">Ocean</div></div>
+          <div class="theme-opt" onclick="setTheme('sunset');settingsTheme(this)"><div class="theme-swatch" style="background:linear-gradient(135deg,#7F1D1D,#F97316)"></div><div class="theme-name">Sunset</div></div>
+          <div class="theme-opt" onclick="setTheme('midnight');settingsTheme(this)"><div class="theme-swatch" style="background:linear-gradient(135deg,#0F172A,#6366F1)"></div><div class="theme-name">Midnight</div></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="ss-title">🔔 Notification Preferences</div>
+        <div class="notif-pref"><div class="np-left"><div class="np-title">Leave Approval Notifications</div><div class="np-sub">Get notified when your leave application is approved or rejected</div></div><label class="toggle"><input type="checkbox" checked/><div class="tog-slider"></div></label></div>
+        <div class="notif-pref"><div class="np-left"><div class="np-title">Payslip Available</div><div class="np-sub">Get notified when a new payslip is generated each month</div></div><label class="toggle"><input type="checkbox" checked/><div class="tog-slider"></div></label></div>
+        <div class="notif-pref"><div class="np-left"><div class="np-title">Policy Acknowledgement Reminders</div><div class="np-sub">Receive reminders when a policy needs your signature</div></div><label class="toggle"><input type="checkbox" checked/><div class="tog-slider"></div></label></div>
+        <div class="notif-pref"><div class="np-left"><div class="np-title">Task Due Date Alerts</div><div class="np-sub">Get 24-hour advance notice on upcoming task deadlines</div></div><label class="toggle"><input type="checkbox"/><div class="tog-slider"></div></label></div>
+        <div class="notif-pref"><div class="np-left"><div class="np-title">Company Announcements</div><div class="np-sub">Receive push notifications for new company announcements</div></div><label class="toggle"><input type="checkbox" checked/><div class="tog-slider"></div></label></div>
+        <div class="notif-pref"><div class="np-left"><div class="np-title">Loan Repayment Reminders</div><div class="np-sub">Monthly reminder 5 days before loan deduction</div></div><label class="toggle"><input type="checkbox" checked/><div class="tog-slider"></div></label></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="ss-title">🔒 Security</div>
+        <div class="card"><div class="card-body">
+          <div class="fr" style="margin-bottom:14px">
+            <div class="fg"><label class="fl">Current Password</label><input type="password" class="fi" placeholder="••••••••"/></div>
+            <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" placeholder="••••••••"/></div>
+          </div>
+          <div class="fg"><label class="fl">Confirm New Password</label><input type="password" class="fi" placeholder="Repeat new password"/></div>
+          <button class="btn btn-primary" onclick="showToast('Password changed successfully')">Update Password</button>
+        </div></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════ MODALS ══════════════════════ -->
+
+<!-- Leave Application -->
+<div class="modal-bg" id="modal-leave">
+  <div class="modal-box">
+    <div class="modal-title">🌴 Apply for Leave</div>
+    <div class="fg"><label class="fl">Leave Type</label><select class="fi" id="leave-type-sel"><option value="Annual Leave">Annual Leave</option><option value="Sick Leave">Sick Leave</option><option value="Casual Leave">Casual Leave</option><option value="Exam Leave">Exam Leave</option><option value="Maternity Leave">Maternity Leave</option></select></div>
+    <div class="fr"><div class="fg"><label class="fl">From Date</label><input type="date" class="fi" id="leave-from"/></div><div class="fg"><label class="fl">To Date</label><input type="date" class="fi" id="leave-to"/></div></div>
+    <div class="fg"><label class="fl">Reason / Description</label><textarea class="fi" rows="3" id="leave-desc" placeholder="Brief reason for leave..."></textarea></div>
+    <div class="fg"><label class="fl">Hand-over to (Employee ID)</label><input type="text" class="fi" id="leave-delegate" placeholder="e.g. EMP-0045"/></div>
+    <div style="background:var(--surf2);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--tx2);margin-bottom:4px">📅 This is <strong>5 working days</strong>. Your leave balance will reduce to <strong>7 days</strong> after approval.</div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-leave')">Cancel</button><button class="btn btn-primary" onclick="submitLeave()">Submit Application</button></div>
+  </div>
+</div>
+
+<!-- Payslip Detail -->
+<div class="modal-bg" id="modal-payslip">
+  <div class="modal-box">
+    <div class="modal-title">💰 Salary Slip — June 2026</div>
+    <div style="background:var(--grad);border-radius:12px;padding:18px 22px;color:#fff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div><div style="font-size:12px;opacity:.8">NET PAY</div><div style="font-size:36px;font-weight:900;letter-spacing:-1px">₦485,600</div><div style="font-size:12px;opacity:.75;margin-top:2px">Adaeze Okonkwo · EMP-0042 · June 2026</div></div>
+      <span class="pill" style="background:rgba(255,255,255,.25);color:#fff;font-size:12px">✓ Paid</span>
+    </div>
+    <div class="salary-row"><span class="lbl">Basic Salary</span><span class="val">₦350,000</span></div>
+    <div class="salary-row"><span class="lbl">Housing Allowance</span><span class="val">₦90,000</span></div>
+    <div class="salary-row"><span class="lbl">Transport Allowance</span><span class="val">₦40,000</span></div>
+    <div class="salary-row"><span class="lbl">Meal Allowance</span><span class="val">₦20,000</span></div>
+    <div class="salary-row" style="font-weight:700;padding-bottom:12px"><span class="lbl">Gross Pay</span><span class="val" style="color:#059669">₦500,000</span></div>
+    <div class="salary-row deduction"><span class="lbl">PAYE Tax</span><span class="val">−₦8,400</span></div>
+    <div class="salary-row deduction"><span class="lbl">Pension (Employee 8%)</span><span class="val">−₦4,000</span></div>
+    <div class="salary-row deduction"><span class="lbl">NHF (2.5%)</span><span class="val">−₦1,000</span></div>
+    <div class="salary-row deduction"><span class="lbl">Staff Loan Repayment (ELA-0023)</span><span class="val">−₦25,000</span></div>
+    <div class="salary-row total"><span class="lbl">Net Pay</span><span class="val">₦485,600</span></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-payslip')">Close</button><button class="btn btn-success" onclick="showToast('Payslip downloaded as PDF')">📥 Download PDF</button></div>
+  </div>
+</div>
+
+<!-- Loan Application -->
+<div class="modal-bg" id="modal-loan-apply">
+  <div class="modal-box">
+    <div class="modal-title">💳 Apply for Staff Loan</div>
+    <div class="fr"><div class="fg"><label class="fl">Loan Type</label><select class="fi" id="loan-type-sel"><option value="Housing Support Loan">Housing Support Loan</option><option value="Emergency Loan">Emergency Loan</option><option value="School Fees Loan">School Fees Loan</option><option value="Vehicle Loan">Vehicle Loan</option></select></div><div class="fg"><label class="fl">Amount Requested (₦)</label><input type="number" class="fi" id="loan-amount" placeholder="e.g. 500000"/></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Repayment Months</label><select class="fi" id="loan-tenure"><option value="6">6 months</option><option value="12">12 months</option><option value="18">18 months</option><option value="24">24 months</option></select></div><div class="fg"><label class="fl">Interest Rate</label><input class="fi" value="0% (Staff Benefit)" disabled/></div></div>
+    <div class="fg"><label class="fl">Purpose / Justification</label><textarea class="fi" rows="3" id="loan-purpose" placeholder="Explain the purpose of this loan..."></textarea></div>
+    <div style="background:#D1FAE5;border-radius:8px;padding:10px 14px;font-size:12px;color:#065F46;margin-bottom:4px">✅ Your monthly salary (₦500,000) supports repayments up to ₦165,000/month (33% cap enforced)</div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-loan-apply')">Cancel</button><button class="btn btn-primary" onclick="submitLoan()">Submit Application</button></div>
+  </div>
+</div>
+
+<!-- WFH -->
+<div class="modal-bg" id="modal-wfh">
+  <div class="modal-box">
+    <div class="modal-title">🏠 Log Work From Home</div>
+    <div class="fr"><div class="fg"><label class="fl">Date</label><input type="date" class="fi" value="2026-07-01"/></div><div class="fg"><label class="fl">WFH Type</label><select class="fi"><option>Full Day</option><option>Half Day (AM)</option><option>Half Day (PM)</option></select></div></div>
+    <div class="fg"><label class="fl">Work Plan for Today</label><textarea class="fi" rows="3" id="wfh-plan" placeholder="Briefly describe what you plan to work on..."></textarea></div>
+    <div class="fg" style="display:none"><label class="fl">Date</label><input type="date" class="fi" id="wfh-date"/></div>
+    <div class="fr"><div class="fg"><label class="fl">Start Time</label><input type="time" class="fi" value="08:00"/></div><div class="fg"><label class="fl">Expected End Time</label><input type="time" class="fi" value="17:00"/></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-wfh')">Cancel</button><button class="btn btn-am" onclick="submitWFH()">🏠 Start WFH Session</button></div>
+  </div>
+</div>
+
+<!-- New Task -->
+<div class="modal-bg" id="modal-task">
+  <div class="modal-box">
+    <div class="modal-title">✅ New Task</div>
+    <div class="fg"><label class="fl">Task Title</label><input type="text" class="fi" id="task-title" placeholder="What needs to be done?"/></div>
+    <div class="fr"><div class="fg"><label class="fl">Priority</label><select class="fi" id="task-priority"><option value="High">High</option><option value="Medium" selected>Medium</option><option value="Low">Low</option></select></div><div class="fg"><label class="fl">Due Date</label><input type="date" class="fi" id="task-due"/></div></div>
+    <div class="fg"><label class="fl">Category</label><select class="fi" id="task-cat"><option>Finance</option><option>Compliance</option><option>HR</option><option>General</option></select></div>
+    <div class="fg"><label class="fl">Description</label><textarea class="fi" rows="2" id="task-desc" placeholder="Additional details..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-task')">Cancel</button><button class="btn btn-primary" onclick="submitTask()">Create Task</button></div>
+  </div>
+</div>
+
+<!-- Policy Detail -->
+<div class="modal-bg" id="modal-policy">
+  <div class="modal-box">
+    <div class="modal-title">🛡️ Information Security Policy v3.0</div>
+    <div style="background:var(--surf2);border-radius:10px;padding:16px;font-size:13px;line-height:1.8;color:var(--tx2);max-height:320px;overflow-y:auto;margin-bottom:16px">
+      <strong>1. Purpose</strong><br>This policy establishes guidelines for information security across Ecclesia Group to protect company data, employee information, and client records from unauthorized access or disclosure.<br><br>
+      <strong>2. Scope</strong><br>This policy applies to all employees, contractors, and third-party service providers with access to Ecclesia information systems.<br><br>
+      <strong>3. Password Management</strong><br>All system passwords must: be at least 12 characters long; contain uppercase, lowercase, numbers and special characters; be changed every 90 days; never be shared with colleagues.<br><br>
+      <strong>4. Data Classification</strong><br>Data is classified as Confidential, Internal, or Public. Confidential data must not be shared outside the organization without written approval from the DPO.<br><br>
+      <strong>5. Device Security</strong><br>All company devices must have approved antivirus software installed. Personal devices used for work must be enrolled in the MDM system.
+    </div>
+    <div style="background:#FEF3C7;border-radius:8px;padding:12px 14px;font-size:12px;color:#92400E;margin-bottom:16px;display:flex;align-items:center;gap:8px"><span>⚠️</span><span>Your acknowledgement is due by <strong>04 Jul 2026</strong>. By clicking below you confirm you have read and understood this policy.</span></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-policy')">Close</button><button class="btn btn-success" onclick="showToast('Policy acknowledged — thank you!');closeModal('modal-policy')">✅ I Acknowledge this Policy</button></div>
+  </div>
+</div>
+
+<!-- Expense Claim -->
+<div class="modal-bg" id="modal-expense">
+  <div class="modal-box">
+    <div class="modal-title">🧾 Submit Expense Claim</div>
+    <div class="fr"><div class="fg"><label class="fl">Expense Type</label><select class="fi" id="exp-type"><option value="Transport">Transport</option><option value="Accommodation">Accommodation</option><option value="Entertainment">Entertainment / Meals</option><option value="Training">Training & Development</option><option value="Stationery">Stationery & Supplies</option><option value="Other">Other</option></select></div><div class="fg"><label class="fl">Amount (₦)</label><input type="number" class="fi" id="exp-amount" placeholder="e.g. 25000"/></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Expense Date</label><input type="date" class="fi" id="exp-date"/></div><div class="fg"><label class="fl">Cost Centre</label><select class="fi" id="exp-cc"><option>Finance & Treasury</option><option>Operations</option><option>HR</option><option>IT</option></select></div></div>
+    <div class="fg"><label class="fl">Description / Purpose</label><textarea class="fi" rows="2" id="exp-desc" placeholder="Brief description of the expense..."></textarea></div>
+    <div class="fg"><label class="fl">Receipt Attachment</label><input type="file" class="fi" style="padding:8px"/></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-expense')">Cancel</button><button class="btn btn-primary" onclick="submitExpense()">Submit Claim</button></div>
+  </div>
+</div>
+
+<!-- Self Appraisal -->
+<div class="modal-bg" id="modal-self-appraisal">
+  <div class="modal-box">
+    <div class="modal-title">⭐ Self-Appraisal — Q2 2026</div>
+    <div class="fg"><label class="fl">Achievements This Quarter</label><textarea class="fi" rows="3" id="sa-achievements" placeholder="List your major accomplishments..."></textarea></div>
+    <div class="fg"><label class="fl">Challenges Faced</label><textarea class="fi" rows="2" id="sa-challenges" placeholder="What difficulties did you encounter?"></textarea></div>
+    <div class="fg"><label class="fl">Training & Development Completed</label><textarea class="fi" rows="2" id="sa-training" placeholder="List courses, certifications, workshops..."></textarea></div>
+    <div class="fr"><div class="fg"><label class="fl">Self-Rating (1–5)</label><select class="fi" id="sa-rating"><option value="5">5 — Exceptional</option><option value="4">4 — Exceeds Expectations</option><option value="3" selected>3 — Meets Expectations</option><option value="2">2 — Below Expectations</option><option value="1">1 — Unsatisfactory</option></select></div><div class="fg"><label class="fl">Development Goals (Next Quarter)</label><input type="text" class="fi" id="sa-goals" placeholder="e.g. Complete ICAN CPD"/></div></div>
+    <div class="fg"><label class="fl">Comments / Additional Notes</label><textarea class="fi" rows="2" id="sa-comments" placeholder="Any additional comments for your manager..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-self-appraisal')">Save Draft</button><button class="btn btn-primary" onclick="submitSelfAppraisal()">Submit Appraisal</button></div>
+  </div>
+</div>
+
+<!-- Edit Profile -->
+<div class="modal-bg" id="modal-edit-profile">
+  <div class="modal-box">
+    <div class="modal-title">✏️ Edit Profile</div>
+    <div class="fr"><div class="fg"><label class="fl">First Name</label><input type="text" class="fi" value="Adaeze"/></div><div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" value="Okonkwo"/></div></div>
+    <div class="fr"><div class="fg"><label class="fl">Personal Phone</label><input type="tel" class="fi" value="+234 803 456 7890"/></div><div class="fg"><label class="fl">Personal Email</label><input type="email" class="fi" value="adaeze.okonkwo@gmail.com"/></div></div>
+    <div class="fg"><label class="fl">Home Address</label><textarea class="fi" rows="2" value="">12 Adeola Drive, Victoria Island, Lagos</textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-edit-profile')">Cancel</button><button class="btn btn-primary" onclick="showToast('Profile updated successfully');closeModal('modal-edit-profile')">Save Changes</button></div>
+  </div>
+</div>
+
+<!-- Handover Note -->
+<div class="modal-bg" id="modal-handover">
+  <div class="modal-box">
+    <div class="modal-title">🤲 New Handover Note</div>
+    <div class="fr"><div class="fg"><label class="fl">Delegating To</label><select class="fi"><option>Michael Adeyemi</option><option>Ngozi Eze</option><option>Bola Adesanya</option></select></div><div class="fg"><label class="fl">Effective From</label><input type="date" class="fi" value="2026-07-14"/></div></div>
+    <div class="fg"><label class="fl">Handover Title</label><input type="text" class="fi" placeholder="e.g. Annual Leave Handover — July 2026"/></div>
+    <div class="fg"><label class="fl">Pending Items to Hand Over</label><textarea class="fi" rows="3" placeholder="List all pending work items, tasks and responsibilities..."></textarea></div>
+    <div class="fg"><label class="fl">Important Notes for Delegate</label><textarea class="fi" rows="2" placeholder="Any special instructions or context..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-handover')">Cancel</button><button class="btn btn-primary" onclick="showToast('Handover note created');closeModal('modal-handover')">Create Handover</button></div>
+  </div>
+</div>
+
+<!-- Checkin -->
+<div class="modal-bg" id="modal-checkin">
+  <div class="modal-box">
+    <div class="modal-title">⏰ Log Attendance</div>
+    <div style="text-align:center;padding:16px 0">
+      <div style="font-size:48px;font-weight:900;color:var(--in);letter-spacing:-2px" id="checkin-time">08:14:32</div>
+      <div style="font-size:13px;color:var(--mu);margin-top:6px">Wednesday, 1 July 2026</div>
+    </div>
+    <div class="fg"><label class="fl">Location</label><select class="fi"><option>Lagos HQ · Office</option><option>Work From Home</option><option>Client Site</option><option>Remote (Travel)</option></select></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-checkin')">Cancel</button><button class="btn btn-success" onclick="showToast('Check-in recorded at 08:14 AM');closeModal('modal-checkin')">✅ Check In Now</button></div>
+  </div>
+</div>
+
+<!-- Add Goal -->
+<div class="modal-bg" id="modal-add-goal">
+  <div class="modal-box">
+    <div class="modal-title">🎯 Add New Goal</div>
+    <div class="fg"><label class="fl">Goal Title</label><input type="text" class="fi" placeholder="e.g. Complete ICAN CPD modules by September"/></div>
+    <div class="fr"><div class="fg"><label class="fl">Category</label><select class="fi"><option>Financial Reporting</option><option>Professional Development</option><option>Process Improvement</option><option>Leadership</option><option>Team Collaboration</option></select></div><div class="fg"><label class="fl">Target Date</label><input type="date" class="fi"/></div></div>
+    <div class="fg"><label class="fl">Success Criteria / KPIs</label><textarea class="fi" rows="2" placeholder="How will you measure success?"></textarea></div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('modal-add-goal')">Cancel</button><button class="btn btn-primary" onclick="showToast('Goal added to Q3 2026 cycle');closeModal('modal-add-goal')">Add Goal</button></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+//  API LAYER  — all server calls go through api()
+//  Endpoint base: /api/method/ecclesia.ecclesia.api.ess_portal.<method>
+// ══════════════════════════════════════════════════════════════════════════
+const API = 'ecclesia.ecclesia.api.ess_portal';
+
+function getCsrf(){
+  try{ return frappe.csrf_token||''; }catch(e){
+    // fallback: read from cookie
+    const m=document.cookie.match(/csrf_token=([^;]+)/);
+    return m?decodeURIComponent(m[1]):'';
+  }
+}
+
+function api(method, args, retries){
+  retries = retries||0;
+  const params = new URLSearchParams();
+  if(args){
+    Object.keys(args).forEach(k=>{
+      const v=args[k];
+      if(v!==null&&v!==undefined)
+        params.append(k, typeof v==='object'?JSON.stringify(v):v);
+    });
+  }
+  const qs=params.toString();
+  const url='/api/method/'+method+(qs?'?'+qs:'');
+  return fetch(url,{credentials:'include',headers:{'X-Frappe-CSRF-Token':getCsrf()}})
+    .then(r=>r.text().then(raw=>{
+      if(raw.trimStart().charAt(0)==='<') throw new Error('Session expired — please log in again');
+      let d;
+      try{d=JSON.parse(raw);}catch(e){throw new Error('Server returned invalid JSON');}
+      if(d._server_messages||d.exc){
+        let msg='Server error';
+        try{
+          if(d._server_messages) msg=JSON.parse(JSON.parse(d._server_messages)[0]).message||msg;
+          else msg=String(d.exc).replace(/<[^>]+>/g,'').trim().split('\n').filter(Boolean).pop()||msg;
+        }catch(e){}
+        if(r.status===401&&!method.includes('login')) showLoginScreen();
+        throw new Error(msg);
+      }
+      if(r.status===403||r.status===401){
+        if(!method.includes('login')) showLoginScreen();
+        throw new Error(d.message||'Authentication required');
+      }
+      return d.message;
+    }))
+    .catch(e=>{
+      if(retries<1&&e.message&&e.message.toLowerCase().includes('fetch'))
+        return new Promise(res=>setTimeout(res,800)).then(()=>api(method,args,retries+1));
+      throw e;
+    });
+}
+
+// State
+const S = { boot:null, emp:null, loaded:{}, wfhStart:null };
+
+// ── SESSION & LOGIN ──────────────────────────────────────────────────────
+function showLoginScreen(){
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+}
+function hideLoginScreen(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('app').style.display='flex';
+}
+
+function doLogin(){
+  const userEl=document.getElementById('l-user');
+  const passEl=document.getElementById('l-pass');
+  const errEl =document.getElementById('l-err');
+  const btn   =document.getElementById('l-btn');
+  const usr=(userEl.value||'').trim();
+  const pwd=passEl.value;
+  if(errEl)errEl.style.display='none';
+  if(!usr||!pwd){
+    if(errEl){errEl.textContent='Email/ID and password are required.';errEl.style.display='block';}
+    return;
+  }
+  btn.disabled=true;
+  btn.innerHTML='<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle"></span>Signing in…';
+
+  // Step 1 — authenticate with Frappe
+  const loginParams=new URLSearchParams({usr,pwd});
+  fetch('/api/method/login',{method:'POST',body:loginParams,credentials:'include'})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.message==='Logged In'||d.full_name){
+        // Step 2 — load portal context
+        return api(API+'.get_portal_context',{});
+      }
+      throw new Error(d.message||'Login failed. Check your credentials.');
+    })
+    .then(ctx=>{
+      S.boot=ctx; S.emp=ctx.employee;
+      hideLoginScreen();
+      bootPortal(ctx);
+      showToast('Welcome, '+(ctx.employee.employee_name||'')+'! 👋');
+    })
+    .catch(e=>{
+      if(errEl){errEl.textContent=e.message||'Login failed.';errEl.style.display='block';}
+    })
+    .finally(()=>{
+      btn.disabled=false;
+      btn.innerHTML='Sign In to MyWork';
+    });
+}
+
+function doLogout(){
+  fetch('/api/method/logout',{method:'POST',credentials:'include',
+    headers:{'X-Frappe-CSRF-Token':getCsrf()}})
+    .finally(()=>{
+      S.boot=null; S.emp=null; S.loaded={};
+      showLoginScreen();
+    });
+}
+
+// ── BOOT PORTAL ──────────────────────────────────────────────────────────
+function bootPortal(ctx){
+  const emp=ctx.employee;
+  // Populate sidebar
+  const initials = (() => {
+    const parts=(emp.employee_name||'').split(' ');
+    return parts.length>=2?(parts[0][0]+parts[parts.length-1][0]).toUpperCase()
+                           :(parts[0]||'ME').slice(0,2).toUpperCase();
+  })();
+  const sbInit=document.getElementById('sb-initials');
+  const avBtn =document.getElementById('av-btn');
+  if(sbInit) sbInit.textContent=initials;
+  if(avBtn)  avBtn.textContent=initials;
+  const el=id=>document.getElementById(id);
+  if(el('sb-name'))  el('sb-name').textContent=emp.employee_name||'';
+  if(el('sb-role'))  el('sb-role').textContent=emp.designation||'';
+  if(el('sb-dept'))  el('sb-dept').textContent=(emp.department||'')+(emp.branch?' · '+emp.branch:'');
+  if(el('pulse-score')) el('pulse-score').textContent=(ctx.pulse?.overall_pulse_score||'—')+'%';
+
+  // Sidebar badges
+  if(ctx.pending_leave>0){
+    const b=document.querySelector('.ni[onclick*="attendance"] .bx');
+    if(b){b.textContent=ctx.pending_leave;b.style.display='inline-block';}
+  }
+  if(ctx.pending_tasks>0){
+    const b=document.querySelector('.ni[onclick*="tasks"] .bx');
+    if(b){b.textContent=ctx.pending_tasks;b.style.display='inline-block';}
+  }
+  if(ctx.unread_notifications>0){
+    const b=document.querySelector('.ni[onclick*="messages"] .bx');
+    if(b){b.textContent=ctx.unread_notifications;b.style.display='inline-block';}
+    document.querySelectorAll('.notif-dot').forEach(d=>d.style.display='block');
+  }
+
+  // Dates
+  initDate(emp);
+
+  // Charts and live elements
+  setTimeout(()=>{
+    initPulseRing(ctx.pulse);
+    initPerfRing();
+    initPayrollChart();
+    initActivityChart();
+    buildAttCal();
+    startWFHClock(ctx.wfh_active);
+  },150);
+
+  // Load home panel data
+  loadHomeData();
+
+  // Load notifications
+  loadNotifications();
+}
+
+function initDate(emp){
+  const now=new Date();
+  const el=id=>document.getElementById(id);
+  if(el('today-date')) el('today-date').textContent=now.toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  if(el('hw-day'))     el('hw-day').textContent=now.getDate();
+  if(el('hw-date-lbl'))el('hw-date-lbl').textContent=now.toLocaleDateString('en-NG',{month:'long',year:'numeric',weekday:'long'});
+  const h=now.getHours();
+  const greeting=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const name=(emp&&emp.employee_name)?(emp.employee_name.split(' ')[0]):'there';
+  if(el('greet-msg')) el('greet-msg').textContent=greeting+', '+name+'! 👋';
+  if(el('checkin-time')) el('checkin-time').textContent=now.toLocaleTimeString('en-NG');
+}
+
+// ── PAGE LOAD CHECK ───────────────────────────────────────────────────────
+// If Frappe already has a session (www controller set ESS_BOOT),
+// skip the login screen entirely.
+(function(){
+  const boot=window.ESS_BOOT;
+  if(boot&&boot.employee&&boot.employee.name){
+    S.boot=boot; S.emp=boot.employee;
+    // Hide login immediately — don't flash it
+    document.getElementById('login').style.display='none';
+    document.getElementById('app').style.display='flex';
+    bootPortal(boot);
+  }
+  // else: login screen stays visible (default state in HTML)
+})();
+
+// ── PULSE RING ─────────────────────────────────
+function initPulseRing(pulse){
+  const cv=document.getElementById('pulseRingCanvas');
+  if(!cv)return;
+  const c=cv.getContext('2d');
+  const p=pulse||{};
+  const scores=[
+    flt(p.attendance_score)||82,
+    flt(p.task_score)||78,
+    flt(p.leave_health_score)||90,
+    flt(p.performance_score)||87
+  ];
+  const avg=Math.round(scores.reduce((a,b)=>a+b)/scores.length);
+  // Update center score display
+  const scoreEl=document.querySelector('.pulse-score-big');
+  if(scoreEl) scoreEl.textContent=flt(p.overall_pulse_score)||avg;
+  // Update legend values
+  const legVals=document.querySelectorAll('.pl-val');
+  const legBars=document.querySelectorAll('.pl-bar-fill');
+  scores.forEach((s,i)=>{
+    if(legVals[i]) legVals[i].textContent=Math.round(s)+'%';
+    if(legBars[i]) legBars[i].style.width=Math.round(s)+'%';
+  });
+  const colors=['#7C3AED','#F59E0B','#059669','#E11D48'];
+  const trackW=14,gap=6,r=70;
+  c.clearRect(0,0,180,180);
+  scores.forEach((s,i)=>{
+    const trackR=r-(i*(trackW+gap));
+    c.beginPath();c.arc(90,90,trackR,0,Math.PI*2);
+    c.strokeStyle='rgba(0,0,0,0.06)';c.lineWidth=trackW;c.lineCap='round';c.stroke();
+    c.beginPath();
+    c.arc(90,90,trackR,-Math.PI/2,-Math.PI/2+Math.PI*2*(s/100));
+    c.strokeStyle=colors[i];c.lineWidth=trackW;c.lineCap='round';c.stroke();
+  });
+}
+
+// ── PERF RING ──────────────────────────────────
+function initPerfRing(){
+  const cv=document.getElementById('perfRingCanvas');
+  if(!cv)return;
+  const c=cv.getContext('2d');
+  c.clearRect(0,0,90,90);
+  c.beginPath();c.arc(45,45,36,0,Math.PI*2);c.strokeStyle='rgba(255,255,255,.2)';c.lineWidth=8;c.stroke();
+  c.beginPath();c.arc(45,45,36,-Math.PI/2,-Math.PI/2+Math.PI*2*.87);c.strokeStyle='#FCD34D';c.lineWidth=8;c.lineCap='round';c.stroke();
+}
+
+// ── PAYROLL CHART ──────────────────────────────
+function initPayrollChart(){
+  const ctx=document.getElementById('payrollChart');
+  if(!ctx)return;
+  window._payrollChart=new Chart(ctx,{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Gross',data:[500,500,500,500,500,500],backgroundColor:'rgba(124,58,237,.15)',borderColor:'#7C3AED',borderWidth:2,borderRadius:6},{label:'Net',data:[485.6,485.6,485.6,485.6,485.6,485.6],backgroundColor:'rgba(5,150,105,.15)',borderColor:'#059669',borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:10,padding:10}}},scales:{y:{ticks:{callback:v=>'₦'+v+'k',font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+}
+
+// ── ACTIVITY CHART ──────────────────────────────
+function initActivityChart(){
+  const ctx=document.getElementById('activityChart');
+  if(!ctx)return;
+  new Chart(ctx,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri'],datasets:[{label:'Hours',data:[8.5,9,7.5,8,0],borderColor:'#7C3AED',backgroundColor:'rgba(124,58,237,.08)',fill:true,tension:.4,pointBackgroundColor:'#7C3AED',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:12,ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false},ticks:{font:{size:10}}}}}});
+}
+
+// ── ATTENDANCE CAL ──────────────────────────────
+function buildAttCal(attMap){
+  const cal=document.getElementById('att-cal');
+  if(!cal)return;
+  cal.innerHTML='';
+  const now=new Date();
+  const year=now.getFullYear();
+  const month=now.getMonth(); // 0-based
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const firstDay=new Date(year,month,1).getDay(); // 0=Sun
+
+  const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  days.forEach(d=>{const el=document.createElement('div');el.className='att-day-head';el.textContent=d;cal.appendChild(el);});
+
+  // Empty cells before first day
+  for(let i=0;i<firstDay;i++){const el=document.createElement('div');el.className='att-day empty';cal.appendChild(el);}
+
+  const today=now.getDate();
+  const statusMap={'Present':'p','Absent':'a','Work From Home':'w','Holiday':'h','Weekly Off':'h'};
+
+  for(let d=1;d<=daysInMonth;d++){
+    const el=document.createElement('div');
+    const dateStr=year+'-'+(String(month+1).padStart(2,'0'))+'-'+(String(d).padStart(2,'0'));
+    const apiStatus=attMap&&attMap[dateStr]?attMap[dateStr].status:'';
+    const cls=d>today?'future':d===today?'today':(statusMap[apiStatus]||'future');
+    el.className='att-day '+cls;
+    el.textContent=d;
+    if(apiStatus) el.title=apiStatus+' — '+dateStr;
+    cal.appendChild(el);
+  }
+}
+
+function renderAttCal(attMap){
+  buildAttCal(attMap);
+}
+
+// ── NOTIFICATIONS ──────────────────────────────
+const NOTIF_ICONS={'Leave':'🌴','Payroll':'💰','Loan':'💳','Policy':'📜','Appraisal':'⭐','Task':'✅','Announcement':'📢','System':'🔔'};
+
+function buildNotifs(notifications){
+  const list=document.getElementById('notif-list');
+  if(!list)return;
+  const items=notifications||[];
+  if(!items.length){
+    list.innerHTML='<div style="text-align:center;padding:30px;color:var(--mu)">No notifications</div>';
+    return;
+  }
+  list.innerHTML=items.map(n=>`
+    <div style="padding:13px 14px;border-radius:8px;margin-bottom:8px;border:1px solid ${!n.is_read?'var(--bdr)':'transparent'};background:${!n.is_read?'var(--surf2)':'transparent'};${!n.is_read?'border-left:3px solid var(--vi)':''}">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="font-size:22px">${NOTIF_ICONS[n.notification_type]||'🔔'}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--tx)">${n.title||''}</div>
+          <div style="font-size:12px;color:var(--tx2);line-height:1.5;margin-top:3px">${n.message||''}</div>
+          <div style="font-size:10px;color:var(--mu);margin-top:5px">${n.creation?(new Date(n.creation).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})):''}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleNotif(){
+  const d=document.getElementById('notif-drawer');
+  const open=d.style.display==='flex';
+  d.style.display=open?'none':'flex';
+  if(!open){
+    // Mark all read
+    api(API+'.mark_notifications_read',{}).catch(()=>{});
+    document.querySelectorAll('.notif-dot').forEach(x=>x.style.display='none');
+  }
+}
+
+// ── WFH CLOCK ──────────────────────────────────
+let wfhStart=null;
+function startWFHClock(){
+  wfhStart=new Date();wfhStart.setHours(8,14,0);
+  setInterval(()=>{
+    const el=document.getElementById('wfh-clock');if(!el)return;
+    const now=new Date();
+    let sec=Math.floor((now-wfhStart)/1000);
+    if(sec<0)sec=0;
+    const h=Math.floor(sec/3600).toString().padStart(2,'0');
+    const m=Math.floor((sec%3600)/60).toString().padStart(2,'0');
+    const s=(sec%60).toString().padStart(2,'0');
+    el.textContent=`${h}:${m}:${s}`;
+  },1000);
+}
+
+// ── PANEL NAVIGATION (with lazy data loading) ──
+const TITLES={'home':'Home','profile':'My Profile','attendance':'Attendance & Leave','payroll':'My Payroll','loans':'Loans & Advances','performance':'Performance & Goals','tasks':'Tasks & WFH','policies':'Policy Library','messages':'Messages','statutory':'Statutory & Tax','settings':'Settings'};
+const CRUMBS={'home':'MyWork · Dashboard','profile':'MyWork · Profile','attendance':'MyWork · HR','payroll':'MyWork · HR','loans':'MyWork · Finance','performance':'MyWork · Growth','tasks':'MyWork · Workspace','policies':'MyWork · Compliance','messages':'MyWork · Communication','statutory':'MyWork · Compliance','settings':'MyWork · Account'};
+
+const PANEL_LOADERS={
+  attendance: loadAttendanceData,
+  payroll:    loadPayrollData,
+  loans:      loadLoansData,
+  performance:loadPerformanceData,
+  tasks:      loadTasksData,
+  policies:   loadPoliciesData,
+  messages:   loadMessagesData,
+  statutory:  loadStatutoryData,
+};
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const p=document.getElementById('panel-'+id);if(p)p.classList.add('active');
+  const ni=[...document.querySelectorAll('.ni')].find(n=>n.getAttribute('onclick')?.includes("'"+id+"'"));
+  if(ni)ni.classList.add('active');
+  const tb=document.getElementById('tb-title');
+  const bc=document.getElementById('tb-breadcrumb');
+  if(tb) tb.textContent=TITLES[id]||id;
+  if(bc) bc.textContent=CRUMBS[id]||'MyWork';
+  window.scrollTo(0,0);
+
+  // Lazy-load panel data once
+  if(!S.loaded[id]&&PANEL_LOADERS[id]&&S.emp){
+    S.loaded[id]=true;
+    PANEL_LOADERS[id]();
+  }
+}
+
+// ── MODAL ──────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
+
+// ── TOAST ──────────────────────────────────────
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=(type==='success'?'✅ ':'⚠️ ')+msg;
+  t.style.display='block';
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(()=>t.style.display='none',3500);
+}
+function showErr(msg){showToast(msg,'error');}
+
+// ── LIVE DATA LOADERS ──────────────────────────
+function loadHomeData(){
+  api(API+'.get_home_data',{})
+    .then(d=>{
+      if(!d)return;
+      const el=id=>document.getElementById(id);
+      // snapshot cards
+      if(el('snap-present')) el('snap-present').textContent=d.present_days||0;
+      if(el('snap-leave'))   el('snap-leave').textContent=d.leave_balance||0;
+      const tasksEl=el('snap-tasks');
+      if(tasksEl) tasksEl.textContent=(d.tasks_done||0)+'/'+(d.tasks_total||0);
+      if(el('snap-perf')) el('snap-perf').textContent=(d.performance_score||0)+'%';
+
+      // pending actions
+      renderPendingActions(d.pending_actions||[]);
+
+      // recent activity
+      renderRecentActivity(d.recent_activity||[]);
+    })
+    .catch(e=>console.warn('Home data:', e.message));
+}
+
+function loadNotifications(){
+  api(API+'.get_notifications',{limit:20})
+    .then(d=>{
+      if(!d)return;
+      buildNotifs(d.notifications||[]);
+      if(d.unread>0){
+        document.querySelectorAll('.notif-dot').forEach(x=>x.style.display='block');
+        const b=document.querySelector('.ni[onclick*="messages"] .bx');
+        if(b){b.textContent=d.unread;b.style.display='inline-block';}
+      }
+    })
+    .catch(()=>{});
+}
+
+function loadAttendanceData(){
+  const now=new Date();
+  api(API+'.get_attendance_data',{month:now.getMonth()+1,year:now.getFullYear()})
+    .then(d=>{
+      if(!d)return;
+      renderAttCal(d.attendance_map||{});
+      renderLeaveBalances(d.leave_balances||[]);
+      renderLeaveHistory(d.leave_history||[]);
+    })
+    .catch(e=>console.warn('Attendance:', e.message));
+}
+
+function loadPayrollData(){
+  api(API+'.get_payroll_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderPayslips(d.slips||[]);
+      renderPayrollBreakdown(d.latest_breakdown||[]);
+      renderYTDChart(d.ytd_by_month||[]);
+    })
+    .catch(e=>console.warn('Payroll:', e.message));
+}
+
+function loadLoansData(){
+  api(API+'.get_loans_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderLoans(d.loans||[], d.total_outstanding||0);
+      renderExpenseClaims(d.expense_claims||[]);
+    })
+    .catch(e=>console.warn('Loans:', e.message));
+}
+
+function loadPerformanceData(){
+  api(API+'.get_performance_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderGoals(d.goals||[]);
+      renderAppraisalHistory(d.appraisals||[]);
+    })
+    .catch(e=>console.warn('Performance:', e.message));
+}
+
+function loadTasksData(){
+  api(API+'.get_tasks_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderKanban(d.tasks||[]);
+    })
+    .catch(e=>console.warn('Tasks:', e.message));
+}
+
+function loadPoliciesData(){
+  api(API+'.get_policies_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderPolicies(d.policies||[]);
+      const el=id=>document.getElementById(id);
+      if(el('pol-acked'))  el('pol-acked').textContent=d.acknowledged+'/'+d.total;
+      if(el('pol-pending')) el('pol-pending').textContent=d.pending;
+    })
+    .catch(e=>console.warn('Policies:', e.message));
+}
+
+function loadMessagesData(){
+  api(API+'.get_messages_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderAnnouncements(d.announcements||[]);
+      renderCommuniques(d.communiques||[]);
+    })
+    .catch(e=>console.warn('Messages:', e.message));
+}
+
+function loadStatutoryData(){
+  api(API+'.get_statutory_data',{})
+    .then(d=>{
+      if(!d)return;
+      renderStatutory(d);
+    })
+    .catch(e=>console.warn('Statutory:', e.message));
+}
+
+// ── SIMPLE RENDERERS ───────────────────────────
+function renderPendingActions(items){
+  const container=document.querySelector('#panel-home .pa-item')?.parentElement;
+  if(!container||!items.length)return;
+  // Keep static demo items if API returns nothing, otherwise replace
+  if(items.length){
+    container.innerHTML=items.slice(0,5).map(a=>`
+      <div class="pa-item">
+        <div class="pa-ico" style="background:${a.color}22;color:${a.color}">${a.icon}</div>
+        <div class="pa-txt">
+          <div class="pa-title">${a.title}</div>
+          <div class="pa-sub">${a.sub||''}</div>
+        </div>
+        <div class="pa-action">
+          <button class="btn btn-sm btn-primary" onclick="showPanel('${a.panel||'home'}')">View</button>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function renderRecentActivity(rows){
+  const tbody=document.querySelector('#panel-home table.dt tbody');
+  if(!tbody||!rows.length)return;
+  tbody.innerHTML=rows.map(r=>`
+    <tr>
+      <td>${r.doctype||''}</td>
+      <td>${r.label||r.name||''}</td>
+      <td><span class="pill pill-${statusPill(r.status)}">${r.status||''}</span></td>
+      <td>${r.creation?r.creation.slice(0,10):''}</td>
+    </tr>`).join('');
+}
+
+function renderLeaveBalances(balances){
+  // Update the numeric badges in the leave balance cards
+  balances.forEach(b=>{
+    const card=document.querySelector(`.lb-card[data-leave="${b.leave_type}"]`);
+    if(card){
+      const daysEl=card.querySelector('.lb-days');
+      if(daysEl) daysEl.textContent=Math.round(b.remaining||0);
+      const fill=card.querySelector('.lb-prog-fill');
+      if(fill) fill.style.width=Math.round((b.remaining/Math.max(1,b.allocated))*100)+'%';
+    }
+  });
+}
+
+function renderLeaveHistory(rows){
+  const tbody=document.querySelector('#panel-attendance table.dt tbody');
+  if(!tbody||!rows.length)return;
+  tbody.innerHTML=rows.map(r=>`
+    <tr>
+      <td>${r.leave_type||''}</td>
+      <td>${r.from_date||''} – ${r.to_date||''} <small style="color:var(--mu)">(${r.total_leave_days||0} days)</small></td>
+      <td><span class="pill pill-${statusPill(r.status)}">${r.status||''}</span></td>
+    </tr>`).join('');
+}
+
+function renderPayslips(slips){
+  const grid=document.querySelector('.payslip-list');
+  if(!grid||!slips.length)return;
+  grid.innerHTML=slips.slice(0,6).map(s=>`
+    <div class="payslip-card" onclick="downloadPayslip('${s.name}')">
+      <div class="ps-month">${fmtMonth(s.posting_date)}</div>
+      <div class="ps-net">${fmtMoney(s.net_pay)}</div>
+      <div class="ps-sub">Net Pay after all deductions</div>
+      <div class="ps-badges"><span class="pill pill-green">Paid</span></div>
+    </div>`).join('');
+}
+
+function renderPayrollBreakdown(items){
+  const earnings  =items.filter(i=>i.type==='earning');
+  const deductions=items.filter(i=>i.type==='deduction');
+  const container =document.querySelector('#panel-payroll .card-body .salary-row')?.parentElement;
+  if(!container||!earnings.length)return;
+  const gross=earnings.reduce((a,i)=>a+i.amount,0);
+  const totalDeductions=deductions.reduce((a,i)=>a+i.amount,0);
+  container.innerHTML=
+    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--bdr)">EARNINGS</div>'+
+    earnings.map(i=>`<div class="salary-row"><span class="lbl">${i.component}</span><span class="val">${fmtMoney(i.amount)}</span></div>`).join('')+
+    `<div class="salary-row" style="font-weight:700;color:var(--em)"><span class="lbl">Gross Pay</span><span class="val">${fmtMoney(gross)}</span></div>`+
+    '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);margin:12px 0 8px;padding-top:8px;border-top:1px solid var(--bdr)">DEDUCTIONS</div>'+
+    deductions.map(i=>`<div class="salary-row deduction"><span class="lbl">${i.component}</span><span class="val">−${fmtMoney(i.amount)}</span></div>`).join('')+
+    `<div class="salary-row total"><span class="lbl">Net Pay</span><span class="val">${fmtMoney(gross-totalDeductions)}</span></div>`;
+}
+
+function renderYTDChart(rows){
+  if(!window._payrollChart)return;
+  const labels=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const gross=Array(12).fill(0);
+  const net  =Array(12).fill(0);
+  rows.forEach(r=>{gross[r.m-1]=flt(r.gross)/1000;net[r.m-1]=flt(r.net)/1000;});
+  window._payrollChart.data.datasets[0].data=gross;
+  window._payrollChart.data.datasets[1].data=net;
+  window._payrollChart.update();
+}
+
+function renderLoans(loans, totalOutstanding){
+  const heroAmt=document.querySelector('.loan-hero .amount');
+  if(heroAmt) heroAmt.textContent=fmtMoney(totalOutstanding);
+  const container=document.querySelector('.loan-active-card')?.parentElement;
+  if(!container||!loans.length)return;
+  const cards=container.querySelectorAll('.loan-active-card');
+  cards.forEach(c=>c.remove());
+  loans.forEach(l=>{
+    const progress=l.principal_amount>0?Math.round((l.total_amount_paid/l.principal_amount)*100):0;
+    const card=document.createElement('div');
+    card.className='loan-active-card';
+    card.innerHTML=`
+      <div class="lac-header">
+        <div><div class="lac-type">💳 ${l.loan_type||''}</div>
+             <div class="lac-ref">${l.name} · ${l.disbursement_date||''}</div></div>
+        <span class="pill pill-${l.status==='Disbursed'?'green':'blue'}">${l.status||'Active'}</span>
+      </div>
+      <div class="lac-amounts">
+        <div class="lac-a"><div class="lac-a-lbl">Principal</div><div class="lac-a-val">${fmtMoney(l.principal_amount)}</div></div>
+        <div class="lac-a"><div class="lac-a-lbl">Paid</div><div class="lac-a-val">${fmtMoney(l.total_amount_paid)}</div></div>
+        <div class="lac-a"><div class="lac-a-lbl">Balance</div><div class="lac-a-val" style="color:var(--rose)">${fmtMoney(l.outstanding_principal)}</div></div>
+      </div>
+      <div class="lac-prog">
+        <div class="lac-prog-lbl"><span>Repayment Progress</span><span style="font-weight:700;color:var(--em)">${progress}%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${progress}%;background:linear-gradient(90deg,#059669,#34D399)"></div></div>
+      </div>`;
+    container.insertBefore(card, container.querySelector('.grid2'));
+  });
+}
+
+function renderExpenseClaims(claims){
+  const tbody=document.querySelector('#panel-loans table.dt tbody');
+  if(!tbody)return;
+  if(!claims.length){tbody.innerHTML='<tr><td colspan="3" class="empty"><div class="empty-ico">🧾</div><p>No expense claims</p></td></tr>';return;}
+  tbody.innerHTML=claims.map(c=>`
+    <tr>
+      <td>${c.name||''}</td>
+      <td>${fmtMoney(c.total_claimed_amount)}</td>
+      <td><span class="pill pill-${statusPill(c.status)}">${c.status||''}</span></td>
+    </tr>`).join('');
+}
+
+function renderGoals(goals){
+  const container=document.querySelector('#panel-performance .card-body .goal-item')?.parentElement;
+  if(!container||!goals.length)return;
+  container.innerHTML=goals.map(g=>`
+    <div class="goal-item">
+      <div class="goal-ico" style="background:#EDE9FE;color:#7C3AED">🎯</div>
+      <div class="goal-txt">
+        <div class="goal-title">${g.goal_title||''}</div>
+        <div class="goal-meta">Category: ${g.category||''} · Due: ${g.target_date||''}</div>
+        <div class="goal-prog">
+          <div class="goal-prog-row"><span>Progress</span><span style="font-weight:700;color:#7C3AED">${g.progress||0}%</span></div>
+          <div class="prog-bar" style="margin-top:4px"><div class="prog-fill" style="width:${g.progress||0}%;background:#7C3AED"></div></div>
+        </div>
+      </div>
+      <span class="pill pill-${statusPill(g.status)}">${g.status||''}</span>
+    </div>`).join('');
+}
+
+function renderAppraisalHistory(rows){
+  const tbody=document.querySelector('#panel-performance table.dt tbody');
+  if(!tbody||!rows.length)return;
+  tbody.innerHTML=rows.map(r=>`
+    <tr>
+      <td>${r.appraisal_cycle||r.name||''}</td>
+      <td>—</td>
+      <td><strong>${r.total_score||0}%</strong></td>
+    </tr>`).join('');
+}
+
+function renderKanban(tasks){
+  const cols={Open:[],['In Progress']:[],Completed:[]};
+  tasks.forEach(t=>{
+    const k=t.status==='Completed'?'Completed':t.status==='In Progress'?'In Progress':'Open';
+    cols[k].push(t);
+  });
+  Object.entries(cols).forEach(([status,items])=>{
+    const col=document.querySelector(`.kb-col[data-status="${status}"] .task-card`)?.parentElement;
+    if(!col)return;
+    col.querySelectorAll('.task-card').forEach(c=>c.remove());
+    items.slice(0,8).forEach(t=>{
+      const card=document.createElement('div');
+      card.className='task-card';
+      card.innerHTML=`<div class="tc-title">${t.title||''}</div>
+        <div class="tc-meta">
+          <span class="pill pill-${t.priority==='High'?'red':t.priority==='Medium'?'yellow':'grey'}" style="font-size:10px">${t.priority||''}</span>
+          ${t.due_date?`<span style="font-size:10px;color:var(--mu)">Due ${t.due_date}</span>`:''}
+        </div>`;
+      card.onclick=()=>showToast('Opening task '+t.name);
+      col.appendChild(card);
+    });
+  });
+}
+
+function renderPolicies(policies){
+  const grid=document.getElementById('policy-grid');
+  if(!grid||!policies.length)return;
+  grid.innerHTML=policies.map(p=>`
+    <div class="policy-card" onclick="openPolicyModal('${p.name}','${(p.title||'').replace(/'/g,"\\'")}')">
+      <div style="position:absolute;top:0;left:0;right:0;height:4px;background:${p.requires_acknowledgement?'#7C3AED':'#059669'}"></div>
+      <div class="pc-cat">📋 ${p.category||'General'}</div>
+      <div class="pc-title">${p.title||''}</div>
+      <div class="pc-desc" style="font-size:12px;color:var(--tx2);margin-bottom:12px;line-height:1.6">${(p.content||'').replace(/<[^>]+>/g,'').slice(0,150)}…</div>
+      <div class="pc-footer">
+        <div class="pc-ack ${p.ack_status==='Acknowledged'?'done':'pending'}">
+          ${p.ack_status==='Acknowledged'?'✅ Acknowledged — '+(p.acknowledged_on||'').slice(0,10):'⚠️ Acknowledgement required'+(p.days_remaining!==null?' ('+p.days_remaining+'d)':'')}
+        </div>
+        <div class="pc-date">v${p.version||'1.0'}</div>
+      </div>
+    </div>`).join('');
+  window._policies=policies; // cache for modal
+}
+
+function renderAnnouncements(items){
+  const container=document.getElementById('mt-announcements');
+  if(!container||!items.length)return;
+  container.innerHTML=items.map(a=>`
+    <div class="ann-card">
+      <div class="ann-tag">📢 Announcement</div>
+      <div class="ann-title">${a.subject||''}</div>
+      <div class="ann-body">${(a.message||'').replace(/<[^>]+>/g,'').slice(0,300)}</div>
+      <div class="ann-meta">Posted ${(a.creation||'').slice(0,10)}</div>
+    </div>`).join('');
+}
+
+function renderCommuniques(items){
+  const tbody=document.querySelector('#mt-communiques table.dt tbody');
+  if(!tbody)return;
+  if(!items.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--mu);padding:20px">No communiqués</td></tr>';return;}
+  tbody.innerHTML=items.map(c=>`
+    <tr>
+      <td><strong>${c.subject||''}</strong></td>
+      <td>${c.from_designation||''}</td>
+      <td>${(c.creation||'').slice(0,10)}</td>
+      <td><button class="btn btn-xs btn-outline" onclick="showToast('Opening communiqué…')">Read</button></td>
+    </tr>`).join('');
+}
+
+function renderStatutory(d){
+  // Tax computation table update
+  const tc=d.tax_computation;
+  if(tc){
+    const el=id=>document.getElementById(id);
+    if(el('stat-gross')) el('stat-gross').textContent=fmtMoney(tc.annual_gross);
+    if(el('stat-tax'))   el('stat-tax').textContent=fmtMoney(tc.annual_tax);
+    if(el('stat-nhf'))   el('stat-nhf').textContent=fmtMoney(tc.nhf_deduction);
+  }
+  // Pension balance
+  if(d.pension_manager){
+    const balEl=document.querySelector('#panel-statutory .lac-a-val');
+    if(balEl) balEl.textContent=d.pension_manager.pfa_name||'';
+  }
+}
+
+// ── FORM ACTIONS (real API calls) ──────────────
+function submitLeave(){
+  const f=id=>document.getElementById(id);
+  const leave_type=f('leave-type-sel')?.value||'Annual Leave';
+  const from_date =f('leave-from')?.value;
+  const to_date   =f('leave-to')?.value;
+  const desc      =f('leave-desc')?.value;
+  const delegate  =f('leave-delegate')?.value;
+  if(!from_date||!to_date){showToast('Please select leave dates','error');return;}
+  api(API+'.apply_leave',{leave_type,from_date,to_date,description:desc,delegate_to:delegate})
+    .then(r=>{
+      showToast('Leave application submitted — awaiting HR approval');
+      closeModal('modal-leave');
+      if(!S.loaded.attendance) loadAttendanceData();
+    })
+    .catch(e=>showToast(e.message||'Could not submit leave','error'));
+}
+
+function submitLoan(){
+  const f=id=>document.getElementById(id);
+  const loan_type      =f('loan-type-sel')?.value||'Emergency Loan';
+  const principal_amount=f('loan-amount')?.value;
+  const tenure_months  =f('loan-tenure')?.value;
+  const purpose_description=f('loan-purpose')?.value;
+  if(!principal_amount||!tenure_months){showToast('Please fill all required fields','error');return;}
+  api(API+'.apply_loan',{loan_type,principal_amount,tenure_months,
+    loan_purpose:loan_type,purpose_description})
+    .then(r=>{
+      showToast('Loan application submitted — pending CFO approval');
+      closeModal('modal-loan-apply');
+    })
+    .catch(e=>showToast(e.message||'Loan application failed','error'));
+}
+
+function submitExpense(){
+  const f=id=>document.getElementById(id);
+  const expense_type=f('exp-type')?.value;
+  const amount      =f('exp-amount')?.value;
+  const expense_date=f('exp-date')?.value||new Date().toISOString().slice(0,10);
+  const description =f('exp-desc')?.value;
+  if(!expense_type||!amount){showToast('Please fill expense type and amount','error');return;}
+  api(API+'.submit_expense_claim',{expense_type,amount,expense_date,description})
+    .then(r=>{
+      showToast('Expense claim submitted for approval');
+      closeModal('modal-expense');
+    })
+    .catch(e=>showToast(e.message||'Expense claim failed','error'));
+}
+
+function submitWFH(){
+  const f=id=>document.getElementById(id);
+  const from_date=f('wfh-date')?.value||new Date().toISOString().slice(0,10);
+  const plan     =f('wfh-plan')?.value;
+  if(!plan){showToast('Please describe your work plan','error');return;}
+  api(API+'.log_wfh',{from_date,to_date:from_date,work_mode:'WFH',expected_deliverables:plan})
+    .then(r=>{
+      showToast('WFH session logged successfully');
+      closeModal('modal-wfh');
+      startWFHClock({check_in_time:new Date().toISOString()});
+    })
+    .catch(e=>showToast(e.message||'WFH log failed','error'));
+}
+
+function submitTask(){
+  const f=id=>document.getElementById(id);
+  const title=f('task-title')?.value;
+  const priority=f('task-priority')?.value||'Medium';
+  const due_date=f('task-due')?.value;
+  const description=f('task-desc')?.value;
+  if(!title){showToast('Please enter a task title','error');return;}
+  api(API+'.create_ess_task',{title,task_category:'General',priority,due_date,description})
+    .then(r=>{
+      showToast('Task created');
+      closeModal('modal-task');
+      loadTasksData();
+    })
+    .catch(e=>showToast(e.message||'Task creation failed','error'));
+}
+
+function submitSelfAppraisal(){
+  const f=id=>document.getElementById(id);
+  const cycle=window._currentCycle;
+  if(!cycle){showToast('No active appraisal cycle found','error');return;}
+  const achievements=f('sa-achievements')?.value;
+  const challenges  =f('sa-challenges')?.value;
+  const training_done=f('sa-training')?.value;
+  const self_rating =f('sa-rating')?.value?.charAt(0)||'3';
+  const development_goals=f('sa-goals')?.value;
+  const comments    =f('sa-comments')?.value;
+  api(API+'.submit_self_appraisal',{cycle,achievements,challenges,
+    training_done,self_rating,development_goals,comments})
+    .then(r=>{
+      showToast('Self-appraisal submitted successfully');
+      closeModal('modal-self-appraisal');
+    })
+    .catch(e=>showToast(e.message||'Submission failed','error'));
+}
+
+function acknowledgePolicy(policyName){
+  api(API+'.acknowledge_policy',{policy_name:policyName})
+    .then(r=>{
+      showToast('Policy acknowledged — thank you!');
+      closeModal('modal-policy');
+      loadPoliciesData();
+    })
+    .catch(e=>showToast(e.message||'Could not save acknowledgement','error'));
+}
+
+function downloadPayslip(slipName){
+  openModal('modal-payslip');
+  // Pre-fill with loading state then real data
+  api(API+'.download_payslip',{slip_name:slipName})
+    .then(d=>{
+      if(!d||!d.slip)return;
+      const s=d.slip;
+      const netEl=document.querySelector('#modal-payslip .amount');
+      if(netEl) netEl.textContent=fmtMoney(s.net_pay);
+      const subEl=document.querySelector('#modal-payslip .prof-meta');
+      if(subEl) subEl.textContent=`${d.employee?.employee_name||''} · ${s.name}`;
+    })
+    .catch(()=>{});
+}
+
+function sendMsg(e){
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    const input=e.target;
+    const text=input.value.trim();
+    if(!text)return;
+    // For demo use active thread recipient — extend with real recipient lookup
+    showToast('Message sent');
+    input.value='';
+    appendMyBubble(text);
+  }
+}
+
+function appendMyBubble(text){
+  const body=document.querySelector('.msg-body');
+  if(!body)return;
+  const now=new Date().toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'});
+  body.insertAdjacentHTML('beforeend',`
+    <div class="msg-bubble-wrap me">
+      <div class="msg-bubble me">${text}<div class="msg-time">${now}</div></div>
+      <div class="msg-bubble-av" style="background:var(--grad);color:#fff;font-size:11px;font-weight:700;border:none">${(S.emp?.employee_name||'ME').slice(0,2).toUpperCase()}</div>
+    </div>`);
+  body.scrollTop=body.scrollHeight;
+}
+
+// Policy modal with real data
+function openPolicyModal(policyName, policyTitle){
+  const policies=window._policies||[];
+  const p=policies.find(x=>x.name===policyName)||{name:policyName,title:policyTitle,content:'',ack_status:'Pending'};
+  const modal=document.getElementById('modal-policy');
+  if(!modal)return;
+  modal.querySelector('.modal-title').textContent='📜 '+p.title;
+  const bodyEl=modal.querySelector('[style*="overflow-y:auto"]');
+  if(bodyEl) bodyEl.innerHTML=p.content||'<p style="color:var(--mu)">Loading policy content…</p>';
+  const ackBtn=modal.querySelector('.btn-success');
+  if(ackBtn){
+    if(p.ack_status==='Acknowledged'){
+      ackBtn.textContent='✅ Already Acknowledged';
+      ackBtn.disabled=true;
+    }else{
+      ackBtn.textContent='✅ I Acknowledge this Policy';
+      ackBtn.disabled=false;
+      ackBtn.onclick=()=>acknowledgePolicy(policyName);
+    }
+  }
+  openModal('modal-policy');
+}
+
+// Mark notifications read when drawer opens
+document.getElementById('notif-drawer')?.addEventListener('transitionend',()=>{
+  api(API+'.mark_notifications_read',{}).catch(()=>{});
+});
+
+// ── HELPERS ───────────────────────────────────
+function fmtMoney(v){
+  v=parseFloat(v)||0;
+  if(v>=1000000) return '₦'+(v/1000000).toFixed(1)+'M';
+  if(v>=1000)    return '₦'+(v/1000).toFixed(v%1000===0?0:1)+'k';
+  return '₦'+v.toLocaleString('en-NG',{maximumFractionDigits:0});
+}
+function flt(v){return parseFloat(v)||0;}
+function fmtMonth(d){
+  if(!d)return '';
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dt=new Date(d);
+  return months[dt.getMonth()]+' '+dt.getFullYear();
+}
+function statusPill(s){
+  const m={'Approved':'green','Paid':'green','Disbursed':'green','Completed':'green','Acknowledged':'teal',
+    'Rejected':'red','Cancelled':'red','Pending':'yellow','Open':'blue','In Progress':'purple',
+    'Submitted':'blue','Active':'green','Draft':'grey'};
+  return m[s]||'grey';
+}
+
+// ── PANEL LOAD TRIGGERS ────────────────────────
+// Override showPanel to trigger lazy data loads
+const _showPanel=showPanel; // will be redefined below
+
+// ── PROFILE TABS ───────────────────────────────
+function profileTab(el,id){
+  document.querySelectorAll('#panel-profile .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['pt-info','pt-docs','pt-skills','pt-handover'].forEach(pid=>{
+    const el=document.getElementById(pid);if(el)el.style.display=pid===id?'block':'none';
+  });
+}
+
+// ── MESSAGE TABS ───────────────────────────────
+function msgTab(el,id){
+  document.querySelectorAll('#panel-messages .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['mt-chats','mt-announcements','mt-communiques'].forEach(mid=>{
+    const el=document.getElementById(mid);if(el)el.style.display=mid===id?'block':'none';
+  });
+}
+
+// ── FILTER POLICIES ────────────────────────────
+function filterPolicies(val){
+  const q=(val||'').toLowerCase();
+  document.querySelectorAll('#policy-grid .policy-card').forEach(c=>{
+    c.style.display=c.textContent.toLowerCase().includes(q)||!q?'block':'none';
+  });
+}
+
+// ── THEME ──────────────────────────────────────
+const THEMES={
+  indigo:{in:'#312E81',in2:'#4338CA',vi:'#7C3AED',vi2:'#8B5CF6',grad:'linear-gradient(135deg,#312E81 0%,#7C3AED 60%,#A78BFA 100%)'},
+  emerald:{in:'#064E3B',in2:'#065F46',vi:'#059669',vi2:'#34D399',grad:'linear-gradient(135deg,#064E3B 0%,#059669 60%,#34D399 100%)'},
+  ocean:{in:'#0C4A6E',in2:'#075985',vi:'#0284C7',vi2:'#38BDF8',grad:'linear-gradient(135deg,#0C4A6E 0%,#0284C7 60%,#38BDF8 100%)'},
+  sunset:{in:'#7F1D1D',in2:'#991B1B',vi:'#DC2626',vi2:'#F97316',grad:'linear-gradient(135deg,#7F1D1D 0%,#DC2626 60%,#F97316 100%)'},
+  midnight:{in:'#0F172A',in2:'#1E293B',vi:'#6366F1',vi2:'#818CF8',grad:'linear-gradient(135deg,#0F172A 0%,#6366F1 60%,#818CF8 100%)'},
+};
+function setTheme(t){
+  const th=THEMES[t];if(!th)return;
+  const r=document.documentElement.style;
+  r.setProperty('--in',th.in);r.setProperty('--in2',th.in2);
+  r.setProperty('--vi',th.vi);r.setProperty('--vi2',th.vi2);
+  r.setProperty('--grad',th.grad);
+  document.querySelectorAll('.tdot').forEach(d=>d.classList.remove('active'));
+  const idx={'indigo':0,'emerald':1,'ocean':2,'sunset':3,'midnight':4}[t];
+  const dots=document.querySelectorAll('.tdot');
+  if(dots[idx])dots[idx].classList.add('active');
+}
+function settingsTheme(el){document.querySelectorAll('.theme-opt').forEach(o=>o.classList.remove('active'));el.classList.add('active');}
+
+// ── SEARCH ─────────────────────────────────────
+function globalSearch(q){if(!q)return;showToast('Searching for: '+q);}
+
+// ── SIDEBAR TOGGLE ─────────────────────────────
+function toggleSidebar(){const sb=document.getElementById('sidebar');sb.classList.toggle('open');}
+window.addEventListener('resize',()=>{const btn=document.getElementById('sb-toggle');if(btn)btn.style.display=window.innerWidth<=768?'block':'none';});
+</script>
+</body>
+</html>

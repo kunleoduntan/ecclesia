@@ -1,0 +1,181 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CI-.YYYY.-.#####",
+ "creation": "2026-06-14 21:01:02.418959",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "incident_title",
+  "incident_date",
+  "incident_type",
+  "obligation_type",
+  "company",
+  "col1",
+  "severity",
+  "status",
+  "penalty_amount",
+  "links_section",
+  "related_cll",
+  "related_exception",
+  "col2",
+  "description",
+  "root_cause",
+  "corrective_action",
+  "reported_by",
+  "assigned_to",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "incident_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Incident Title",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "incident_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "incident_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Late Filing\nNon-Filing\nExpired License\nMissed Pension Remittance\nMissed PAYE\nMissed WHT\nMissed VAT\nRegulatory Breach\nPolicy Violation\nData Breach\nFraud\nOther"
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nLicense"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Minor",
+   "fieldname": "severity",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Severity",
+   "options": "Minor\nModerate\nMajor\nCritical"
+  },
+  {
+   "default": "Reported",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Reported\nUnder Investigation\nRemediation\nResolved\nClosed"
+  },
+  {
+   "fieldname": "penalty_amount",
+   "fieldtype": "Currency",
+   "label": "Penalty (\u20a6)"
+  },
+  {
+   "fieldname": "links_section",
+   "fieldtype": "Section Break",
+   "label": "Links"
+  },
+  {
+   "fieldname": "related_cll",
+   "fieldtype": "Link",
+   "label": "Related CLL",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "related_exception",
+   "fieldtype": "Link",
+   "label": "Related Exception",
+   "options": "Compliance Exception"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description"
+  },
+  {
+   "fieldname": "root_cause",
+   "fieldtype": "Small Text",
+   "label": "Root Cause"
+  },
+  {
+   "fieldname": "corrective_action",
+   "fieldtype": "Small Text",
+   "label": "Corrective Action"
+  },
+  {
+   "fieldname": "reported_by",
+   "fieldtype": "Link",
+   "label": "Reported By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "assigned_to",
+   "fieldtype": "Link",
+   "label": "Assigned To",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Incident",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-16 18:15:57.004952",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Incident",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

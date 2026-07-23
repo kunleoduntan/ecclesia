@@ -1,0 +1,153 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "RSR-.YYYY.-.#####",
+ "creation": "2026-07-04 14:49:19.687565",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "resume",
+  "candidate_name",
+  "job_opening",
+  "screening_date",
+  "education_score",
+  "experience_score",
+  "skills_score",
+  "certifications_score",
+  "total_score",
+  "matched_skills",
+  "missing_mandatory_skills",
+  "knockout_failed",
+  "auto_decision",
+  "hr_override",
+  "hr_notes",
+  "ai_narrative"
+ ],
+ "fields": [
+  {
+   "fieldname": "resume",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Resume",
+   "options": "Resume",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "resume.candidate_name",
+   "fieldname": "candidate_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Candidate",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "label": "Job Opening",
+   "options": "Job Opening",
+   "reqd": 1
+  },
+  {
+   "fieldname": "screening_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Screened On"
+  },
+  {
+   "fieldname": "education_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Education Score (%)"
+  },
+  {
+   "fieldname": "experience_score",
+   "fieldtype": "Float",
+   "label": "Experience Score (%)"
+  },
+  {
+   "fieldname": "skills_score",
+   "fieldtype": "Float",
+   "label": "Skills Match Score (%)"
+  },
+  {
+   "fieldname": "certifications_score",
+   "fieldtype": "Float",
+   "label": "Certifications Score (%)"
+  },
+  {
+   "fieldname": "total_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Total Score (%)"
+  },
+  {
+   "fieldname": "matched_skills",
+   "fieldtype": "Small Text",
+   "label": "Matched Skills"
+  },
+  {
+   "fieldname": "missing_mandatory_skills",
+   "fieldtype": "Small Text",
+   "label": "Missing Mandatory Skills"
+  },
+  {
+   "default": "0",
+   "fieldname": "knockout_failed",
+   "fieldtype": "Check",
+   "label": "Knocked Out"
+  },
+  {
+   "fieldname": "auto_decision",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Auto Decision",
+   "options": "\nShortlisted\nRefer to HR\nRejected"
+  },
+  {
+   "fieldname": "hr_override",
+   "fieldtype": "Select",
+   "label": "HR Override",
+   "options": "\nShortlisted\nRejected\nHold"
+  },
+  {
+   "fieldname": "hr_notes",
+   "fieldtype": "Small Text",
+   "label": "HR Notes"
+  },
+  {
+   "fieldname": "ai_narrative",
+   "fieldtype": "Text Editor",
+   "label": "AI Screening Narrative"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-04 14:49:19.687565",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Resume Screening Result",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

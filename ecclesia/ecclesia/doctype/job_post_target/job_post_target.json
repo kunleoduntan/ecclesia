@@ -1,0 +1,194 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "autoname",
+ "creation": "2026-07-06 15:39:14.891483",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "platform",
+  "platform_name",
+  "platform_type",
+  "include",
+  "sec_msg",
+  "custom_message",
+  "character_count",
+  "character_limit",
+  "col_msg",
+  "image_attachment",
+  "hashtags",
+  "scheduled_at",
+  "sec_result",
+  "post_status",
+  "post_id",
+  "post_url",
+  "posted_on",
+  "error_message",
+  "col_result",
+  "views",
+  "likes",
+  "shares",
+  "applications_from_link"
+ ],
+ "fields": [
+  {
+   "fieldname": "platform",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Platform",
+   "options": "Job Board Platform",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "platform.platform_name",
+   "fieldname": "platform_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Platform Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "platform.platform_type",
+   "fieldname": "platform_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Type",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "include",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Include"
+  },
+  {
+   "fieldname": "sec_msg",
+   "fieldtype": "Section Break",
+   "label": "Message"
+  },
+  {
+   "description": "Leave blank to auto-generate from base description",
+   "fieldname": "custom_message",
+   "fieldtype": "Text Editor",
+   "label": "Custom Message"
+  },
+  {
+   "fieldname": "character_count",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Characters Used",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "platform.character_limit",
+   "fieldname": "character_limit",
+   "fieldtype": "Int",
+   "label": "Platform Limit",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_msg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "image_attachment",
+   "fieldtype": "Attach Image",
+   "label": "Post Image"
+  },
+  {
+   "description": "Space-separated e.g. #Hiring #Lagos",
+   "fieldname": "hashtags",
+   "fieldtype": "Data",
+   "label": "Hashtags"
+  },
+  {
+   "fieldname": "scheduled_at",
+   "fieldtype": "Datetime",
+   "label": "Scheduled At"
+  },
+  {
+   "fieldname": "sec_result",
+   "fieldtype": "Section Break",
+   "label": "Result (set automatically)"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "post_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nScheduled\nPosting\nPosted\nFailed\nSkipped"
+  },
+  {
+   "fieldname": "post_id",
+   "fieldtype": "Data",
+   "label": "Post ID",
+   "read_only": 1
+  },
+  {
+   "fieldname": "post_url",
+   "fieldtype": "Data",
+   "label": "Post URL",
+   "read_only": 1
+  },
+  {
+   "fieldname": "posted_on",
+   "fieldtype": "Datetime",
+   "label": "Posted On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "error_message",
+   "fieldtype": "Small Text",
+   "label": "Error Message",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_result",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "views",
+   "fieldtype": "Int",
+   "label": "Views",
+   "read_only": 1
+  },
+  {
+   "fieldname": "likes",
+   "fieldtype": "Int",
+   "label": "Likes / Reactions",
+   "read_only": 1
+  },
+  {
+   "fieldname": "shares",
+   "fieldtype": "Int",
+   "label": "Shares / Reposts",
+   "read_only": 1
+  },
+  {
+   "fieldname": "applications_from_link",
+   "fieldtype": "Int",
+   "label": "Applications via Link",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-06 15:40:24.288970",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Job Post Target",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

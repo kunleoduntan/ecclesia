@@ -1,0 +1,256 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "STR-.YYYY.-.#####",
+ "creation": "2026-06-15 10:10:30.008767",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "str_title",
+  "company",
+  "report_type",
+  "report_date",
+  "col1",
+  "transaction_date",
+  "transaction_amount",
+  "transaction_currency",
+  "party_name",
+  "kyc_record",
+  "transaction_section",
+  "transaction_reference",
+  "transaction_type",
+  "suspicious_indicators",
+  "description",
+  "col2",
+  "linked_payments",
+  "linked_receipts",
+  "nfiu_section",
+  "nfiu_submitted",
+  "nfiu_submission_date",
+  "nfiu_reference",
+  "col3",
+  "legal_counsel_involved",
+  "law_enforcement_notified",
+  "status",
+  "submitted_by",
+  "amlco_sign_off",
+  "confidentiality_warning",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "str_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "STR Reference Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "report_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Report Type",
+   "options": "Suspicious Transaction Report (STR)\nCurrency Transaction Report (CTR)\nSuspicious Activity Report (SAR)",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "report_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date of Report",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "label": "Transaction Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Transaction Amount (\u20a6)"
+  },
+  {
+   "fieldname": "transaction_currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Counterparty Name"
+  },
+  {
+   "fieldname": "kyc_record",
+   "fieldtype": "Link",
+   "label": "KYC Record",
+   "options": "AML KYC Record"
+  },
+  {
+   "fieldname": "transaction_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Details"
+  },
+  {
+   "fieldname": "transaction_reference",
+   "fieldtype": "Data",
+   "label": "Transaction Reference"
+  },
+  {
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "label": "Transaction Type",
+   "options": "Cash Deposit\nCash Withdrawal\nWire Transfer\nCheque\nTrade Finance\nOther"
+  },
+  {
+   "fieldname": "suspicious_indicators",
+   "fieldtype": "Select",
+   "label": "Primary Suspicious Indicator",
+   "options": "Structuring / Smurfing\nUnusual Cash Pattern\nInconsistent with Profile\nSanctioned Party\nPEP Transaction\nComplex Structure\nUnexplained Wealth\nGeographic Risk\nNo Apparent Business Purpose\nOther"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description of Suspicious Activity",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "linked_payments",
+   "fieldtype": "Link",
+   "label": "Linked Payment",
+   "options": "Payments"
+  },
+  {
+   "fieldname": "linked_receipts",
+   "fieldtype": "Link",
+   "label": "Linked Receipt",
+   "options": "Receipts"
+  },
+  {
+   "fieldname": "nfiu_section",
+   "fieldtype": "Section Break",
+   "label": "NFIU Reporting"
+  },
+  {
+   "default": "0",
+   "fieldname": "nfiu_submitted",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Submitted to NFIU"
+  },
+  {
+   "fieldname": "nfiu_submission_date",
+   "fieldtype": "Date",
+   "label": "NFIU Submission Date"
+  },
+  {
+   "fieldname": "nfiu_reference",
+   "fieldtype": "Data",
+   "label": "NFIU Reference Number"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "legal_counsel_involved",
+   "fieldtype": "Check",
+   "label": "Legal Counsel Involved"
+  },
+  {
+   "default": "0",
+   "fieldname": "law_enforcement_notified",
+   "fieldtype": "Check",
+   "label": "Law Enforcement Notified"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Draft\nUnder Review\nSubmitted to NFIU\nClosed \u2014 No Action\nReferred to Enforcement"
+  },
+  {
+   "fieldname": "submitted_by",
+   "fieldtype": "Link",
+   "label": "Submitted By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "amlco_sign_off",
+   "fieldtype": "Link",
+   "label": "AMLCO Sign-off",
+   "options": "Employee"
+  },
+  {
+   "default": "This report is strictly confidential. Tipping off is a criminal offence under the Money Laundering (Prevention and Prohibition) Act 2022.",
+   "fieldname": "confidentiality_warning",
+   "fieldtype": "Small Text",
+   "label": "Confidentiality Notice"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Suspicious Transaction Report",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 10:10:30.008767",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Suspicious Transaction Report",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,611 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "AGM-.YYYY.-.#####",
+ "creation": "2026-07-15 19:12:50.833396",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "overview_tab",
+  "agm_details_section",
+  "agm_title",
+  "column_break_2acc",
+  "company",
+  "fiscal_year",
+  "column_break_h5ag",
+  "agm_type",
+  "status",
+  "amended_from",
+  "details_tab",
+  "meeting_details_section",
+  "agm_date",
+  "agm_time",
+  "venue_type",
+  "venue",
+  "column_break_ugn3",
+  "virtual_platform",
+  "virtual_link",
+  "meeting_password",
+  "notice_date",
+  "column_break_br1j",
+  "notice_days",
+  "notice_compliant",
+  "quorum_required",
+  "quorum_met",
+  "cb_details",
+  "members_notified",
+  "chairperson",
+  "company_secretary",
+  "agenda_tab",
+  "agenda_items",
+  "notices_tab",
+  "notice_logs",
+  "sb_proxy",
+  "proxies",
+  "proxies_received",
+  "attendance_tab",
+  "total_shareholders",
+  "total_shares",
+  "column_break_4ykl",
+  "shareholders_present",
+  "proxies_attending",
+  "column_break_0kim",
+  "shares_represented",
+  "quorum_percentage",
+  "section_break_umfn",
+  "attendees",
+  "resolutions_tab",
+  "resolutions",
+  "minutes_tab",
+  "minutes",
+  "action_items",
+  "documents_tab",
+  "notice_attachment",
+  "proxy_form_template",
+  "financial_statements",
+  "column_break_bcqx",
+  "directors_report",
+  "auditors_report",
+  "column_break_ls0d",
+  "chairman_speech",
+  "signed_minutes",
+  "cac_tab",
+  "cac_filing_required",
+  "cac_form_type",
+  "cac_filing_deadline",
+  "column_break_ajis",
+  "cac_filed",
+  "cac_filing_date",
+  "cac_reference",
+  "column_break_agno",
+  "cac_receipt",
+  "cac_penalty_if_late",
+  "late_filing_flag",
+  "cb_cac",
+  "corporate_register",
+  "board_resolution_ref",
+  "compliance_liability",
+  "analytics_tab",
+  "days_to_agm",
+  "days_notice_given",
+  "column_break_yinz",
+  "days_overdue",
+  "resolutions_passed",
+  "column_break_n93l",
+  "resolutions_failed",
+  "ai_insights"
+ ],
+ "fields": [
+  {
+   "fieldname": "overview_tab",
+   "fieldtype": "Tab Break",
+   "label": "Overview"
+  },
+  {
+   "bold": 1,
+   "fieldname": "agm_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "AGM Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "default": "Annual General Meeting",
+   "fieldname": "agm_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Meeting Type",
+   "options": "Annual General Meeting\nExtraordinary General Meeting (EGM)\nStatutory Meeting",
+   "reqd": 1
+  },
+  {
+   "default": "Planning",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Planning\nNotices Sent\nScheduled\nPostponed\nHeld\nMinutes Approved\nCAC Filed\nClosed"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "options": "Annual General Meeting"
+  },
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Meeting Details"
+  },
+  {
+   "fieldname": "agm_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "AGM Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "agm_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "default": "Physical",
+   "fieldname": "venue_type",
+   "fieldtype": "Select",
+   "label": "Meeting Mode",
+   "options": "Physical\nVirtual (Online)\nHybrid",
+   "reqd": 1
+  },
+  {
+   "fieldname": "venue",
+   "fieldtype": "Data",
+   "label": "Venue / Physical Address"
+  },
+  {
+   "fieldname": "virtual_platform",
+   "fieldtype": "Select",
+   "label": "Virtual Platform",
+   "options": "\nZoom\nMicrosoft Teams\nGoogle Meet\nWebex\nOther"
+  },
+  {
+   "fieldname": "virtual_link",
+   "fieldtype": "Data",
+   "label": "Meeting Link / URL"
+  },
+  {
+   "fieldname": "meeting_password",
+   "fieldtype": "Password",
+   "label": "Meeting Access Code"
+  },
+  {
+   "fieldname": "cb_details",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "CAMA 2020 s.239 requires minimum 21 clear days notice for AGM",
+   "fieldname": "notice_date",
+   "fieldtype": "Date",
+   "label": "Notice Date Issued"
+  },
+  {
+   "description": "CAMA 2020: minimum 21 days for AGM, 14 days for EGM",
+   "fieldname": "notice_days",
+   "fieldtype": "Int",
+   "label": "Notice Period (Days)"
+  },
+  {
+   "default": "0",
+   "fieldname": "notice_compliant",
+   "fieldtype": "Check",
+   "label": "Notice Period CAMA Compliant",
+   "read_only": 1
+  },
+  {
+   "default": "2",
+   "description": "CAMA 2020 s.244: 2 members personally present unless articles state otherwise",
+   "fieldname": "quorum_required",
+   "fieldtype": "Int",
+   "label": "Quorum Required (members)"
+  },
+  {
+   "default": "0",
+   "fieldname": "quorum_met",
+   "fieldtype": "Check",
+   "label": "Quorum Met"
+  },
+  {
+   "fieldname": "members_notified",
+   "fieldtype": "Int",
+   "label": "Shareholders Notified"
+  },
+  {
+   "fieldname": "chairperson",
+   "fieldtype": "Link",
+   "label": "Chairperson",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "company_secretary",
+   "fieldtype": "Link",
+   "label": "Company Secretary",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "agenda_tab",
+   "fieldtype": "Tab Break",
+   "label": "Agenda"
+  },
+  {
+   "fieldname": "agenda_items",
+   "fieldtype": "Table",
+   "label": "Agenda Items",
+   "options": "AGM Agenda Item"
+  },
+  {
+   "fieldname": "notices_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notices & Proxies"
+  },
+  {
+   "fieldname": "notice_logs",
+   "fieldtype": "Table",
+   "label": "Notice Delivery Log",
+   "options": "AGM Notice Log"
+  },
+  {
+   "fieldname": "sb_proxy",
+   "fieldtype": "Section Break",
+   "label": "Proxy Forms"
+  },
+  {
+   "fieldname": "proxies",
+   "fieldtype": "Table",
+   "label": "Proxy Appointments",
+   "options": "AGM Proxy"
+  },
+  {
+   "fieldname": "proxies_received",
+   "fieldtype": "Int",
+   "label": "Total Proxies Received",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attendance_tab",
+   "fieldtype": "Tab Break",
+   "label": "Attendance"
+  },
+  {
+   "fieldname": "total_shareholders",
+   "fieldtype": "Int",
+   "label": "Total Registered Shareholders"
+  },
+  {
+   "fieldname": "total_shares",
+   "fieldtype": "Int",
+   "label": "Total Issued Shares"
+  },
+  {
+   "fieldname": "shareholders_present",
+   "fieldtype": "Int",
+   "label": "Shareholders Present (in person)"
+  },
+  {
+   "fieldname": "proxies_attending",
+   "fieldtype": "Int",
+   "label": "Voting by Proxy"
+  },
+  {
+   "fieldname": "shares_represented",
+   "fieldtype": "Int",
+   "label": "Shares Represented (incl. proxies)"
+  },
+  {
+   "fieldname": "quorum_percentage",
+   "fieldtype": "Percent",
+   "label": "% Shares Represented",
+   "read_only": 1
+  },
+  {
+   "fieldname": "attendees",
+   "fieldtype": "Table",
+   "label": "Attendance Register",
+   "options": "AGM Attendee"
+  },
+  {
+   "fieldname": "resolutions_tab",
+   "fieldtype": "Tab Break",
+   "label": "Resolutions"
+  },
+  {
+   "fieldname": "resolutions",
+   "fieldtype": "Table",
+   "label": "Resolutions",
+   "options": "AGM Resolution"
+  },
+  {
+   "fieldname": "minutes_tab",
+   "fieldtype": "Tab Break",
+   "label": "Minutes"
+  },
+  {
+   "fieldname": "minutes",
+   "fieldtype": "Table",
+   "label": "Minutes of Meeting",
+   "options": "AGM Minutes"
+  },
+  {
+   "fieldname": "action_items",
+   "fieldtype": "Table",
+   "label": "Action Items / Follow-ups",
+   "options": "AGM Action Item"
+  },
+  {
+   "fieldname": "documents_tab",
+   "fieldtype": "Tab Break",
+   "label": "Documents"
+  },
+  {
+   "fieldname": "notice_attachment",
+   "fieldtype": "Attach",
+   "label": "AGM Notice (PDF)"
+  },
+  {
+   "fieldname": "proxy_form_template",
+   "fieldtype": "Attach",
+   "label": "Proxy Form Template"
+  },
+  {
+   "fieldname": "financial_statements",
+   "fieldtype": "Attach",
+   "label": "Financial Statements / Accounts"
+  },
+  {
+   "fieldname": "directors_report",
+   "fieldtype": "Attach",
+   "label": "Directors' Report"
+  },
+  {
+   "fieldname": "auditors_report",
+   "fieldtype": "Attach",
+   "label": "Auditors' Report"
+  },
+  {
+   "fieldname": "chairman_speech",
+   "fieldtype": "Attach",
+   "label": "Chairman's Statement"
+  },
+  {
+   "fieldname": "signed_minutes",
+   "fieldtype": "Attach",
+   "label": "Signed AGM Minutes"
+  },
+  {
+   "fieldname": "cac_tab",
+   "fieldtype": "Tab Break",
+   "label": "CAC Filing"
+  },
+  {
+   "default": "1",
+   "fieldname": "cac_filing_required",
+   "fieldtype": "Check",
+   "label": "CAC Filing Required"
+  },
+  {
+   "fieldname": "cac_form_type",
+   "fieldtype": "Select",
+   "label": "CAC Form",
+   "options": "\nCAC 10 \u2014 Annual Return\nCAC 2 \u2014 Return of Allotment\nCAC 7 \u2014 Notice of Change of Director\nCAC 3 \u2014 Change of Registered Address\nOther"
+  },
+  {
+   "description": "CAMA 2020: Annual return due 42 days after AGM for private companies",
+   "fieldname": "cac_filing_deadline",
+   "fieldtype": "Date",
+   "label": "CAC Filing Deadline"
+  },
+  {
+   "default": "0",
+   "fieldname": "cac_filed",
+   "fieldtype": "Check",
+   "label": "CAC Return Filed"
+  },
+  {
+   "fieldname": "cac_filing_date",
+   "fieldtype": "Date",
+   "label": "Date Filed"
+  },
+  {
+   "fieldname": "cac_reference",
+   "fieldtype": "Data",
+   "label": "CAC Reference / Receipt No"
+  },
+  {
+   "fieldname": "cac_receipt",
+   "fieldtype": "Attach",
+   "label": "CAC Filing Receipt"
+  },
+  {
+   "fieldname": "cac_penalty_if_late",
+   "fieldtype": "Currency",
+   "label": "Penalty Incurred (\u20a6)"
+  },
+  {
+   "default": "0",
+   "fieldname": "late_filing_flag",
+   "fieldtype": "Check",
+   "label": "Late Filing",
+   "read_only": 1
+  },
+  {
+   "fieldname": "cb_cac",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "corporate_register",
+   "fieldtype": "Link",
+   "label": "Corporate Compliance Register",
+   "options": "Corporate Compliance Register"
+  },
+  {
+   "fieldname": "board_resolution_ref",
+   "fieldtype": "Link",
+   "label": "Related Board Resolution",
+   "options": "Board Resolution"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "analytics_tab",
+   "fieldtype": "Tab Break",
+   "label": "Analytics"
+  },
+  {
+   "fieldname": "days_to_agm",
+   "fieldtype": "Int",
+   "label": "Days to AGM",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_notice_given",
+   "fieldtype": "Int",
+   "label": "Days Notice Given",
+   "read_only": 1
+  },
+  {
+   "fieldname": "days_overdue",
+   "fieldtype": "Int",
+   "label": "Days AGM Overdue",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolutions_passed",
+   "fieldtype": "Int",
+   "label": "Resolutions Passed",
+   "read_only": 1
+  },
+  {
+   "fieldname": "resolutions_failed",
+   "fieldtype": "Int",
+   "label": "Resolutions Defeated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "ai_insights",
+   "fieldtype": "Long Text",
+   "label": "AI Compliance Notes"
+  },
+  {
+   "fieldname": "column_break_2acc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_h5ag",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ugn3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_br1j",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_4ykl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_0kim",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_bcqx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ls0d",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_ajis",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_agno",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yinz",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_n93l",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_umfn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "agm_details_section",
+   "fieldtype": "Section Break",
+   "label": "AGM Details"
+  },
+  {
+   "fieldname": "meeting_details_section",
+   "fieldtype": "Section Break",
+   "label": "Meeting Details"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-15 20:07:01.365552",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Annual General Meeting",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

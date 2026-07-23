@@ -139,6 +139,9 @@ def get_data(filters):
         customer_entries[customer].append(entry)
 
     final_data = []
+    grand_total_debit = 0
+    grand_total_credit = 0
+    grand_total_balance = 0
 
     for customer, entries in customer_entries.items():
         meta = customer_meta[customer]
@@ -166,13 +169,13 @@ def get_data(filters):
 
         # ── TRANSACTION ROWS ─────────────────────────────────────────
         running_balance = opening_balance
-        total_debit = 0
-        total_credit = 0
+        customer_total_debit = 0
+        customer_total_credit = 0
 
         for entry in entries:
             running_balance += flt(entry.get('debit')) - flt(entry.get('credit'))
-            total_debit += flt(entry.get('debit'))
-            total_credit += flt(entry.get('credit'))
+            customer_total_debit += flt(entry.get('debit'))
+            customer_total_credit += flt(entry.get('credit'))
 
             final_data.append({
                 "posting_date": entry.get('posting_date'),
@@ -189,6 +192,11 @@ def get_data(filters):
                 "indent": 1,
             })
 
+        # Add to grand totals
+        grand_total_debit += customer_total_debit
+        grand_total_credit += customer_total_credit
+        grand_total_balance += running_balance
+
         # ── SUBTOTAL ROW ─────────────────────────────────────────────
         final_data.append({
             "posting_date": "",
@@ -198,8 +206,8 @@ def get_data(filters):
             "voucher_no": "",
             "against_voucher": "",
             "description": "Closing Balance",
-            "debit": total_debit,
-            "credit": total_credit,
+            "debit": customer_total_debit,
+            "credit": customer_total_credit,
             "balance": running_balance,
             "currency": currency,
             "is_total_row": True,
@@ -208,6 +216,23 @@ def get_data(filters):
 
         # ── SPACER ROW ───────────────────────────────────────────────
         final_data.append({})
+
+    # ── GRAND TOTAL ROW ──────────────────────────────────────────────
+    final_data.append({
+        "posting_date": "",
+        "customer": "",
+        "customer_name": "═══════════════════════════════════════════════════════════════════════════════════════════════════",
+        "voucher_type": "",
+        "voucher_no": "",
+        "against_voucher": "",
+        "description": "GRAND TOTAL (All Customers)",
+        "debit": grand_total_debit,
+        "credit": grand_total_credit,
+        "balance": grand_total_balance,
+        "currency": "NGN",
+        "is_grand_total": True,
+        "bold": 1,
+    })
 
     return final_data
 
@@ -254,32 +279,30 @@ def get_summary(data):
     total_credit = 0
     final_balance = 0
     
-    for row in reversed(data):
-        if row and row.get('balance') is not None and row.get('is_total_row'):
-            final_balance = row.get('balance')
-            break
-    
+    # Find the grand total row
     for row in data:
-        if row and not row.get('is_total_row') and not row.get('is_header_row'):
-            total_debit += flt(row.get('debit'))
-            total_credit += flt(row.get('credit'))
+        if row and row.get('is_grand_total'):
+            final_balance = flt(row.get('balance'))
+            total_debit = flt(row.get('debit'))
+            total_credit = flt(row.get('credit'))
+            break
     
     return [
         {
             "value": total_debit,
-            "label": "Total Debit",
+            "label": "Grand Total Debit",
             "datatype": "Currency",
             "currency": "NGN"
         },
         {
             "value": total_credit,
-            "label": "Total Credit",
+            "label": "Grand Total Credit",
             "datatype": "Currency",
             "currency": "NGN"
         },
         {
             "value": final_balance,
-            "label": "Outstanding Balance",
+            "label": "Grand Outstanding Balance",
             "datatype": "Currency",
             "currency": "NGN"
         }
@@ -293,6 +316,7 @@ def download_excel(filters=None):
     - Professional color scheme
     - Customer header bands
     - Subtotal rows with styling
+    - Grand Total row
     - Proper number formatting
     - Alternating row colors
     - Frozen header pane
@@ -339,7 +363,9 @@ def download_excel(filters=None):
         'positive_orange': 'E67E22',  # Positive balance
         'negative_red': 'C0392B',     # Negative balance
         'border_gray': 'D0D7DE',
-        'title_bg': 'F0F7FD'
+        'title_bg': 'F0F7FD',
+        'grand_total_gold': 'DAA520', # Grand total color
+        'grand_total_bg': 'FFF8DC'    # Grand total background
     }
 
     # ── Styles ─────────────────────────────────────────────────────
@@ -426,6 +452,7 @@ def download_excel(filters=None):
 
         is_header = row_data.get('is_header_row')
         is_total = row_data.get('is_total_row')
+        is_grand_total = row_data.get('is_grand_total')
 
         # Build row values - keep numbers as floats for currency columns
         excel_row = []
@@ -515,6 +542,57 @@ def download_excel(filters=None):
                     cell.font = Font(bold=True, size=11)
                     cell.alignment = Alignment(horizontal='right', vertical='center')
 
+        # ── Grand Total Row ────────────────────────────────────────
+        elif is_grand_total:
+            ws.row_dimensions[current_row].height = 28
+            
+            # Merge cells for better visual appearance
+            ws.merge_cells(start_row=current_row, start_column=1, end_row=current_row, end_column=2)
+            ws.merge_cells(start_row=current_row, start_column=3, end_row=current_row, end_column=6)
+            
+            for col_idx in range(1, num_cols + 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.fill = get_fill(colors['grand_total_bg'])
+                cell.border = Border(
+                    top=Side(style='double', color=colors['grand_total_gold']),
+                    bottom=Side(style='double', color=colors['grand_total_gold']),
+                    left=Side(style='thin', color=colors['border_gray']),
+                    right=Side(style='thin', color=colors['border_gray'])
+                )
+                
+                field = col_fields[col_idx - 1]
+                
+                if field == 'customer_name':
+                    cell.font = Font(bold=True, color=colors['grand_total_gold'], size=12)
+                    cell.alignment = Alignment(horizontal='left', vertical='center', indent=1)
+                
+                elif field == 'description':
+                    cell.font = Font(bold=True, color=colors['grand_total_gold'], size=12)
+                    cell.alignment = Alignment(horizontal='left', vertical='center')
+                
+                elif field == 'debit':
+                    cell.number_format = NUM_FMT
+                    cell.font = Font(bold=True, color=colors['debit_blue'], size=12)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+                
+                elif field == 'credit':
+                    cell.number_format = NUM_FMT
+                    cell.font = Font(bold=True, color=colors['credit_green'], size=12)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+                
+                elif field == 'balance':
+                    balance = flt(row_data.get('balance'))
+                    cell.number_format = NUM_FMT
+                    balance_color = colors['positive_orange'] if balance > 0 else \
+                                   colors['negative_red'] if balance < 0 else '1E7E34'
+                    cell.font = Font(bold=True, color=balance_color, size=13)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+                
+                elif (col_idx - 1) in currency_idx:
+                    cell.number_format = NUM_FMT
+                    cell.font = Font(bold=True, size=12)
+                    cell.alignment = Alignment(horizontal='right', vertical='center')
+
         # ── Normal Transaction Row ─────────────────────────────────
         else:
             # Alternate row colors
@@ -558,55 +636,6 @@ def download_excel(filters=None):
                     )
 
         row_counter += 1
-
-    # ── Add Grand Total Row at the end ─────────────────────────────
-    if data:
-        # Calculate grand totals
-        grand_debit = 0
-        grand_credit = 0
-        grand_balance = 0
-        
-        for row in data:
-            if row and not row.get('is_header_row') and not row.get('is_total_row'):
-                grand_debit += flt(row.get('debit'))
-                grand_credit += flt(row.get('credit'))
-            if row and row.get('is_total_row'):
-                grand_balance = flt(row.get('balance'))
-
-        # Add spacer
-        ws.append([''] * num_cols)
-        ws.row_dimensions[ws.max_row].height = 8
-
-        # Add grand total row
-        grand_row = [''] * num_cols
-        grand_row[0] = 'GRAND TOTAL'
-        grand_row[6] = 'Overall Totals'
-        grand_row[7] = grand_debit
-        grand_row[8] = grand_credit
-        grand_row[9] = grand_balance
-
-        ws.append(grand_row)
-        total_row = ws.max_row
-
-        for col_idx in range(1, num_cols + 1):
-            cell = ws.cell(row=total_row, column=col_idx)
-            cell.font = Font(bold=True, size=11, color=colors['dark_blue'])
-            cell.fill = get_fill('E0E8F0')
-            cell.border = Border(
-                top=Side(style='double', color=colors['dark_blue']),
-                bottom=Side(style='double', color=colors['dark_blue'])
-            )
-            
-            if (col_idx - 1) in currency_idx:
-                cell.number_format = NUM_FMT
-                cell.alignment = Alignment(horizontal='right', vertical='center')
-            else:
-                cell.alignment = Alignment(horizontal='left', vertical='center')
-
-        # Merge first two cells for grand total label
-        if num_cols > 1:
-            ws.merge_cells(start_row=total_row, start_column=1, 
-                          end_row=total_row, end_column=2)
 
     # ── Page Setup ─────────────────────────────────────────────────
     ws.page_setup.orientation = 'landscape'

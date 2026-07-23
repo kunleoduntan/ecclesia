@@ -1,0 +1,247 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "ECR-.YYYY.-.#####",
+ "creation": "2026-06-15 08:13:36.191598",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "permit_title",
+  "company",
+  "facility",
+  "permit_type",
+  "col1",
+  "issuing_authority",
+  "permit_number",
+  "issue_date",
+  "expiry_date",
+  "days_to_expiry",
+  "status",
+  "auto_status_update",
+  "inspection_section",
+  "last_inspection_date",
+  "last_inspection_result",
+  "next_inspection_date",
+  "col2",
+  "hse_inspection_ref",
+  "corrective_actions_pending",
+  "reporting_section",
+  "annual_report_required",
+  "annual_report_due_date",
+  "annual_report_filed",
+  "col3",
+  "renewal_cost",
+  "renewal_lead_time_days",
+  "responsible_officer",
+  "cll_entry",
+  "permit_document",
+  "notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "permit_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Permit / Obligation Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "facility",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Facility / Location"
+  },
+  {
+   "fieldname": "permit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Permit / Obligation Type",
+   "options": "Environmental Impact Assessment (EIA)\nEnvironmental Management Plan (EMP)\nWaste Disposal Permit\nEffluent Discharge Consent\nAir Quality Permit\nNoise Permit\nChemical Storage Permit\nNESREA Permit\nFEPA Licence\nState EPA Permit\nOther",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issuing_authority",
+   "fieldtype": "Link",
+   "label": "Issuing Authority",
+   "options": "Regulatory Authority",
+   "reqd": 1
+  },
+  {
+   "fieldname": "permit_number",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Permit Number"
+  },
+  {
+   "fieldname": "issue_date",
+   "fieldtype": "Date",
+   "label": "Issue Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "days_to_expiry",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Days to Expiry",
+   "read_only": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nExpiring Soon\nExpired\nUnder Renewal\nSuspended\nRevoked"
+  },
+  {
+   "default": "1",
+   "fieldname": "auto_status_update",
+   "fieldtype": "Check",
+   "label": "Auto Status Update"
+  },
+  {
+   "fieldname": "inspection_section",
+   "fieldtype": "Section Break",
+   "label": "Inspection & Monitoring"
+  },
+  {
+   "fieldname": "last_inspection_date",
+   "fieldtype": "Date",
+   "label": "Last Inspection Date"
+  },
+  {
+   "fieldname": "last_inspection_result",
+   "fieldtype": "Select",
+   "label": "Last Inspection Result",
+   "options": "Not Yet Inspected\nSatisfactory\nMinor Non-Compliance\nMajor Non-Compliance\nProsecution"
+  },
+  {
+   "fieldname": "next_inspection_date",
+   "fieldtype": "Date",
+   "label": "Next Inspection Date"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hse_inspection_ref",
+   "fieldtype": "Link",
+   "label": "Linked HSE Inspection",
+   "options": "HSE Inspection"
+  },
+  {
+   "fieldname": "corrective_actions_pending",
+   "fieldtype": "Int",
+   "label": "Corrective Actions Pending"
+  },
+  {
+   "fieldname": "reporting_section",
+   "fieldtype": "Section Break",
+   "label": "Reporting Obligations"
+  },
+  {
+   "default": "0",
+   "fieldname": "annual_report_required",
+   "fieldtype": "Check",
+   "label": "Annual Environmental Report Required"
+  },
+  {
+   "fieldname": "annual_report_due_date",
+   "fieldtype": "Date",
+   "label": "Annual Report Due"
+  },
+  {
+   "default": "0",
+   "fieldname": "annual_report_filed",
+   "fieldtype": "Check",
+   "label": "Annual Report Filed"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "renewal_cost",
+   "fieldtype": "Currency",
+   "label": "Renewal Cost (\u20a6)"
+  },
+  {
+   "default": "90",
+   "fieldname": "renewal_lead_time_days",
+   "fieldtype": "Int",
+   "label": "Renewal Lead Time (days)"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cll_entry",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "permit_document",
+   "fieldtype": "Attach",
+   "label": "Permit Document"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 08:13:36.191598",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Environmental Compliance Record",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

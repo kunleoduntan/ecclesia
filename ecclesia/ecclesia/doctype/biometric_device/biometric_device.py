@@ -1,14 +1,17 @@
 # Copyright (c) 2026, Kunle Oduntan and contributors
 # For license information, please see license.txt
-
 import frappe
 from frappe.model.document import Document
-
 
 # Maps each brand to its protocol and default port
 BRAND_CONFIG = {
     "ZKTeco":    {"protocol": "SDK",            "port": 4370},
     "eSSL":      {"protocol": "SDK",            "port": 4370},   # ZKTeco-compatible
+    "TAMS":      {"protocol": "SDK",            "port": 4370},   # ZKTeco-compatible; real-time
+                                                                   # attendance normally arrives
+                                                                   # via ADMS push instead — see
+                                                                   # sync_mode field and
+                                                                   # ecclesia.biometric_attendance.push
     "Hikvision": {"protocol": "ISAPI / REST",   "port": 80},
     "Dahua":     {"protocol": "HTTP API",       "port": 80},
     "Suprema":   {"protocol": "BioStar API",    "port": 443},
@@ -20,7 +23,6 @@ BRAND_CONFIG = {
 
 
 class BiometricDevice(Document):
-
     def validate(self):
         self._auto_set_protocol_and_port()
 

@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "RR-.YYYY.-.#####",
+ "creation": "2026-06-15 08:31:39.101978",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "return_title",
+  "company",
+  "authority",
+  "industry_category",
+  "col1",
+  "return_type",
+  "frequency",
+  "period_covered",
+  "period_section",
+  "period_start",
+  "period_end",
+  "due_date",
+  "col2",
+  "submission_date",
+  "status",
+  "late_flag",
+  "return_section",
+  "return_reference",
+  "penalty_for_non_filing",
+  "penalty_incurred",
+  "col3",
+  "filed_by",
+  "reviewed_by",
+  "cll_entry",
+  "attachment",
+  "compliance_rule",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "return_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Return Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "authority",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Regulatory Authority",
+   "options": "Regulatory Authority",
+   "reqd": 1
+  },
+  {
+   "fieldname": "industry_category",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Industry Category",
+   "options": "Banking & Finance\nInsurance\nCapital Markets\nManufacturing\nFood & Drug (NAFDAC)\nStandards (SON)\nHealthcare\nTelecommunications\nOil & Gas\nGeneral",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "return_type",
+   "fieldtype": "Data",
+   "label": "Return Type (e.g. CBN Prudential Return)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "options": "Daily\nWeekly\nMonthly\nQuarterly\nBi-Annual\nAnnual\nEvent Based",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period_covered",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period Covered"
+  },
+  {
+   "fieldname": "period_section",
+   "fieldtype": "Section Break",
+   "label": "Dates"
+  },
+  {
+   "fieldname": "period_start",
+   "fieldtype": "Date",
+   "label": "Period Start"
+  },
+  {
+   "fieldname": "period_end",
+   "fieldtype": "Date",
+   "label": "Period End"
+  },
+  {
+   "fieldname": "due_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Due Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "submission_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Actual Submission Date"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nPreparing\nSubmitted\nLate Submitted\nAccepted\nRejected\nOverdue"
+  },
+  {
+   "default": "0",
+   "fieldname": "late_flag",
+   "fieldtype": "Check",
+   "label": "Late Submission",
+   "read_only": 1
+  },
+  {
+   "fieldname": "return_section",
+   "fieldtype": "Section Break",
+   "label": "Return Details"
+  },
+  {
+   "fieldname": "return_reference",
+   "fieldtype": "Data",
+   "label": "Regulatory Reference / Acknowledgement"
+  },
+  {
+   "fieldname": "penalty_for_non_filing",
+   "fieldtype": "Currency",
+   "label": "Penalty for Non-Filing (\u20a6)"
+  },
+  {
+   "fieldname": "penalty_incurred",
+   "fieldtype": "Currency",
+   "label": "Penalty Incurred (\u20a6)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "filed_by",
+   "fieldtype": "Link",
+   "label": "Filed By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Reviewed By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "cll_entry",
+   "fieldtype": "Link",
+   "label": "CLL Entry",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Return / Evidence"
+  },
+  {
+   "fieldname": "compliance_rule",
+   "fieldtype": "Link",
+   "label": "Compliance Rule",
+   "options": "Compliance Rule"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Regulatory Return",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:31:39.101978",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Regulatory Return",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

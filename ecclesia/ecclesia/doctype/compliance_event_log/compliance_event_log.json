@@ -1,0 +1,161 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CEL-.YYYY.-.#####",
+ "creation": "2026-06-15 09:35:09.890824",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "event_name",
+  "event_type",
+  "source_doctype",
+  "source_document",
+  "col1",
+  "obligation_type",
+  "period_label",
+  "period_start",
+  "period_end",
+  "company",
+  "col2",
+  "generated_ledger",
+  "liability_amount",
+  "status",
+  "processed_on",
+  "error_log",
+  "triggered_by"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "event_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Event Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Event Type",
+   "options": "Invoice\nPayroll\nManual\nScheduler\nPayment\nReconciliation\nAllocation",
+   "reqd": 1
+  },
+  {
+   "fieldname": "source_doctype",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source DocType"
+  },
+  {
+   "fieldname": "source_document",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Source Document"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nData Breach Notification\nAML/KYC\nContractual Obligation\nTraining Levy\nOther"
+  },
+  {
+   "fieldname": "period_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period"
+  },
+  {
+   "fieldname": "period_start",
+   "fieldtype": "Date",
+   "label": "Period Start"
+  },
+  {
+   "fieldname": "period_end",
+   "fieldtype": "Date",
+   "label": "Period End"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "generated_ledger",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Generated CLL",
+   "options": "Compliance Liability Ledger"
+  },
+  {
+   "fieldname": "liability_amount",
+   "fieldtype": "Currency",
+   "label": "Liability Generated (\u20a6)"
+  },
+  {
+   "default": "Success",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Success\nFailed\nPartial"
+  },
+  {
+   "fieldname": "processed_on",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "Processed On"
+  },
+  {
+   "fieldname": "error_log",
+   "fieldtype": "Text",
+   "label": "Error Log"
+  },
+  {
+   "fieldname": "triggered_by",
+   "fieldtype": "Link",
+   "label": "Triggered By",
+   "options": "User"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 09:35:09.890824",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Event Log",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

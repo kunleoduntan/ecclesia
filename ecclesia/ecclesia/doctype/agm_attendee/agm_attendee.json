@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-15 19:09:48.953517",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "attendee_name",
+  "attendee_type",
+  "organisation",
+  "shares_held",
+  "check_in_time",
+  "signature_obtained",
+  "email",
+  "phone",
+  "proxy_ref"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "attendee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "attendee_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Type",
+   "options": "Shareholder\nDirector\nProxy\nAuditor\nLegal Counsel\nBoard Observer\nCompany Secretary\nGuest / Invitee",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "fieldname": "organisation",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Organisation"
+  },
+  {
+   "columns": 1,
+   "fieldname": "shares_held",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Shares"
+  },
+  {
+   "fieldname": "check_in_time",
+   "fieldtype": "Time",
+   "label": "Check-In"
+  },
+  {
+   "columns": 1,
+   "default": "0",
+   "fieldname": "signature_obtained",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Signed Register"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email"
+  },
+  {
+   "fieldname": "phone",
+   "fieldtype": "Phone",
+   "label": "Phone"
+  },
+  {
+   "fieldname": "proxy_ref",
+   "fieldtype": "Int",
+   "label": "Proxy Row # (if proxy)"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-15 19:09:48.953517",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "AGM Attendee",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

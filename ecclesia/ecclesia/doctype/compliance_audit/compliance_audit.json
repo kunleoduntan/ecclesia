@@ -1,0 +1,218 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:audit_title",
+ "creation": "2026-06-14 21:01:26.132787",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "audit_title",
+  "audit_type",
+  "company",
+  "col1",
+  "audit_period_start",
+  "audit_period_end",
+  "audit_date",
+  "col2",
+  "auditor_type",
+  "auditor_name",
+  "audit_scope",
+  "findings_section",
+  "findings",
+  "total_findings",
+  "critical_findings",
+  "col3",
+  "overall_rating",
+  "compliance_score",
+  "closure_status",
+  "closure_date",
+  "next_audit_date",
+  "linked_records",
+  "audit_report",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "audit_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Audit Title",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "audit_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Audit Type",
+   "options": "Internal\nExternal\nRegulatory\nTax Audit\nCompliance Audit",
+   "reqd": 1
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "audit_period_start",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Period Start",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_period_end",
+   "fieldtype": "Date",
+   "label": "Period End",
+   "reqd": 1
+  },
+  {
+   "fieldname": "audit_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Audit Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auditor_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Auditor Type",
+   "options": "Internal Auditor\nExternal Firm\nRegulatory Body"
+  },
+  {
+   "fieldname": "auditor_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Auditor / Firm"
+  },
+  {
+   "fieldname": "audit_scope",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Audit Scope",
+   "options": "Tax\nPayroll\nPension\nLicensing\nStatutory Compliance\nFull Compliance\nFinancial Controls"
+  },
+  {
+   "fieldname": "findings_section",
+   "fieldtype": "Section Break",
+   "label": "Findings"
+  },
+  {
+   "fieldname": "findings",
+   "fieldtype": "Table",
+   "label": "Audit Findings",
+   "options": "Compliance Audit Finding"
+  },
+  {
+   "fieldname": "total_findings",
+   "fieldtype": "Int",
+   "label": "Total Findings",
+   "read_only": 1
+  },
+  {
+   "fieldname": "critical_findings",
+   "fieldtype": "Int",
+   "label": "Critical Findings",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "overall_rating",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Overall Rating",
+   "options": "Satisfactory\nNeeds Improvement\nUnsatisfactory\nCritical"
+  },
+  {
+   "fieldname": "compliance_score",
+   "fieldtype": "Float",
+   "label": "Compliance Score (%)",
+   "read_only": 1
+  },
+  {
+   "default": "Open",
+   "fieldname": "closure_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Closure Status",
+   "options": "Open\nIn Progress\nClosed\nOverdue"
+  },
+  {
+   "fieldname": "closure_date",
+   "fieldtype": "Date",
+   "label": "Closure Date"
+  },
+  {
+   "fieldname": "next_audit_date",
+   "fieldtype": "Date",
+   "label": "Next Audit Date"
+  },
+  {
+   "fieldname": "linked_records",
+   "fieldtype": "Small Text",
+   "label": "Linked ERP Records"
+  },
+  {
+   "fieldname": "audit_report",
+   "fieldtype": "Attach",
+   "label": "Audit Report"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Audit",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-14 21:01:26.132787",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Audit",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

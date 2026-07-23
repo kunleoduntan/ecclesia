@@ -1,0 +1,77 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-07-16 07:54:59.992740",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "routed_to",
+  "routed_date",
+  "instruction",
+  "action_taken",
+  "status",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "columns": 3,
+   "fieldname": "routed_to",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Routed To",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "columns": 2,
+   "default": "Today",
+   "fieldname": "routed_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date Routed"
+  },
+  {
+   "columns": 4,
+   "fieldname": "instruction",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Instruction"
+  },
+  {
+   "fieldname": "action_taken",
+   "fieldtype": "Small Text",
+   "label": "Action Taken"
+  },
+  {
+   "columns": 2,
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Pending\nActioned\nForwarded\nClosed"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-07-16 07:54:59.992740",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Correspondence Routing Log",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>360° Performance Hub · Ecclesia</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:#0F0B2E;color:#E2E8F0;min-height:100vh;display:flex;flex-direction:column}
+:root{
+  --pu:#7C3AED;--pu2:#A78BFA;--in:#4338CA;--am:#F59E0B;--am2:#FCD34D;
+  --te:#0D9488;--ro:#E11D48;--em:#059669;--sky:#0284C7;
+  --bg:#0F0B2E;--s1:#1A1550;--s2:#231E6B;--s3:#2D2880;
+  --card:#1E1A5E;--card2:#252060;--bdr:rgba(124,58,237,.25);
+  --tx:#E2E8F0;--mu:#94A3B8;--dim:#64748B;
+  --grad:linear-gradient(135deg,#312E81,#7C3AED,#A78BFA);
+  --grad-am:linear-gradient(135deg,#F59E0B,#F97316);
+  --grad-te:linear-gradient(135deg,#0D9488,#34D399);
+  --sh:0 4px 24px rgba(124,58,237,.2);
+  --r:14px;
+}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(167,139,250,.3);border-radius:99px}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--s1);border-right:1px solid var(--bdr);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:100;overflow:hidden}
+.sidebar::before{content:'';position:absolute;top:-80px;right:-80px;width:220px;height:220px;background:radial-gradient(circle,rgba(124,58,237,.2),transparent 70%);pointer-events:none}
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column}
+
+/* ── SIDEBAR ────────────────────────────────────────────── */
+.sb-brand{padding:18px 16px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px}
+.sb-logo{width:36px;height:36px;background:var(--grad);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:var(--sh)}
+.sb-title{font-size:14px;font-weight:800;color:#fff;letter-spacing:-.3px}
+.sb-sub{font-size:9px;color:var(--mu);margin-top:1px}
+
+.sb-user{margin:10px 12px;background:rgba(124,58,237,.15);border:1px solid var(--bdr);border-radius:12px;padding:12px;position:relative;overflow:hidden}
+.sb-av{width:44px;height:44px;border-radius:12px;background:var(--grad-am);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px;color:#fff;margin-bottom:8px;box-shadow:0 4px 12px rgba(245,158,11,.3)}
+.sb-name{font-size:13px;font-weight:700;color:#fff}
+.sb-role{font-size:10px;color:var(--mu);margin-top:2px}
+.score-bar{margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:8px}
+.score-bar-fill{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden}
+.score-bar-inner{height:100%;background:var(--grad-am);border-radius:99px;transition:width .6s ease}
+.score-pct{font-size:11px;font-weight:800;color:var(--am)}
+
+.sb-nav{flex:1;padding:8px;overflow-y:auto}
+.sb-sec{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);padding:12px 8px 5px;font-weight:700}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:12px;color:var(--mu);transition:.15s;margin-bottom:2px;user-select:none;position:relative}
+.ni:hover{background:rgba(124,58,237,.15);color:var(--tx)}
+.ni.active{background:rgba(124,58,237,.25);color:var(--pu2);font-weight:600}
+.ni.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--pu2);border-radius:0 3px 3px 0}
+.ni .ico{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.ni .bx{background:var(--ro);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:7px;margin-left:auto}
+
+.sb-foot{padding:10px 12px;border-top:1px solid var(--bdr)}
+.role-toggle{display:flex;gap:4px;background:rgba(0,0,0,.3);border-radius:8px;padding:3px}
+.rt-btn{flex:1;padding:5px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--mu);font-family:inherit;transition:.15s}
+.rt-btn.active{background:var(--pu);color:#fff}
+
+/* ── TOPBAR ─────────────────────────────────────────────── */
+.topbar{padding:13px 24px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--s1);position:sticky;top:0;z-index:50;backdrop-filter:blur(12px)}
+.tb-left{display:flex;align-items:center;gap:12px}
+.tb-title{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.4px}
+.tb-badge{font-size:10px;font-weight:700;color:var(--am);background:rgba(245,158,11,.15);padding:3px 10px;border-radius:99px;border:1px solid rgba(245,158,11,.3)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--bdr);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:.15s;color:var(--mu);position:relative}
+.icon-btn:hover{border-color:var(--pu2);color:var(--pu2)}
+.notif-dot{position:absolute;top:3px;right:3px;width:7px;height:7px;background:var(--ro);border-radius:50%;border:1px solid var(--s1)}
+
+/* ── CONTENT ────────────────────────────────────────────── */
+.content{padding:22px 24px;flex:1}
+.panel{display:none}
+.panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── COMMON ─────────────────────────────────────────────── */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+.card-header{padding:13px 17px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-title{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:7px}
+.card-body{padding:16px 17px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.btn{padding:8px 16px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn-pri{background:var(--grad);color:#fff;box-shadow:0 4px 14px rgba(124,58,237,.3)}.btn-pri:hover{opacity:.9}
+.btn-out{background:transparent;color:var(--mu);border:1px solid var(--bdr)}.btn-out:hover{border-color:var(--pu2);color:var(--pu2)}
+.btn-am{background:var(--grad-am);color:#fff}.btn-am:hover{opacity:.9}
+.btn-sm{padding:5px 12px;font-size:11px}
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:7px;font-size:10px;font-weight:700}
+.pill-pu{background:rgba(124,58,237,.2);color:var(--pu2)}
+.pill-am{background:rgba(245,158,11,.2);color:var(--am)}
+.pill-te{background:rgba(13,148,136,.2);color:#34D399}
+.pill-ro{background:rgba(225,29,72,.2);color:#FB7185}
+.pill-em{background:rgba(5,150,105,.2);color:#34D399}
+.pill-grey{background:rgba(148,163,184,.1);color:var(--mu)}
+.prog{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s ease}
+.chip{font-size:9px;font-weight:700;padding:2px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.4px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,11,46,.85);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:28px;width:min(640px,96vw);max-height:90vh;overflow-y:auto;animation:fadeIn .2s ease;box-shadow:0 24px 80px rgba(0,0,0,.5)}
+.modal-title{font-size:18px;font-weight:800;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr)}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.fi{width:100%;padding:10px 13px;border:1px solid var(--bdr);border-radius:8px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.04);color:#fff;outline:none;transition:.15s}
+.fi:focus{border-color:var(--pu2);background:rgba(124,58,237,.08)}
+.fi::placeholder{color:var(--dim)}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--pu);color:#fff;border-radius:11px;padding:12px 18px;font-size:13px;font-weight:600;box-shadow:var(--sh);z-index:9999;display:none;animation:fadeIn .2s ease}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--bdr);margin-bottom:18px;overflow-x:auto;padding-bottom:0}
+.tab{padding:9px 16px;font-size:12px;font-weight:500;cursor:pointer;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;white-space:nowrap}
+.tab.active{color:var(--pu2);border-bottom-color:var(--pu2);font-weight:700}
+table.dt{width:100%;border-collapse:collapse;font-size:12px}
+table.dt th{padding:9px 13px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--mu);background:rgba(255,255,255,.03);border-bottom:1px solid var(--bdr)}
+table.dt td{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+table.dt tr:hover td{background:rgba(124,58,237,.07)}
+.table-wrap{overflow-x:auto}
+
+/* ── HUB PANEL ──────────────────────────────────────────── */
+.hub-welcome{background:var(--grad);border-radius:18px;padding:26px 30px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;position:relative;overflow:hidden}
+.hub-welcome::before{content:'';position:absolute;right:-60px;top:-60px;width:250px;height:250px;background:radial-gradient(circle,rgba(255,255,255,.12),transparent 65%);pointer-events:none}
+.hw-txt h2{font-size:22px;font-weight:900;color:#fff;letter-spacing:-.4px}
+.hw-txt p{color:rgba(255,255,255,.75);font-size:13px;margin-top:4px}
+.hw-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.hw-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 14px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
+.hw-btn:hover{background:rgba(255,255,255,.25)}
+
+/* Pulse Ring */
+.pulse-wrap{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.pulse-canvas{position:relative;width:160px;height:160px;flex-shrink:0}
+.pulse-canvas canvas{position:absolute;top:0;left:0}
+.pulse-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.pulse-num{font-size:34px;font-weight:900;color:#fff;letter-spacing:-2px}
+.pulse-lbl{font-size:10px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.pulse-legs{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1}
+.pl{background:rgba(255,255,255,.08);border-radius:10px;padding:11px 13px;border:1px solid rgba(255,255,255,.1)}
+.pl-val{font-size:18px;font-weight:900;color:#fff}
+.pl-name{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px}
+.pl-prog{margin-top:7px;height:3px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden}
+.pl-fill{height:100%;border-radius:99px}
+
+/* Snap cards */
+.snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.snap{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;position:relative;overflow:hidden;transition:.2s;cursor:default}
+.snap::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.snap.c1::after{background:var(--grad)}.snap.c2::after{background:var(--grad-am)}
+.snap.c3::after{background:var(--grad-te)}.snap.c4::after{background:linear-gradient(90deg,#E11D48,#FB7185)}
+.snap:hover{transform:translateY(-2px);box-shadow:var(--sh)}
+.snap-ico{font-size:24px;position:absolute;right:13px;top:14px;opacity:.12}
+.snap-lbl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px}
+.snap-val{font-size:26px;font-weight:900;color:#fff;letter-spacing:-1px;line-height:1}
+.snap-sub{font-size:10px;color:var(--mu);margin-top:4px}
+
+/* Pending items */
+.pi{display:flex;align-items:center;gap:12px;padding:11px 14px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;transition:.15s}
+.pi:hover{border-color:var(--pu2);background:rgba(124,58,237,.08)}
+.pi-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.pi-txt{flex:1}
+.pi-title{font-size:13px;font-weight:600;color:#fff}
+.pi-sub{font-size:11px;color:var(--mu);margin-top:2px}
+
+/* ── GOALS PANEL ─────────────────────────────────────────── */
+.goal-card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:10px;transition:.2s}
+.goal-card:hover{border-color:var(--pu2)}
+.gc-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.gc-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.gc-title{font-size:13px;font-weight:700;color:#fff}
+.gc-meta{font-size:11px;color:var(--mu);margin-top:2px}
+.gc-prog-row{display:flex;align-items:center;gap:10px}
+.gc-pct{font-size:11px;font-weight:700;white-space:nowrap}
+.goal-tree{margin-bottom:20px}
+.gt-node{display:flex;align-items:center;gap:8px;padding:8px 14px;border-left:2px solid;margin-left:20px;margin-bottom:4px;border-radius:0 8px 8px 0;cursor:pointer;transition:.15s}
+.gt-node:hover{background:rgba(255,255,255,.04)}
+.gt-node.level-0{margin-left:0;border-radius:8px;background:rgba(124,58,237,.12)}
+.gt-node.level-1{border-color:var(--am)}
+.gt-node.level-2{border-color:var(--te);margin-left:40px}
+.gt-node.level-3{border-color:var(--pu2);margin-left:60px}
+
+/* ── REVIEW PANEL ────────────────────────────────────────── */
+.stage-flow{display:flex;align-items:center;gap:0;margin-bottom:24px;overflow-x:auto;padding-bottom:4px}
+.sf-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0}
+.sf-circle{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid var(--bdr);background:var(--card);position:relative;z-index:1;transition:.2s}
+.sf-circle.done{border-color:var(--em);background:rgba(5,150,105,.2)}
+.sf-circle.active{border-color:var(--pu2);background:rgba(124,58,237,.2);box-shadow:0 0 0 4px rgba(124,58,237,.15)}
+.sf-circle.locked{opacity:.4}
+.sf-label{font-size:9px;color:var(--mu);text-align:center;white-space:nowrap;max-width:60px}
+.sf-line{flex:1;height:2px;background:var(--bdr);min-width:24px;position:relative;top:-20px}
+.sf-line.done{background:var(--em)}
+
+/* ── CALIBRATION ─────────────────────────────────────────── */
+.ninebox{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;aspect-ratio:1;max-width:320px}
+.nb-cell{border-radius:8px;padding:8px;cursor:pointer;transition:.2s;display:flex;flex-direction:column;justify-content:space-between;min-height:90px}
+.nb-cell:hover{transform:scale(1.03);z-index:2;position:relative}
+.nb-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;opacity:.8;line-height:1.2}
+.nb-count{font-size:22px;font-weight:900;color:#fff}
+.nb-names{font-size:8px;color:rgba(255,255,255,.65);margin-top:2px}
+
+/* ── AI PANEL ────────────────────────────────────────────── */
+.ai-chat{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;max-height:380px;overflow-y:auto}
+.ai-bubble{display:flex;gap:10px;align-items:flex-start}
+.ai-bubble.user{flex-direction:row-reverse}
+.ai-av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.ai-av.assistant{background:var(--grad);color:#fff}
+.ai-av.user{background:var(--grad-am);color:#fff}
+.ai-msg{padding:11px 14px;border-radius:13px;max-width:78%;font-size:13px;line-height:1.6}
+.ai-msg.assistant{background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.25);color:var(--tx)}
+.ai-msg.user{background:var(--grad-am);color:#fff;border-radius:13px 13px 4px 13px}
+.ai-msg .time{font-size:9px;opacity:.5;margin-top:5px}
+.ai-input-row{display:flex;gap:10px;align-items:flex-end}
+.ai-input{flex:1;padding:11px 14px;border:1px solid var(--bdr);border-radius:10px;font-size:13px;font-family:inherit;background:rgba(255,255,255,.04);color:#fff;outline:none;resize:none;max-height:100px;transition:.15s}
+.ai-input:focus{border-color:var(--pu2)}
+.ai-typing{display:flex;align-items:center;gap:5px;padding:10px 14px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--pu2);animation:typingBounce 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.ai-insight-card{background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(67,56,202,.1));border:1px solid rgba(124,58,237,.3);border-radius:12px;padding:16px;margin-bottom:12px}
+.aic-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.aic-title{font-size:13px;font-weight:700;color:var(--pu2)}
+
+/* ── RESUME PANEL ─────────────────────────────────────────── */
+.resume-score-bar{height:10px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;margin:4px 0}
+.rsb-fill{height:100%;border-radius:99px;transition:width .6s ease}
+.resume-card{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;transition:.2s;cursor:pointer}
+.resume-card:hover{border-color:var(--pu2);transform:translateY(-2px)}
+.rc-score{font-size:28px;font-weight:900;letter-spacing:-1px}
+.rc-verdict{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.upload-zone{border:2px dashed var(--bdr);border-radius:14px;padding:32px;text-align:center;transition:.2s;cursor:pointer;background:rgba(124,58,237,.03)}
+.upload-zone:hover{border-color:var(--pu2);background:rgba(124,58,237,.06)}
+.upload-ico{font-size:40px;margin-bottom:10px}
+.upload-txt{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--mu)}
+
+/* ── ANALYTICS ───────────────────────────────────────────── */
+.chart-wrap{height:220px;position:relative}
+.kpi-block{background:var(--card2);border-radius:10px;padding:13px 15px;border:1px solid var(--bdr)}
+.kpi-v{font-size:28px;font-weight:900;color:#fff;letter-spacing:-1px}
+.kpi-l{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;margin-top:2px;font-weight:700}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:1200px){.snap-grid{grid-template-columns:1fr 1fr}.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:900px){.sidebar{width:0;overflow:hidden;transition:.25s}.sidebar.open{width:240px;box-shadow:4px 0 24px rgba(0,0,0,.4)}.main{margin-left:0}.grid2{grid-template-columns:1fr}.snap-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.snap-grid{grid-template-columns:1fr}.grid3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="toast" class="toast"></div>
+
+<!-- ═══ LAYOUT ═══════════════════════════════════════════════ -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-logo">⭐</div>
+    <div>
+      <div class="sb-title">PerformanceHub</div>
+      <div class="sb-sub">360° · Ecclesia Platform</div>
+    </div>
+  </div>
+
+  <div class="sb-user">
+    <div class="sb-av">AO</div>
+    <div class="sb-name" id="sb-name">Adaeze Okonkwo</div>
+    <div class="sb-role" id="sb-role">Senior Accountant · Finance</div>
+    <div class="score-bar">
+      <div class="score-bar-fill"><div class="score-bar-inner" style="width:87%"></div></div>
+      <span class="score-pct">87%</span>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-sec">My Performance</div>
+    <div class="ni active" onclick="showPanel('hub')"><span class="ico">🏠</span><span>My Hub</span></div>
+    <div class="ni" onclick="showPanel('goals')"><span class="ico">🎯</span><span>Goals & OKRs</span><span class="bx">2</span></div>
+    <div class="ni" onclick="showPanel('reviews')"><span class="ico">📋</span><span>My Reviews</span><span class="bx">1</span></div>
+    <div class="ni" onclick="showPanel('feedback')"><span class="ico">💬</span><span>Continuous Feedback</span></div>
+    <div class="ni" onclick="showPanel('idp')"><span class="ico">🌱</span><span>My Dev Plan (IDP)</span></div>
+    <div class="sb-sec">Team & Analysis</div>
+    <div class="ni" onclick="showPanel('team')"><span class="ico">👥</span><span>Team Dashboard</span></div>
+    <div class="ni" onclick="showPanel('calibration')"><span class="ico">⚖️</span><span>Calibration</span></div>
+    <div class="ni" onclick="showPanel('ai')"><span class="ico">🤖</span><span>AI Coach</span></div>
+    <div class="sb-sec">Recruitment</div>
+    <div class="ni" onclick="showPanel('resume')"><span class="ico">📄</span><span>Resume Selection</span></div>
+    <div class="sb-sec">Reports</div>
+    <div class="ni" onclick="showPanel('analytics')"><span class="ico">📊</span><span>Analytics</span></div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="role-toggle" id="role-toggle">
+      <button class="rt-btn active" onclick="setRole('employee',this)">Employee</button>
+      <button class="rt-btn" onclick="setRole('manager',this)">Manager</button>
+      <button class="rt-btn" onclick="setRole('hr',this)">HR</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-left">
+      <button id="sb-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--mu);display:none">☰</button>
+      <span class="tb-title" id="tb-title">My Hub</span>
+      <span class="tb-badge" id="tb-badge">Q2 2026 · Annual Appraisal</span>
+    </div>
+    <div class="tb-right">
+      <div class="tb-badge" id="cycle-days">🗓️ 14 days left in cycle</div>
+      <div class="icon-btn" title="Notifications">🔔<div class="notif-dot"></div></div>
+      <div class="icon-btn" onclick="openModal('modal-quick-action')" title="Quick Action">⚡</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+  <!-- ═══ HUB PANEL ═════════════════════════════════════════ -->
+  <div class="panel active" id="panel-hub">
+    <div class="hub-welcome">
+      <div class="hw-txt">
+        <h2 id="greet">Good morning, Adaeze! 🌟</h2>
+        <p>Q2 2026 Annual Appraisal · <strong>14 days</strong> remaining · Your cycle is in the <strong>Manager Review</strong> stage.</p>
+        <div class="hw-actions">
+          <button class="hw-btn" onclick="showPanel('reviews');openModal('modal-self-appraisal')">✍️ Complete Self-Appraisal</button>
+          <button class="hw-btn" onclick="showPanel('goals');openModal('modal-add-goal')">+ Add Goal</button>
+          <button class="hw-btn" onclick="showPanel('feedback');openModal('modal-new-feedback')">💬 Give Feedback</button>
+          <button class="hw-btn" onclick="showPanel('ai')">🤖 Ask AI Coach</button>
+        </div>
+      </div>
+      <div id="hub-pulse-wrap">
+        <div class="pulse-wrap">
+          <div class="pulse-canvas">
+            <canvas id="pulseCanvas" width="160" height="160"></canvas>
+            <div class="pulse-center"><div class="pulse-num">87</div><div class="pulse-lbl">Score</div></div>
+          </div>
+          <div class="pulse-legs">
+            <div class="pl"><div class="pl-val">90%</div><div class="pl-name">Goals</div><div class="pl-prog"><div class="pl-fill" style="width:90%;background:#F59E0B"></div></div></div>
+            <div class="pl"><div class="pl-val">82%</div><div class="pl-name">Competencies</div><div class="pl-prog"><div class="pl-fill" style="width:82%;background:#A78BFA"></div></div></div>
+            <div class="pl"><div class="pl-val">88%</div><div class="pl-name">Peer Reviews</div><div class="pl-prog"><div class="pl-fill" style="width:88%;background:#34D399"></div></div></div>
+            <div class="pl"><div class="pl-val">87%</div><div class="pl-name">Manager</div><div class="pl-prog"><div class="pl-fill" style="width:87%;background:#FB7185"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="snap-grid">
+      <div class="snap c1"><div class="snap-ico">🎯</div><div class="snap-lbl">Goals Completed</div><div class="snap-val">5/7</div><div class="snap-sub">71.4% completion rate</div></div>
+      <div class="snap c2"><div class="snap-ico">⭐</div><div class="snap-lbl">Current Score</div><div class="snap-val">87%</div><div class="snap-sub">Exceeds Expectations</div></div>
+      <div class="snap c3"><div class="snap-ico">💬</div><div class="snap-lbl">Peer Reviews Recv</div><div class="snap-val">3/3</div><div class="snap-sub">All peers submitted</div></div>
+      <div class="snap c4"><div class="snap-ico">📋</div><div class="snap-lbl">Actions Pending</div><div class="snap-val">2</div><div class="snap-sub">Self-appraisal + IDP update</div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">⚡ Pending Actions</span><span class="pill pill-ro">2 urgent</span></div>
+        <div class="card-body">
+          <div class="pi">
+            <div class="pi-ico" style="background:rgba(245,158,11,.15);color:var(--am)">✍️</div>
+            <div class="pi-txt"><div class="pi-title">Self-Appraisal Form</div><div class="pi-sub">Q2 2026 · Due 10 Jul 2026</div></div>
+            <button class="btn btn-am btn-sm" onclick="openModal('modal-self-appraisal')">Start</button>
+          </div>
+          <div class="pi">
+            <div class="pi-ico" style="background:rgba(124,58,237,.15);color:var(--pu2)">🌱</div>
+            <div class="pi-txt"><div class="pi-title">Update IDP Progress</div><div class="pi-sub">ERPNext Certification — 70%</div></div>
+            <button class="btn btn-out btn-sm" onclick="showPanel('idp')">Update</button>
+          </div>
+          <div class="pi">
+            <div class="pi-ico" style="background:rgba(5,150,105,.15);color:#34D399">📜</div>
+            <div class="pi-txt"><div class="pi-title">Policy: Information Security</div><div class="pi-sub">Acknowledgement due in 3 days</div></div>
+            <button class="btn btn-out btn-sm">Sign</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🕐 Recent Feedback</span><button class="btn btn-out btn-sm" onclick="showPanel('feedback')">See all</button></div>
+        <div class="card-body">
+          <div style="margin-bottom:12px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+              <div style="width:28px;height:28px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">EN</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#fff">Emeka Nwachukwu</div>
+                <div style="font-size:10px;color:var(--mu)">CFO · Recognition 🌟 · 2 days ago</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);padding-left:36px;line-height:1.5">"Adaeze's Q2 financial statements were impeccable — delivered 2 days early with zero errors. Exceptional work."</div>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+              <div style="width:28px;height:28px;border-radius:8px;background:var(--grad-te);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">NG</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#fff">Ngozi Eze</div>
+                <div style="font-size:10px;color:var(--mu)">Colleague · Coaching 💡 · 5 days ago</div>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);padding-left:36px;line-height:1.5">"Consider documenting your Excel models with more comments so team members can follow along when you're away."</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ GOALS PANEL ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-goals">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div><h2 style="font-size:20px;font-weight:800;color:#fff">Goals & OKRs</h2><p style="font-size:12px;color:var(--mu)">Q2 2026 Annual Appraisal · 7 goals · 71% complete</p></div>
+      <div style="display:flex;gap:8px"><button class="btn btn-out" onclick="toggleGoalTree()">🌳 Goal Alignment Tree</button><button class="btn btn-pri" onclick="openModal('modal-add-goal')">+ New Goal</button></div>
+    </div>
+
+    <!-- Goal Tree -->
+    <div id="goal-tree-wrap" style="display:none;margin-bottom:20px">
+      <div class="card"><div class="card-header"><span class="card-title">🌳 Goal Alignment — Corporate to Employee</span></div>
+      <div class="card-body">
+        <div class="goal-tree">
+          <div class="gt-node level-0" style="border-left-color:var(--pu2)">🏢 <strong>Corporate Goal:</strong> Achieve 40% Revenue Growth by Dec 2026</div>
+          <div class="gt-node level-1">📊 <strong>Department Goal:</strong> Reduce Finance cycle time by 30%</div>
+          <div class="gt-node level-2">👥 <strong>Team Goal:</strong> Automate 80% of month-end processes</div>
+          <div class="gt-node level-3">🙋 <strong>My Goal:</strong> ERPNext Full Automation — Month-End Close in 5 Days</div>
+          <div class="gt-node level-1" style="margin-top:8px">💰 <strong>Department Goal:</strong> 100% Statutory Compliance</div>
+          <div class="gt-node level-3">🙋 <strong>My Goal:</strong> Complete IFRS 17 Financial Statements for FY2025</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="goalsTab(this,'gt-all')">All Goals (7)</div>
+      <div class="tab" onclick="goalsTab(this,'gt-strategic')">Strategic (2)</div>
+      <div class="tab" onclick="goalsTab(this,'gt-kpi')">KPI (3)</div>
+      <div class="tab" onclick="goalsTab(this,'gt-learning')">Learning (2)</div>
+    </div>
+
+    <div id="gt-all">
+      <div class="goal-card">
+        <div class="gc-header">
+          <div class="gc-ico" style="background:rgba(5,150,105,.15);color:#34D399">📊</div>
+          <div style="flex:1">
+            <div class="gc-title">Complete IFRS 17 Financial Statements for FY2025</div>
+            <div class="gc-meta">Strategic · Weight: 25% · Due: 30 Jun 2026 · Measurement: Document Submitted</div>
+          </div>
+          <span class="pill pill-em">✓ Completed</span>
+        </div>
+        <div class="gc-prog-row"><div class="prog" style="flex:1"><div class="prog-fill" style="width:100%;background:#059669"></div></div><span class="gc-pct" style="color:#34D399">100%</span></div>
+      </div>
+      <div class="goal-card">
+        <div class="gc-header">
+          <div class="gc-ico" style="background:rgba(124,58,237,.15);color:var(--pu2)">🤖</div>
+          <div style="flex:1">
+            <div class="gc-title">ERPNext Full Automation — Month-End Close in 5 Days</div>
+            <div class="gc-meta">KPI · Weight: 20% · Due: 31 Aug 2026 · Target: 5 days (current: 7)</div>
+          </div>
+          <span class="pill pill-am">In Progress</span>
+        </div>
+        <div class="gc-prog-row"><div class="prog" style="flex:1"><div class="prog-fill" style="width:70%;background:var(--pu)"></div></div><span class="gc-pct" style="color:var(--pu2)">70%</span></div>
+        <div style="margin-top:10px;display:flex;gap:8px"><button class="btn btn-out btn-sm">📎 Upload Evidence</button><button class="btn btn-out btn-sm">📝 Log Update</button><button class="btn btn-out btn-sm" style="color:var(--am);border-color:rgba(245,158,11,.3)">🚩 Request Milestone</button></div>
+      </div>
+      <div class="goal-card">
+        <div class="gc-header">
+          <div class="gc-ico" style="background:rgba(245,158,11,.15);color:var(--am)">🎯</div>
+          <div style="flex:1">
+            <div class="gc-title">Reduce Month-End Close Cycle from 7 to 5 Days</div>
+            <div class="gc-meta">Process Improvement · Weight: 20% · Due: 30 Sep 2026</div>
+          </div>
+          <span class="pill pill-am">45%</span>
+        </div>
+        <div class="gc-prog-row"><div class="prog" style="flex:1"><div class="prog-fill" style="width:45%;background:var(--am)"></div></div><span class="gc-pct" style="color:var(--am)">45%</span></div>
+      </div>
+      <div class="goal-card">
+        <div class="gc-header">
+          <div class="gc-ico" style="background:rgba(13,148,136,.15);color:#34D399">🎓</div>
+          <div style="flex:1">
+            <div class="gc-title">ERPNext Customization Certification</div>
+            <div class="gc-meta">Learning Goal · Weight: 15% · Due: 31 Jul 2026</div>
+          </div>
+          <span class="pill pill-pu">70%</span>
+        </div>
+        <div class="gc-prog-row"><div class="prog" style="flex:1"><div class="prog-fill" style="width:70%;background:var(--te)"></div></div><span class="gc-pct" style="color:#34D399">70%</span></div>
+      </div>
+    </div>
+    <div id="gt-strategic" style="display:none"><div style="text-align:center;padding:30px;color:var(--mu)">Showing 2 strategic goals</div></div>
+    <div id="gt-kpi" style="display:none"><div style="text-align:center;padding:30px;color:var(--mu)">Showing 3 KPI goals</div></div>
+    <div id="gt-learning" style="display:none"><div style="text-align:center;padding:30px;color:var(--mu)">Showing 2 learning goals</div></div>
+  </div>
+
+  <!-- ═══ REVIEWS PANEL ════════════════════════════════════ -->
+  <div class="panel" id="panel-reviews">
+    <div style="margin-bottom:20px"><h2 style="font-size:20px;font-weight:800;color:#fff">My Review Cycle</h2><p style="font-size:12px;color:var(--mu);margin-top:4px">Q2 2026 Annual Appraisal · Step 5 of 9 — Manager Review in progress</p></div>
+
+    <!-- Stage Flow -->
+    <div class="stage-flow">
+      <div class="sf-step"><div class="sf-circle done">✓</div><div class="sf-label">Goal Setting</div></div>
+      <div class="sf-line done"></div>
+      <div class="sf-step"><div class="sf-circle done">✓</div><div class="sf-label">Goal Approval</div></div>
+      <div class="sf-line done"></div>
+      <div class="sf-step"><div class="sf-circle done">✓</div><div class="sf-label">Self Appraisal</div></div>
+      <div class="sf-line done"></div>
+      <div class="sf-step"><div class="sf-circle done">✓</div><div class="sf-label">Peer Review</div></div>
+      <div class="sf-line"></div>
+      <div class="sf-step"><div class="sf-circle active">📋</div><div class="sf-label">Manager Review</div></div>
+      <div class="sf-line"></div>
+      <div class="sf-step"><div class="sf-circle locked">🔍</div><div class="sf-label">HR Validation</div></div>
+      <div class="sf-line"></div>
+      <div class="sf-step"><div class="sf-circle locked">⚖️</div><div class="sf-label">Calibration</div></div>
+      <div class="sf-line"></div>
+      <div class="sf-step"><div class="sf-circle locked">✅</div><div class="sf-label">Final Approval</div></div>
+      <div class="sf-line"></div>
+      <div class="sf-step"><div class="sf-circle locked">🎉</div><div class="sf-label">Result Release</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="reviewTab(this,'rt-self')">✍️ Self Appraisal</div>
+      <div class="tab" onclick="reviewTab(this,'rt-peer')">👥 Peer Reviews</div>
+      <div class="tab" onclick="reviewTab(this,'rt-manager')">👔 Manager Review</div>
+      <div class="tab" onclick="reviewTab(this,'rt-scores')">📊 Score Summary</div>
+    </div>
+
+    <div id="rt-self">
+      <div class="card"><div class="card-header"><span class="card-title">✍️ Self Appraisal — Q2 2026</span><div style="display:flex;gap:8px"><span class="pill pill-em">Submitted 28 Jun</span><button class="btn btn-out btn-sm">📥 Download</button></div></div>
+      <div class="card-body">
+        <div class="grid2" style="gap:12px;margin-bottom:16px">
+          <div class="kpi-block"><div class="kpi-v" style="color:var(--am)">4.2</div><div class="kpi-l">Goal Self Score</div></div>
+          <div class="kpi-block"><div class="kpi-v" style="color:var(--pu2)">4.0</div><div class="kpi-l">Overall Self Rating</div></div>
+        </div>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Key Accomplishments</div>
+          <div style="font-size:13px;color:var(--tx);line-height:1.7">Completed the IFRS 17 financial statements two days ahead of schedule with zero audit queries. Led the ERPNext payroll automation project, reducing processing time from 3 days to 4 hours.</div>
+        </div>
+        <button class="btn btn-pri" onclick="openModal('modal-self-appraisal')">✏️ Edit Self Appraisal</button>
+      </div></div>
+    </div>
+
+    <div id="rt-peer" style="display:none">
+      <div class="card"><div class="card-header"><span class="card-title">👥 Peer Reviews Received (3/3)</span><span class="pill pill-em">All Complete</span></div>
+      <div class="card-body">
+        <div class="grid3">
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">A</div>
+              <div><div style="font-size:12px;font-weight:700;color:#fff">Anonymous</div><div style="font-size:10px;color:var(--mu)">Peer 1 · Submitted 25 Jun</div></div>
+            </div>
+            <div style="font-size:26px;font-weight:900;color:var(--am)">4.3</div>
+            <div style="font-size:10px;color:var(--mu);margin-bottom:8px">Overall Rating</div>
+            <div style="font-size:11px;color:var(--mu);line-height:1.5;font-style:italic">"Excellent analytical skills and always willing to help the team understand financial data."</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">A</div>
+              <div><div style="font-size:12px;font-weight:700;color:#fff">Anonymous</div><div style="font-size:10px;color:var(--mu)">Peer 2 · Submitted 26 Jun</div></div>
+            </div>
+            <div style="font-size:26px;font-weight:900;color:var(--am)">4.5</div>
+            <div style="font-size:10px;color:var(--mu);margin-bottom:8px">Overall Rating</div>
+            <div style="font-size:11px;color:var(--mu);line-height:1.5;font-style:italic">"Strong communicator. Presentations are always clear and well-prepared."</div>
+          </div>
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;padding:14px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">A</div>
+              <div><div style="font-size:12px;font-weight:700;color:#fff">Anonymous</div><div style="font-size:10px;color:var(--mu)">Peer 3 · Submitted 27 Jun</div></div>
+            </div>
+            <div style="font-size:26px;font-weight:900;color:var(--am)">3.8</div>
+            <div style="font-size:10px;color:var(--mu);margin-bottom:8px">Overall Rating</div>
+            <div style="font-size:11px;color:var(--mu);line-height:1.5;font-style:italic">"Sometimes takes longer than expected on new system implementations."</div>
+          </div>
+        </div>
+        <div style="margin-top:14px;background:rgba(124,58,237,.1);border-radius:8px;padding:12px;font-size:12px;color:var(--pu2)">⚡ Peer average: <strong>4.2 / 5.0</strong> — Above team average of 3.8</div>
+      </div></div>
+    </div>
+
+    <div id="rt-manager" style="display:none">
+      <div class="card"><div class="card-header"><span class="card-title">👔 Manager Review</span><span class="pill pill-am">In Progress</span></div>
+      <div class="card-body"><div style="text-align:center;padding:30px;color:var(--mu)"><div style="font-size:40px;margin-bottom:12px">⏳</div><div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:6px">Awaiting Manager Review</div><div style="font-size:12px">Emeka Nwachukwu (CFO) is currently completing your review. Expected by 12 Jul 2026.</div></div></div></div>
+    </div>
+
+    <div id="rt-scores" style="display:none">
+      <div class="card"><div class="card-header"><span class="card-title">📊 Current Score Summary</span></div>
+      <div class="card-body">
+        <div class="grid4" style="gap:10px;margin-bottom:16px">
+          <div class="kpi-block" style="text-align:center"><div class="kpi-v" style="color:var(--am)">4.5</div><div class="kpi-l">Goals Score</div></div>
+          <div class="kpi-block" style="text-align:center"><div class="kpi-v" style="color:var(--pu2)">4.2</div><div class="kpi-l">Peer Score</div></div>
+          <div class="kpi-block" style="text-align:center"><div class="kpi-v" style="color:var(--te)">4.0</div><div class="kpi-l">Self Score</div></div>
+          <div class="kpi-block" style="text-align:center"><div class="kpi-v" style="color:#fff">87%</div><div class="kpi-l">Overall Est.</div></div>
+        </div>
+        <div style="height:180px"><canvas id="radarChart"></canvas></div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ═══ FEEDBACK PANEL ═══════════════════════════════════ -->
+  <div class="panel" id="panel-feedback">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div><h2 style="font-size:20px;font-weight:800;color:#fff">Continuous Feedback</h2><p style="font-size:12px;color:var(--mu)">Real-time recognition, coaching, and one-on-one notes</p></div>
+      <button class="btn btn-pri" onclick="openModal('modal-new-feedback')">✨ Give Feedback</button>
+    </div>
+    <div class="grid3" style="margin-bottom:20px">
+      <div style="background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:16px;text-align:center"><div style="font-size:28px;font-weight:900;color:var(--am)">12</div><div style="font-size:11px;color:var(--mu);margin-top:4px">🌟 Recognitions Received</div></div>
+      <div style="background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(124,58,237,.05));border:1px solid var(--bdr);border-radius:12px;padding:16px;text-align:center"><div style="font-size:28px;font-weight:900;color:var(--pu2)">7</div><div style="font-size:11px;color:var(--mu);margin-top:4px">💡 Coaching Notes</div></div>
+      <div style="background:linear-gradient(135deg,rgba(13,148,136,.2),rgba(13,148,136,.05));border:1px solid rgba(13,148,136,.3);border-radius:12px;padding:16px;text-align:center"><div style="font-size:28px;font-weight:900;color:#34D399">5</div><div style="font-size:11px;color:var(--mu);margin-top:4px">🤝 One-on-One Notes</div></div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">💬 Feedback Timeline</span></div>
+    <div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="border-left:3px solid var(--am);padding-left:14px"><div style="font-size:11px;color:var(--am);font-weight:700;margin-bottom:3px">🌟 RECOGNITION · 2 days ago · Emeka Nwachukwu</div><div style="font-size:13px;color:var(--tx);line-height:1.5">"Adaeze's Q2 financial statements were impeccable — delivered 2 days early. Exceptional work!"</div></div>
+        <div style="border-left:3px solid var(--te);padding-left:14px"><div style="font-size:11px;color:#34D399;font-weight:700;margin-bottom:3px">💡 COACHING · 5 days ago · Ngozi Eze</div><div style="font-size:13px;color:var(--tx);line-height:1.5">"Consider adding more documentation to Excel models for team knowledge transfer."</div></div>
+        <div style="border-left:3px solid var(--pu2);padding-left:14px"><div style="font-size:11px;color:var(--pu2);font-weight:700;margin-bottom:3px">🤝 ONE-ON-ONE · 12 Jun · Emeka Nwachukwu</div><div style="font-size:13px;color:var(--tx);line-height:1.5">Monthly 1:1 recap: Discussed career progression to Finance Manager, stretch assignment opportunities in Q3.</div></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ═══ IDP PANEL ════════════════════════════════════════ -->
+  <div class="panel" id="panel-idp">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div><h2 style="font-size:20px;font-weight:800;color:#fff">Individual Development Plan</h2><p style="font-size:12px;color:var(--mu)">IDP-2026-H2 · Active · Mentor: Emeka Nwachukwu</p></div>
+      <div style="display:flex;gap:8px"><button class="btn btn-out">📥 Download PDF</button><button class="btn btn-pri" onclick="openModal('modal-add-idp')">+ Add Activity</button></div>
+    </div>
+    <div class="card" style="margin-bottom:18px"><div class="card-header"><span class="card-title">🎯 Career Goal</span><span class="pill pill-pu">Target: Finance Manager by Dec 2027</span></div>
+    <div class="card-body"><div style="font-size:13px;color:var(--tx);line-height:1.7">To progress to Finance Manager within 18 months by completing ERPNext certification, ICAN membership renewal, leading the Q1 2027 audit process, and successfully managing a team of 3 analysts on the annual budget project.</div></div></div>
+    <div class="grid2">
+      <div class="card"><div class="card-header"><span class="card-title">📋 Development Activities</span></div>
+      <div class="card-body" style="padding:0">
+        <table class="dt"><thead><tr><th>Activity</th><th>Type</th><th>Due</th><th>Progress</th></tr></thead>
+        <tbody>
+          <tr><td>ERPNext Customization Cert</td><td><span class="pill pill-pu">Certification</span></td><td>31 Jul</td><td><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill" style="width:70%;background:var(--pu)"></div></div><span style="font-size:11px;color:var(--pu2)">70%</span></div></td></tr>
+          <tr><td>ICAN CPD 2026 Modules</td><td><span class="pill pill-am">Training</span></td><td>30 Sep</td><td><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill" style="width:40%;background:var(--am)"></div></div><span style="font-size:11px;color:var(--am)">40%</span></div></td></tr>
+          <tr><td>Lead Q1 2027 Budget Process</td><td><span class="pill pill-te">Stretch</span></td><td>31 Jan 2027</td><td><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill" style="width:10%;background:var(--te)"></div></div><span style="font-size:11px;color:#34D399">10%</span></div></td></tr>
+          <tr><td>Leadership in Finance Course</td><td><span class="pill pill-pu">Training</span></td><td>31 Aug</td><td><div style="display:flex;align-items:center;gap:8px"><div class="prog" style="width:80px"><div class="prog-fill" style="width:25%;background:var(--in)"></div></div><span style="font-size:11px;color:var(--pu2)">25%</span></div></td></tr>
+        </tbody></table>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title">🌿 Overall Progress</span></div>
+      <div class="card-body" style="text-align:center">
+        <div style="font-size:48px;font-weight:900;color:var(--am);letter-spacing:-2px">36%</div>
+        <div style="font-size:12px;color:var(--mu);margin-bottom:16px">Overall IDP Completion</div>
+        <div class="prog" style="height:10px"><div class="prog-fill" style="width:36%;background:var(--grad-am)"></div></div>
+        <div style="margin-top:16px;font-size:12px;color:var(--mu);line-height:1.8">🤝 Mentor: <strong style="color:#fff">Emeka Nwachukwu</strong><br>📅 Next Review: 15 Aug 2026<br>💬 Manager Support: ERPNext licence funded, 2 training days per month approved</div>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- ═══ TEAM PANEL ═══════════════════════════════════════ -->
+  <div class="panel" id="panel-team">
+    <div style="margin-bottom:18px"><h2 style="font-size:20px;font-weight:800;color:#fff">Team Dashboard</h2><p style="font-size:12px;color:var(--mu)">Finance & Treasury · Q2 2026 · 8 employees</p></div>
+    <div class="grid4" style="margin-bottom:20px">
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--am)">75%</div><div class="kpi-l">Cycle Completion</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--pu2)">3</div><div class="kpi-l">Pending Approvals</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:#34D399">4.1</div><div class="kpi-l">Dept Average</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--ro)">1</div><div class="kpi-l">PIP Candidates</div></div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">👥 Team Performance Overview</span><div style="display:flex;gap:8px"><button class="btn btn-out btn-sm">📥 Export</button><button class="btn btn-pri btn-sm" onclick="openModal('modal-manager-review')">Start Review</button></div></div>
+    <div class="table-wrap"><table class="dt"><thead><tr><th>Employee</th><th>Dept</th><th>Goals</th><th>Self</th><th>Peer</th><th>Manager</th><th>Est. Rating</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><strong style="color:#fff">Adaeze Okonkwo</strong></td><td>Finance</td><td>71%</td><td>4.0</td><td>4.2</td><td>—</td><td><strong style="color:var(--am)">87%</strong></td><td><span class="pill pill-am">Mgr Review</span></td><td><button class="btn btn-out btn-sm">Review</button></td></tr>
+      <tr><td><strong style="color:#fff">Ngozi Eze</strong></td><td>Finance</td><td>85%</td><td>4.3</td><td>4.0</td><td>4.4</td><td><strong style="color:#34D399">91%</strong></td><td><span class="pill pill-te">HR Review</span></td><td><button class="btn btn-out btn-sm">View</button></td></tr>
+      <tr><td><strong style="color:#fff">Michael Adeyemi</strong></td><td>Finance</td><td>60%</td><td>3.5</td><td>3.2</td><td>3.3</td><td><strong style="color:var(--mu)">69%</strong></td><td><span class="pill pill-pu">Calibration</span></td><td><button class="btn btn-out btn-sm">View</button></td></tr>
+      <tr><td><strong style="color:#fff">Bola Adesanya</strong></td><td>Finance</td><td>40%</td><td>2.8</td><td>2.5</td><td>—</td><td><strong style="color:var(--ro)">55%</strong></td><td><span class="pill pill-ro">At Risk</span></td><td><button class="btn btn-pri btn-sm" onclick="openModal('modal-pip')">Start PIP</button></td></tr>
+    </tbody></table></div></div>
+  </div>
+
+  <!-- ═══ CALIBRATION PANEL ════════════════════════════════ -->
+  <div class="panel" id="panel-calibration">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div><h2 style="font-size:20px;font-weight:800;color:#fff">Calibration</h2><p style="font-size:12px;color:var(--mu)">Finance Dept · Q2 2026 · Rating fairness & normalization</p></div>
+      <button class="btn btn-pri" onclick="openModal('modal-calibration-session')">+ New Session</button>
+    </div>
+    <div class="grid2">
+      <!-- 9-Box Grid -->
+      <div class="card"><div class="card-header"><span class="card-title">⬜ 9-Box Talent Matrix</span><span style="font-size:11px;color:var(--mu)">Performance vs Potential</span></div>
+      <div class="card-body" style="display:flex;flex-direction:column;align-items:center">
+        <div style="width:100%;max-width:360px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;padding:0 0 0 28px">
+            <span style="font-size:9px;color:var(--mu);flex:1;text-align:center">Low Potential</span>
+            <span style="font-size:9px;color:var(--mu);flex:1;text-align:center">Medium Potential</span>
+            <span style="font-size:9px;color:var(--mu);flex:1;text-align:center">High Potential</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="display:flex;flex-direction:column;justify-content:space-between;height:270px;padding:4px 0">
+              <span style="font-size:8px;color:var(--mu);writing-mode:vertical-rl;transform:rotate(180deg);text-align:center">High Performer</span>
+              <span style="font-size:8px;color:var(--mu);writing-mode:vertical-rl;transform:rotate(180deg);text-align:center">Mid Performer</span>
+              <span style="font-size:8px;color:var(--mu);writing-mode:vertical-rl;transform:rotate(180deg);text-align:center">Low Performer</span>
+            </div>
+            <div class="ninebox">
+              <div class="nb-cell" style="background:rgba(245,158,11,.25);border:1px solid rgba(245,158,11,.4)"><div class="nb-title">Solid Professional</div><div class="nb-count">2</div><div class="nb-names">MK, BA</div></div>
+              <div class="nb-cell" style="background:rgba(13,148,136,.25);border:1px solid rgba(13,148,136,.4)"><div class="nb-title">High Performer</div><div class="nb-count">1</div><div class="nb-names">AO</div></div>
+              <div class="nb-cell" style="background:rgba(5,150,105,.35);border:1px solid rgba(5,150,105,.5)"><div class="nb-title">⭐ Star / Future Leader</div><div class="nb-count">1</div><div class="nb-names">NE</div></div>
+              <div class="nb-cell" style="background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.3)"><div class="nb-title">Dilemma</div><div class="nb-count">0</div><div class="nb-names">—</div></div>
+              <div class="nb-cell" style="background:rgba(124,58,237,.2);border:1px solid var(--bdr)"><div class="nb-title">Core Player</div><div class="nb-count">2</div><div class="nb-names">MA, OA</div></div>
+              <div class="nb-cell" style="background:rgba(13,148,136,.2);border:1px solid rgba(13,148,136,.3)"><div class="nb-title">Growth Player</div><div class="nb-count">1</div><div class="nb-names">KO</div></div>
+              <div class="nb-cell" style="background:rgba(225,29,72,.2);border:1px solid rgba(225,29,72,.3)"><div class="nb-title">Underperformer</div><div class="nb-count">1</div><div class="nb-names">BA</div></div>
+              <div class="nb-cell" style="background:rgba(148,163,184,.1);border:1px solid var(--bdr)"><div class="nb-title">Inconsistent</div><div class="nb-count">0</div><div class="nb-names">—</div></div>
+              <div class="nb-cell" style="background:rgba(148,163,184,.08);border:1px solid var(--bdr)"><div class="nb-title">Potential Gem</div><div class="nb-count">0</div><div class="nb-names">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Bell Curve -->
+      <div class="card"><div class="card-header"><span class="card-title">📈 Rating Distribution — Bell Curve</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="bellChart"></canvas></div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:6px">
+        <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--ro)">1</div><div style="font-size:9px;color:var(--mu)">Unsatisfactory</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--am)">1</div><div style="font-size:9px;color:var(--mu)">Needs Improvement</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--pu2)">3</div><div style="font-size:9px;color:var(--mu)">Meets Expectations</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:var(--te)">2</div><div style="font-size:9px;color:var(--mu)">Exceeds Expectations</div></div>
+        <div style="text-align:center"><div style="font-size:16px;font-weight:800;color:#34D399">1</div><div style="font-size:9px;color:var(--mu)">Outstanding</div></div>
+      </div>
+      </div></div>
+    </div>
+
+    <div class="card" style="margin-top:16px"><div class="card-header"><span class="card-title">⚖️ Rating Overrides</span><button class="btn btn-out btn-sm" onclick="openModal('modal-override')">+ Add Override</button></div>
+    <div class="card-body" style="padding:0"><table class="dt"><thead><tr><th>Employee</th><th>Original</th><th>Calibrated</th><th>Reason</th><th>Approved By</th></tr></thead>
+    <tbody>
+      <tr><td><strong style="color:#fff">Michael Adeyemi</strong></td><td>3.8</td><td style="color:var(--am)">3.5</td><td>Peer feedback inconsistent with goals. Normalised down.</td><td>Emeka Nwachukwu</td></tr>
+    </tbody></table></div></div>
+  </div>
+
+  <!-- ═══ AI COACH PANEL ═══════════════════════════════════ -->
+  <div class="panel" id="panel-ai">
+    <div style="margin-bottom:18px"><h2 style="font-size:20px;font-weight:800;color:#fff">🤖 AI Performance Coach</h2><p style="font-size:12px;color:var(--mu)">Powered by Claude · Personalised feedback, analysis, and career coaching</p></div>
+
+    <div class="grid2">
+      <div>
+        <!-- AI insights -->
+        <div class="ai-insight-card" style="margin-bottom:12px">
+          <div class="aic-header"><span style="font-size:18px">💗</span><span class="aic-title">Your Performance Insight</span><span class="pill pill-pu" style="margin-left:auto">AI Generated · Today</span></div>
+          <div style="font-size:13px;color:var(--tx);line-height:1.7">You are in the <strong style="color:var(--am)">top 25%</strong> of performers in your department. Your goal completion rate of <strong style="color:var(--am)">71%</strong> is strong, with your IFRS 17 delivery being particularly impressive. To reach <strong style="color:#34D399">Outstanding</strong>, focus on completing the ERPNext certification and updating your IDP before the cycle closes.</div>
+        </div>
+        <div class="ai-insight-card" style="margin-bottom:12px">
+          <div class="aic-header"><span style="font-size:18px">🎯</span><span class="aic-title">Recommended Next Actions</span></div>
+          <div style="display:flex;flex-direction:column;gap:7px;font-size:12px;color:var(--tx)">
+            <div>✅ Submit self-appraisal by 10 Jul (2 days away)</div>
+            <div>📚 Complete ERPNext modules 4 & 5 this week (+20% progress)</div>
+            <div>🤝 Schedule a 1-on-1 with your mentor before cycle ends</div>
+            <div>📝 Upload evidence for goal #3 (Month-End Close target)</div>
+          </div>
+        </div>
+        <div class="ai-insight-card">
+          <div class="aic-header"><span style="font-size:18px">📈</span><span class="aic-title">Strengths & Growth Areas</span></div>
+          <div style="display:flex;gap:10px">
+            <div style="flex:1"><div style="font-size:10px;font-weight:700;color:#34D399;margin-bottom:6px">STRENGTHS</div>
+              <div style="font-size:11px;color:var(--mu);line-height:1.7">• Financial Reporting Excellence<br>• Deadline Adherence<br>• ERPNext Technical Skills<br>• Peer Collaboration</div></div>
+            <div style="flex:1"><div style="font-size:10px;font-weight:700;color:var(--am);margin-bottom:6px">GROWTH AREAS</div>
+              <div style="font-size:11px;color:var(--mu);line-height:1.7">• Process Documentation<br>• Cross-team Knowledge Transfer<br>• Leadership Visibility<br>• Strategic Communication</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Chat -->
+      <div class="card" style="display:flex;flex-direction:column">
+        <div class="card-header"><span class="card-title">💬 Chat with AI Coach</span><span class="pill pill-pu">Claude · Powered by Anthropic</span></div>
+        <div class="card-body" style="flex:1;display:flex;flex-direction:column;padding:14px">
+          <div class="ai-chat" id="ai-chat">
+            <div class="ai-bubble">
+              <div class="ai-av assistant">🤖</div>
+              <div class="ai-msg assistant">Hi Adaeze! 👋 I'm your AI Performance Coach. I've reviewed your Q2 2026 performance data, goals, and peer feedback. How can I help you today? You can ask me about your scores, career advice, how to write your self-appraisal, or anything else on your mind.<div class="time">Just now</div></div>
+            </div>
+          </div>
+          <div id="ai-typing" style="display:none" class="ai-typing">
+            <div class="ai-av assistant" style="width:32px;height:32px">🤖</div>
+            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+          </div>
+          <div class="ai-input-row" style="margin-top:10px">
+            <textarea class="ai-input" id="ai-input" rows="2" placeholder="Ask your AI coach anything... e.g. 'How do I write a strong self-appraisal?' or 'What should I focus on next quarter?'" onkeydown="aiKeydown(event)"></textarea>
+            <button class="btn btn-pri" onclick="sendAIMessage()" style="align-self:flex-end">Send ➤</button>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+            <button class="btn btn-out btn-sm" onclick="aiQuick('How do I write an outstanding self-appraisal?')">✍️ Self-Appraisal Tips</button>
+            <button class="btn btn-out btn-sm" onclick="aiQuick('What are my biggest performance risks this cycle?')">⚠️ My Risks</button>
+            <button class="btn btn-out btn-sm" onclick="aiQuick('What should my IDP focus on for Q3?')">🌱 IDP Advice</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESUME PANEL ══════════════════════════════════════ -->
+  <div class="panel" id="panel-resume">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div><h2 style="font-size:20px;font-weight:800;color:#fff">AI Resume Selection</h2><p style="font-size:12px;color:var(--mu)">Auto-score, shortlist, and compare candidates using AI</p></div>
+      <div style="display:flex;gap:8px"><button class="btn btn-out" onclick="openModal('modal-job-profile')">⚙️ Job Profile</button><button class="btn btn-pri" onclick="openModal('modal-upload-resume')">📎 Upload Resumes</button></div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:20px">
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--am)">24</div><div class="kpi-l">Total Applicants</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:#34D399">8</div><div class="kpi-l">Auto-Shortlisted</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--ro)">11</div><div class="kpi-l">Auto-Rejected</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px"><div class="card-header"><span class="card-title">🏆 Top Candidates — Senior Accountant</span><div style="display:flex;gap:8px"><button class="btn btn-out btn-sm" onclick="openModal('modal-compare')">⚖️ Compare</button><button class="btn btn-pri btn-sm" onclick="runAIScreening()">🤖 Run AI Screen</button></div></div>
+    <div class="card-body" style="padding:0">
+      <div class="table-wrap"><table class="dt"><thead><tr><th>#</th><th>Candidate</th><th>Education</th><th>Experience</th><th>Skills</th><th>Certs</th><th>Total</th><th>AI Verdict</th><th>Action</th></tr></thead>
+      <tbody id="resume-table">
+        <tr><td style="color:var(--am);font-weight:700">1</td><td><strong style="color:#fff">Chidi Okafor</strong><div style="font-size:10px;color:var(--mu)">chidi@email.com</div></td><td>93%</td><td>88%</td><td>91%</td><td>85%</td><td><strong style="color:#34D399;font-size:16px">90%</strong></td><td><span class="pill pill-em">Strong Hire</span></td><td><button class="btn btn-out btn-sm" onclick="openModal('modal-candidate-detail')">View</button></td></tr>
+        <tr><td style="color:var(--pu2);font-weight:700">2</td><td><strong style="color:#fff">Amaka Eze</strong><div style="font-size:10px;color:var(--mu)">amaka@email.com</div></td><td>85%</td><td>82%</td><td>87%</td><td>78%</td><td><strong style="color:var(--am);font-size:16px">83%</strong></td><td><span class="pill pill-te">Hire</span></td><td><button class="btn btn-out btn-sm" onclick="openModal('modal-candidate-detail')">View</button></td></tr>
+        <tr><td style="color:var(--te);font-weight:700">3</td><td><strong style="color:#fff">Tunde Bakare</strong><div style="font-size:10px;color:var(--mu)">tunde@email.com</div></td><td>78%</td><td>75%</td><td>80%</td><td>72%</td><td><strong style="color:var(--am);font-size:16px">77%</strong></td><td><span class="pill pill-am">Maybe</span></td><td><button class="btn btn-out btn-sm" onclick="openModal('modal-candidate-detail')">View</button></td></tr>
+        <tr><td style="color:var(--dim)">4</td><td><strong style="color:#fff">Sola Adeyemi</strong><div style="font-size:10px;color:var(--mu)">sola@email.com</div></td><td>65%</td><td>58%</td><td>60%</td><td>45%</td><td><strong style="color:var(--ro);font-size:16px">58%</strong></td><td><span class="pill pill-ro">No Hire</span></td><td><button class="btn btn-out btn-sm">View</button></td></tr>
+      </tbody></table></div>
+    </div></div>
+
+    <div class="card"><div class="card-header"><span class="card-title">🤖 AI Screening Narrative — Chidi Okafor</span><span class="pill pill-em">Score: 90%</span></div>
+    <div class="card-body"><div id="ai-screening-result" style="font-size:13px;color:var(--tx);line-height:1.8">Chidi Okafor presents as a <strong style="color:#34D399">Strong Hire</strong> for the Senior Accountant role. He holds a BSc in Accounting (First Class, University of Lagos) and is an ICAN Associate member with 6 years of progressive experience in Nigerian financial services. His skills profile closely matches the job requirement: advanced Excel, ERPNext, IFRS 9/17 implementation, and Nigerian tax compliance (PAYE, PENCOM, WHT). He has led month-end close processes and regulatory reporting at two firms. <strong>No mandatory skill gaps detected.</strong> Recommended for immediate interview scheduling.</div>
+    <div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-pri btn-sm" onclick="showToast('Interview invite sent to Chidi Okafor')">📧 Invite to Interview</button><button class="btn btn-out btn-sm" onclick="openModal('modal-compare')">⚖️ Compare with Amaka</button></div>
+    </div></div>
+  </div>
+
+  <!-- ═══ ANALYTICS PANEL ══════════════════════════════════ -->
+  <div class="panel" id="panel-analytics">
+    <div style="margin-bottom:18px"><h2 style="font-size:20px;font-weight:800;color:#fff">Performance Analytics</h2><p style="font-size:12px;color:var(--mu)">Organisation-wide · Q2 2026</p></div>
+    <div class="grid4" style="margin-bottom:20px">
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--am)">78%</div><div class="kpi-l">Org Completion</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--pu2)">4.05</div><div class="kpi-l">Org Avg Rating</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:#34D399">12</div><div class="kpi-l">Promotion Ready</div></div>
+      <div class="kpi-block"><div class="kpi-v" style="color:var(--ro)">3</div><div class="kpi-l">Active PIPs</div></div>
+    </div>
+    <div class="grid2">
+      <div class="card"><div class="card-header"><span class="card-title">📊 Performance by Department</span></div><div class="card-body"><div class="chart-wrap"><canvas id="deptChart"></canvas></div></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">📈 Rating Trend — Last 4 Cycles</span></div><div class="card-body"><div class="chart-wrap"><canvas id="trendChart"></canvas></div></div></div>
+    </div>
+  </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ═══ MODALS ═══════════════════════════════════════════════ -->
+
+<!-- Self Appraisal -->
+<div class="modal-bg" id="modal-self-appraisal">
+  <div class="modal">
+    <div class="modal-title">✍️ Self Appraisal — Q2 2026</div>
+    <div class="tabs"><div class="tab active" onclick="saTab(this,'sa1')">Goals</div><div class="tab" onclick="saTab(this,'sa2')">Competencies</div><div class="tab" onclick="saTab(this,'sa3')">Narrative</div><div class="tab" onclick="saTab(this,'sa4')">Submit</div></div>
+    <div id="sa1">
+      <div class="fg"><label class="fl">Goal Achievement Summary</label><textarea class="fi" rows="4" placeholder="Summarise your performance against each goal..."></textarea></div>
+      <div class="fg"><label class="fl">Goal Self Score (1–5)</label><input type="number" class="fi" min="1" max="5" step="0.5" placeholder="e.g. 4.0"/></div>
+      <div class="fg"><label class="fl">Key Accomplishments</label><textarea class="fi" rows="3" placeholder="List your major achievements..."></textarea></div>
+    </div>
+    <div id="sa2" style="display:none">
+      <div style="background:rgba(124,58,237,.1);border-radius:10px;padding:14px;margin-bottom:14px;font-size:12px;color:var(--mu)">Rate yourself on each competency from 1 (Beginner) to 5 (Expert)</div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Leadership (1–5)</label><input type="range" class="fi" style="padding:5px" min="1" max="5" step="1" oninput="updateRange(this)"/><div style="text-align:center;font-size:14px;font-weight:700;color:var(--am)" id="range-leadership">3</div></div>
+        <div class="fg"><label class="fl">Communication (1–5)</label><input type="range" class="fi" style="padding:5px" min="1" max="5" step="1" oninput="document.getElementById('range-comm').textContent=this.value"/><div style="text-align:center;font-size:14px;font-weight:700;color:var(--am)" id="range-comm">3</div></div>
+        <div class="fg"><label class="fl">Technical Skills (1–5)</label><input type="range" class="fi" style="padding:5px" min="1" max="5" step="1" oninput="document.getElementById('range-tech').textContent=this.value"/><div style="text-align:center;font-size:14px;font-weight:700;color:var(--am)" id="range-tech">3</div></div>
+        <div class="fg"><label class="fl">Teamwork (1–5)</label><input type="range" class="fi" style="padding:5px" min="1" max="5" step="1" oninput="document.getElementById('range-team').textContent=this.value"/><div style="text-align:center;font-size:14px;font-weight:700;color:var(--am)" id="range-team">3</div></div>
+      </div>
+    </div>
+    <div id="sa3" style="display:none">
+      <div class="fg"><label class="fl">Challenges Faced</label><textarea class="fi" rows="3" placeholder="What challenges did you encounter?"></textarea></div>
+      <div class="fg"><label class="fl">Lessons Learned</label><textarea class="fi" rows="2" placeholder="Key learnings this cycle..."></textarea></div>
+      <div class="fg"><label class="fl">Strengths</label><textarea class="fi" rows="2" placeholder="Your strengths..."></textarea></div>
+      <div class="fg"><label class="fl">Improvement Areas & Plan</label><textarea class="fi" rows="2" placeholder="Areas for improvement and how you plan to address them..."></textarea></div>
+      <div class="fg"><label class="fl">Overall Self Rating (1–5)</label><select class="fi"><option>5 — Outstanding</option><option>4 — Exceeds Expectations</option><option selected>4 — Exceeds Expectations</option><option>3 — Meets Expectations</option><option>2 — Needs Improvement</option><option>1 — Unsatisfactory</option></select></div>
+    </div>
+    <div id="sa4" style="display:none">
+      <div style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--am);margin-bottom:8px">⚠️ Before you submit, confirm:</div>
+        <div style="font-size:12px;color:var(--mu);display:flex;flex-direction:column;gap:6px">
+          <label><input type="checkbox"/> I have rated myself honestly and accurately</label>
+          <label><input type="checkbox"/> I have uploaded supporting evidence for key claims</label>
+          <label><input type="checkbox"/> I understand this will be visible to my manager</label>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Upload Evidence (optional)</label><input type="file" class="fi" style="padding:8px" multiple/></div>
+    </div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-self-appraisal')">Save Draft</button><button class="btn btn-pri" onclick="submitSelfAppraisal()">Submit Appraisal</button></div>
+  </div>
+</div>
+
+<!-- Add Goal -->
+<div class="modal-bg" id="modal-add-goal">
+  <div class="modal">
+    <div class="modal-title">🎯 New Goal</div>
+    <div class="fg"><label class="fl">Goal Title</label><input type="text" class="fi" placeholder="e.g. Complete IFRS 17 Compliance Framework"/></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Goal Type</label><select class="fi"><option>KPI</option><option>OKR</option><option>Strategic Goal</option><option>Operational Goal</option><option>Learning Goal</option><option>Development Goal</option></select></div>
+      <div class="fg"><label class="fl">Category</label><select class="fi"><option>Financial Reporting</option><option>Compliance</option><option>Process Improvement</option><option>Professional Development</option><option>Leadership</option></select></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Weight (%)</label><input type="number" class="fi" placeholder="e.g. 20"/></div>
+      <div class="fg"><label class="fl">Priority</label><select class="fi"><option>High</option><option>Medium</option><option>Low</option></select></div>
+    </div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Target Value / Measurement</label><input type="text" class="fi" placeholder="e.g. 5 days / Document submitted"/></div>
+      <div class="fg"><label class="fl">Due Date</label><input type="date" class="fi"/></div>
+    </div>
+    <div class="fg"><label class="fl">Description & KPI</label><textarea class="fi" rows="3" placeholder="Describe the goal, how it will be measured, and its link to department goals..."></textarea></div>
+    <div class="fg"><label class="fl">Aligned to Corporate/Dept Goal</label><select class="fi"><option>-- Select Parent Goal --</option><option>Corporate: 40% Revenue Growth by Dec 2026</option><option>Dept: Reduce Finance cycle time by 30%</option><option>Dept: 100% Statutory Compliance</option></select></div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-add-goal')">Cancel</button><button class="btn btn-pri" onclick="showToast('Goal submitted for manager approval');closeModal('modal-add-goal')">Submit for Approval</button></div>
+  </div>
+</div>
+
+<!-- New Feedback -->
+<div class="modal-bg" id="modal-new-feedback">
+  <div class="modal">
+    <div class="modal-title">💬 Give Feedback</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">To</label><select class="fi"><option>Ngozi Eze</option><option>Michael Adeyemi</option><option>Bola Adesanya</option></select></div>
+      <div class="fg"><label class="fl">Feedback Type</label><select class="fi"><option>🌟 Recognition</option><option>💡 Coaching</option><option>📈 Growth Area</option><option>🤝 One-on-One Note</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Feedback</label><textarea class="fi" rows="4" placeholder="Be specific, kind, and constructive..."></textarea></div>
+    <div class="fg"><label class="fl">Visibility</label><select class="fi"><option>Private (Employee + Manager)</option><option>Shared with HR</option><option>Public Recognition</option></select></div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-new-feedback')">Cancel</button><button class="btn btn-pri" onclick="showToast('Feedback sent!');closeModal('modal-new-feedback')">Send Feedback</button></div>
+  </div>
+</div>
+
+<!-- PIP Modal -->
+<div class="modal-bg" id="modal-pip">
+  <div class="modal">
+    <div class="modal-title">⚠️ Start Performance Improvement Plan</div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Employee</label><input type="text" class="fi" value="Bola Adesanya" readonly/></div>
+      <div class="fg"><label class="fl">PIP Duration</label><select class="fi"><option>30 days</option><option>60 days</option><option>90 days</option></select></div>
+    </div>
+    <div class="fg"><label class="fl">Reason for PIP</label><textarea class="fi" rows="3" placeholder="Describe the performance issues that led to this PIP..."></textarea></div>
+    <div class="fg"><label class="fl">PIP Objectives (3–5 SMART goals)</label><textarea class="fi" rows="4" placeholder="1. Achieve 80% on next quarterly reconciliation by [date]&#10;2. Submit all reports on time for next 60 days&#10;3. ..."></textarea></div>
+    <div class="fg"><label class="fl">Coach / HR Partner</label><select class="fi"><option>Emeka Nwachukwu (CFO)</option><option>HR Team</option></select></div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-pip')">Cancel</button><button class="btn btn-pri" onclick="showToast('PIP initiated — employee notified');closeModal('modal-pip')">Initiate PIP</button></div>
+  </div>
+</div>
+
+<!-- Upload Resume -->
+<div class="modal-bg" id="modal-upload-resume">
+  <div class="modal">
+    <div class="modal-title">📎 Upload Resumes for AI Screening</div>
+    <div class="fg"><label class="fl">Job Opening</label><select class="fi"><option>Senior Accountant — Finance</option><option>ERPNext Developer — IT</option></select></div>
+    <div class="fg" style="margin-bottom:16px">
+      <div class="upload-zone" onclick="showToast('File browser opened')"><div class="upload-ico">📄</div><div class="upload-txt">Drop resumes here or click to upload</div><div class="upload-sub">PDF or Word · Up to 50 files · 10MB each</div></div>
+    </div>
+    <div style="background:rgba(13,148,136,.1);border:1px solid rgba(13,148,136,.3);border-radius:10px;padding:12px;font-size:12px;color:#34D399;margin-bottom:4px">🤖 AI will automatically parse, score against the job profile, and shortlist candidates meeting the 70% threshold.</div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-upload-resume')">Cancel</button><button class="btn btn-pri" onclick="runAIScreening();closeModal('modal-upload-resume')">Upload & Screen</button></div>
+  </div>
+</div>
+
+<!-- Quick Action -->
+<div class="modal-bg" id="modal-quick-action">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title">⚡ Quick Action</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button class="btn btn-out" style="padding:16px;flex-direction:column;gap:6px;height:auto" onclick="openModal('modal-self-appraisal');closeModal('modal-quick-action')"><span style="font-size:22px">✍️</span>Self Appraisal</button>
+      <button class="btn btn-out" style="padding:16px;flex-direction:column;gap:6px;height:auto" onclick="openModal('modal-add-goal');closeModal('modal-quick-action')"><span style="font-size:22px">🎯</span>Add Goal</button>
+      <button class="btn btn-out" style="padding:16px;flex-direction:column;gap:6px;height:auto" onclick="openModal('modal-new-feedback');closeModal('modal-quick-action')"><span style="font-size:22px">💬</span>Give Feedback</button>
+      <button class="btn btn-out" style="padding:16px;flex-direction:column;gap:6px;height:auto" onclick="openModal('modal-add-idp');closeModal('modal-quick-action')"><span style="font-size:22px">🌱</span>IDP Update</button>
+    </div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-quick-action')">Close</button></div>
+  </div>
+</div>
+
+<!-- Add IDP -->
+<div class="modal-bg" id="modal-add-idp">
+  <div class="modal">
+    <div class="modal-title">🌱 Add Development Activity</div>
+    <div class="fg"><label class="fl">Activity</label><input type="text" class="fi" placeholder="e.g. Complete ERPNext Advanced Certification"/></div>
+    <div class="fr2">
+      <div class="fg"><label class="fl">Type</label><select class="fi"><option>Training</option><option>Mentorship</option><option>Certification</option><option>Stretch Assignment</option><option>Shadowing</option><option>Self Study</option></select></div>
+      <div class="fg"><label class="fl">Target Date</label><input type="date" class="fi"/></div>
+    </div>
+    <div class="fg"><label class="fl">Current Progress (%)</label><input type="range" class="fi" style="padding:5px" min="0" max="100" step="5"/></div>
+    <div class="fg"><label class="fl">Notes</label><textarea class="fi" rows="2" placeholder="Any additional notes..."></textarea></div>
+    <div class="modal-actions"><button class="btn btn-out" onclick="closeModal('modal-add-idp')">Cancel</button><button class="btn btn-pri" onclick="showToast('Development activity added');closeModal('modal-add-idp')">Add Activity</button></div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────
+const API = 'ecclesia.api.performance_portal';
+
+// ── NAVIGATION ────────────────────────────────────────────
+const TITLES = {
+  hub:'My Performance Hub',goals:'Goals & OKRs',reviews:'My Reviews',
+  feedback:'Continuous Feedback',idp:'Development Plan (IDP)',team:'Team Dashboard',
+  calibration:'Calibration',ai:'AI Coach',resume:'Resume Selection',analytics:'Analytics'
+};
+
+function showPanel(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const p=document.getElementById('panel-'+id);
+  if(p) p.classList.add('active');
+  const ni=[...document.querySelectorAll('.ni')].find(n=>n.getAttribute('onclick')?.includes("'"+id+"'"));
+  if(ni) ni.classList.add('active');
+  document.getElementById('tb-title').textContent=TITLES[id]||id;
+  window.scrollTo(0,0);
+  if(id==='analytics') setTimeout(initAnalyticsCharts,100);
+  if(id==='reviews') setTimeout(initRadarChart,100);
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))e.target.classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-bg.open').forEach(m=>m.classList.remove('open'));});
+
+// ── TOAST ─────────────────────────────────────────────────
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.style.background=type==='error'?'#DC2626':'var(--pu)';
+  t.textContent=(type==='error'?'❌ ':'✅ ')+msg;
+  t.style.display='block';
+  clearTimeout(window._tt);
+  window._tt=setTimeout(()=>t.style.display='none',3500);
+}
+
+// ── TABS ──────────────────────────────────────────────────
+function goalsTab(el,id){
+  document.querySelectorAll('#panel-goals .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['gt-all','gt-strategic','gt-kpi','gt-learning'].forEach(gid=>{
+    const el=document.getElementById(gid);if(el)el.style.display=gid===id?'block':'none';
+  });
+}
+function reviewTab(el,id){
+  document.querySelectorAll('#panel-reviews .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['rt-self','rt-peer','rt-manager','rt-scores'].forEach(rid=>{
+    const el=document.getElementById(rid);if(el)el.style.display=rid===id?'block':'none';
+  });
+}
+function saTab(el,id){
+  document.querySelectorAll('#modal-self-appraisal .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['sa1','sa2','sa3','sa4'].forEach(sid=>{
+    const el=document.getElementById(sid);if(el)el.style.display=sid===id?'block':'none';
+  });
+}
+
+// ── ROLE TOGGLE ───────────────────────────────────────────
+function setRole(role, btn){
+  document.querySelectorAll('.rt-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  // Show/hide team and calibration for manager/HR
+  const mgr=document.querySelector('.ni[onclick*="team"]');
+  const cal=document.querySelector('.ni[onclick*="calibration"]');
+  const res=document.querySelector('.ni[onclick*="resume"]');
+  if(role==='employee'){
+    if(mgr)mgr.style.display='none';
+    if(cal)cal.style.display='none';
+    if(res)res.style.display='none';
+  } else {
+    if(mgr)mgr.style.display='flex';
+    if(cal)cal.style.display='flex';
+    if(res)res.style.display='flex';
+  }
+  showToast('View switched to '+role.charAt(0).toUpperCase()+role.slice(1));
+}
+
+// ── GOAL TREE TOGGLE ──────────────────────────────────────
+function toggleGoalTree(){
+  const w=document.getElementById('goal-tree-wrap');
+  w.style.display=w.style.display==='none'?'block':'none';
+}
+
+// ── PULSE RING ────────────────────────────────────────────
+function initPulseRing(){
+  const cv=document.getElementById('pulseCanvas');
+  if(!cv)return;
+  const c=cv.getContext('2d');
+  const scores=[90,82,88,87];
+  const colors=['#F59E0B','#A78BFA','#34D399','#FB7185'];
+  const trackW=11,gap=5,r=65;
+  c.clearRect(0,0,160,160);
+  scores.forEach((s,i)=>{
+    const tr=r-(i*(trackW+gap));
+    c.beginPath();c.arc(80,80,tr,0,Math.PI*2);
+    c.strokeStyle='rgba(255,255,255,0.06)';c.lineWidth=trackW;c.lineCap='round';c.stroke();
+    c.beginPath();c.arc(80,80,tr,-Math.PI/2,-Math.PI/2+Math.PI*2*(s/100));
+    c.strokeStyle=colors[i];c.lineWidth=trackW;c.lineCap='round';c.stroke();
+  });
+}
+
+// ── RADAR CHART ───────────────────────────────────────────
+let _radarChart=null;
+function initRadarChart(){
+  const ctx=document.getElementById('radarChart');
+  if(!ctx)return;
+  if(_radarChart){_radarChart.destroy();}
+  _radarChart=new Chart(ctx,{
+    type:'radar',
+    data:{
+      labels:['Goals','Competency','Values','Peer Avg','Self'],
+      datasets:[
+        {label:'Me',data:[90,82,88,84,80],borderColor:'#A78BFA',backgroundColor:'rgba(124,58,237,.2)',pointBackgroundColor:'#A78BFA'},
+        {label:'Team Avg',data:[75,70,80,72,74],borderColor:'#F59E0B',backgroundColor:'rgba(245,158,11,.1)',pointBackgroundColor:'#F59E0B'}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94A3B8',font:{size:10}}}},
+      scales:{r:{grid:{color:'rgba(255,255,255,.07)'},pointLabels:{color:'#94A3B8',font:{size:10}},ticks:{display:false},suggestedMin:0,suggestedMax:100}}}
+  });
+}
+
+// ── BELL CHART ────────────────────────────────────────────
+function initBellChart(){
+  const ctx=document.getElementById('bellChart');
+  if(!ctx)return;
+  new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['1\nUnsatisfactory','2\nNeeds Improv.','3\nMeets Exp.','4\nExceeds Exp.','5\nOutstanding'],
+      datasets:[{
+        data:[1,1,3,2,1],
+        backgroundColor:['rgba(225,29,72,.7)','rgba(245,158,11,.7)','rgba(124,58,237,.7)','rgba(13,148,136,.7)','rgba(5,150,105,.7)'],
+        borderRadius:6,
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#94A3B8',font:{size:10},stepSize:1}},
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:9}}}}}
+  });
+}
+
+// ── ANALYTICS CHARTS ──────────────────────────────────────
+function initAnalyticsCharts(){
+  const d=document.getElementById('deptChart');
+  if(d&&!d._init){
+    d._init=true;
+    new Chart(d,{type:'bar',data:{
+      labels:['Finance','IT','HR','Operations','Compliance','Legal'],
+      datasets:[{label:'Avg Rating',data:[4.1,3.8,4.3,3.6,4.0,3.9],backgroundColor:'rgba(124,58,237,.7)',borderRadius:5}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{y:{min:0,max:5,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#94A3B8',font:{size:10}}},
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:10}}}}}});
+  }
+  const t=document.getElementById('trendChart');
+  if(t&&!t._init){
+    t._init=true;
+    new Chart(t,{type:'line',data:{
+      labels:['Q2 2025','H2 2025','Q1 2026','Q2 2026'],
+      datasets:[
+        {label:'Organisation',data:[3.7,3.8,3.9,4.05],borderColor:'#A78BFA',fill:false,tension:.4,pointBackgroundColor:'#A78BFA'},
+        {label:'Finance Dept',data:[3.9,4.0,4.1,4.1],borderColor:'#F59E0B',fill:false,tension:.4,pointBackgroundColor:'#F59E0B'}
+      ]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#94A3B8',font:{size:10}}}},
+      scales:{y:{min:1,max:5,grid:{color:'rgba(255,255,255,.05)'},ticks:{color:'#94A3B8',font:{size:10}}},
+        x:{grid:{display:false},ticks:{color:'#94A3B8',font:{size:10}}}}}});
+  }
+}
+
+// ── AI COACH ─────────────────────────────────────────────
+const AI_RESPONSES = {
+  "self-appraisal":["Great question! For an outstanding self-appraisal:\n\n1️⃣ **Lead with impact** — Start each point with a number: 'Reduced close cycle from 7 to 6 days'\n2️⃣ **Use the STAR format** — Situation, Task, Action, Result\n3️⃣ **Link to corporate goals** — Show how your work served the business\n4️⃣ **Include evidence** — Attach documents, reports, or emails\n5️⃣ **Be honest but confident** — Rate yourself fairly, not modestly\n\nYour IFRS 17 delivery is a perfect example — quantify the impact!"],
+  "risk":["Based on your Q2 data, here are your top 3 risks:\n\n⚠️ **1. Self-appraisal deadline** — Only 2 days left. Submit today.\n⚠️ **2. Goal #3 at 45%** — Month-end close target needs 2 more process improvements before cycle end.\n⚠️ **3. ERPNext cert at 70%** — Modules 4 & 5 are needed before July 31.\n\nFocus on items 1 and 3 this week — they're within your direct control."],
+  "idp":["For Q3 IDP focus, I recommend:\n\n🎯 **Priority 1: ERPNext Certification** (Complete by Aug 31)\n → You're at 70% — just 2 modules left\n\n🎯 **Priority 2: Leadership Visibility** (New for Q3)\n → Ask to present at the monthly Finance all-hands meeting\n → This addresses your peer feedback gap on 'leadership presence'\n\n🎯 **Priority 3: Documentation Culture** (ongoing)\n → Create a process wiki for your top 3 Excel models\n\nShall I draft your Q3 IDP objectives?"],
+  "default":["I've analysed your performance data for Q2 2026. Here's what stands out:\n\n📊 Your overall estimated score is **87%** — placing you in the **Exceeds Expectations** band.\n\n💪 Your strongest area is **Goal Achievement (90%)** — especially the IFRS 17 delivery.\n\n📈 Your peer score of **4.2** is above the team average of 3.8.\n\n🎯 My top recommendation: Submit your self-appraisal today and update your IDP progress before the cycle closes in 14 days.\n\nWhat would you like to explore further?"]
+};
+
+function aiKeydown(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAIMessage();}
+}
+
+function aiQuick(q){
+  document.getElementById('ai-input').value=q;
+  sendAIMessage();
+}
+
+function sendAIMessage(){
+  const input=document.getElementById('ai-input');
+  const text=(input.value||'').trim();
+  if(!text)return;
+  appendUserBubble(text);
+  input.value='';
+
+  // Show typing
+  const typing=document.getElementById('ai-typing');
+  typing.style.display='flex';
+  scrollChat();
+
+  // Simulate AI response with real API call attempt
+  setTimeout(()=>{
+    typing.style.display='none';
+    const lower=text.toLowerCase();
+    let response;
+    if(lower.includes('self-appraisal')||lower.includes('appraisal')||lower.includes('write'))
+      response=AI_RESPONSES['self-appraisal'][0];
+    else if(lower.includes('risk'))
+      response=AI_RESPONSES['risk'][0];
+    else if(lower.includes('idp')||lower.includes('development'))
+      response=AI_RESPONSES['idp'][0];
+    else
+      response=AI_RESPONSES['default'][0];
+
+    appendAIBubble(response);
+
+    // In production: call the real API
+    // fetch('/api/method/ecclesia.api.performance_portal.get_ai_coaching',{
+    //   method:'POST', credentials:'include',
+    //   headers:{'Content-Type':'application/json','X-Frappe-CSRF-Token':frappe?.csrf_token||''},
+    //   body:JSON.stringify({message:text})
+    // }).then(r=>r.json()).then(d=>{typing.style.display='none';appendAIBubble(d.message?.response||'...');});
+  },1400+(Math.random()*600));
+}
+
+function appendUserBubble(text){
+  const chat=document.getElementById('ai-chat');
+  const now=new Date().toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'});
+  chat.insertAdjacentHTML('beforeend',`
+    <div class="ai-bubble user">
+      <div class="ai-av user" style="background:var(--grad-am);width:32px;height:32px">AO</div>
+      <div class="ai-msg user">${text.replace(/\n/g,'<br>')}<div class="time">${now}</div></div>
+    </div>`);
+  scrollChat();
+}
+
+function appendAIBubble(text){
+  const chat=document.getElementById('ai-chat');
+  const now=new Date().toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'});
+  // Convert **bold** to <strong>
+  const html=text.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--am)">$1</strong>').replace(/\n/g,'<br>');
+  chat.insertAdjacentHTML('beforeend',`
+    <div class="ai-bubble">
+      <div class="ai-av assistant">🤖</div>
+      <div class="ai-msg assistant">${html}<div class="time">${now}</div></div>
+    </div>`);
+  scrollChat();
+}
+
+function scrollChat(){
+  const chat=document.getElementById('ai-chat');
+  if(chat) setTimeout(()=>chat.scrollTop=chat.scrollHeight,50);
+}
+
+// ── RESUME SCREENING ──────────────────────────────────────
+function runAIScreening(){
+  showToast('🤖 AI screening all 24 resumes… results will appear shortly');
+  setTimeout(()=>showToast('✅ Screening complete! 8 shortlisted, 11 rejected, 5 referred to HR'),3000);
+}
+
+// ── SUBMIT ACTIONS ────────────────────────────────────────
+function submitSelfAppraisal(){
+  showToast('Self-appraisal submitted successfully! Manager has been notified.');
+  closeModal('modal-self-appraisal');
+}
+
+function updateRange(el){
+  document.getElementById('range-leadership').textContent=el.value;
+}
+
+// ── INIT ─────────────────────────────────────────────────
+(function(){
+  // Greeting
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const el=document.getElementById('greet');
+  if(el) el.textContent=`${g}, Adaeze! 🌟`;
+
+  // Init charts
+  setTimeout(()=>{
+    initPulseRing();
+    initBellChart();
+  },150);
+
+  // Hide manager/HR panels by default (employee view)
+  ['team','calibration','resume'].forEach(id=>{
+    const ni=document.querySelector(`.ni[onclick*="'${id}'"]`);
+    if(ni) ni.style.display='none';
+  });
+
+  // Responsive sidebar toggle
+  const btn=document.getElementById('sb-toggle');
+  if(btn&&window.innerWidth<=900) btn.style.display='block';
+  window.addEventListener('resize',()=>{
+    if(btn) btn.style.display=window.innerWidth<=900?'block':'none';
+  });
+})();
+</script>
+</body>
+</html>

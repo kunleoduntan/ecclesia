@@ -1,0 +1,187 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "SRE-.YYYY.-.#####",
+ "creation": "2026-06-15 08:22:24.332594",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "register_type",
+  "entry_date",
+  "entry_description",
+  "col1",
+  "party_name",
+  "party_type",
+  "identification_number",
+  "nationality",
+  "address",
+  "detail_section",
+  "shares_allotted",
+  "share_class",
+  "consideration",
+  "col2",
+  "cac_form_type",
+  "cac_form_filed",
+  "cac_filing_reference",
+  "cac_filing_date",
+  "attachment",
+  "noted_by",
+  "corporate_register"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "register_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Register Type",
+   "options": "Register of Members\nRegister of Directors\nRegister of Secretaries\nRegister of Charges\nRegister of Allotments\nRegister of Share Transfers\nRegister of Substantial Shareholders",
+   "reqd": 1
+  },
+  {
+   "fieldname": "entry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Entry Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "entry_description",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "party_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Party Name"
+  },
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "label": "Party Type",
+   "options": "Individual\nCorporate Entity\nTrustee"
+  },
+  {
+   "fieldname": "identification_number",
+   "fieldtype": "Data",
+   "label": "RC / BVN / NIN / Passport"
+  },
+  {
+   "fieldname": "nationality",
+   "fieldtype": "Data",
+   "label": "Nationality"
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Address"
+  },
+  {
+   "fieldname": "detail_section",
+   "fieldtype": "Section Break",
+   "label": "Transaction Detail"
+  },
+  {
+   "fieldname": "shares_allotted",
+   "fieldtype": "Int",
+   "label": "Shares Allotted / Transferred"
+  },
+  {
+   "fieldname": "share_class",
+   "fieldtype": "Data",
+   "label": "Share Class"
+  },
+  {
+   "fieldname": "consideration",
+   "fieldtype": "Currency",
+   "label": "Consideration (\u20a6)"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cac_form_type",
+   "fieldtype": "Data",
+   "label": "CAC Form Type (e.g. CAC 7, CAC 2.1)"
+  },
+  {
+   "default": "0",
+   "fieldname": "cac_form_filed",
+   "fieldtype": "Check",
+   "label": "CAC Form Filed"
+  },
+  {
+   "fieldname": "cac_filing_reference",
+   "fieldtype": "Data",
+   "label": "CAC Filing Reference"
+  },
+  {
+   "fieldname": "cac_filing_date",
+   "fieldtype": "Date",
+   "label": "CAC Filing Date"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Supporting Document"
+  },
+  {
+   "fieldname": "noted_by",
+   "fieldtype": "Link",
+   "label": "Noted By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "corporate_register",
+   "fieldtype": "Link",
+   "label": "Corporate Register",
+   "options": "Corporate Compliance Register"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 08:22:24.332594",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Statutory Register Entry",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

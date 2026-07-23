@@ -1,0 +1,124 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-06 14:48:21.759397",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "doctype_name",
+  "module_tag",
+  "is_active",
+  "column_break_events",
+  "on_submit",
+  "on_cancel",
+  "on_update",
+  "after_insert",
+  "column_break_config",
+  "has_activity_config",
+  "activity_config",
+  "notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "description": "The ERPNext DocType to monitor",
+   "fieldname": "doctype_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "DocType",
+   "options": "DocType",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "description": "e.g. Sales, Accounts, CRM \u2014 used for report grouping",
+   "fieldname": "module_tag",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Module"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "column_break_events",
+   "fieldtype": "Column Break",
+   "label": "Events to Track"
+  },
+  {
+   "default": "1",
+   "fieldname": "on_submit",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "On Submit"
+  },
+  {
+   "default": "0",
+   "fieldname": "on_cancel",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "On Cancel"
+  },
+  {
+   "default": "0",
+   "fieldname": "on_update",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "On Update / Save"
+  },
+  {
+   "default": "0",
+   "fieldname": "after_insert",
+   "fieldtype": "Check",
+   "label": "On Create (after insert)"
+  },
+  {
+   "fieldname": "column_break_config",
+   "fieldtype": "Column Break",
+   "label": "Scoring Config"
+  },
+  {
+   "default": "0",
+   "description": "Auto-detected: is there an Activity Configuration record for this DocType?",
+   "fieldname": "has_activity_config",
+   "fieldtype": "Check",
+   "label": "Has Activity Config",
+   "read_only": 1
+  },
+  {
+   "description": "Auto-linked from Activity Configuration",
+   "fieldname": "activity_config",
+   "fieldtype": "Link",
+   "label": "Activity Configuration",
+   "options": "Activity Configuration",
+   "read_only": 1
+  },
+  {
+   "description": "Optional: describe why this DocType is tracked",
+   "fieldname": "notes",
+   "fieldtype": "Data",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-05-06 14:48:21.759397",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WFH DocType Event Map",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,191 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:performance_cycle",
+ "creation": "2026-07-04 14:32:39.490210",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "performance_cycle",
+  "goal_weight",
+  "column_break_b0sh",
+  "competency_weight",
+  "column_break_yikn",
+  "values_weight",
+  "sec_reviewer",
+  "self_weight",
+  "column_break_sfpf",
+  "peer_weight",
+  "column_break_yokr",
+  "manager_weight",
+  "sec_peer_cfg",
+  "min_peers",
+  "max_peers",
+  "column_break_4zxr",
+  "peer_anonymous",
+  "enable_skip_level",
+  "column_break_uhm8",
+  "enable_calibration",
+  "forced_distribution",
+  "column_break_lw29",
+  "rating_scale"
+ ],
+ "fields": [
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "60",
+   "fieldname": "goal_weight",
+   "fieldtype": "Float",
+   "label": "Goals Weight (%)"
+  },
+  {
+   "default": "30",
+   "fieldname": "competency_weight",
+   "fieldtype": "Float",
+   "label": "Competency Weight (%)"
+  },
+  {
+   "default": "10",
+   "fieldname": "values_weight",
+   "fieldtype": "Float",
+   "label": "Values Weight (%)"
+  },
+  {
+   "fieldname": "sec_reviewer",
+   "fieldtype": "Section Break",
+   "label": "Reviewer Weights"
+  },
+  {
+   "default": "20",
+   "fieldname": "self_weight",
+   "fieldtype": "Float",
+   "label": "Self Assessment Weight (%)"
+  },
+  {
+   "default": "20",
+   "fieldname": "peer_weight",
+   "fieldtype": "Float",
+   "label": "Peer Review Weight (%)"
+  },
+  {
+   "default": "60",
+   "fieldname": "manager_weight",
+   "fieldtype": "Float",
+   "label": "Manager Review Weight (%)"
+  },
+  {
+   "fieldname": "sec_peer_cfg",
+   "fieldtype": "Section Break",
+   "label": "Peer Review Settings"
+  },
+  {
+   "default": "2",
+   "fieldname": "min_peers",
+   "fieldtype": "Int",
+   "label": "Minimum Peers Required"
+  },
+  {
+   "default": "5",
+   "fieldname": "max_peers",
+   "fieldtype": "Int",
+   "label": "Maximum Peers Allowed"
+  },
+  {
+   "default": "1",
+   "fieldname": "peer_anonymous",
+   "fieldtype": "Check",
+   "label": "Anonymous Peer Review"
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_skip_level",
+   "fieldtype": "Check",
+   "label": "Enable Skip-Level Review"
+  },
+  {
+   "default": "1",
+   "fieldname": "enable_calibration",
+   "fieldtype": "Check",
+   "label": "Enable Calibration"
+  },
+  {
+   "default": "0",
+   "fieldname": "forced_distribution",
+   "fieldtype": "Check",
+   "label": "Force Bell Curve Distribution"
+  },
+  {
+   "fieldname": "rating_scale",
+   "fieldtype": "Link",
+   "label": "Rating Scale",
+   "options": "Performance Rating Scale"
+  },
+  {
+   "fieldname": "column_break_b0sh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yokr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_4zxr",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_uhm8",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_lw29",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_yikn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_sfpf",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-05 16:32:26.680558",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Performance Weight Config",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

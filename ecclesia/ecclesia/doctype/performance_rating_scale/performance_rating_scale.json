@@ -1,68 +1,443 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "hash",
- "creation": "2026-03-13 17:15:58.421838",
+ "autoname": "field:scale_name",
+ "creation": "2026-07-05 19:32:20.792717",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "rating_label",
-  "min_score",
-  "max_score",
-  "color",
-  "description"
+  "sec_basic",
+  "scale_name",
+  "col_basic_1",
+  "is_default",
+  "status",
+  "sec_description",
+  "col_desc_left",
+  "description",
+  "col_desc_right",
+  "usage_context",
+  "applicable_for",
+  "sec_levels",
+  "col_levels_left",
+  "rating_levels",
+  "col_levels_right",
+  "total_levels",
+  "min_overall_score",
+  "max_overall_score",
+  "scale_midpoint",
+  "sec_analytics",
+  "col_analytics_left",
+  "total_cycles_used",
+  "total_employees_rated",
+  "last_used_cycle",
+  "col_analytics_mid",
+  "rating_distribution",
+  "avg_score_given",
+  "score_std_dev",
+  "col_analytics_right",
+  "scale_effectiveness",
+  "bias_indicator",
+  "calibration_accuracy",
+  "sec_tracking",
+  "col_tracking_left",
+  "created_date",
+  "activated_date",
+  "last_modified_date",
+  "col_tracking_right",
+  "version_number",
+  "update_frequency",
+  "last_reviewed_date",
+  "sec_dashboard",
+  "col_dashboard_left",
+  "dashboard_summary",
+  "dashboard_range",
+  "col_dashboard_mid",
+  "dashboard_usage",
+  "dashboard_effectiveness",
+  "col_dashboard_right",
+  "dashboard_actions",
+  "sec_metadata",
+  "col_meta_left",
+  "owned_by",
+  "department_owner",
+  "col_meta_right",
+  "reference_scale",
+  "notes"
  ],
  "fields": [
   {
-   "columns": 3,
-   "fieldname": "rating_label",
+   "fieldname": "sec_basic",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
+  {
+   "fieldname": "scale_name",
    "fieldtype": "Data",
    "in_list_view": 1,
-   "label": "Label",
-   "reqd": 1
+   "label": "\ud83d\udccb Scale Name",
+   "reqd": 1,
+   "unique": 1
   },
   {
-   "columns": 2,
-   "fieldname": "min_score",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Min Score",
-   "reqd": 1
+   "fieldname": "col_basic_1",
+   "fieldtype": "Column Break"
   },
   {
-   "columns": 2,
-   "fieldname": "max_score",
-   "fieldtype": "Float",
-   "in_list_view": 1,
-   "label": "Max Score",
-   "reqd": 1
+   "default": "0",
+   "fieldname": "is_default",
+   "fieldtype": "Check",
+   "label": "\u2b50 Set as Default Scale"
   },
   {
-   "columns": 2,
-   "fieldname": "color",
+   "default": "Draft",
+   "fieldname": "status",
    "fieldtype": "Select",
    "in_list_view": 1,
-   "label": "Badge Color",
-   "options": "Green\nBlue\nOrange\nRed\nGray"
+   "label": "Status",
+   "options": "Draft\nActive\nArchived\nRetired"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_description",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcdd Description"
+  },
+  {
+   "fieldname": "col_desc_left",
+   "fieldtype": "Column Break",
+   "label": "Scale Details"
   },
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
    "label": "Description"
+  },
+  {
+   "fieldname": "col_desc_right",
+   "fieldtype": "Column Break",
+   "label": "Usage Context"
+  },
+  {
+   "default": "Performance Review",
+   "fieldname": "usage_context",
+   "fieldtype": "Select",
+   "label": "Usage Context",
+   "options": "\nPerformance Review\nCompetency Assessment\nGoal Achievement\n360 Feedback\nProject Evaluation"
+  },
+  {
+   "description": "e.g., All employees, Management, Sales, etc.",
+   "fieldname": "applicable_for",
+   "fieldtype": "Data",
+   "label": "Applicable For"
+  },
+  {
+   "fieldname": "sec_levels",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Rating Levels"
+  },
+  {
+   "fieldname": "col_levels_left",
+   "fieldtype": "Column Break",
+   "label": "Rating Configuration"
+  },
+  {
+   "fieldname": "rating_levels",
+   "fieldtype": "Table",
+   "label": "Rating Levels",
+   "options": "Performance Rating Level",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_levels_right",
+   "fieldtype": "Column Break",
+   "label": "Scale Summary"
+  },
+  {
+   "description": "Auto-counted from Rating Levels table",
+   "fieldname": "total_levels",
+   "fieldtype": "Int",
+   "label": "Total Rating Levels",
+   "read_only": 1
+  },
+  {
+   "fieldname": "min_overall_score",
+   "fieldtype": "Float",
+   "label": "Min Overall Score (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "max_overall_score",
+   "fieldtype": "Float",
+   "label": "Max Overall Score (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scale_midpoint",
+   "fieldtype": "Float",
+   "label": "Scale Midpoint (%)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_analytics",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcca Analytics & Usage Insights"
+  },
+  {
+   "fieldname": "col_analytics_left",
+   "fieldtype": "Column Break",
+   "label": "Usage Statistics"
+  },
+  {
+   "default": "0",
+   "fieldname": "total_cycles_used",
+   "fieldtype": "Int",
+   "label": "Cycles Using This Scale",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "total_employees_rated",
+   "fieldtype": "Int",
+   "label": "Total Employees Rated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_used_cycle",
+   "fieldtype": "Link",
+   "label": "Last Used Cycle",
+   "options": "Performance Cycle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_mid",
+   "fieldtype": "Column Break",
+   "label": "Distribution Analysis"
+  },
+  {
+   "description": "Based on historical usage data",
+   "fieldname": "rating_distribution",
+   "fieldtype": "Small Text",
+   "label": "Typical Distribution",
+   "read_only": 1
+  },
+  {
+   "fieldname": "avg_score_given",
+   "fieldtype": "Float",
+   "label": "Average Score Given",
+   "read_only": 1
+  },
+  {
+   "fieldname": "score_std_dev",
+   "fieldtype": "Float",
+   "label": "Score Standard Deviation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_right",
+   "fieldtype": "Column Break",
+   "label": "Effectiveness"
+  },
+  {
+   "fieldname": "scale_effectiveness",
+   "fieldtype": "Select",
+   "label": "Scale Effectiveness",
+   "options": "\nHighly Effective\nEffective\nModerately Effective\nNeeds Review\nRarely Used",
+   "read_only": 1
+  },
+  {
+   "fieldname": "bias_indicator",
+   "fieldtype": "Select",
+   "label": "Bias Indicator",
+   "options": "\nNo Significant Bias\nCentral Tendency Bias\nLeniency Bias\nSeverity Bias\nInconsistent Usage",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calibration_accuracy",
+   "fieldtype": "Percent",
+   "label": "Calibration Accuracy (%)",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_tracking",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Scale Performance Tracking"
+  },
+  {
+   "fieldname": "col_tracking_left",
+   "fieldtype": "Column Break",
+   "label": "Timeline"
+  },
+  {
+   "fieldname": "created_date",
+   "fieldtype": "Date",
+   "label": "Created On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "activated_date",
+   "fieldtype": "Date",
+   "label": "Activated On",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_modified_date",
+   "fieldtype": "Date",
+   "label": "Last Modified",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_tracking_right",
+   "fieldtype": "Column Break",
+   "label": "Version & Updates"
+  },
+  {
+   "default": "1",
+   "fieldname": "version_number",
+   "fieldtype": "Int",
+   "label": "Version",
+   "read_only": 1
+  },
+  {
+   "fieldname": "update_frequency",
+   "fieldtype": "Select",
+   "label": "Update Frequency",
+   "options": "\nQuarterly\nHalf-Yearly\nAnnually\nAs Needed\nStable",
+   "read_only": 1
+  },
+  {
+   "fieldname": "last_reviewed_date",
+   "fieldtype": "Date",
+   "label": "Last Reviewed",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_dashboard",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Dashboard View"
+  },
+  {
+   "fieldname": "col_dashboard_left",
+   "fieldtype": "Column Break",
+   "label": "Quick Summary"
+  },
+  {
+   "description": "{scale_name} | Status: {status} | Levels: {total_levels}",
+   "fieldname": "dashboard_summary",
+   "fieldtype": "Data",
+   "label": "\ud83d\udccc Scale Summary",
+   "read_only": 1
+  },
+  {
+   "description": "{min_overall_score}% - {max_overall_score}% (Mid: {scale_midpoint}%)",
+   "fieldname": "dashboard_range",
+   "fieldtype": "Data",
+   "label": "\ud83d\udcca Score Range",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_mid",
+   "fieldtype": "Column Break",
+   "label": "Usage Overview"
+  },
+  {
+   "description": "{total_cycles_used} cycles | {total_employees_rated} employees",
+   "fieldname": "dashboard_usage",
+   "fieldtype": "Data",
+   "label": "\ud83d\udc65 Usage",
+   "read_only": 1
+  },
+  {
+   "description": "{scale_effectiveness} | Bias: {bias_indicator}",
+   "fieldname": "dashboard_effectiveness",
+   "fieldtype": "Data",
+   "label": "\ud83d\udc9a Effectiveness",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_right",
+   "fieldtype": "Column Break",
+   "label": "Actions"
+  },
+  {
+   "description": "\u2022 Review rating distribution\n\u2022 Check for bias indicators\n\u2022 Calibrate with other scales",
+   "fieldname": "dashboard_actions",
+   "fieldtype": "Small Text",
+   "label": "\ud83d\udccc Recommended Actions",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_metadata",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Metadata"
+  },
+  {
+   "fieldname": "col_meta_left",
+   "fieldtype": "Column Break",
+   "label": "Ownership"
+  },
+  {
+   "fieldname": "owned_by",
+   "fieldtype": "Link",
+   "label": "Owned By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "department_owner",
+   "fieldtype": "Link",
+   "label": "Department Owner",
+   "options": "Department"
+  },
+  {
+   "fieldname": "col_meta_right",
+   "fieldtype": "Column Break",
+   "label": "Reference"
+  },
+  {
+   "description": "External reference if this is a standard scale",
+   "fieldname": "reference_scale",
+   "fieldtype": "Data",
+   "label": "Reference Scale ID"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Additional Notes"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
- "istable": 1,
  "links": [],
- "modified": "2026-03-13 17:27:59.840934",
+ "modified": "2026-07-05 19:32:20.792717",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Performance Rating Scale",
- "naming_rule": "Random",
  "owner": "Administrator",
- "permissions": [],
- "sort_field": "modified",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

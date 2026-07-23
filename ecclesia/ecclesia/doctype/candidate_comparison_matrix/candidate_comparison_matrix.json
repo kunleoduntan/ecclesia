@@ -1,0 +1,98 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CCM-.YYYY.-.#####",
+ "creation": "2026-07-04 14:48:15.747026",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "job_opening",
+  "column_break_ce0r",
+  "comparison_date",
+  "column_break_oj6u",
+  "created_by_hr",
+  "section_break_leuj",
+  "candidates",
+  "recommendation",
+  "ai_comparison"
+ ],
+ "fields": [
+  {
+   "fieldname": "job_opening",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Job Opening",
+   "options": "Job Opening",
+   "reqd": 1
+  },
+  {
+   "fieldname": "created_by_hr",
+   "fieldtype": "Link",
+   "label": "Prepared By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "comparison_date",
+   "fieldtype": "Date",
+   "label": "Date"
+  },
+  {
+   "fieldname": "candidates",
+   "fieldtype": "Table",
+   "label": "Candidates",
+   "options": "Comparison Candidate"
+  },
+  {
+   "fieldname": "recommendation",
+   "fieldtype": "Text Editor",
+   "label": "HR Recommendation"
+  },
+  {
+   "fieldname": "ai_comparison",
+   "fieldtype": "Text Editor",
+   "label": "AI Comparison Narrative"
+  },
+  {
+   "fieldname": "column_break_ce0r",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_oj6u",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "section_break_leuj",
+   "fieldtype": "Section Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-04 21:02:49.200443",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Candidate Comparison Matrix",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

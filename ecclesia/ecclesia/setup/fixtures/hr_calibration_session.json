@@ -1,0 +1,145 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CAL-.YYYY.-.#####",
+ "creation": "2026-07-04 14:45:28.080952",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "session_name",
+  "performance_cycle",
+  "calibration_level",
+  "department",
+  "session_date",
+  "facilitator",
+  "status",
+  "sec_participants",
+  "participants",
+  "sec_outcomes",
+  "session_notes",
+  "decisions",
+  "overrides",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "session_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Session Name",
+   "reqd": 1
+  },
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "calibration_level",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Level",
+   "options": "\nDepartment\nBusiness Unit\nCompany"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "fieldname": "session_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Session Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "facilitator",
+   "fieldtype": "Link",
+   "label": "Facilitator",
+   "options": "Employee"
+  },
+  {
+   "default": "Planned",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Planned\nIn Progress\nCompleted"
+  },
+  {
+   "fieldname": "sec_participants",
+   "fieldtype": "Section Break",
+   "label": "Participants"
+  },
+  {
+   "fieldname": "participants",
+   "fieldtype": "Table",
+   "label": "Participants",
+   "options": "Calibration Session Participant"
+  },
+  {
+   "fieldname": "sec_outcomes",
+   "fieldtype": "Section Break",
+   "label": "Outcomes"
+  },
+  {
+   "fieldname": "session_notes",
+   "fieldtype": "Text Editor",
+   "label": "Calibration Notes"
+  },
+  {
+   "fieldname": "decisions",
+   "fieldtype": "Text Editor",
+   "label": "Key Decisions Made"
+  },
+  {
+   "fieldname": "overrides",
+   "fieldtype": "Table",
+   "label": "Rating Overrides",
+   "options": "Calibration Rating Override"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "HR Calibration Session",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-04 14:45:28.080952",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "HR Calibration Session",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

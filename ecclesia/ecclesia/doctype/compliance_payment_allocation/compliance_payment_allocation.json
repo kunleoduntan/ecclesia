@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CPA-.YYYY.-.#####",
+ "creation": "2026-06-15 08:59:09.633475",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "payment_reference",
+  "payments_doctype_ref",
+  "compliance_liability",
+  "col1",
+  "obligation_type",
+  "period_label",
+  "allocated_amount",
+  "col2",
+  "allocation_method",
+  "allocation_date",
+  "company",
+  "remarks",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "payment_reference",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "reqd": 1
+  },
+  {
+   "fieldname": "payments_doctype_ref",
+   "fieldtype": "Link",
+   "label": "Payments DocType Ref",
+   "options": "Payments"
+  },
+  {
+   "fieldname": "compliance_liability",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Compliance Liability Ledger",
+   "options": "Compliance Liability Ledger",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Obligation Type",
+   "options": "VAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nData Breach Notification\nAML/KYC\nContractual Obligation\nTraining Levy\nOther"
+  },
+  {
+   "fieldname": "period_label",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period (MM-YYYY)"
+  },
+  {
+   "fieldname": "allocated_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Allocated Amount (\u20a6)",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Auto FIFO",
+   "fieldname": "allocation_method",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Allocation Method",
+   "options": "Auto FIFO\nManual Exact"
+  },
+  {
+   "fieldname": "allocation_date",
+   "fieldtype": "Datetime",
+   "label": "Allocation Date"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Compliance Payment Allocation",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-06-15 08:59:09.633475",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Compliance Payment Allocation",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

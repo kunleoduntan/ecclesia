@@ -1,0 +1,177 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:rule_name",
+ "creation": "2026-04-25 10:08:25.086055",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "rule_name",
+  "is_active",
+  "column_break_top",
+  "priority",
+  "match_type",
+  "section_break_scope",
+  "company",
+  "account_name_fetcher",
+  "account_root_type",
+  "column_break_scope",
+  "account_name_pattern",
+  "account_number",
+  "section_break_keywords",
+  "keywords",
+  "column_break_keywords",
+  "fallback_account_name",
+  "section_break_notes",
+  "description"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "rule_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Rule Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Active"
+  },
+  {
+   "fieldname": "column_break_top",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "10",
+   "description": "Lower number = higher priority. Rules are evaluated ascending. Company-specific rules should be given a lower priority number than their equivalent global rule so they take precedence.",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Priority"
+  },
+  {
+   "default": "Contains (Any Keyword)",
+   "fieldname": "match_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Match Type",
+   "options": "Contains (Any Keyword)\nContains All Keywords\nExact Match\nStarts With\nEnds With\nRegex",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_break_scope",
+   "fieldtype": "Section Break",
+   "label": "Scope & Account Resolution"
+  },
+  {
+   "description": "Leave BLANK to apply this rule to ALL companies (global rule). Set a company to restrict to that company only. A company-specific rule always takes precedence over a global rule when both match.",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Company",
+   "options": "Company"
+  },
+  {
+   "description": "Narrows account lookup to a specific root type to prevent accidental matches when two accounts share the same name across root types.",
+   "fieldname": "account_root_type",
+   "fieldtype": "Select",
+   "label": "Account Root Type Filter",
+   "options": "\nAsset\nLiability\nIncome\nExpense\nEquity"
+  },
+  {
+   "fieldname": "column_break_scope",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Account name WITHOUT the company abbreviation. E.g. 'Bank Charges' not '8801 - Bank Charges - LCD'. Resolved at runtime per company via ERPNext Account lookup.",
+   "fetch_from": "account_name_fetcher.account_name",
+   "fieldname": "account_name_pattern",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Account Name (Company-Neutral)",
+   "reqd": 1
+  },
+  {
+   "description": "Strongly recommended. Used to pick the correct account when name alone returns multiple results, and as a secondary lookup if name resolution fails. E.g. '8801'.",
+   "fetch_from": "account_name_fetcher.account_number",
+   "fieldname": "account_number",
+   "fieldtype": "Data",
+   "label": "Account Number (Disambiguator)"
+  },
+  {
+   "fieldname": "section_break_keywords",
+   "fieldtype": "Section Break",
+   "label": "Keyword Matching"
+  },
+  {
+   "description": "Comma-separated keywords matched against transaction_description (case-insensitive). For Regex match type, enter a single regex pattern.",
+   "fieldname": "keywords",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Keywords / Pattern",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_keywords",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "If the primary account_name_pattern cannot be resolved for a given company, this name is tried next. Handles companies that use slightly different naming conventions.",
+   "fieldname": "fallback_account_name",
+   "fieldtype": "Data",
+   "label": "Fallback Account Name"
+  },
+  {
+   "fieldname": "section_break_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description / Notes"
+  },
+  {
+   "fieldname": "account_name_fetcher",
+   "fieldtype": "Link",
+   "label": "Account Name Fetcher",
+   "options": "Account"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-25 11:03:33.179422",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Auto Transaction Coding Rule",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "APP-.YYYY.-.#####",
+ "creation": "2026-07-04 14:40:00.547189",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "employee_name",
+  "performance_cycle",
+  "appeal_date",
+  "current_rating",
+  "requested_rating",
+  "grounds_for_appeal",
+  "supporting_evidence",
+  "status",
+  "hr_decision",
+  "final_rating",
+  "decided_by",
+  "decision_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "fieldname": "performance_cycle",
+   "fieldtype": "Link",
+   "label": "Performance Cycle",
+   "options": "Performance Cycle",
+   "reqd": 1
+  },
+  {
+   "fieldname": "appeal_date",
+   "fieldtype": "Date",
+   "label": "Appeal Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "current_rating",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Current Rating"
+  },
+  {
+   "fieldname": "requested_rating",
+   "fieldtype": "Float",
+   "label": "Rating Requested"
+  },
+  {
+   "fieldname": "grounds_for_appeal",
+   "fieldtype": "Text Editor",
+   "label": "Grounds for Appeal",
+   "reqd": 1
+  },
+  {
+   "fieldname": "supporting_evidence",
+   "fieldtype": "Attach",
+   "label": "Supporting Evidence"
+  },
+  {
+   "default": "Submitted",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Submitted\nUnder Review\nUpheld\nDismissed"
+  },
+  {
+   "fieldname": "hr_decision",
+   "fieldtype": "Text Editor",
+   "label": "HR Decision"
+  },
+  {
+   "fieldname": "final_rating",
+   "fieldtype": "Float",
+   "label": "Final Rating After Appeal"
+  },
+  {
+   "fieldname": "decided_by",
+   "fieldtype": "Link",
+   "label": "Decided By",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "decision_date",
+   "fieldtype": "Date",
+   "label": "Decision Date"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Performance Appeal",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-04 14:40:00.547189",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Performance Appeal",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

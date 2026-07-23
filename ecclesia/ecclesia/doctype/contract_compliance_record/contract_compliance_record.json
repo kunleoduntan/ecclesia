@@ -1,0 +1,223 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CCR-.YYYY.-.#####",
+ "creation": "2026-06-15 08:10:33.909084",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "compliance_title",
+  "service_contract",
+  "vendor",
+  "contract_type",
+  "col1",
+  "company",
+  "contract_start",
+  "contract_end",
+  "contract_value",
+  "compliance_section",
+  "last_review_date",
+  "next_review_date",
+  "review_frequency",
+  "col2",
+  "sla_compliance_pct",
+  "open_breaches",
+  "compliance_status",
+  "obligations_section",
+  "key_obligations",
+  "obligations_met",
+  "unmet_obligations",
+  "col3",
+  "insurance_current",
+  "insurance_expiry",
+  "background_check_done",
+  "responsible_officer",
+  "compliance_notes"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "compliance_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "service_contract",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Service Contract",
+   "options": "Service Contract",
+   "reqd": 1
+  },
+  {
+   "fieldname": "vendor",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Vendor"
+  },
+  {
+   "fieldname": "contract_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Contract Type"
+  },
+  {
+   "fieldname": "col1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "contract_start",
+   "fieldtype": "Date",
+   "label": "Contract Start"
+  },
+  {
+   "fieldname": "contract_end",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Contract End"
+  },
+  {
+   "fieldname": "contract_value",
+   "fieldtype": "Currency",
+   "label": "Contract Value (\u20a6)"
+  },
+  {
+   "fieldname": "compliance_section",
+   "fieldtype": "Section Break",
+   "label": "Compliance Monitoring"
+  },
+  {
+   "fieldname": "last_review_date",
+   "fieldtype": "Date",
+   "label": "Last Compliance Review"
+  },
+  {
+   "fieldname": "next_review_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Next Review Date"
+  },
+  {
+   "fieldname": "review_frequency",
+   "fieldtype": "Select",
+   "label": "Review Frequency",
+   "options": "Monthly\nQuarterly\nBi-Annual\nAnnual"
+  },
+  {
+   "fieldname": "col2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sla_compliance_pct",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "label": "SLA Compliance %"
+  },
+  {
+   "fieldname": "open_breaches",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "Open SLA Breaches"
+  },
+  {
+   "default": "Compliant",
+   "fieldname": "compliance_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Compliance Status",
+   "options": "Compliant\nMinor Breach\nMaterial Breach\nTermination Risk\nExpired"
+  },
+  {
+   "fieldname": "obligations_section",
+   "fieldtype": "Section Break",
+   "label": "Key Obligations"
+  },
+  {
+   "fieldname": "key_obligations",
+   "fieldtype": "Text Editor",
+   "label": "Key Contract Obligations"
+  },
+  {
+   "default": "1",
+   "fieldname": "obligations_met",
+   "fieldtype": "Check",
+   "label": "All Key Obligations Met"
+  },
+  {
+   "fieldname": "unmet_obligations",
+   "fieldtype": "Small Text",
+   "label": "Unmet Obligations Detail"
+  },
+  {
+   "fieldname": "col3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "insurance_current",
+   "fieldtype": "Check",
+   "label": "Vendor Insurance Current"
+  },
+  {
+   "fieldname": "insurance_expiry",
+   "fieldtype": "Date",
+   "label": "Vendor Insurance Expiry"
+  },
+  {
+   "default": "0",
+   "fieldname": "background_check_done",
+   "fieldtype": "Check",
+   "label": "Vendor Background Check Done"
+  },
+  {
+   "fieldname": "responsible_officer",
+   "fieldtype": "Link",
+   "label": "Responsible Officer",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "compliance_notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-06-15 08:10:33.909084",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Contract Compliance Record",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

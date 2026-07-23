@@ -1,0 +1,259 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:WFH-SCH-{YYYY}-{#####}",
+ "creation": "2026-05-08 11:36:00.432297",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "title",
+  "applies_to",
+  "column_break_1",
+  "department",
+  "employee",
+  "effective_from",
+  "effective_to",
+  "is_active",
+  "section_break_days",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "column_break_days",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+  "section_break_wfo",
+  "wfo_days_note",
+  "section_break_rules",
+  "allow_adhoc_request",
+  "auto_create_session",
+  "require_summary",
+  "column_break_rules",
+  "max_wfh_days_per_month",
+  "carry_forward_days",
+  "section_break_notes",
+  "notes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "description": "e.g. 'Tech Team Mon/Wed WFH' or 'Company-wide Tuesday WFH'",
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Schedule Title",
+   "reqd": 1
+  },
+  {
+   "default": "Department",
+   "fieldname": "applies_to",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Applies To",
+   "options": "All Employees\nDepartment\nIndividual Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.applies_to=='Department'",
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Department",
+   "mandatory_depends_on": "eval:doc.applies_to=='Department'",
+   "options": "Department"
+  },
+  {
+   "depends_on": "eval:doc.applies_to=='Individual Employee'",
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "mandatory_depends_on": "eval:doc.applies_to=='Individual Employee'",
+   "options": "Employee"
+  },
+  {
+   "default": "Today",
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From",
+   "reqd": 1
+  },
+  {
+   "description": "Leave blank for open-ended schedule",
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To"
+  },
+  {
+   "default": "1",
+   "fieldname": "is_active",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Active"
+  },
+  {
+   "fieldname": "section_break_days",
+   "fieldtype": "Section Break",
+   "label": "WFH Days"
+  },
+  {
+   "default": "0",
+   "fieldname": "monday",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Monday"
+  },
+  {
+   "default": "0",
+   "fieldname": "tuesday",
+   "fieldtype": "Check",
+   "label": "Tuesday"
+  },
+  {
+   "default": "0",
+   "fieldname": "wednesday",
+   "fieldtype": "Check",
+   "label": "Wednesday"
+  },
+  {
+   "fieldname": "column_break_days",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "thursday",
+   "fieldtype": "Check",
+   "label": "Thursday"
+  },
+  {
+   "default": "0",
+   "fieldname": "friday",
+   "fieldtype": "Check",
+   "label": "Friday"
+  },
+  {
+   "default": "0",
+   "fieldname": "saturday",
+   "fieldtype": "Check",
+   "label": "Saturday"
+  },
+  {
+   "default": "0",
+   "fieldname": "sunday",
+   "fieldtype": "Check",
+   "label": "Sunday"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_wfo",
+   "fieldtype": "Section Break",
+   "label": "Work From Office Days"
+  },
+  {
+   "fieldname": "wfo_days_note",
+   "fieldtype": "HTML",
+   "label": "WFO Note",
+   "options": "<div style='padding:10px;background:#f0f9ff;border-radius:6px;font-size:12px;color:#075985;border:1px solid #bae6fd;'><b>Work From Office days</b> are automatically inferred as all working days <i>not</i> in the WFH schedule above. You do not need to configure them separately \u2014 they are shown in the Live Dashboard and Work Session forms.</div>"
+  },
+  {
+   "fieldname": "section_break_rules",
+   "fieldtype": "Section Break",
+   "label": "Rules & Behaviour"
+  },
+  {
+   "default": "1",
+   "description": "If checked, employees can still submit WFH Requests for days not in this schedule (personal demand).",
+   "fieldname": "allow_adhoc_request",
+   "fieldtype": "Check",
+   "label": "Allow Ad-hoc WFH Request"
+  },
+  {
+   "default": "0",
+   "description": "If checked, a WFH Session is automatically opened for each employee when they log into ERPNext on a scheduled WFH day.",
+   "fieldname": "auto_create_session",
+   "fieldtype": "Check",
+   "label": "Auto-create Session on Schedule Day"
+  },
+  {
+   "default": "1",
+   "description": "Employees on this schedule must submit a Daily Summary on each WFH day.",
+   "fieldname": "require_summary",
+   "fieldtype": "Check",
+   "label": "Require Daily Summary"
+  },
+  {
+   "fieldname": "column_break_rules",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Set to 0 for no limit. If exceeded, new WFH Requests require additional approval.",
+   "fieldname": "max_wfh_days_per_month",
+   "fieldtype": "Int",
+   "label": "Max WFH Days / Month"
+  },
+  {
+   "default": "0",
+   "description": "Allow unused WFH days to roll over to next month.",
+   "fieldname": "carry_forward_days",
+   "fieldtype": "Check",
+   "label": "Carry Forward Unused Days"
+  },
+  {
+   "fieldname": "section_break_notes",
+   "fieldtype": "Section Break",
+   "label": "Notes"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Internal Notes"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "WFH Schedule",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-05-08 11:36:00.432297",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "WFH Schedule",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

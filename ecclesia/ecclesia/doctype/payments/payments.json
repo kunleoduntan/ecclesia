@@ -1,28 +1,27 @@
 {
  "actions": [],
- "allow_events_in_timeline": 1,
- "allow_import": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-02-02 15:09:03.799909",
+ "creation": "2026-07-15 14:10:45.534590",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "transaction_header_section",
   "transaction_date",
-  "payee_name",
-  "supplier_name",
-  "customer_name",
   "column_break_txn1",
   "trans_type",
   "column_break_txn2",
   "company",
+  "company_currency",
   "column_break_txn3",
   "naming_series",
-  "payee_id",
-  "customer_id",
   "payment_status",
+  "payee_id",
+  "payee_name",
+  "supplier_name",
+  "customer_id",
+  "customer_name",
   "transaction_options_section",
   "create_accounting_entries",
   "column_break_opt1",
@@ -63,8 +62,16 @@
   "reference_no",
   "column_break_ynk5s",
   "account_to_debit",
+  "auto_assigned_account_to_debit",
   "column_break_e1fvs",
   "transaction_purposes",
+  "auto_transaction_coding_section",
+  "auto_coding_rule",
+  "column_break_sx40",
+  "auto_coding_status",
+  "auto_coded_account",
+  "column_break_4ub0",
+  "auto_coding_date",
   "section_break_r9iee",
   "whtax_rate",
   "wht_account",
@@ -150,7 +157,6 @@
   "connections_tab",
   "connections_section",
   "linked_documents_html",
-  "beneficiary_information_section",
   "amended_from"
  ],
  "fields": [
@@ -195,6 +201,15 @@
    "reqd": 1
   },
   {
+   "description": "Auto-fetched from Company. Used to drive dynamic NGN/foreign-currency field logic instead of a hardcoded currency.",
+   "fetch_from": "company.default_currency",
+   "fieldname": "company_currency",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Company Currency",
+   "read_only": 1
+  },
+  {
    "fieldname": "column_break_txn3",
    "fieldtype": "Column Break"
   },
@@ -204,7 +219,7 @@
    "fieldtype": "Select",
    "hidden": 1,
    "label": "Naming Series",
-   "options": "PAY-.YY.-.#####\nPAY-.MM.-.YY.-.####"
+   "options": "PAY-.YY.-.#####\nPAY-.MM.-.YY.-.#####"
   },
   {
    "default": "Draft",
@@ -217,6 +232,7 @@
    "read_only": 1
   },
   {
+   "depends_on": "eval:doc.trans_type == \"Supplier Payment\" || doc.trans_type == \"Supplier Refunds\"",
    "fieldname": "payee_id",
    "fieldtype": "Link",
    "in_standard_filter": 1,
@@ -392,11 +408,11 @@
   },
   {
    "default": "1",
-   "depends_on": "eval:doc.payment_currency != 'NGN'",
+   "depends_on": "eval:doc.payment_currency != doc.company_currency",
    "fieldname": "exchange_rate",
    "fieldtype": "Float",
    "label": "Exchange Rate",
-   "mandatory_depends_on": "eval:doc.payment_currency != 'NGN'",
+   "mandatory_depends_on": "eval:doc.payment_currency != doc.company_currency",
    "precision": "4"
   },
   {
@@ -416,18 +432,18 @@
    "label": "Payment Amount"
   },
   {
-   "depends_on": "eval:doc.payment_currency == 'NGN'",
+   "depends_on": "eval:doc.payment_currency == doc.company_currency",
    "fieldname": "amount_paid",
    "fieldtype": "Currency",
    "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Amount Paid (NGN)",
-   "mandatory_depends_on": "eval:doc.payment_currency == 'NGN'",
+   "mandatory_depends_on": "eval:doc.payment_currency == doc.company_currency",
    "options": "Company:company:default_currency"
   },
   {
-   "depends_on": "eval:doc.payment_currency != 'NGN'",
+   "depends_on": "eval:doc.payment_currency != doc.company_currency",
    "fieldname": "amount_paid_in_fc",
    "fieldtype": "Float",
    "in_filter": 1,
@@ -435,7 +451,7 @@
    "in_preview": 1,
    "in_standard_filter": 1,
    "label": "Amount Paid (Foreign Currency)",
-   "mandatory_depends_on": "eval:doc.payment_currency != 'NGN'",
+   "mandatory_depends_on": "eval:doc.payment_currency != doc.company_currency",
    "options": "payment_currency",
    "precision": "2"
   },
@@ -496,7 +512,12 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Account To Debit",
-   "mandatory_depends_on": "eval: doc.trans_type == 'Expense Payment' || doc.trans_type == 'Transfer Out'",
+   "options": "Account"
+  },
+  {
+   "fieldname": "auto_assigned_account_to_debit",
+   "fieldtype": "Link",
+   "label": "Auto Assigned Account to Debit",
    "options": "Account"
   },
   {
@@ -508,6 +529,48 @@
    "fieldtype": "Small Text",
    "label": "Transaction Purpose / Description",
    "reqd": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "auto_transaction_coding_section",
+   "fieldtype": "Section Break",
+   "label": "Auto Transaction Coding"
+  },
+  {
+   "fieldname": "auto_coding_rule",
+   "fieldtype": "Link",
+   "label": "Auto Coding Rule Applied",
+   "options": "Auto Transaction Coding Rule"
+  },
+  {
+   "fieldname": "column_break_sx40",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_coding_status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Auto Coding Status",
+   "options": "\nNot Processed\nMatched\nUnmatched\nPending Re-code",
+   "read_only": 1
+  },
+  {
+   "fieldname": "auto_coded_account",
+   "fieldtype": "Link",
+   "label": "Auto-coded Account",
+   "options": "Account",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_4ub0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "auto_coding_date",
+   "fieldtype": "Datetime",
+   "label": "Auto Coding Date",
+   "read_only": 1
   },
   {
    "depends_on": "deduct_wht",
@@ -1008,30 +1071,16 @@
    "options": "Payments",
    "print_hide": 1,
    "read_only": 1
-  },
-  {
-   "fieldname": "beneficiary_information_section",
-   "fieldtype": "Section Break",
-   "label": "Beneficiary Information"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Payments",
-   "print_hide": 1,
-   "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-06 12:34:42.175850",
- "modified_by": "kunleoduntan@gmail.com",
+ "modified": "2026-07-15 14:10:45.534590",
+ "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Payments",
- "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
@@ -1049,7 +1098,8 @@
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "sort_field": "modified",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

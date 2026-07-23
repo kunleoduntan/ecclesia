@@ -1,0 +1,428 @@
+[
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-compliance_section",
+    "dt": "Payments",
+    "fieldname": "compliance_section",
+    "fieldtype": "Section Break",
+    "label": "Compliance & AML",
+    "insert_after": "cashflow_type",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-compliance_obligation_type",
+    "dt": "Payments",
+    "fieldname": "compliance_obligation_type",
+    "fieldtype": "Select",
+    "label": "Obligation Type",
+    "insert_after": "compliance_section",
+    "options": "\nVAT\nWHT\nPAYE\nPension\nNHF\nNSITF\nITF\nCIT\nStamp Duty\nCapital Gains Tax\nCAC Annual Return\nRegulatory Return\nWork Permit\nEnvironmental Permit\nAML/KYC\nContractual Obligation\nTraining Levy\nOther",
+    "description": "Set when making a compliance/statutory payment to enable CLL allocation"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-compliance_fiscal_month",
+    "dt": "Payments",
+    "fieldname": "compliance_fiscal_month",
+    "fieldtype": "Data",
+    "label": "Compliance Period (MM-YYYY)",
+    "insert_after": "compliance_obligation_type",
+    "description": "Leave blank for auto FIFO allocation; set for exact-period payment"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-col_break_compliance",
+    "dt": "Payments",
+    "fieldname": "col_break_compliance",
+    "fieldtype": "Column Break",
+    "insert_after": "compliance_fiscal_month"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-compliance_allocated_amount",
+    "dt": "Payments",
+    "fieldname": "compliance_allocated_amount",
+    "fieldtype": "Currency",
+    "label": "Compliance Allocated Amount (₦)",
+    "insert_after": "col_break_compliance",
+    "description": "Amount to route to CLL. Defaults to amount_paid if blank."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-compliance_cll_link",
+    "dt": "Payments",
+    "fieldname": "compliance_cll_link",
+    "fieldtype": "Link",
+    "label": "CLL Entry (auto-linked)",
+    "options": "Compliance Liability Ledger",
+    "insert_after": "compliance_allocated_amount",
+    "read_only": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-aml_kyc_section",
+    "dt": "Payments",
+    "fieldname": "aml_kyc_section",
+    "fieldtype": "Section Break",
+    "label": "AML / KYC",
+    "insert_after": "compliance_cll_link",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-aml_kyc_cleared",
+    "dt": "Payments",
+    "fieldname": "aml_kyc_cleared",
+    "fieldtype": "Check",
+    "label": "AML / KYC Cleared",
+    "insert_after": "aml_kyc_section",
+    "default": "0",
+    "description": "Tick once KYC check is confirmed for this payment"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-aml_kyc_record",
+    "dt": "Payments",
+    "fieldname": "aml_kyc_record",
+    "fieldtype": "Link",
+    "label": "AML KYC Record",
+    "options": "AML KYC Record",
+    "insert_after": "aml_kyc_cleared"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Payments-aml_risk_flag",
+    "dt": "Payments",
+    "fieldname": "aml_risk_flag",
+    "fieldtype": "Check",
+    "label": "AML Risk Flagged",
+    "insert_after": "aml_kyc_record",
+    "default": "0",
+    "description": "Set by system if transaction matches suspicious activity criteria"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Receipts-aml_kyc_section",
+    "dt": "Receipts",
+    "fieldname": "aml_kyc_section",
+    "fieldtype": "Section Break",
+    "label": "AML / KYC",
+    "insert_after": "deduct_wht",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Receipts-aml_kyc_cleared",
+    "dt": "Receipts",
+    "fieldname": "aml_kyc_cleared",
+    "fieldtype": "Check",
+    "label": "AML / KYC Cleared",
+    "insert_after": "aml_kyc_section",
+    "default": "0"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Receipts-aml_kyc_record",
+    "dt": "Receipts",
+    "fieldname": "aml_kyc_record",
+    "fieldtype": "Link",
+    "label": "AML KYC Record",
+    "options": "AML KYC Record",
+    "insert_after": "aml_kyc_cleared"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Receipts-aml_risk_flag",
+    "dt": "Receipts",
+    "fieldname": "aml_risk_flag",
+    "fieldtype": "Check",
+    "label": "AML Risk Flagged",
+    "insert_after": "aml_kyc_record",
+    "default": "0"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Audit Finding-compliance_bridge_section",
+    "dt": "Audit Finding",
+    "fieldname": "compliance_bridge_section",
+    "fieldtype": "Section Break",
+    "label": "Compliance Links",
+    "insert_after": "corrective_action_plan",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Audit Finding-fraud_investigation_ref",
+    "dt": "Audit Finding",
+    "fieldname": "fraud_investigation_ref",
+    "fieldtype": "Link",
+    "label": "Whistleblower Report",
+    "options": "Whistleblower Report",
+    "insert_after": "compliance_bridge_section",
+    "description": "Link to whistleblower report if this finding originated from a report"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Audit Finding-compliance_obligation_ref",
+    "dt": "Audit Finding",
+    "fieldname": "compliance_obligation_ref",
+    "fieldtype": "Link",
+    "label": "Compliance Liability Ledger",
+    "options": "Compliance Liability Ledger",
+    "insert_after": "fraud_investigation_ref",
+    "description": "Link to the CLL entry if this finding relates to a statutory obligation"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Audit Finding-compliance_incident_ref",
+    "dt": "Audit Finding",
+    "fieldname": "compliance_incident_ref",
+    "fieldtype": "Link",
+    "label": "Compliance Incident",
+    "options": "Compliance Incident",
+    "insert_after": "compliance_obligation_ref"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Fixed Asset Maintenance-compliance_section",
+    "dt": "Fixed Asset Maintenance",
+    "fieldname": "compliance_section",
+    "fieldtype": "Section Break",
+    "label": "Compliance",
+    "insert_after": "remarks",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Fixed Asset Maintenance-compliance_license_ref",
+    "dt": "Fixed Asset Maintenance",
+    "fieldname": "compliance_license_ref",
+    "fieldtype": "Link",
+    "label": "License / Permit",
+    "options": "License Management",
+    "insert_after": "compliance_section",
+    "description": "Link to the operating license or permit this maintenance satisfies (e.g. lift certificate, pressure vessel)"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Fixed Asset Maintenance-compliance_incident_ref",
+    "dt": "Fixed Asset Maintenance",
+    "fieldname": "compliance_incident_ref",
+    "fieldtype": "Link",
+    "label": "Compliance Incident",
+    "options": "Compliance Incident",
+    "insert_after": "compliance_license_ref"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Employee Document-compliance_section",
+    "dt": "Employee Document",
+    "fieldname": "compliance_section",
+    "fieldtype": "Section Break",
+    "label": "Compliance",
+    "insert_after": "notes",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Employee Document-compliance_permit_ref",
+    "dt": "Employee Document",
+    "fieldname": "compliance_permit_ref",
+    "fieldtype": "Link",
+    "label": "Expatriate Permit Register",
+    "options": "Expatriate Permit Register",
+    "insert_after": "compliance_section",
+    "description": "Link to permit register if this document relates to an expatriate permit or quota"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Employee Document-compliance_domain",
+    "dt": "Employee Document",
+    "fieldname": "compliance_domain",
+    "fieldtype": "Select",
+    "label": "Compliance Domain",
+    "options": "\nLabour & Employment\nData Protection\nAML & KYC\nCorporate Governance\nHSE\nTraining\nOther",
+    "insert_after": "compliance_permit_ref",
+    "description": "Tag this document to a compliance domain for reporting"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company Policy-compliance_domain",
+    "dt": "Company Policy",
+    "fieldname": "compliance_domain",
+    "fieldtype": "Select",
+    "label": "Compliance Domain",
+    "options": "\nStatutory Tax\nStatutory Payroll\nCorporate Governance\nContract Compliance\nData Protection\nAML & KYC\nLabour & Employment\nEnvironmental & HSE\nIndustry Regulatory\nAnti-Fraud & Integrity\nTraining & Competency\nGeneral",
+    "insert_after": "category",
+    "description": "Maps this policy to a GRC compliance domain for the ComplianceHQ dashboard"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company Policy-compliance_rule_ref",
+    "dt": "Company Policy",
+    "fieldname": "compliance_rule_ref",
+    "fieldtype": "Link",
+    "label": "Compliance Rule",
+    "options": "Compliance Rule",
+    "insert_after": "compliance_domain",
+    "description": "Optional link to the Compliance Rule this policy supports"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Salary Slip-paye_cll_entry",
+    "dt": "Salary Slip",
+    "fieldname": "paye_cll_entry",
+    "fieldtype": "Link",
+    "label": "PAYE CLL Entry",
+    "options": "Compliance Liability Ledger",
+    "insert_after": "total_deduction",
+    "read_only": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Salary Slip-pension_cll_entry",
+    "dt": "Salary Slip",
+    "fieldname": "pension_cll_entry",
+    "fieldtype": "Link",
+    "label": "Pension CLL Entry",
+    "options": "Compliance Liability Ledger",
+    "insert_after": "paye_cll_entry",
+    "read_only": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Salary Slip-nhf_cll_entry",
+    "dt": "Salary Slip",
+    "fieldname": "nhf_cll_entry",
+    "fieldtype": "Link",
+    "label": "NHF CLL Entry",
+    "options": "Compliance Liability Ledger",
+    "insert_after": "pension_cll_entry",
+    "read_only": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Sales Invoice-vat_cll_entry",
+    "dt": "Sales Invoice",
+    "fieldname": "vat_cll_entry",
+    "fieldtype": "Link",
+    "label": "VAT CLL Entry",
+    "options": "Compliance Liability Ledger",
+    "insert_after": "taxes_and_charges",
+    "read_only": 1,
+    "description": "Auto-populated when VAT liability is posted to Compliance Liability Ledger"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-nigerian_compliance_section",
+    "dt": "Company",
+    "fieldname": "nigerian_compliance_section",
+    "fieldtype": "Section Break",
+    "label": "Nigerian Regulatory Registrations",
+    "insert_after": "tax_id",
+    "collapsible": 1
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-cac_rc_number",
+    "dt": "Company",
+    "fieldname": "cac_rc_number",
+    "fieldtype": "Data",
+    "label": "CAC RC Number",
+    "insert_after": "nigerian_compliance_section"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-firs_tin",
+    "dt": "Company",
+    "fieldname": "firs_tin",
+    "fieldtype": "Data",
+    "label": "FIRS TIN",
+    "insert_after": "cac_rc_number"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-state_irs_tin",
+    "dt": "Company",
+    "fieldname": "state_irs_tin",
+    "fieldtype": "Data",
+    "label": "State IRS TIN (PAYE)",
+    "insert_after": "firs_tin"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-pencom_employer_code",
+    "dt": "Company",
+    "fieldname": "pencom_employer_code",
+    "fieldtype": "Data",
+    "label": "PenCom Employer Code",
+    "insert_after": "state_irs_tin"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-itf_employer_number",
+    "dt": "Company",
+    "fieldname": "itf_employer_number",
+    "fieldtype": "Data",
+    "label": "ITF Employer Number",
+    "insert_after": "pencom_employer_code"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-nsitf_employer_number",
+    "dt": "Company",
+    "fieldname": "nsitf_employer_number",
+    "fieldtype": "Data",
+    "label": "NSITF Employer Number",
+    "insert_after": "itf_employer_number"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-nhf_employer_code",
+    "dt": "Company",
+    "fieldname": "nhf_employer_code",
+    "fieldtype": "Data",
+    "label": "NHF Employer Code (FMBN)",
+    "insert_after": "nsitf_employer_number"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-nitda_registration_number",
+    "dt": "Company",
+    "fieldname": "nitda_registration_number",
+    "fieldtype": "Data",
+    "label": "NITDA Registration Number (NDPR)",
+    "insert_after": "nhf_employer_code"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-compliance_officer",
+    "dt": "Company",
+    "fieldname": "compliance_officer",
+    "fieldtype": "Link",
+    "label": "Chief Compliance Officer",
+    "options": "Employee",
+    "insert_after": "nitda_registration_number"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-dpo",
+    "dt": "Company",
+    "fieldname": "dpo",
+    "fieldtype": "Link",
+    "label": "Data Protection Officer (DPO)",
+    "options": "Employee",
+    "insert_after": "compliance_officer"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Company-amlco",
+    "dt": "Company",
+    "fieldname": "amlco",
+    "fieldtype": "Link",
+    "label": "AML Compliance Officer (AMLCO)",
+    "options": "Employee",
+    "insert_after": "dpo"
+  }
+]

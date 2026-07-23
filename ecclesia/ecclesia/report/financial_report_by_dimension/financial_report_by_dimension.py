@@ -1,444 +1,679 @@
-# Copyright (c) 2026, Kunle Oduntan
-# License: see license.txt
+# Copyright (c) 2026, Kunle Oduntan and contributors
+# For license information, please see license.txt
+"""
+Financial Report by Dimension
+=============================
+Supports P&L, Balance Sheet, Cash Flow with cost center, branch, or project dimensions.
+"""
+
+import re
+from datetime import datetime
 
 import frappe
 from frappe import _
-from frappe.utils import flt
-import re
+from frappe.utils import flt, getdate
 
+_BALANCE_SHEET_TYPES = {"Balance Sheet"}
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# MAIN ENTRY POINT
+# ═════════════════════════════════════════════════════════════════════════════
 
 def execute(filters=None):
-    if not filters:
-        filters = {}
+    filters = filters or {}
 
-    if not filters.get("template"):
-        frappe.throw(_("Please select a Financial Report Template"))
-    if not filters.get("company"):
-        frappe.throw(_("Please select a Company"))
-    if not filters.get("from_date") or not filters.get("to_date"):
-        frappe.throw(_("Please select dates"))
+    # Validate required filters
+    template_name = filters.get("template")
+    if not template_name:
+        frappe.throw(_("Please select a Financial Report Template."))
 
-    template   = frappe.get_doc("Financial Report Template", filters.get("template"))
-    dimensions = get_dimensions(filters)
-    columns    = build_dimension_columns(dimensions, filters)
-    data       = build_dimension_data(template, dimensions, filters)
+    template = frappe.get_doc("Financial Report Template", template_name)
+    if not template.is_active:
+        frappe.throw(_("The selected template is not active."))
 
-    if filters.get("show_totals"):
-        add_totals_row(data, dimensions, template)
+    company = filters.get("company")
+    if not company:
+        frappe.throw(_("Please select a Company."))
 
-    return columns, data
+    from_date = filters.get("from_date")
+    to_date = filters.get("to_date")
+    if not from_date or not to_date:
+        frappe.throw(_("Please select both From Date and To Date."))
+
+    dimension_type = filters.get("dimension_type", "Cost Center")
+    
+    # Get dimensions based on filter type
+    dimensions = _get_dimensions(filters, dimension_type, company)
+    
+    # If no dimensions found, show message and return empty
+    if not dimensions:
+        frappe.msgprint(_("No {0} found for the selected filters. Please check your selection.").format(dimension_type), alert=True)
+        # Return at least one column so report doesn't error
+        columns = [
+            {"label": _("Account"), "fieldname": "account_name", "fieldtype": "Data", "width": 300},
+            {"label": _("Total"), "fieldname": "total", "fieldtype": "Currency", "width": 160}
+        ]
+        return columns, [], template.template_name, None, None
+
+    show_totals = filters.get("show_totals", False)
+    show_budget = filters.get("show_budget", False) and template.enable_budget_comparison
+    budget_plan = filters.get("budget_plan") if show_budget else None
+    show_comparison = filters.get("show_comparison", False) and template.show_comparison
+
+    # Determine if this is a balance sheet report
+    is_bs = template.report_type in _BALANCE_SHEET_TYPES
+
+    # Build columns and data
+    columns = _build_dimension_columns(dimensions, template, show_budget, show_comparison)
+    data = _build_dimension_data(
+        template, dimensions, company, from_date, to_date,
+        show_budget, budget_plan, is_bs, show_comparison
+    )
+
+    # Add totals row if requested
+    if show_totals and data:
+        _add_totals_row(data, dimensions, template)
+
+    report_title = template.report_title or template.template_name
+    return columns, data, report_title, None, None
 
 
-# ─────────────────────────────────────────────
-# DIMENSIONS
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════════════════
+# DIMENSION HELPERS
+# ═════════════════════════════════════════════════════════════════════════════
 
-def get_dimensions(filters):
+def _get_dimensions(filters, dimension_type, company):
+    """Get list of dimensions based on filters."""
     dimensions = []
-    dim_type   = filters.get("dimension_type", "Cost Center")
 
-    def normalize_list(val):
+    def _normalize_list(val):
         if isinstance(val, list):
             return [v for v in val if v]
         if isinstance(val, str):
             return [v.strip() for v in val.split(",") if v.strip()]
         return []
 
-    if dim_type == "Cost Center":
-        specific = normalize_list(filters.get("specific_cost_centers"))
-        if specific:
-            dimensions = [{"name": cc, "type": "Cost Center"} for cc in specific]
-        elif filters.get("parent_cost_center"):
-            rows = frappe.get_all(
-                "Cost Center",
-                filters={"parent_cost_center": filters["parent_cost_center"], "is_group": 0},
-                fields=["name"],
-                order_by="name"
-            )
-            dimensions = [{"name": r.name, "type": "Cost Center"} for r in rows]
+    try:
+        if dimension_type == "Cost Center":
+            specific = _normalize_list(filters.get("specific_cost_centers"))
+            if specific:
+                for cc in specific:
+                    # Verify cost center exists
+                    if frappe.db.exists("Cost Center", cc):
+                        dimensions.append({"name": cc, "type": "Cost Center"})
+            elif filters.get("parent_cost_center"):
+                parent = filters.get("parent_cost_center")
+                rows = frappe.get_all(
+                    "Cost Center",
+                    filters={
+                        "parent_cost_center": parent,
+                        "is_group": 0,
+                        "company": company
+                    },
+                    fields=["name"],
+                    order_by="name"
+                )
+                dimensions = [{"name": r.name, "type": "Cost Center"} for r in rows]
+            else:
+                # Get all cost centers (limit to 30 for performance)
+                rows = frappe.get_all(
+                    "Cost Center",
+                    filters={"is_group": 0, "company": company},
+                    fields=["name"],
+                    order_by="name",
+                    limit=30
+                )
+                dimensions = [{"name": r.name, "type": "Cost Center"} for r in rows]
 
-    elif dim_type == "Branch":
-        dimensions = [{"name": b, "type": "Branch"}
-                      for b in normalize_list(filters.get("specific_branches"))]
+        elif dimension_type == "Branch":
+            specific = _normalize_list(filters.get("specific_branches"))
+            if specific:
+                for branch in specific:
+                    if frappe.db.exists("Branch", branch):
+                        dimensions.append({"name": branch, "type": "Branch"})
+            else:
+                rows = frappe.get_all(
+                    "Branch",
+                    filters={"company": company},
+                    fields=["name"],
+                    order_by="name",
+                    limit=30
+                )
+                dimensions = [{"name": r.name, "type": "Branch"} for r in rows]
 
-    elif dim_type == "Project":
-        dimensions = [{"name": p, "type": "Project"}
-                      for p in normalize_list(filters.get("specific_projects"))]
-
+        elif dimension_type == "Project":
+            specific = _normalize_list(filters.get("specific_projects"))
+            if specific:
+                for project in specific:
+                    if frappe.db.exists("Project", project):
+                        dimensions.append({"name": project, "type": "Project"})
+            else:
+                rows = frappe.get_all(
+                    "Project",
+                    filters={"company": company, "status": "Open"},
+                    fields=["name"],
+                    order_by="name",
+                    limit=30
+                )
+                dimensions = [{"name": r.name, "type": "Project"} for r in rows]
+    except Exception as e:
+        frappe.log_error(f"Error getting dimensions: {str(e)}", "Financial Report by Dimension")
+    
     return dimensions
 
 
-# ─────────────────────────────────────────────
-# COLUMNS
-# ─────────────────────────────────────────────
+def _sanitize_fieldname(name):
+    """Create a safe fieldname from dimension name."""
+    # Remove problematic characters
+    name = str(name)
+    # Replace spaces and special chars with underscore
+    f = re.sub(r'[^a-zA-Z0-9]', '_', name)
+    f = re.sub(r'_+', '_', f).strip('_')
+    # Ensure it starts with letter
+    if f and f[0].isdigit():
+        f = "dim_" + f
+    return f.lower()
 
-def build_dimension_columns(dimensions, filters):
-    columns = [{"label": _("Account"), "fieldname": "account_name",
-                "fieldtype": "Data", "width": 300}]
 
-    for dim in dimensions:
-        columns.append({
-            "label":     dim["name"],
-            "fieldname": sanitize_fieldname(dim["name"]),
+# ═════════════════════════════════════════════════════════════════════════════
+# COLUMN BUILDING
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _build_dimension_columns(dimensions, template, show_budget, show_comparison):
+    """Build column definitions for the report."""
+    cols = [
+        {"label": _("Account"), "fieldname": "account_name",
+         "fieldtype": "Data", "width": 350}
+    ]
+
+    # Dimension columns - limit to first 15 to avoid performance issues
+    for dim in dimensions[:15]:
+        cols.append({
+            "label": dim["name"][:30],  # Truncate long names
+            "fieldname": _sanitize_fieldname(dim["name"]),
             "fieldtype": "Currency",
-            "width":     150
+            "width": 140
         })
 
-    columns.append({"label": _("Total"), "fieldname": "total",
-                    "fieldtype": "Currency", "width": 160})
-    return columns
+    # Total column
+    cols.append({
+        "label": _("Total"),
+        "fieldname": "total",
+        "fieldtype": "Currency",
+        "width": 160
+    })
+
+    return cols
 
 
-# ─────────────────────────────────────────────
-# DATA BUILD
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════════════════
+# DATA BUILDING
+# ═════════════════════════════════════════════════════════════════════════════
 
-def build_dimension_data(template, dimensions, filters):
-    data        = []
+def _build_dimension_data(template, dimensions, company, from_date, to_date,
+                           show_budget, budget_plan, is_bs, show_comparison):
+    """Build report data rows."""
+    data = []
     line_values = {}
+    
+    # Limit dimensions to first 15 for performance
+    dimensions = dimensions[:15]
 
     for line in sorted(template.report_lines, key=lambda x: x.line_number):
+        lt = line.line_type
 
-        if line.line_type == "Blank Line":
+        # Blank Line
+        if lt == "Blank Line":
             data.append({"account_name": ""})
             continue
 
-        if line.line_type == "Header":
-            data.append({
-                "account_name": get_formatted_label(
-                    line.line_label, line.indent_level, line.is_bold
-                ),
+        # Header
+        if lt == "Header":
+            row = {
+                "account_name": _format_label(line.line_label, line.indent_level, True),
                 "_style": "font-weight: bold; background-color: #f5f5f5;"
-            })
+            }
+            data.append(row)
             continue
 
-        if line.line_type == "Account Aggregate":
-            row = process_account_line(line, dimensions, filters, template)
+        # Account Aggregate
+        if lt == "Account Aggregate":
+            row = _process_account_line(
+                line, dimensions, company, from_date, to_date,
+                show_budget, budget_plan, is_bs, template
+            )
             if row:
-                data.append(row)
                 if line.line_code:
-                    line_values[line.line_code] = extract_values(row, dimensions)
+                    # Store values for formula references
+                    vals = {}
+                    for dim in dimensions:
+                        field = _sanitize_fieldname(dim["name"])
+                        vals[field] = row.get(field, 0)
+                    vals["total"] = row.get("total", 0)
+                    line_values[line.line_code] = vals
+                data.append(row)
 
-        elif line.line_type == "Calculated":
-            row = process_calculated_line(line, dimensions, line_values, template)
+        # Calculated
+        elif lt == "Calculated" and line.calculation_formula:
+            row = _process_calculated_line(
+                line, dimensions, line_values, template
+            )
             if row:
-                data.append(row)
                 if line.line_code:
-                    line_values[line.line_code] = extract_values(row, dimensions)
+                    vals = {}
+                    for dim in dimensions:
+                        field = _sanitize_fieldname(dim["name"])
+                        vals[field] = row.get(field, 0)
+                    vals["total"] = row.get("total", 0)
+                    line_values[line.line_code] = vals
+                data.append(row)
+
+        # Retained Earnings
+        elif lt == "Retained Earnings":
+            row = _process_retained_earnings(
+                line, dimensions, company, to_date, line_values, template, is_bs
+            )
+            if row:
+                if line.line_code:
+                    vals = {}
+                    for dim in dimensions:
+                        field = _sanitize_fieldname(dim["name"])
+                        vals[field] = row.get(field, 0)
+                    vals["total"] = row.get("total", 0)
+                    line_values[line.line_code] = vals
+                data.append(row)
 
     return data
 
 
-# ─────────────────────────────────────────────
-# ACCOUNT ROW
-# ─────────────────────────────────────────────
-
-def process_account_line(line, dimensions, filters, template):
-    accounts = get_accounts_for_line(line, filters.get("company"))
-    row      = {"account_name": get_formatted_label(
-                    line.line_label, line.indent_level, line.is_bold)}
-    sign     = -1 if line.sign_multiplier == "-1" else 1
-    total    = 0
-
-    for dim in dimensions:
-        field = sanitize_fieldname(dim["name"])
-        bal   = get_balance_by_dimension(
-            accounts,
-            filters.get("company"),
-            filters.get("from_date"),
-            filters.get("to_date"),
-            dim["type"],
-            dim["name"]
-        )
-        val        = flt(bal) * sign
-        row[field] = val
-        total     += val
-
-    row["total"] = total
-
-    # ← uses the exact same apply_row_styling from the working report
-    style = apply_row_styling(line, template)
+def _process_account_line(line, dimensions, company, from_date, to_date,
+                           show_budget, budget_plan, is_bs, template):
+    """Process an Account Aggregate line."""
+    accounts = _get_accounts_for_line(line, company)
+    
+    # Create row with formatted label
+    row = {
+        "account_name": _format_label(line.line_label, line.indent_level, line.is_bold)
+    }
+    
+    sign = _sign(line)
+    total = 0.0
+    
+    try:
+        for dim in dimensions:
+            field = _sanitize_fieldname(dim["name"])
+            
+            # Get balance for this dimension
+            bal = _get_balance_by_dimension(
+                accounts, company, from_date, to_date,
+                dim["type"], dim["name"], sign, is_bs
+            )
+            
+            # Only show non-zero values or if show_zero_values is enabled
+            if bal != 0 or template.show_zero_values:
+                row[field] = bal
+            else:
+                row[field] = None
+                
+            total += bal
+    except Exception as e:
+        frappe.log_error(f"Error processing account line {line.line_label}: {str(e)}", "Financial Report by Dimension")
+    
+    row["total"] = total if (total != 0 or template.show_zero_values) else None
+    
+    # Apply styling
+    style = _row_style(line, template)
     if style:
         row["_style"] = style
-
+    
+    # Skip row if no accounts and not showing zero values
+    if not accounts and not template.show_zero_values:
+        return None
+    
     return row
 
 
-# ─────────────────────────────────────────────
-# CALCULATED ROW
-# ─────────────────────────────────────────────
-
-def process_calculated_line(line, dimensions, line_values, template):
+def _process_calculated_line(line, dimensions, line_values, template):
+    """Process a Calculated line using formula."""
     if not line.calculation_formula:
         return None
-
-    row   = {"account_name": get_formatted_label(
-                 line.line_label, line.indent_level, line.is_bold)}
-    total = 0
-
-    for dim in dimensions:
-        field      = sanitize_fieldname(dim["name"])
-        val        = evaluate_formula(line.calculation_formula, line_values, field)
-        row[field] = val
-        total     += val
-
-    row["total"] = total
-
-    style = apply_row_styling(line, template)
+    
+    row = {
+        "account_name": _format_label(line.line_label, line.indent_level, line.is_bold)
+    }
+    
+    formula = line.calculation_formula.strip()
+    total = 0.0
+    
+    try:
+        for dim in dimensions:
+            field = _sanitize_fieldname(dim["name"])
+            
+            # Evaluate formula for this dimension
+            val = _evaluate_formula(formula, line_values, field)
+            
+            if val != 0 or template.show_zero_values:
+                row[field] = val
+            else:
+                row[field] = None
+                
+            total += val
+    except Exception as e:
+        frappe.log_error(f"Error processing calculated line {line.line_label}: {str(e)}", "Financial Report by Dimension")
+    
+    row["total"] = total if (total != 0 or template.show_zero_values) else None
+    
+    style = _row_style(line, template)
     if style:
         row["_style"] = style
-
+    
     return row
 
 
-# ─────────────────────────────────────────────
-# STYLING  — copied verbatim from working report
-# ─────────────────────────────────────────────
-
-def apply_row_styling(line, template):
-    """
-    Exact copy of apply_row_styling from Financial Report Template Based.
-    Reads from Financial Report Line fields:
-      row_color       – custom hex background  (highest priority)
-      is_total_row    – uses template.excel_total_row_color
-      is_subtotal_row – uses template.excel_subtotal_color
-      is_bold         – font-weight: bold
-      border_style    – Top Border | Bottom Border | Top and Bottom |
-                        Top Single Bottom Double | Top and Bottom Double
-    Returns a CSS string or None.
-    """
-    styles = []
-
-    # ── background colour ──────────────────────────────────────────────
-    row_color = getattr(line, 'row_color', None)
-    if row_color:
-        styles.append(f"background-color: {row_color}")
-    elif line.is_total_row:
-        styles.append(f"background-color: {template.excel_total_row_color}")
-    elif line.is_subtotal_row:
-        styles.append(f"background-color: {template.excel_subtotal_color}")
-
-    # ── font weight ───────────────────────────────────────────────────
-    if line.is_bold or line.is_total_row or line.is_subtotal_row:
-        styles.append("font-weight: bold")
-
-    # ── borders ───────────────────────────────────────────────────────
-    border_style = getattr(line, 'border_style', None)
-
-    if border_style == "Top Border":
-        styles.append("border-top: 1px solid #000")
-    elif border_style == "Bottom Border":
-        styles.append("border-bottom: 1px solid #000")
-    elif border_style == "Top and Bottom":
-        styles.append("border-top: 1px solid #000")
-        styles.append("border-bottom: 1px solid #000")
-    elif border_style == "Top Single Bottom Double":
-        styles.append("border-top: 1px solid #000")
-        styles.append("border-bottom: 3px double #000")
-    elif border_style == "Top and Bottom Double":
-        styles.append("border-top: 3px double #000")
-        styles.append("border-bottom: 3px double #000")
-
-    return "; ".join(styles) + ";" if styles else None
+def _process_retained_earnings(line, dimensions, company, to_date, line_values, template, is_bs):
+    """Process Retained Earnings line."""
+    row = {
+        "account_name": _format_label(line.line_label, line.indent_level, line.is_bold)
+    }
+    
+    net_profit_code = getattr(line, "net_profit_line_code", None) or \
+                      getattr(line, "calculation_formula", None)
+    
+    total = 0.0
+    
+    try:
+        for dim in dimensions:
+            field = _sanitize_fieldname(dim["name"])
+            
+            if net_profit_code and net_profit_code in line_values:
+                val = line_values.get(net_profit_code, {}).get(field, 0.0)
+            else:
+                val = _get_net_profit_accumulated_by_dimension(
+                    company, to_date, dim["type"], dim["name"]
+                )
+            
+            if val != 0 or template.show_zero_values:
+                row[field] = val
+            else:
+                row[field] = None
+                
+            total += val
+    except Exception as e:
+        frappe.log_error(f"Error processing retained earnings line {line.line_label}: {str(e)}", "Financial Report by Dimension")
+    
+    row["total"] = total if (total != 0 or template.show_zero_values) else None
+    
+    style = _row_style(line, template)
+    if style:
+        row["_style"] = style
+    
+    return row
 
 
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════════════════
+# GL BALANCE FUNCTIONS WITH DIMENSIONS
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _get_balance_by_dimension(accounts, company, from_date, to_date, dim_type, dim_value, sign, is_bs):
+    """Get balance for specific dimension."""
+    if not accounts:
+        return 0.0
+    
+    field_map = {"Cost Center": "cost_center", "Branch": "branch", "Project": "project"}
+    field = field_map.get(dim_type)
+    if not field:
+        return 0.0
+    
+    # Check if field exists in GL Entry
+    if not frappe.get_meta("GL Entry").has_field(field):
+        return 0.0
+    
+    # Convert accounts list to tuple for SQL IN clause
+    accounts_tuple = tuple(accounts) if len(accounts) > 1 else f"('{accounts[0]}')"
+    
+    if is_bs:
+        # Balance Sheet: closing balance up to to_date
+        sql = f"""
+            SELECT COALESCE(SUM(
+                CASE
+                    WHEN acc.root_type IN ('Income','Liability','Equity')
+                    THEN gle.credit - gle.debit
+                    ELSE gle.debit - gle.credit
+                END
+            ), 0) AS balance
+            FROM `tabGL Entry` gle
+            INNER JOIN `tabAccount` acc ON gle.account = acc.name
+            WHERE gle.account IN {accounts_tuple}
+              AND gle.{field} = '{dim_value}'
+              AND gle.company = '{company}'
+              AND gle.posting_date <= '{to_date}'
+              AND gle.is_cancelled = 0
+        """
+    else:
+        # P&L: period movement
+        sql = f"""
+            SELECT COALESCE(SUM(
+                CASE
+                    WHEN acc.root_type IN ('Income','Liability','Equity')
+                    THEN gle.credit - gle.debit
+                    ELSE gle.debit - gle.credit
+                END
+            ), 0) AS balance
+            FROM `tabGL Entry` gle
+            INNER JOIN `tabAccount` acc ON gle.account = acc.name
+            WHERE gle.account IN {accounts_tuple}
+              AND gle.{field} = '{dim_value}'
+              AND gle.company = '{company}'
+              AND gle.posting_date BETWEEN '{from_date}' AND '{to_date}'
+              AND gle.is_cancelled = 0
+        """
+    
+    try:
+        result = frappe.db.sql(sql, as_dict=True)
+        if result and result[0].get("balance") is not None:
+            return flt(result[0]["balance"]) * sign
+        return 0.0
+    except Exception as e:
+        frappe.log_error(f"SQL Error in _get_balance_by_dimension: {str(e)}\nSQL: {sql}", "Financial Report by Dimension")
+        return 0.0
+
+
+def _get_net_profit_accumulated_by_dimension(company, as_at_date, dim_type, dim_value):
+    """Get accumulated net profit for a dimension up to as_at_date."""
+    field_map = {"Cost Center": "cost_center", "Branch": "branch", "Project": "project"}
+    field = field_map.get(dim_type)
+    if not field:
+        return 0.0
+    
+    if not frappe.get_meta("GL Entry").has_field(field):
+        return 0.0
+    
+    try:
+        sql = f"""
+            SELECT
+                COALESCE(SUM(
+                    CASE WHEN acc.root_type = 'Income'
+                    THEN gle.credit - gle.debit
+                    ELSE 0 END
+                ), 0) AS total_income,
+                COALESCE(SUM(
+                    CASE WHEN acc.root_type = 'Expense'
+                    THEN gle.debit - gle.credit
+                    ELSE 0 END
+                ), 0) AS total_expense
+            FROM `tabGL Entry` gle
+            INNER JOIN `tabAccount` acc ON gle.account = acc.name
+            WHERE acc.root_type IN ('Income', 'Expense')
+              AND gle.{field} = '{dim_value}'
+              AND gle.company = '{company}'
+              AND gle.posting_date <= '{as_at_date}'
+              AND gle.is_cancelled = 0
+        """
+        
+        result = frappe.db.sql(sql, as_dict=True)
+        
+        if result:
+            return flt(result[0].get("total_income", 0)) - flt(result[0].get("total_expense", 0))
+        return 0.0
+    except Exception as e:
+        frappe.log_error(f"Error in _get_net_profit_accumulated_by_dimension: {str(e)}", "Financial Report by Dimension")
+        return 0.0
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # FORMULA ENGINE
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════════════════
 
-def evaluate_formula(formula, line_values, fieldname):
-    expr   = formula
-    tokens = re.findall(r'\b[A-Z_][A-Z0-9_]*\b', formula)
-    for t in tokens:
-        val  = flt(line_values.get(t, {}).get(fieldname, 0))
-        expr = re.sub(r'\b' + t + r'\b', str(val), expr)
+def _evaluate_formula(formula, line_values, field):
+    """Evaluate a formula for a specific dimension field."""
+    if not formula:
+        return 0.0
+    
+    expr = formula.strip()
+    tokens = re.findall(r"\b[A-Z_][A-Z0-9_]*\b", expr)
+    
+    for token in sorted(tokens, key=len, reverse=True):
+        if token in line_values:
+            val = line_values[token].get(field, 0)
+            expr = re.sub(r"\b" + re.escape(token) + r"\b", str(flt(val)), expr)
+    
     try:
         return flt(eval(expr))  # noqa: S307
     except Exception:
-        return 0
+        return 0.0
 
 
-# ─────────────────────────────────────────────
-# TOTALS ROW
-# ─────────────────────────────────────────────
+# ═════════════════════════════════════════════════════════════════════════════
+# ACCOUNT MAPPING
+# ═════════════════════════════════════════════════════════════════════════════
 
-def add_totals_row(data, dimensions, template):
-    total_color = getattr(template, "excel_total_row_color", "#E7E6E6") or "#E7E6E6"
-    row = {
-        "account_name": "TOTAL",
-        "_style": f"font-weight: bold; border-top: 1px solid #000; background-color: {total_color};"
-    }
-    for dim in dimensions:
-        f      = sanitize_fieldname(dim["name"])
-        row[f] = sum(flt(r.get(f, 0)) for r in data)
-    row["total"] = sum(flt(r.get("total", 0)) for r in data)
-    data.append({"account_name": ""})
-    data.append(row)
-
-
-# ─────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────
-
-def extract_values(row, dimensions):
-    out = {sanitize_fieldname(d["name"]): flt(row.get(sanitize_fieldname(d["name"]), 0))
-           for d in dimensions}
-    out["total"] = flt(row.get("total", 0))
-    return out
-
-
-def sanitize_fieldname(name):
-    f = re.sub(r'[^a-zA-Z0-9_]', '_', str(name)).lower()
-    f = re.sub(r'_+', '_', f).strip('_')
-    return f if f and f[0].isalpha() else "dim_" + f
-
-
-def get_formatted_label(label, indent_level, is_bold):
-    """Exact copy from working report."""
-    indent = "    " * int(indent_level or 0)
-    if is_bold:
-        return f'{indent}<span style="font-weight:bold;">{label}</span>'
-    return f'{indent}{label}'
-
-
-# ─────────────────────────────────────────────
-# GL BALANCE
-# ─────────────────────────────────────────────
-
-def get_balance_by_dimension(accounts, company, from_date, to_date, dim_type, dim_value):
-    if not accounts:
-        return 0
-
-    field_map = {"Cost Center": "cost_center", "Branch": "branch", "Project": "project"}
-    field     = field_map.get(dim_type)
-    if not field:
-        return 0
-
-    if not frappe.get_meta("GL Entry").has_field(field):
-        frappe.log_error(
-            f"GL Entry has no field '{field}'. Add '{dim_type}' as an Accounting Dimension.",
-            "Financial Report by Dimension"
-        )
-        return 0
-
-    res = frappe.db.sql(f"""
-        SELECT SUM(
-            CASE WHEN acc.root_type = 'Income'
-                 THEN gle.credit - gle.debit
-                 ELSE gle.debit - gle.credit
-            END
-        ) AS bal
-        FROM  `tabGL Entry` gle
-        JOIN  `tabAccount`  acc ON acc.name = gle.account
-        WHERE gle.account      IN %(accounts)s
-          AND gle.{field}       = %(val)s
-          AND gle.company       = %(company)s
-          AND gle.posting_date BETWEEN %(fd)s AND %(td)s
-    """, {"accounts": accounts, "val": dim_value,
-          "company": company, "fd": from_date, "td": to_date}, as_dict=1)
-
-    return flt(res[0].bal) if res else 0
-
-
-# ─────────────────────────────────────────────
-# ACCOUNT MAPPING — all 5 methods
-# ─────────────────────────────────────────────
-
-def get_accounts_for_line(line, company):
+def _get_accounts_for_line(line, company):
+    """Get accounts for a line based on mapping method."""
     method = line.account_mapping_method
-
+    
     if method == "Account Range":
-        if not line.account_from or not line.account_to:
-            return []
-        from_num = extract_account_number(line.account_from)
-        to_num   = extract_account_number(line.account_to)
-        if from_num is None or to_num is None:
-            return []
-        accounts = frappe.get_all(
-            "Account",
-            filters={"company": company, "is_group": 0},
-            fields=["name", "account_number"]
-        )
-        result = []
-        for acc in accounts:
-            acc_num = _safe_int(acc.account_number)
-            if acc_num is not None and from_num <= acc_num <= to_num:
-                result.append(acc.name)
-        return result
-
+        return _accounts_by_range(line.account_from, line.account_to, company)
     if method == "Specific Accounts" and line.specific_accounts:
         accounts = [a.strip() for a in line.specific_accounts.split(",") if a.strip()]
-        valid = frappe.get_all(
-            "Account",
-            filters={"company": company, "name": ["in", accounts], "is_group": 0},
-            fields=["name"]
-        )
-        return [a.name for a in valid]
-
+        return frappe.get_all("Account", filters={"name": ["in", accounts], "is_group": 0}, pluck="name")
     if method == "Root Type" and line.root_type_filter:
-        return frappe.get_all(
-            "Account",
-            filters={"company": company, "root_type": line.root_type_filter, "is_group": 0},
-            pluck="name"
-        )
-
-    if method == "Account Numbers Pattern" and line.account_number_pattern:
-        p = line.account_number_pattern
-        if '-' in p and not p.startswith('-'):
-            parts = p.split('-', 1)
-            try:
-                lo, hi = int(parts[0].strip()), int(parts[1].strip())
-                rows = frappe.get_all(
-                    "Account",
-                    filters={"company": company, "is_group": 0},
-                    fields=["name", "account_number"]
-                )
-                return [r.name for r in rows
-                        if _safe_int(r.account_number) is not None
-                        and lo <= _safe_int(r.account_number) <= hi]
-            except (ValueError, TypeError):
-                pass
-        return frappe.get_all(
-            "Account",
-            filters={"company": company, "is_group": 0,
-                     "account_number": ["like", f"%{p}%"]},
-            pluck="name"
-        )
-
-    if method == "Financial Reporting Group":
-        grp = getattr(line, "financial_reporting_group", None)
-        if grp:
-            return frappe.get_all(
-                "Account",
-                filters={"company": company, "is_group": 0,
-                         "custom_financial_reporting_group": grp},
-                pluck="name"
-            )
-
+        return frappe.get_all("Account", filters={"root_type": line.root_type_filter, "is_group": 0}, pluck="name")
+    
+    # If no accounts found or method not supported, return empty list
     return []
 
 
-def extract_account_number(account_name):
-    """Exact copy from working report."""
-    if not account_name:
-        return None
-    acc = frappe.db.get_value("Account", account_name, "account_number")
-    if acc:
-        try:
-            return int(acc)
-        except Exception:
-            pass
-    match = re.match(r'^(\d+)', str(account_name))
-    if match:
-        try:
-            return int(match.group(1))
-        except Exception:
-            pass
-    return None
+def _accounts_by_range(account_from, account_to, company):
+    """Get accounts by number range."""
+    if not account_from or not account_to:
+        return []
+    
+    # Get all accounts and filter by number range
+    accounts = frappe.get_all("Account", 
+        filters={"company": company, "is_group": 0},
+        fields=["name", "account_number"])
+    
+    # Convert account numbers to integers for comparison
+    result = []
+    for acc in accounts:
+        acc_num = acc.get("account_number")
+        if acc_num and acc_num.isdigit():
+            if int(acc_num) >= int(account_from) and int(acc_num) <= int(account_to):
+                result.append(acc.name)
+    return result
 
 
-def _safe_int(val):
+# ═════════════════════════════════════════════════════════════════════════════
+# ROW FORMATTING & STYLING
+# ═════════════════════════════════════════════════════════════════════════════
+
+def _format_label(label, indent_level, is_bold):
+    """Format row label with indentation and bold."""
+    indent = "&nbsp;&nbsp;&nbsp;&nbsp;" * int(indent_level or 0)
+    if bool(int(is_bold or 0)):
+        return f'{indent}<b>{label}</b>'
+    return f"{indent}{label}"
+
+
+def _row_style(line, template):
+    """Apply row styling based on line properties."""
+    def _bool(attr):
+        return bool(int(getattr(line, attr, 0) or 0))
+
+    is_total = _bool("is_total_row")
+    is_subtotal = _bool("is_subtotal_row")
+    is_bold_row = _bool("is_bold")
+
+    parts = []
+    row_color = getattr(line, "row_color", None) or ""
+    if row_color.strip():
+        parts.append(f"background-color:{row_color.strip()}")
+    elif is_total:
+        clr = (template.excel_total_row_color or "#E7E6E6").strip()
+        parts.append(f"background-color:{clr}")
+    elif is_subtotal:
+        clr = (template.excel_subtotal_color or "#F2F2F2").strip()
+        parts.append(f"background-color:{clr}")
+
+    if is_bold_row or is_total or is_subtotal:
+        parts.append("font-weight:bold")
+
+    border_map = {
+        "Top Border": ["border-top:1px solid #000"],
+        "Bottom Border": ["border-bottom:1px solid #000"],
+        "Top and Bottom": ["border-top:1px solid #000", "border-bottom:1px solid #000"],
+        "Top Single Bottom Double": ["border-top:1px solid #000", "border-bottom:3px double #000"],
+        "Top and Bottom Double": ["border-top:3px double #000", "border-bottom:3px double #000"],
+    }
+    border = (getattr(line, "border_style", None) or "").strip()
+    parts.extend(border_map.get(border, []))
+    return "; ".join(parts) + ";" if parts else None
+
+
+def _sign(line):
+    """Get sign multiplier for a line."""
+    v = str(getattr(line, "sign_multiplier", "1") or "1").strip()
+    if v in ("", "None", "none"):
+        return 1
     try:
-        return int(val)
+        return int(v)
     except (ValueError, TypeError):
-        return None
+        return 1
+
+
+def _add_totals_row(data, dimensions, template):
+    """Add totals row at the end of the report."""
+    total_color = getattr(template, "excel_total_row_color", "#E7E6E6") or "#E7E6E6"
+    
+    # Calculate totals for each dimension
+    dim_totals = {}
+    for dim in dimensions:
+        field = _sanitize_fieldname(dim["name"])
+        total_val = 0
+        for row in data:
+            val = row.get(field, 0)
+            if val and isinstance(val, (int, float)):
+                total_val += val
+        dim_totals[field] = total_val
+    
+    total_sum = 0
+    for row in data:
+        val = row.get("total", 0)
+        if val and isinstance(val, (int, float)):
+            total_sum += val
+    
+    row = {
+        "account_name": "<b>TOTAL</b>",
+        "_style": f"font-weight: bold; border-top: 1px solid #000; background-color: {total_color};"
+    }
+    
+    # Add dimension totals
+    for dim in dimensions:
+        field = _sanitize_fieldname(dim["name"])
+        row[field] = dim_totals.get(field, 0)
+    
+    row["total"] = total_sum
+    
+    data.append({"account_name": ""})  # Blank separator
+    data.append(row)

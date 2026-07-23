@@ -1,36 +1,85 @@
 {
  "actions": [],
  "allow_rename": 1,
- "autoname": "format:PCYC-{YYYY}-{#####}",
- "creation": "2026-03-13 17:27:24.353619",
+ "autoname": "PC-.YYYY.-.#####",
+ "creation": "2026-07-05 19:24:19.786183",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "sec_basic",
   "title",
   "cycle_type",
-  "year",
-  "col1",
+  "col_basic",
+  "company",
   "status",
-  "applicable_to",
-  "scope",
-  "sec_deadlines",
+  "rating_scale",
+  "sec_dates",
+  "col_dates_left",
+  "start_date",
+  "end_date",
+  "col_dates_mid",
   "goal_setting_deadline",
+  "goal_approval_deadline",
+  "col_dates_right",
+  "cycle_duration_days",
+  "days_elapsed",
+  "sec_deadlines",
+  "col_deadlines_left",
   "self_appraisal_deadline",
   "peer_review_deadline",
+  "col_deadlines_right",
   "manager_review_deadline",
   "calibration_deadline",
-  "sec_weights",
-  "kpi_weight",
-  "manager_weight",
-  "col2",
-  "peer_weight",
-  "self_weight",
-  "sec_rating",
-  "rating_scale",
+  "sec_scope",
+  "col_scope_left",
+  "applicable_to_all",
+  "employee_count",
+  "col_scope_mid",
+  "department_filter",
+  "col_scope_right",
+  "designation_filter",
+  "sec_analytics",
+  "col_analytics_left",
+  "total_employees",
+  "submitted_count",
+  "completion_rate",
+  "col_analytics_mid",
+  "avg_composite_score",
+  "avg_final_rating",
+  "col_analytics_right",
+  "performance_breakdown",
+  "sec_tracking",
+  "col_tracking_left",
+  "goal_setting_progress",
+  "self_appraisal_progress",
+  "peer_review_progress",
+  "col_tracking_right",
+  "manager_review_progress",
+  "calibration_progress",
+  "overall_progress",
+  "sec_dashboard",
+  "col_dashboard_left",
+  "dashboard_summary",
+  "dashboard_timeline",
+  "col_dashboard_mid",
+  "dashboard_participation",
+  "dashboard_performance",
+  "col_dashboard_right",
+  "dashboard_alerts",
+  "sec_desc",
+  "col_desc_left",
+  "description",
+  "col_desc_right",
+  "submission_instructions",
   "amended_from"
  ],
  "fields": [
+  {
+   "fieldname": "sec_basic",
+   "fieldtype": "Section Break",
+   "label": "Basic Information"
+  },
   {
    "fieldname": "title",
    "fieldtype": "Data",
@@ -39,23 +88,24 @@
    "reqd": 1
   },
   {
+   "default": "Annual",
    "fieldname": "cycle_type",
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Cycle Type",
-   "options": "Annual\nMid-Year\nQuarterly\nProbation",
+   "options": "Annual\nHalf-Year\nQuarterly\nProbation Review\nProject-Based",
    "reqd": 1
   },
   {
-   "fieldname": "year",
-   "fieldtype": "Int",
-   "in_list_view": 1,
-   "label": "Year",
-   "reqd": 1
-  },
-  {
-   "fieldname": "col1",
+   "fieldname": "col_basic",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
   },
   {
    "default": "Draft",
@@ -63,105 +113,350 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Draft\nGoal Setting\nSelf Appraisal\nPeer Review\nManager Review\nCalibration\nResults Released\nClosed",
-   "read_only": 1,
+   "options": "Draft\nActive\nClosed\nCancelled"
+  },
+  {
+   "fieldname": "rating_scale",
+   "fieldtype": "Link",
+   "label": "Rating Scale",
+   "options": "Performance Rating Scale"
+  },
+  {
+   "fieldname": "sec_dates",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc5 Cycle Dates & Timeline"
+  },
+  {
+   "fieldname": "col_dates_left",
+   "fieldtype": "Column Break",
+   "label": "Cycle Period"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Cycle Start Date",
    "reqd": 1
   },
   {
-   "default": "All Employees",
-   "fieldname": "applicable_to",
-   "fieldtype": "Select",
-   "label": "Applicable To",
-   "options": "All Employees\nDepartment\nDesignation\nEmployee Group"
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Cycle End Date",
+   "reqd": 1
   },
   {
-   "fieldname": "scope",
-   "fieldtype": "Table",
-   "label": "Scope Targets",
-   "options": "Policy Scope"
-  },
-  {
-   "fieldname": "sec_deadlines",
-   "fieldtype": "Section Break",
-   "label": "Phase Deadlines"
+   "fieldname": "col_dates_mid",
+   "fieldtype": "Column Break",
+   "label": "Goal Deadlines"
   },
   {
    "fieldname": "goal_setting_deadline",
    "fieldtype": "Date",
-   "label": "Goal Setting Deadline",
-   "reqd": 1
+   "label": "Goal Setting Deadline"
+  },
+  {
+   "fieldname": "goal_approval_deadline",
+   "fieldtype": "Date",
+   "label": "Goal Approval Deadline"
+  },
+  {
+   "fieldname": "col_dates_right",
+   "fieldtype": "Column Break",
+   "label": "Cycle Duration"
+  },
+  {
+   "description": "Auto-calculated from start/end dates",
+   "fieldname": "cycle_duration_days",
+   "fieldtype": "Int",
+   "label": "Cycle Duration (Days)",
+   "read_only": 1
+  },
+  {
+   "description": "Auto-calculated from today",
+   "fieldname": "days_elapsed",
+   "fieldtype": "Int",
+   "label": "Days Elapsed",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_deadlines",
+   "fieldtype": "Section Break",
+   "label": "\u23f1\ufe0f Stage Deadlines"
+  },
+  {
+   "fieldname": "col_deadlines_left",
+   "fieldtype": "Column Break",
+   "label": "Employee Stages"
   },
   {
    "fieldname": "self_appraisal_deadline",
    "fieldtype": "Date",
-   "label": "Self-Appraisal Deadline",
-   "reqd": 1
+   "label": "Self Appraisal Deadline"
   },
   {
    "fieldname": "peer_review_deadline",
    "fieldtype": "Date",
-   "label": "Peer Review Deadline",
-   "reqd": 1
+   "label": "Peer Review Deadline"
+  },
+  {
+   "fieldname": "col_deadlines_right",
+   "fieldtype": "Column Break",
+   "label": "Manager/HR Stages"
   },
   {
    "fieldname": "manager_review_deadline",
    "fieldtype": "Date",
-   "label": "Manager Review Deadline",
-   "reqd": 1
+   "label": "Manager Review Deadline"
   },
   {
    "fieldname": "calibration_deadline",
    "fieldtype": "Date",
-   "label": "Calibration Deadline",
-   "reqd": 1
+   "label": "Calibration Deadline"
   },
   {
-   "fieldname": "sec_weights",
+   "collapsible": 1,
+   "fieldname": "sec_scope",
    "fieldtype": "Section Break",
-   "label": "Score Weights"
+   "label": "\ud83c\udfaf Scope & Eligibility"
   },
   {
-   "default": "40",
-   "fieldname": "kpi_weight",
-   "fieldtype": "Float",
-   "label": "KPI Weight (%)",
-   "reqd": 1
+   "fieldname": "col_scope_left",
+   "fieldtype": "Column Break",
+   "label": "Eligibility"
   },
   {
-   "default": "35",
-   "fieldname": "manager_weight",
-   "fieldtype": "Float",
-   "label": "Manager Weight (%)",
-   "reqd": 1
+   "default": "1",
+   "fieldname": "applicable_to_all",
+   "fieldtype": "Check",
+   "label": "Applicable to All Employees"
   },
   {
-   "fieldname": "col2",
-   "fieldtype": "Column Break"
+   "description": "Auto-calculated from filters",
+   "fieldname": "employee_count",
+   "fieldtype": "Int",
+   "label": "Total Eligible Employees",
+   "read_only": 1
   },
   {
-   "default": "15",
-   "fieldname": "peer_weight",
-   "fieldtype": "Float",
-   "label": "Peer Weight (%)",
-   "reqd": 1
+   "fieldname": "col_scope_mid",
+   "fieldtype": "Column Break",
+   "label": "Department Filter"
   },
   {
-   "default": "10",
-   "fieldname": "self_weight",
-   "fieldtype": "Float",
-   "label": "Self-Appraisal Weight (%)",
-   "reqd": 1
+   "description": "Comma-separated. Leave blank for all.",
+   "fieldname": "department_filter",
+   "fieldtype": "Small Text",
+   "label": "Restrict to Departments"
   },
   {
-   "fieldname": "sec_rating",
+   "fieldname": "col_scope_right",
+   "fieldtype": "Column Break",
+   "label": "Designation Filter"
+  },
+  {
+   "description": "Comma-separated. Leave blank for all.",
+   "fieldname": "designation_filter",
+   "fieldtype": "Small Text",
+   "label": "Restrict to Designations"
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_analytics",
    "fieldtype": "Section Break",
-   "label": "Rating Scale"
+   "label": "\ud83d\udcca Analytics & Performance Insights"
   },
   {
-   "fieldname": "rating_scale",
-   "fieldtype": "Table",
-   "label": "Rating Labels",
-   "options": "Performance Rating Scale"
+   "fieldname": "col_analytics_left",
+   "fieldtype": "Column Break",
+   "label": "Participation Stats"
+  },
+  {
+   "fieldname": "total_employees",
+   "fieldtype": "Int",
+   "label": "Total Employees in Cycle",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submitted_count",
+   "fieldtype": "Int",
+   "label": "Submitted Reviews",
+   "read_only": 1
+  },
+  {
+   "fieldname": "completion_rate",
+   "fieldtype": "Percent",
+   "label": "Completion Rate (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_mid",
+   "fieldtype": "Column Break",
+   "label": "Performance Distribution"
+  },
+  {
+   "fieldname": "avg_composite_score",
+   "fieldtype": "Float",
+   "label": "Average Composite Score (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "avg_final_rating",
+   "fieldtype": "Float",
+   "label": "Average Final Rating (%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_analytics_right",
+   "fieldtype": "Column Break",
+   "label": "Breakdown"
+  },
+  {
+   "description": "Outstanding: 15% | Exceeds: 30% | Meets: 40% | Below: 15%",
+   "fieldname": "performance_breakdown",
+   "fieldtype": "Small Text",
+   "label": "Rating Distribution",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_tracking",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcc8 Progress Tracking"
+  },
+  {
+   "fieldname": "col_tracking_left",
+   "fieldtype": "Column Break",
+   "label": "Milestone Progress"
+  },
+  {
+   "description": "% of employees with goals set",
+   "fieldname": "goal_setting_progress",
+   "fieldtype": "Percent",
+   "label": "Goal Setting Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "self_appraisal_progress",
+   "fieldtype": "Percent",
+   "label": "Self Appraisal Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "peer_review_progress",
+   "fieldtype": "Percent",
+   "label": "Peer Review Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_tracking_right",
+   "fieldtype": "Column Break",
+   "label": "Status Summary"
+  },
+  {
+   "fieldname": "manager_review_progress",
+   "fieldtype": "Percent",
+   "label": "Manager Review Progress",
+   "read_only": 1
+  },
+  {
+   "fieldname": "calibration_progress",
+   "fieldtype": "Percent",
+   "label": "Calibration Progress",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "overall_progress",
+   "fieldtype": "Percent",
+   "label": "Overall Cycle Progress",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "collapsible_depends_on": "eval:doc.docstatus==1",
+   "fieldname": "sec_dashboard",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udccb Dashboard View"
+  },
+  {
+   "fieldname": "col_dashboard_left",
+   "fieldtype": "Column Break",
+   "label": "Quick Status"
+  },
+  {
+   "description": "{title} | {cycle_type} | Status: {status}",
+   "fieldname": "dashboard_summary",
+   "fieldtype": "Data",
+   "label": "\ud83d\udccc Cycle Summary",
+   "read_only": 1
+  },
+  {
+   "description": "Start: {start_date} \u2192 End: {end_date} | {days_elapsed} days elapsed",
+   "fieldname": "dashboard_timeline",
+   "fieldtype": "Data",
+   "label": "\u23f0 Timeline Status",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_mid",
+   "fieldtype": "Column Break",
+   "label": "Key Metrics"
+  },
+  {
+   "description": "{submitted_count}/{total_employees} completed ({completion_rate}%)",
+   "fieldname": "dashboard_participation",
+   "fieldtype": "Data",
+   "label": "\ud83d\udc65 Participation",
+   "read_only": 1
+  },
+  {
+   "description": "Avg Score: {avg_composite_score}% | Final: {avg_final_rating}%",
+   "fieldname": "dashboard_performance",
+   "fieldtype": "Data",
+   "label": "\ud83c\udfaf Performance",
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_dashboard_right",
+   "fieldtype": "Column Break",
+   "label": "Alerts"
+  },
+  {
+   "description": "\u2022 5 employees pending self-appraisal\n\u2022 2 managers pending review",
+   "fieldname": "dashboard_alerts",
+   "fieldtype": "Small Text",
+   "label": "\u26a0\ufe0f Alerts",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "sec_desc",
+   "fieldtype": "Section Break",
+   "label": "\ud83d\udcdd Documentation"
+  },
+  {
+   "fieldname": "col_desc_left",
+   "fieldtype": "Column Break",
+   "label": "Description"
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Text Editor",
+   "label": "Description / Announcement"
+  },
+  {
+   "fieldname": "col_desc_right",
+   "fieldtype": "Column Break",
+   "label": "Instructions"
+  },
+  {
+   "fieldname": "submission_instructions",
+   "fieldtype": "Text Editor",
+   "label": "Submission Instructions"
   },
   {
    "fieldname": "amended_from",
@@ -170,17 +465,18 @@
    "no_copy": 1,
    "options": "Performance Cycle",
    "print_hide": 1,
-   "read_only": 1
+   "read_only": 1,
+   "search_index": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-03-18 16:12:04.635965",
+ "modified": "2026-07-05 19:24:19.786183",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Performance Cycle",
- "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
@@ -197,7 +493,9 @@
   }
  ],
  "quick_entry": 1,
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

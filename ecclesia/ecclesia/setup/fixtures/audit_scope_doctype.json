@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-06-27 17:25:37.215681",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "doctype_name",
+  "transaction_code",
+  "risk_level",
+  "column_break_sn1y",
+  "sampling_method",
+  "scope_note",
+  "assigned_auditor",
+  "column_break_dwpx",
+  "sample_count",
+  "findings_count"
+ ],
+ "fields": [
+  {
+   "bold": 1,
+   "fieldname": "doctype_name",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "DocType",
+   "options": "Auditable DocType Registry",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "doctype_name.transaction_code",
+   "fieldname": "transaction_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Transaction Code",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "doctype_name.risk_level",
+   "fieldname": "risk_level",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Risk Level",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "doctype_name.sampling_method",
+   "fieldname": "sampling_method",
+   "fieldtype": "Data",
+   "label": "Sampling Method",
+   "read_only": 1
+  },
+  {
+   "fieldname": "scope_note",
+   "fieldtype": "Small Text",
+   "label": "Scope Note / Objective"
+  },
+  {
+   "fieldname": "assigned_auditor",
+   "fieldtype": "Link",
+   "label": "Assigned Auditor",
+   "options": "User"
+  },
+  {
+   "fieldname": "sample_count",
+   "fieldtype": "Int",
+   "label": "Samples Generated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "findings_count",
+   "fieldtype": "Int",
+   "label": "Findings",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_sn1y",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_dwpx",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-27 17:27:16.464335",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Audit Scope DocType",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

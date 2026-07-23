@@ -1,0 +1,96 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-22 19:47:03.437493",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_id",
+  "employee_name",
+  "rsa_pin",
+  "column_break_qzo0",
+  "pfa",
+  "gross_income",
+  "employee_contribution",
+  "column_break_aiav",
+  "employer_contribution",
+  "total_contribution"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_id",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee ID"
+  },
+  {
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name"
+  },
+  {
+   "fieldname": "rsa_pin",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "RSA PIN"
+  },
+  {
+   "fieldname": "pfa",
+   "fieldtype": "Data",
+   "label": "PFA"
+  },
+  {
+   "fieldname": "gross_income",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Gross Income"
+  },
+  {
+   "fieldname": "employee_contribution",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Employee (8%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "employer_contribution",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Employer (10%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "total_contribution",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total (18%)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_qzo0",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_aiav",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-14 21:39:11.195655",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "PENCOM Remittance Line",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

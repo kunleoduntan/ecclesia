@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "ESS-PULSE-.YYYY.-.#####",
+ "creation": "2026-07-01 07:17:25.866063",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee",
+  "period",
+  "period_start",
+  "period_end",
+  "attendance_score",
+  "column_break_psdm",
+  "task_score",
+  "leave_health_score",
+  "performance_score",
+  "column_break_voou",
+  "overall_pulse_score",
+  "computed_on",
+  "notes"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Period Label",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period_start",
+   "fieldtype": "Date",
+   "label": "Period Start",
+   "reqd": 1
+  },
+  {
+   "fieldname": "period_end",
+   "fieldtype": "Date",
+   "label": "Period End",
+   "reqd": 1
+  },
+  {
+   "description": "Based on present days / working days",
+   "fieldname": "attendance_score",
+   "fieldtype": "Float",
+   "label": "Attendance Score (%)"
+  },
+  {
+   "description": "Based on ESS Tasks completed on time",
+   "fieldname": "task_score",
+   "fieldtype": "Float",
+   "label": "Task Completion Score (%)"
+  },
+  {
+   "description": "Based on remaining leave balance vs entitlement",
+   "fieldname": "leave_health_score",
+   "fieldtype": "Float",
+   "label": "Leave Balance Health (%)"
+  },
+  {
+   "description": "From latest Appraisal / Employee Performance Record",
+   "fieldname": "performance_score",
+   "fieldtype": "Float",
+   "label": "Performance Score (%)"
+  },
+  {
+   "description": "Average of all four component scores",
+   "fieldname": "overall_pulse_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Overall Pulse Score (%)"
+  },
+  {
+   "fieldname": "computed_on",
+   "fieldtype": "Datetime",
+   "label": "Computed On"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_psdm",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "column_break_voou",
+   "fieldtype": "Column Break"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-04 07:35:59.206264",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "ESS Pulse Score",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
