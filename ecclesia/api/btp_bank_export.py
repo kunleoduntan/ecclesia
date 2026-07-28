@@ -385,7 +385,13 @@ def _enrich_btp_payments(proc):
         # payee_bank_name is the primary source for all row types.
         # For PE-type rows only: fall back to party bank account master.
         cred_bank_name = getattr(row, "payee_bank_name", "") or ""
+        cred_address   = (getattr(row, "payee_address", "") or "")[:70].upper()
         cred_bic       = _get_bank_bic(cred_bank_name)
+        if not cred_bic and cred_bank_name:
+            # Try Bank.swift_number for banks not in _NG_BANK_BICS dict
+            _swift = frappe.db.get_value("Bank", cred_bank_name, "swift_number")
+            if _swift:
+                cred_bic = str(_swift)
 
         if not cred_bic and row.get("party") and row.get("party_type"):
             # PE-type rows only — Payment rows have no party set
@@ -411,7 +417,7 @@ def _enrich_btp_payments(proc):
             "cred_name":         cred_name,
             "cred_city":         "LAGOS",
             "cred_country":      "NG",
-            "cred_district":     "",
+            "cred_district":     cred_address,
             "cred_acc_no":       cred_acc_no,
             "cred_acc_type":     "DOMESTIC",
             "cred_acc_country":  "NG",

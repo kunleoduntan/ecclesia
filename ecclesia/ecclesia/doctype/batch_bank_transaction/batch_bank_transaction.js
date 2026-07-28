@@ -1071,7 +1071,7 @@ function show_import_dialog(frm) {
             show_loading(frm, 'Importing transactions...');
             
             frappe.call({
-                method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.import_transactions',
+                method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.import_transactions',
                 args: {
                     file_url: values.file_url,
                     has_header: values.has_header
@@ -1110,7 +1110,7 @@ function export_to_excel(frm) {
     show_loading(frm, 'Generating Excel report...');
     
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.export_to_excel',
+        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.export_to_excel',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1137,7 +1137,7 @@ function get_ai_suggestions(frm) {
     }
     
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.get_ai_suggestions',
+        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.get_ai_suggestions',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1270,7 +1270,7 @@ function auto_categorize_transaction(frm, row, cdt, cdn) {
     if (!row.remark) return;
     
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.auto_categorize_transaction',
+        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.auto_categorize_transaction',
         args: { remark: row.remark },
         callback: function(r) {
             if (r.message && r.message.account) {
@@ -1292,7 +1292,7 @@ function reconcile_batch(frm) {
     }
     
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.reconcile_batch',
+        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.reconcile_batch',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             if (r.message) {
@@ -1366,7 +1366,7 @@ function get_bank_balance(frm) {
     if (!frm.doc.bank_account) return;
     
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.get_bank_balance',
+        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.get_bank_balance',
         args: {
             bank_account: frm.doc.bank_account,
             as_on_date: frm.doc.batch_date
@@ -1438,7 +1438,7 @@ function show_bulk_update_dialog(frm) {
             show_loading(frm, 'Applying bulk update...');
             
             frappe.call({
-                method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.bulk_update_cost_center',
+                method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.bulk_update_cost_center',
                 args: {
                     doc_name: frm.doc.name,
                     cost_center: values.cost_center
@@ -1475,7 +1475,7 @@ function generate_batch_report(frm) {
     show_loading(frm, 'Generating batch report...');
     
     frappe.call({
-        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.generate_batch_report',
+        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.generate_batch_report',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -2224,6 +2224,11 @@ function _bbt_dialog(frm, mode) {
                       <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
                       <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
                     </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:#FEF3C7;border-radius:5px;font-size:10px;color:#92400E;border:1px solid #F59E0B">
+                        <b>Highlighted columns in template:</b><br>
+                        <b>CRED_ADDRESS_COUNTRYSUBDIVISION</b> ← Fill <code>Payee Address</code> on each row in the child table<br>
+                        <b>CREDACC_BIC</b> ← Auto-resolved from <code>Payee Bank</code> name → BIC dictionary → Bank master
+                    </div>
                 </div>`,
             },
         ];
@@ -2486,6 +2491,11 @@ function _bbt_attach_dialog(frm) {
                       <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
                       <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
                     </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:#FEF3C7;border-radius:5px;font-size:10px;color:#92400E;border:1px solid #F59E0B">
+                        <b>Highlighted columns in template:</b><br>
+                        <b>CRED_ADDRESS_COUNTRYSUBDIVISION</b> ← Fill <code>Payee Address</code> on each row in the child table<br>
+                        <b>CREDACC_BIC</b> ← Auto-resolved from <code>Payee Bank</code> name → BIC dictionary → Bank master
+                    </div>
                 </div>`,
             },
             ],
@@ -2548,6 +2558,11 @@ function _bbt_email_dialog(frm) {
                       <span style="font-family:monospace;color:#1E40AF">bacs_csv</span><span>BACS Direct Credit — UK</span>
                       <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
                       <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
+                    </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:#FEF3C7;border-radius:5px;font-size:10px;color:#92400E;border:1px solid #F59E0B">
+                        <b>Highlighted columns in template:</b><br>
+                        <b>CRED_ADDRESS_COUNTRYSUBDIVISION</b> ← Fill <code>Payee Address</code> on each row in the child table<br>
+                        <b>CREDACC_BIC</b> ← Auto-resolved from <code>Payee Bank</code> name → BIC dictionary → Bank master
                     </div>
                 </div>`,
             },

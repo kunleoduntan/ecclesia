@@ -232,10 +232,15 @@ def _enrich_payroll_payments(slips, payroll_entry, gateway_name=None):
 
         # 1. Employee master main fields
         emp_bank = frappe.db.get_value(
-            "Employee", slip.employee, ["bank_ac_no", "bank_name"], as_dict=True
+            "Employee", slip.employee,
+            ["ec_bank_ac_no", "ec_bank_name", "bank_ac_no", "bank_name"],
+            as_dict=True
         ) or {}
-        bank_ac_no = emp_bank.get("bank_ac_no") or ""
-        bank_name  = emp_bank.get("bank_name")  or ""
+        # ec_bank_ac_no is our custom field; fall back to standard bank_ac_no
+        bank_ac_no = (emp_bank.get("ec_bank_ac_no") or
+                      emp_bank.get("bank_ac_no")    or "")
+        bank_name  = (emp_bank.get("ec_bank_name")  or
+                      emp_bank.get("bank_name")      or "")
 
         # 2. Employee Bank Account child table (primary)
         if not bank_ac_no:
@@ -278,7 +283,7 @@ def _enrich_payroll_payments(slips, payroll_entry, gateway_name=None):
 
         # ── Employee address (CRED_ADDRESS_COUNTRYSUBDIVISION) ───────────
         emp_address = (
-            getattr(emp, "permanent_address", "") or
+            getattr(emp, "ec_permanent_address", "") or getattr(emp, "permanent_address", "") or
             getattr(emp, "current_address",   "") or
             getattr(emp, "residential_address","") or ""
         )
@@ -389,7 +394,7 @@ def _enrich_batch_payments(batch):
             "cred_name":         cred_name.upper() if cred_name else "",
             "cred_city":         "LAGOS",
             "cred_country":      "NG",
-            "cred_district":     "",
+            "cred_district":     (getattr(row, "payee_address", "") or "")[:70].upper(),
             "cred_acc_no":       cred_acc_no,
             "cred_acc_type":     "DOMESTIC",
             "cred_acc_country":  "NG",
@@ -1244,3 +1249,439 @@ def get_attached_payment_files(source_doctype, source_name):
         limit=20,
     )
     return {"success": True, "files": files}
+
+
+# ─── STATUTORY REMITTANCE BANK FILE ──────────────────────────────────────────
+
+@frappe.whitelist()
+def generate_statutory_bank_file(payroll_entry: str,
+                                  obligation_type: str,
+                                  bank_format: str = "zenith_iso20022") -> dict:
+    """
+    Generate a Zenith ISO 20022 bank payment file for statutory remittances.
+
+    Each authority is ONE row in the file (unlike payroll where each employee
+    is one row). The creditor details come from the Statutory Authority master.
+
+    obligation_type:
+        "Pension (PenCom)"  → one row per PFA (reads Pension Manager bank details)
+        "PAYE"              → one row for LIRS/state IRS
+        "NSITF"             → one row for NSITF
+        "NHF"               → one row for FMBN
+
+    Returns same structure as generate_payroll_payment_file:
+        {success, file_data (b64), file_name, format, row_count, total_amount}
+    """
+    bank_format = (bank_format or "zenith_iso20022").split(":")[0].strip()
+    if bank_format not in FORMATS:
+        frappe.throw(_(f"Unsupported format: {bank_format}"))
+
+    pe      = frappe.get_doc("Payroll Entry", payroll_entry)
+    company = frappe.get_doc("Company", pe.company)
+    period  = _month_label(pe.posting_date)
+
+    # ── Resolve gateway / debit account ──────────────────────────────────────
+    gws = frappe.db.get_all(
+        "Payment Gateway Settings",
+        filters={"company": pe.company, "enabled": 1},
+        fields=["name"],
+        order_by="is_default desc",
+        limit=1,
+    )
+    gateway_name = gws[0].name if gws else None
+
+    debit_account = pe.payment_account or ""
+    debt_acc_no   = _clean_acc(debit_account, pe.company, gateway_name)
+    debt_bic      = _get_bank_bic_from_account(debit_account, pe.company, gateway_name)
+    debt_addr     = _get_company_address(company, gateway_name)
+
+    # ── Get salary slip totals ────────────────────────────────────────────────
+    slips = frappe.db.sql("""
+        SELECT
+            ss.name                                          AS slip_name,
+            ss.employee,
+            ss.gross_pay,
+            ss.net_pay,
+            ss.company,
+            e.custom_pension_fund_administrator              AS pfa,
+            COALESCE(e.state, 'Lagos')                       AS tax_state,
+            COALESCE(e.custom_nhf_applicable, 1)             AS nhf_applicable
+        FROM `tabSalary Slip` ss
+        JOIN `tabEmployee` e ON e.name = ss.employee
+        WHERE ss.payroll_entry = %(pe)s AND ss.docstatus = 1
+    """, {"pe": payroll_entry}, as_dict=True)
+
+    if not slips:
+        frappe.throw(_("No submitted Salary Slips found for this Payroll Entry"))
+
+    # Pull component totals
+    # ── Component amounts — exact names matching the live reports ────────────
+    # Same component names as remittance_export.py (uploaded report files)
+    PENSION_ER = "Pension (ER)"   # earnings
+    PENSION_EE = "Pension (EE)"   # deductions
+    TAX_COMP   = "Tax"            # deductions (PAYE)
+    NHF_COMP   = "NHF"            # deductions
+    BASIC_COMP = "Basic"          # earnings
+    NSITF_COMP = "NSITF"          # earnings or deductions
+
+    # Auto-detect NSITF table (same as nsitf_remittance_report.py)
+    nsitf_meta = frappe.db.get_value(
+        "Salary Component", NSITF_COMP, ["name","type"], as_dict=True
+    ) or frappe._dict(name=NSITF_COMP, type="Earning")
+    nsitf_table = "earnings" if nsitf_meta.type == "Earning" else "deductions"
+
+    def _comp(slip_name, table, component):
+        """Exact component lookup — same as get_component_amount() in reports."""
+        rows = frappe.get_all(
+            "Salary Detail",
+            filters={
+                "parent": slip_name, "parenttype": "Salary Slip",
+                "parentfield": table, "salary_component": component,
+            },
+            fields=["amount"],
+        )
+        return flt(rows[0].amount) if rows else 0.0
+
+    def _sum_all_slips(table, component):
+        """Sum a component across all slips in this payroll entry."""
+        return sum(_comp(s.slip_name, table, component) for s in slips)
+
+    exec_date = str(getdate(pe.posting_date)).replace("-", "/")
+
+    # ── Build payment rows based on obligation_type ───────────────────────────
+    payments = []
+
+    def _debt_base():
+        """Common debtor fields for every row."""
+        return {
+            "debt_name":     company.company_name.upper(),
+            "debt_address":  debt_addr,
+            "debt_country":  "NG",
+            "debt_bic":      debt_bic,
+            "debt_acc_no":   debt_acc_no,
+            "debt_acc_type": "DOMESTIC",
+            "debt_acc_bic":  debt_bic,
+            "currency":      "NGN",
+            "execution_date": exec_date,
+        }
+
+    def _auth_cred(obligation, state=None):
+        """
+        Resolve creditor from Statutory Authority master.
+        Returns a dict always — never None — so file generation never crashes.
+        If no Statutory Authority record exists, returns placeholder values
+        with a frappe warning so user knows to fill them in.
+        """
+        filters = {"obligation_type": obligation,
+                   "company": pe.company, "status": "Active"}
+        if state:
+            filters["state_jurisdiction"] = state
+
+        # Try with state filter first, then without
+        auths = frappe.db.get_all(
+            "Statutory Authority",
+            filters=filters,
+            fields=["authority_name", "bank_account_number",
+                    "bank_name", "company_paye_code",
+                    "pencom_employer_code", "nsitf_employer_code",
+                    "nhf_employer_code"],
+            order_by="is_default_for_type desc",
+            limit=1,
+        )
+
+        # Fallback: try without state restriction
+        if not auths and state:
+            fallback_filters = {"obligation_type": obligation,
+                                "company": pe.company, "status": "Active"}
+            auths = frappe.db.get_all(
+                "Statutory Authority",
+                filters=fallback_filters,
+                fields=["authority_name", "bank_account_number",
+                        "bank_name", "company_paye_code",
+                        "pencom_employer_code", "nsitf_employer_code",
+                        "nhf_employer_code"],
+                order_by="is_default_for_type desc",
+                limit=1,
+            )
+
+        if not auths:
+            # Warn but do NOT crash — generate file with placeholder
+            # User can fill CRED_NAME / CREDACC_NUMBER before uploading to bank
+            frappe.msgprint(
+                _(
+                    "⚠️ No Statutory Authority record found for <b>{0}</b>.<br><br>"
+                    "The bank file will be generated with blank creditor fields. "
+                    "Please:<br>"
+                    "1. Go to <b>Ecclesia → Statutory Authority → New</b><br>"
+                    "2. Create a record for <b>{0}</b> with the authority's bank account details<br>"
+                    "3. Re-generate the bank file<br><br>"
+                    "Or fill in CRED_NAME, CREDACC_NUMBER, CREDACC_BIC manually "
+                    "in the CSV before uploading to the bank portal."
+                ).format(obligation),
+                title=_("Missing Statutory Authority Setup"),
+                indicator="orange",
+            )
+            return {
+                "name":       (obligation + " — FILL IN AUTHORITY NAME").upper(),
+                "account_no": "FILL_ACCOUNT_NUMBER",
+                "bic":        "",
+            }
+
+        a = auths[0]
+        bic = _get_bank_bic(a.bank_name or "")
+        if not bic and a.bank_name:
+            bic = frappe.db.get_value("Bank", a.bank_name, "swift_number") or ""
+        return {
+            "name":       (a.authority_name or obligation).upper(),
+            "account_no": a.bank_account_number or "",
+            "bic":        bic,
+        }
+
+    # ── PAYE — one row per state ─────────────────────────────────────────────
+    if obligation_type == "PAYE":
+        # Sum Tax per employee per state — EXACTLY as paye_deduction_report.py does.
+        # Each state IRS gets the sum of Tax deducted from employees in that state.
+        by_state = {}
+        for s in slips:
+            state = s.tax_state or "Lagos"
+            tax = flt(_comp(s.slip_name, "deductions", TAX_COMP))
+            if tax > 0:
+                by_state.setdefault(state, 0.0)
+                by_state[state] += tax
+
+        if not by_state:
+            frappe.msgprint(
+                _(
+                    "⚠️ No <b>Tax</b> deduction component found on any salary slip. "
+                    "The bank file will be generated with ₦0. "
+                    "Ensure the PAYE salary component is named exactly <b>Tax</b>."
+                ),
+                title=_("PAYE: Tax Component Not Found"),
+                indicator="orange",
+            )
+            by_state = {"Lagos": 0.0}   # produce file anyway with ₦0
+
+        for state, state_tax in by_state.items():
+            cred = _auth_cred("PAYE", state) or _auth_cred("PAYE")
+            row = _debt_base()
+            row.update({
+                "cred_name":        cred["name"],
+                "cred_city":        "LAGOS",
+                "cred_country":     "NG",
+                "cred_district":    "",
+                "cred_acc_no":      cred["account_no"],
+                "cred_acc_type":    "DOMESTIC",
+                "cred_acc_country": "NG",
+                "cred_acc_bic":     cred["bic"],
+                "cred_bank_name":   "",
+                "amount":           round(state_tax, 2),
+                "details":          f"PAYE {state.upper()} {period}",
+                "reference":        payroll_entry,
+            })
+            payments.append(row)
+
+    # ── PENSION — one row per PFA ─────────────────────────────────────────────
+    elif obligation_type == "Pension (PenCom)":
+        # Sum Pension (EE) + Pension (ER) per employee per PFA —
+        # EXACTLY as pension_remittance_report.py does.
+        # Each PFA gets the total pension for its own employees only.
+        by_pfa = {}
+        for s in slips:
+            pfa  = s.pfa or "DEFAULT"
+            ee   = flt(_comp(s.slip_name, "deductions", PENSION_EE))
+            er   = flt(_comp(s.slip_name, "earnings",   PENSION_ER))
+            total = ee + er
+            if total > 0:
+                by_pfa.setdefault(pfa, 0.0)
+                by_pfa[pfa] += total
+
+        if not by_pfa:
+            frappe.msgprint(
+                _(
+                    "⚠️ No Pension components found on salary slips. "
+                    "Ensure components are named exactly "
+                    "<b>Pension (EE)</b> (deductions) and <b>Pension (ER)</b> (earnings)."
+                ),
+                title=_("Pension: Components Not Found"),
+                indicator="orange",
+            )
+            by_pfa = {"DEFAULT": 0.0}
+
+        for pfa_name, pen_amount in by_pfa.items():
+            # Get PFA bank details from Pension Manager DocType
+            pfa_doc = None
+            if pfa_name and pfa_name != "DEFAULT":
+                pfa_doc = frappe.db.get_value(
+                    "Pension Manager", pfa_name,
+                    ["bank_account_number", "bank_name", "account_name"],
+                    as_dict=True
+                )
+            if not pfa_doc:
+                cred = _auth_cred("Pension (PenCom)")
+            else:
+                bic = _get_bank_bic(pfa_doc.bank_name or "")
+                if not bic and pfa_doc.bank_name:
+                    bic = frappe.db.get_value(
+                        "Bank", pfa_doc.bank_name, "swift_number"
+                    ) or ""
+                cred = {
+                    "name":       (pfa_doc.account_name or pfa_name).upper(),
+                    "account_no": pfa_doc.bank_account_number or "",
+                    "bic":        bic,
+                }
+
+            row = _debt_base()
+            row.update({
+                "cred_name":        cred["name"],
+                "cred_city":        "LAGOS",
+                "cred_country":     "NG",
+                "cred_district":    "",
+                "cred_acc_no":      cred["account_no"],
+                "cred_acc_type":    "DOMESTIC",
+                "cred_acc_country": "NG",
+                "cred_acc_bic":     cred["bic"],
+                "cred_bank_name":   "",
+                "amount":           round(pen_amount, 2),
+                "details":          f"PENSION {period} - {pfa_name}",
+                "reference":        payroll_entry,
+            })
+            payments.append(row)
+
+    # ── NSITF — one row ───────────────────────────────────────────────────────
+    elif obligation_type == "NSITF":
+        # Exact component name "NSITF" with auto-detected table
+        # Same as nsitf_remittance_report.py
+        total_gross  = sum(flt(s.gross_pay) for s in slips)
+        nsitf_total  = _sum_all_slips(nsitf_table, NSITF_COMP)
+        if nsitf_total <= 0:
+            frappe.msgprint(
+                _(
+                    "⚠️ No NSITF component found on salary slips. "
+                    "Check that the component is named exactly <b>NSITF</b>."
+                ),
+                title=_("NSITF: Component Not Found"),
+                indicator="orange",
+            )
+
+        cred = _auth_cred("NSITF")
+        if not cred:
+            frappe.throw(_("No Statutory Authority found for NSITF"))
+
+        row = _debt_base()
+        row.update({
+            "cred_name":        cred["name"],
+            "cred_city":        "LAGOS",
+            "cred_country":     "NG",
+            "cred_district":    "",
+            "cred_acc_no":      cred["account_no"],
+            "cred_acc_type":    "DOMESTIC",
+            "cred_acc_country": "NG",
+            "cred_acc_bic":     cred["bic"],
+            "cred_bank_name":   "",
+            "amount":           nsitf_total,
+            "details":          f"NSITF CONTRIBUTION {period}",
+            "reference":        payroll_entry,
+        })
+        payments.append(row)
+
+    # ── NHF — one row ─────────────────────────────────────────────────────────
+    elif obligation_type == "NHF":
+        # Exact component name "NHF" (deductions) — same as nhf_remittance_report.py
+        nhf_total = _sum_all_slips("deductions", NHF_COMP)
+        if nhf_total <= 0:
+            frappe.msgprint(
+                _(
+                    "⚠️ No NHF component found on salary slips. "
+                    "Check that the component is named exactly <b>NHF</b> in deductions."
+                ),
+                title=_("NHF: Component Not Found"),
+                indicator="orange",
+            )
+
+        cred = _auth_cred("NHF")
+        if not cred:
+            frappe.throw(_("No Statutory Authority found for NHF"))
+
+        row = _debt_base()
+        row.update({
+            "cred_name":        cred["name"],
+            "cred_city":        "LAGOS",
+            "cred_country":     "NG",
+            "cred_district":    "",
+            "cred_acc_no":      cred["account_no"],
+            "cred_acc_type":    "DOMESTIC",
+            "cred_acc_country": "NG",
+            "cred_acc_bic":     cred["bic"],
+            "cred_bank_name":   "",
+            "amount":           nhf_total,
+            "details":          f"NHF CONTRIBUTION {period}",
+            "reference":        payroll_entry,
+        })
+        payments.append(row)
+
+    else:
+        frappe.throw(_(f"Unsupported obligation type: {obligation_type}"))
+
+    # ── Generate the bank file via the shared dispatcher ─────────────────────
+    narration = f"{obligation_type.upper()} {period}"
+    content, _auto_filename = _generate_file(
+        payments, bank_format, company,
+        pe.payment_account, pe.posting_date, narration
+    )
+
+    if isinstance(content, str):
+        content = content.encode("utf-8")
+
+    # Use a statutory-specific filename instead of the auto-generated one
+    ext       = FORMATS[bank_format]["extension"]
+    co_short  = pe.company.replace(" ", "_")[:30]
+    obl_short = (obligation_type.replace(" ", "_")
+                                .replace("(","").replace(")",""))[:10]
+    date_str  = str(getdate(pe.posting_date)).replace("-", "")
+    filename  = f"Statutory_{obl_short}_{co_short}_{date_str}.{ext}"
+
+    return {
+        "success":       True,
+        "file_data":     base64.b64encode(content).decode(),
+        "file_name":     filename,
+        "format":        FORMATS[bank_format]["label"],
+        "row_count":     len(payments),
+        "total_amount":  sum(p["amount"] for p in payments),
+        "obligation":    obligation_type,
+        "period":        period,
+    }
+
+
+@frappe.whitelist()
+def attach_statutory_bank_file(payroll_entry: str,
+                                obligation_type: str,
+                                bank_format: str = "zenith_iso20022") -> dict:
+    """Generate statutory bank file and attach it to the Payroll Entry."""
+    result = generate_statutory_bank_file(payroll_entry, obligation_type, bank_format)
+    content = base64.b64decode(result["file_data"])
+
+    file_doc = frappe.get_doc({
+        "doctype":              "File",
+        "file_name":            result["file_name"],
+        "attached_to_doctype":  "Payroll Entry",
+        "attached_to_name":     payroll_entry,
+        "is_private":           1,
+        "content":              content,
+    })
+    file_doc.save(ignore_permissions=True)
+
+    frappe.get_doc({
+        "doctype":        "Comment",
+        "comment_type":   "Info",
+        "reference_doctype": "Payroll Entry",
+        "reference_name":    payroll_entry,
+        "content": (
+            f"📎 {obligation_type} bank payment file attached: "
+            f"<b>{result['file_name']}</b> — "
+            f"₦{result['total_amount']:,.2f} — "
+            f"{result['row_count']} row(s) — {result['period']}"
+        ),
+    }).insert(ignore_permissions=True)
+
+    return {"status": "ok", "filename": result["file_name"],
+            "file_url": file_doc.file_url, "total": result["total_amount"]}

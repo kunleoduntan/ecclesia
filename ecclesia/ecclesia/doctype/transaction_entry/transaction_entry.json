@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-06-18 08:42:13.381492",
+ "creation": "2026-07-24 05:59:03.280851",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -21,6 +21,7 @@
   "payee_name",
   "payee_account_no",
   "payee_bank_name",
+  "payee_address",
   "start_date",
   "end_date",
   "charged_amount",
@@ -196,6 +197,13 @@
    "fieldname": "payee_bank_name",
    "fieldtype": "Data",
    "label": "Payee Bank Name"
+  },
+  {
+   "depends_on": "eval:doc.trans_type && !in_list(['Receipt','Pending'], doc.trans_type)",
+   "description": "Full address of the beneficiary. Populates CRED_ADDRESS_COUNTRYSUBDIVISION in the Zenith ISO 20022 bank file.",
+   "fieldname": "payee_address",
+   "fieldtype": "Small Text",
+   "label": "Payee Address"
   },
   {
    "fieldname": "start_date",
@@ -464,7 +472,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-18 08:42:13.381492",
+ "modified": "2026-07-24 05:59:03.280851",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Transaction Entry",

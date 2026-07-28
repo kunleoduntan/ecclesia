@@ -37,7 +37,7 @@ frappe.query_reports["Pension Remittance Report"] = {
             fieldname: "pfa",
             label: __("Pension Fund Administrator"),
             fieldtype: "Link",
-            options: "Pension Fund Manager",
+            options: "Pension Manager",
             description: __("Filter by Employee Pension Fund Administrator")
         },
         {
@@ -146,7 +146,7 @@ function export_pencom_template(report) {
     }
 
     frappe.call({
-        method: "general.general_biz_apps.report.pension_remittance_report.pension_remittance_report.export_pencom_format",
+        method: "ecclesia.ecclesia.report.pension_remittance_report.pension_remittance_report.export_pencom_format",
         args: {
             filters: filters
         },
@@ -181,7 +181,7 @@ function export_detailed_excel(report) {
     }
 
     frappe.call({
-        method: "general.general_biz_apps.report.pension_remittance_report.pension_remittance_report.export_detailed_excel",
+        method: "ecclesia.ecclesia.report.pension_remittance_report.pension_remittance_report.export_detailed_excel",
         args: {
             filters: filters
         },
@@ -285,7 +285,7 @@ function download_summary(report) {
         primary_action_label: __("Download PDF"),
         primary_action: function() {
             frappe.call({
-                method: "general.general_biz_apps.report.pension_remittance_report.pension_remittance_report.generate_summary_pdf",
+                method: "ecclesia.ecclesia.report.pension_remittance_report.pension_remittance_report.generate_summary_pdf",
                 args: {
                     filters: filters,
                     summary: {

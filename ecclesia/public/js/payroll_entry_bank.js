@@ -106,6 +106,11 @@ function _pe_dialog(frm, mode) {
                       <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
                       <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
                     </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:#FEF3C7;border-radius:5px;font-size:10px;color:#92400E;border:1px solid #F59E0B">
+                        <b>Highlighted columns in template:</b><br>
+                        <b>CRED_ADDRESS_COUNTRYSUBDIVISION</b> ← Employee <code>Permanent Address</code> field (HR → Employee → Personal Details)<br>
+                        <b>CREDACC_BIC</b> ← Auto-resolved from Employee bank name → BIC dictionary → Bank master
+                    </div>
                 </div>`,
             },
         ];
@@ -417,6 +422,11 @@ function _pe_attach_dialog(frm) {
                       <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
                       <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
                     </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:#FEF3C7;border-radius:5px;font-size:10px;color:#92400E;border:1px solid #F59E0B">
+                        <b>Highlighted columns in template:</b><br>
+                        <b>CRED_ADDRESS_COUNTRYSUBDIVISION</b> ← Employee <code>Permanent Address</code> field (HR → Employee → Personal Details)<br>
+                        <b>CREDACC_BIC</b> ← Auto-resolved from Employee bank name → BIC dictionary → Bank master
+                    </div>
                 </div>`,
             },
             ],
@@ -476,6 +486,11 @@ function _pe_email_dialog(frm) {
                       <span style="font-family:monospace;color:#1E40AF">bacs_csv</span><span>BACS Direct Credit — UK</span>
                       <span style="font-family:monospace;color:#1E40AF">ach_nacha</span><span>ACH / NACHA — USA</span>
                       <span style="font-family:monospace;color:#1E40AF">swift_mt103</span><span>SWIFT MT103 — International wires</span>
+                    </div>
+                    <div style="margin-top:8px;padding:6px 10px;background:#FEF3C7;border-radius:5px;font-size:10px;color:#92400E;border:1px solid #F59E0B">
+                        <b>Highlighted columns in template:</b><br>
+                        <b>CRED_ADDRESS_COUNTRYSUBDIVISION</b> ← Employee <code>Permanent Address</code> field (HR → Employee → Personal Details)<br>
+                        <b>CREDACC_BIC</b> ← Auto-resolved from Employee bank name → BIC dictionary → Bank master
                     </div>
                 </div>`,
             },

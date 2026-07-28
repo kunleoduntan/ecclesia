@@ -1,2 +1,14 @@
 # frappe -- https://github.com/frappe/frappe is installed via 'bench init'
 
+pypika
+#frappe
+twilio
+vonage
+plivo
+
+
+
+
+requests>=2.28.0
+twilio>=8.0.0
+

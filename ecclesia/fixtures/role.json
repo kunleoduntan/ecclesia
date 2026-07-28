@@ -1,0 +1,80 @@
+[
+ {
+  "desk_access": 0,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-04-03 11:32:31.609552",
+  "name": "eRequest Employee",
+  "restrict_to_domain": null,
+  "role_name": "eRequest Employee",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-04-03 11:32:31.868541",
+  "name": "eRequest Manager",
+  "restrict_to_domain": null,
+  "role_name": "eRequest Manager",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-04-03 11:32:31.903199",
+  "name": "eRequest Finance",
+  "restrict_to_domain": null,
+  "role_name": "eRequest Finance",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-04-03 11:32:31.905662",
+  "name": "eRequest Admin",
+  "restrict_to_domain": null,
+  "role_name": "eRequest Admin",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-04-03 15:38:21.118552",
+  "name": "HR Manager",
+  "restrict_to_domain": null,
+  "role_name": "HR Manager",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-06-05 17:30:16.233072",
+  "name": "Line Manager",
+  "restrict_to_domain": null,
+  "role_name": "Line Manager",
+  "two_factor_auth": 0
+ }
+]

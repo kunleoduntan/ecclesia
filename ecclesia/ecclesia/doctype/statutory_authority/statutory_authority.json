@@ -1,0 +1,532 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:authority_code",
+ "creation": "2026-07-24 20:31:57.090575",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "authority_name",
+  "authority_code",
+  "authority_type",
+  "obligation_type",
+  "status",
+  "col_break_1",
+  "company",
+  "state_jurisdiction",
+  "is_default_for_type",
+  "effective_from",
+  "effective_to",
+  "sb_registration",
+  "company_tin",
+  "company_reg_number",
+  "company_paye_code",
+  "pencom_employer_code",
+  "col_break_2",
+  "itf_employer_number",
+  "nsitf_employer_code",
+  "nhf_employer_code",
+  "nhis_employer_code",
+  "vat_reg_number",
+  "sb_rates",
+  "employee_rate",
+  "employer_rate",
+  "contribution_basis",
+  "col_break_3",
+  "fixed_amount",
+  "remittance_due_day",
+  "penalty_rate_pa",
+  "frequency",
+  "sb_contact",
+  "head_office_address",
+  "city",
+  "authority_state",
+  "col_break_4",
+  "primary_phone",
+  "email",
+  "website",
+  "account_officer_name",
+  "account_officer_phone",
+  "account_officer_email",
+  "sb_banking",
+  "bank_name",
+  "bank_account_number",
+  "account_name",
+  "sort_code",
+  "col_break_5",
+  "currency",
+  "remittance_channel",
+  "remita_rrr_prefix",
+  "portal_url",
+  "sb_accounting",
+  "employee_payable_account",
+  "employer_expense_account",
+  "col_break_6",
+  "employer_payable_account",
+  "cost_center",
+  "sb_format",
+  "remittance_file_format",
+  "schedule_template",
+  "col_break_7",
+  "include_employer_ref",
+  "include_period_on_file",
+  "template_notes",
+  "sb_docs",
+  "registration_certificate",
+  "current_receipt",
+  "compliance_certificate",
+  "notes"
+ ],
+ "fields": [
+  {
+   "description": "Full legal name of the regulatory / tax authority (e.g. Lagos Internal Revenue Service)",
+   "fieldname": "authority_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Authority Name",
+   "reqd": 1
+  },
+  {
+   "description": "Short unique code used as the naming key (e.g. LIRS, FIRS, PENCOM, NSITF, FMBN-NHF, NHIS, ITF)",
+   "fieldname": "authority_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Authority Code",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "description": "Category of authority \u2014 determines which remittance templates are applicable",
+   "fieldname": "authority_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Authority Type",
+   "options": "\nFederal Tax Authority\nState Tax Authority\nPension Regulator\nLabour / Workforce\nHealth / Insurance\nFinancial Regulator\nEnvironmental\nIndustry Regulator\nCustoms / Trade\nOther",
+   "reqd": 1
+  },
+  {
+   "description": "Primary statutory obligation administered by this authority",
+   "fieldname": "obligation_type",
+   "fieldtype": "Select",
+   "label": "Primary Obligation",
+   "options": "\nPAYE\nCompany Income Tax (CIT)\nValue Added Tax (VAT)\nWithholding Tax (WHT)\nPension (PenCom)\nNHF\nNHIS\nNSITF\nITF\nCAC Filing\nOther",
+   "reqd": 1
+  },
+  {
+   "default": "Active",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "Active\nInactive\nSuspended"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "ERPNext company this authority record applies to",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "description": "State or federal jurisdiction this authority covers. Use 'Federal' for FIRS, PENCOM, NSITF etc.",
+   "fieldname": "state_jurisdiction",
+   "fieldtype": "Select",
+   "label": "State Jurisdiction",
+   "options": "\nFederal (All States)\nAbia\nAdamawa\nAkwa Ibom\nAnambra\nBauchi\nBayelsa\nBenue\nBorno\nCross River\nDelta\nEbonyi\nEdo\nEkiti\nEnugu\nFCT\nGombe\nImo\nJigawa\nKaduna\nKano\nKatsina\nKebbi\nKogi\nKwara\nLagos\nNasarawa\nNiger\nOgun\nOndo\nOsun\nOyo\nPlateau\nRivers\nSokoto\nTaraba\nYobe\nZamfara"
+  },
+  {
+   "default": "1",
+   "description": "If ticked, this record is used by default when generating remittance files for this obligation type",
+   "fieldname": "is_default_for_type",
+   "fieldtype": "Check",
+   "label": "Default for Obligation Type"
+  },
+  {
+   "fieldname": "effective_from",
+   "fieldtype": "Date",
+   "label": "Effective From"
+  },
+  {
+   "fieldname": "effective_to",
+   "fieldtype": "Date",
+   "label": "Effective To"
+  },
+  {
+   "fieldname": "sb_registration",
+   "fieldtype": "Section Break",
+   "label": "Company Registration with Authority"
+  },
+  {
+   "description": "Company Tax Identification Number with this authority (FIRS TIN or state TIN)",
+   "fieldname": "company_tin",
+   "fieldtype": "Data",
+   "label": "Company TIN"
+  },
+  {
+   "description": "Company's registration or employer account number with this authority (e.g. NSITF employer code, PENCOM employer code, FMBN NHF employer code, ITF employer number)",
+   "fieldname": "company_reg_number",
+   "fieldtype": "Data",
+   "label": "Registration / Account Number"
+  },
+  {
+   "description": "State PAYE employer file number (e.g. Lagos: LIRS-EMP-XXXXXX). Used on PAYE remittance schedules.",
+   "fieldname": "company_paye_code",
+   "fieldtype": "Data",
+   "label": "PAYE Code / Employer File Number"
+  },
+  {
+   "description": "Employer registration code issued by PenCom. Required on pension remittance files.",
+   "fieldname": "pencom_employer_code",
+   "fieldtype": "Data",
+   "label": "PenCom Employer Code"
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Industrial Training Fund employer registration number",
+   "fieldname": "itf_employer_number",
+   "fieldtype": "Data",
+   "label": "ITF Employer Number"
+  },
+  {
+   "description": "Nigeria Social Insurance Trust Fund employer code. Appears on NSITF remittance schedule header.",
+   "fieldname": "nsitf_employer_code",
+   "fieldtype": "Data",
+   "label": "NSITF Employer Code"
+  },
+  {
+   "description": "Federal Mortgage Bank of Nigeria NHF employer deduction code",
+   "fieldname": "nhf_employer_code",
+   "fieldtype": "Data",
+   "label": "NHF / FMBN Employer Code"
+  },
+  {
+   "description": "National Health Insurance Scheme employer code",
+   "fieldname": "nhis_employer_code",
+   "fieldtype": "Data",
+   "label": "NHIS Employer Code"
+  },
+  {
+   "description": "Company VAT registration number with FIRS",
+   "fieldname": "vat_reg_number",
+   "fieldtype": "Data",
+   "label": "VAT Registration Number"
+  },
+  {
+   "fieldname": "sb_rates",
+   "fieldtype": "Section Break",
+   "label": "Contribution & Rate Rules"
+  },
+  {
+   "description": "Employee-side deduction rate. Pension: 8%, NHF: 2.5%, NHIS: 1.75%",
+   "fieldname": "employee_rate",
+   "fieldtype": "Float",
+   "label": "Employee Contribution Rate (%)",
+   "precision": "4"
+  },
+  {
+   "description": "Employer-side contribution rate. Pension: 10%, NSITF: 1%, ITF: 1%",
+   "fieldname": "employer_rate",
+   "fieldtype": "Float",
+   "label": "Employer Contribution Rate (%)",
+   "precision": "4"
+  },
+  {
+   "description": "The salary component(s) on which the rate is applied",
+   "fieldname": "contribution_basis",
+   "fieldtype": "Select",
+   "label": "Contribution Basis",
+   "options": "\nGross Pay\nBasic + Housing + Transport\nBasic Salary\nAnnual Payroll\nFixed Amount"
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Used when contribution basis = Fixed Amount (e.g. flat-rate levies)",
+   "fieldname": "fixed_amount",
+   "fieldtype": "Currency",
+   "label": "Fixed Amount Per Employee (\u20a6)"
+  },
+  {
+   "default": "7",
+   "description": "Day of the month by which remittance must reach the authority. PenCom/NSITF/NHF = 7th, PAYE = varies by state.",
+   "fieldname": "remittance_due_day",
+   "fieldtype": "Int",
+   "label": "Remittance Due Day (of month)"
+  },
+  {
+   "default": "2",
+   "description": "Annual penalty rate for late remittance. PenCom = 2% p.a.",
+   "fieldname": "penalty_rate_pa",
+   "fieldtype": "Float",
+   "label": "Late Penalty Rate (% p.a.)",
+   "precision": "2"
+  },
+  {
+   "default": "Monthly",
+   "description": "How often remittance is due. PAYE/Pension/NHF/NSITF = Monthly; ITF = Annually",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Remittance Frequency",
+   "options": "Monthly\nQuarterly\nBiannually\nAnnually\nPer Assessment"
+  },
+  {
+   "fieldname": "sb_contact",
+   "fieldtype": "Section Break",
+   "label": "Authority Contact"
+  },
+  {
+   "fieldname": "head_office_address",
+   "fieldtype": "Small Text",
+   "label": "Head Office Address"
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "City"
+  },
+  {
+   "fieldname": "authority_state",
+   "fieldtype": "Select",
+   "label": "State",
+   "options": "\nAbia\nAdamawa\nAkwa Ibom\nAnambra\nBauchi\nBayelsa\nBenue\nBorno\nCross River\nDelta\nEbonyi\nEdo\nEkiti\nEnugu\nFCT\nGombe\nImo\nJigawa\nKaduna\nKano\nKatsina\nKebbi\nKogi\nKwara\nLagos\nNasarawa\nNiger\nOgun\nOndo\nOsun\nOyo\nPlateau\nRivers\nSokoto\nTaraba\nYobe\nZamfara"
+  },
+  {
+   "fieldname": "col_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "primary_phone",
+   "fieldtype": "Data",
+   "label": "Primary Phone"
+  },
+  {
+   "fieldname": "email",
+   "fieldtype": "Data",
+   "label": "Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "website",
+   "fieldtype": "Data",
+   "label": "Website"
+  },
+  {
+   "description": "Dedicated relationship or compliance officer assigned to your company",
+   "fieldname": "account_officer_name",
+   "fieldtype": "Data",
+   "label": "Account Officer Name"
+  },
+  {
+   "fieldname": "account_officer_phone",
+   "fieldtype": "Data",
+   "label": "Account Officer Phone"
+  },
+  {
+   "fieldname": "account_officer_email",
+   "fieldtype": "Data",
+   "label": "Account Officer Email",
+   "options": "Email"
+  },
+  {
+   "fieldname": "sb_banking",
+   "fieldtype": "Section Break",
+   "label": "Authority Bank Account (for remittance)"
+  },
+  {
+   "description": "Bank where remittance should be paid into",
+   "fieldname": "bank_name",
+   "fieldtype": "Link",
+   "label": "Bank Name",
+   "options": "Bank"
+  },
+  {
+   "description": "Authority's 10-digit NUBAN account number for remittance deposits",
+   "fieldname": "bank_account_number",
+   "fieldtype": "Data",
+   "label": "Account Number (NUBAN)"
+  },
+  {
+   "fieldname": "account_name",
+   "fieldtype": "Data",
+   "label": "Account Name"
+  },
+  {
+   "fieldname": "sort_code",
+   "fieldtype": "Data",
+   "label": "Sort Code / Branch Code"
+  },
+  {
+   "fieldname": "col_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "NGN",
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "default": "Bank Transfer",
+   "description": "How remittance is made. Remita is common for FIRS federal obligations.",
+   "fieldname": "remittance_channel",
+   "fieldtype": "Select",
+   "label": "Remittance Channel",
+   "options": "Bank Transfer\nRemita\nGovPay\nIRIS (LIRS)\nLAGOSPAY\nECITIZEN\nDirect to Authority Portal\nOther"
+  },
+  {
+   "description": "Remita Retrieval Reference prefix or biller code for this authority (for Remita channel)",
+   "fieldname": "remita_rrr_prefix",
+   "fieldtype": "Data",
+   "label": "Remita Service ID / Biller Code"
+  },
+  {
+   "description": "URL of the authority's online filing or payment portal",
+   "fieldname": "portal_url",
+   "fieldtype": "Data",
+   "label": "Payment / Filing Portal URL"
+  },
+  {
+   "fieldname": "sb_accounting",
+   "fieldtype": "Section Break",
+   "label": "Accounting Integration"
+  },
+  {
+   "description": "Liability account where employee-side deductions are held until remitted (e.g. PAYE Payable, Pension Payable - Employee)",
+   "fieldname": "employee_payable_account",
+   "fieldtype": "Link",
+   "label": "Employee Deduction Payable Account",
+   "options": "Account"
+  },
+  {
+   "description": "P&L expense account for employer-side contributions (e.g. Pension Expense, NSITF Expense)",
+   "fieldname": "employer_expense_account",
+   "fieldtype": "Link",
+   "label": "Employer Contribution Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "col_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Liability account where employer-side contributions are held until remitted",
+   "fieldname": "employer_payable_account",
+   "fieldtype": "Link",
+   "label": "Employer Contribution Payable Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "sb_format",
+   "fieldtype": "Section Break",
+   "label": "Remittance File & Template"
+  },
+  {
+   "default": "Excel",
+   "description": "File format required by this authority for bulk remittance submission",
+   "fieldname": "remittance_file_format",
+   "fieldtype": "Select",
+   "label": "Remittance File Format",
+   "options": "\nExcel\nCSV\nPenCom CPFA Format\nNIBSS\nRemita XML\nCustom"
+  },
+  {
+   "description": "Which built-in template to use when generating the Excel/CSV file from a Payroll Entry",
+   "fieldname": "schedule_template",
+   "fieldtype": "Select",
+   "label": "Schedule Template",
+   "options": "\nPension Remittance (PenCom)\nPAYE Deduction Schedule\nNSITF Remittance Schedule\nNHF Remittance Schedule\nNHIS Remittance Schedule\nITF Assessment Schedule\nGeneric Remittance Schedule"
+  },
+  {
+   "fieldname": "col_break_7",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "1",
+   "fieldname": "include_employer_ref",
+   "fieldtype": "Check",
+   "label": "Include Employer Ref on File Header"
+  },
+  {
+   "default": "1",
+   "fieldname": "include_period_on_file",
+   "fieldtype": "Check",
+   "label": "Include Period on File Header"
+  },
+  {
+   "description": "Any authority-specific formatting requirements or submission instructions",
+   "fieldname": "template_notes",
+   "fieldtype": "Small Text",
+   "label": "File / Template Notes"
+  },
+  {
+   "fieldname": "sb_docs",
+   "fieldtype": "Section Break",
+   "label": "Documents & Certificates"
+  },
+  {
+   "fieldname": "registration_certificate",
+   "fieldtype": "Attach",
+   "label": "Registration Certificate"
+  },
+  {
+   "fieldname": "current_receipt",
+   "fieldtype": "Attach",
+   "label": "Most Recent Payment Receipt"
+  },
+  {
+   "fieldname": "compliance_certificate",
+   "fieldtype": "Attach",
+   "label": "Compliance / Good Standing Certificate"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Text Editor",
+   "label": "Notes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-07-24 20:31:57.090575",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Statutory Authority",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

@@ -14,16 +14,22 @@ from datetime import datetime
 def execute(filters=None):
     filters = filters or {}
     validate_filters(filters)
-    
+
     # Get dynamic salary components
     salary_components = get_salary_components()
-    
-    columns = get_columns(salary_components, filters)
+
+    # Get data first (using all flagged components) so we know which
+    # components actually carry an amount and which don't
     data = get_data(filters, salary_components)
-    
+
+    # Drop components that have no amount anywhere in the result set
+    active_components = filter_active_components(data, salary_components)
+
+    columns = get_columns(active_components, filters)
+
     # Add chart
     chart = get_chart_data(data, filters)
-    
+
     return columns, data, None, chart
 
 def validate_filters(filters):
@@ -47,6 +53,29 @@ def get_salary_components():
     )
     
     return components
+
+def filter_active_components(data, salary_components):
+    """Keep only components that have at least one non-zero amount
+    somewhere in the data (ignoring group header / subtotal rows)."""
+
+    active = []
+    for component in salary_components:
+        fieldname = f"component_{frappe.scrub(component.name)}"
+        has_amount = False
+
+        for row in data:
+            if not isinstance(row, dict):
+                continue
+            if row.get("is_group_header") or row.get("is_subtotal"):
+                continue
+            if flt(row.get(fieldname, 0)) != 0:
+                has_amount = True
+                break
+
+        if has_amount:
+            active.append(component)
+
+    return active
 
 def get_columns(salary_components, filters):
     """Build dynamic columns based on salary components"""
@@ -93,14 +122,13 @@ def get_columns(salary_components, filters):
             "width": 110
         })
     
-    # Add dynamic salary component columns
+    # Add dynamic salary component columns (real component name, not abbreviation)
     for component in salary_components:
-        abbr = component.get("salary_component_abbr") or component.get("name")
         columns.append({
-            "label": _(abbr),
+            "label": _(component.name),
             "fieldname": f"component_{frappe.scrub(component.name)}",
             "fieldtype": "Currency",
-            "width": 120
+            "width": 140
         })
     
     # Add totals
@@ -456,6 +484,9 @@ def export_excel(filters, data=None):
         data = get_data(filters, salary_components)
     elif isinstance(data, str):
         data = json.loads(data)
+
+    # Only include components that actually carry an amount in this data set
+    salary_components = filter_active_components(data, salary_components)
     
     # Create workbook
     wb = openpyxl.Workbook()
@@ -518,10 +549,9 @@ def export_excel(filters, data=None):
     if filters.get("report_type") == "Monthly":
         headers.extend(["Salary Slip", "Posting Date"])
     
-    # Add component headers
+    # Add component headers (real component name, not abbreviation)
     for component in salary_components:
-        abbr = component.get("salary_component_abbr") or component.get("name")
-        headers.append(abbr)
+        headers.append(component.name)
     
     headers.extend(["Gross Pay", "Total Deductions", "Net Pay", "Company"])
     
@@ -565,7 +595,7 @@ def export_excel(filters, data=None):
             if item.get("is_subtotal"):
                 ws.cell(row=row_num, column=2, value=item.get("employee_name")).font = Font(bold=True)
                 
-                col_offset = 7 if filters.get("report_type") == "Monthly" else 5
+                col_offset = 9 if filters.get("report_type") == "Monthly" else 7
                 col_offset += len(salary_components)
                 
                 ws.cell(row=row_num, column=col_offset + 1, value=flt(item.get("gross_pay"))).font = Font(bold=True)
@@ -640,7 +670,7 @@ def export_excel(filters, data=None):
     total_row = row_num + 1
     ws.cell(row=total_row, column=2, value="GRAND TOTAL").font = Font(bold=True, size=12)
     
-    col_offset = 7 if filters.get("report_type") == "Monthly" else 5
+    col_offset = 9 if filters.get("report_type") == "Monthly" else 7
     col = col_offset + 1
     
     # Component totals
