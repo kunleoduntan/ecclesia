@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ecclesia"
 authors = [
-    { name = "Your Name/Org", email = "you@example.com" }
+    { name = "Kunle Oduntan", email = "kunleoduntan@gmail.com.com" }
 ]
 description = "Ecclesia app for Frappe/ERPNext"
 requires-python = ">=3.10"
