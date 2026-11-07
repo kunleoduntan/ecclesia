@@ -7,6 +7,7 @@ from frappe.utils import flt, getdate
 
 from io import BytesIO
 import pandas as pd
+import json
 
 
 # ---------------------------------------------------------------------------
@@ -16,14 +17,17 @@ import pandas as pd
 def execute(filters=None):
     """
     Trial Balance as at a specific date.
-
-    Balance Sheet accounts  -> opening balance (pre-FY) + period movements
-    P&L accounts            -> period movements within current FY only
-    Net Profit row          -> injected as a synthetic Equity row so
-                              Total Debits == Total Credits
     """
     if not filters:
         filters = {}
+    
+    # Ensure filters is a dict
+    if isinstance(filters, str):
+        try:
+            filters = json.loads(filters)
+        except:
+            filters = {}
+    
     if not filters.get("company"):
         frappe.throw(_("Company is required"))
     if not filters.get("as_at_date"):
@@ -58,17 +62,6 @@ def get_columns():
 def _get_fy_dates(as_at_date, company):
     """
     Fetch fiscal year boundaries directly from tabFiscal Year.
-    tabFiscal Year has no child-table join needed — company is stored
-    in a separate child doctype but we can match via a subquery on
-    `tabFiscal Year Company`.company / parent, OR simply pick any FY
-    whose date range covers as_at_date (works for single-company setups
-    and multi-company setups where each company has its own FY).
-
-    Strategy (in order):
-      1. FY linked to this company via tabFiscal Year Company.company
-         where parent = tabFiscal Year.name
-      2. Any FY covering the date (fallback for unlinked FYs)
-      3. Calendar year (last resort)
     """
     as_at = getdate(as_at_date)
 
@@ -110,7 +103,6 @@ def _get_fy_dates(as_at_date, company):
 def _query_balances(company, to_date, from_date=None):
     """
     Return a dict keyed by account.name -> row dict with balance figures.
-    net = SUM(debit) - SUM(credit).
     """
     params = {"company": company, "to_date": to_date}
 
@@ -179,7 +171,6 @@ def get_data(filters):
         company,
         as_dict=True,
     )
-    meta_map = {r["name"]: r for r in account_meta}
 
     rows = []
     for meta in account_meta:
@@ -200,6 +191,7 @@ def get_data(filters):
             continue
 
         rows.append({
+            "account":        meta["name"],  # Add account name for linking
             "account_number": meta.get("account_number") or "",
             "account_name":   meta["account_name"],
             "parent_account": meta.get("parent_account") or "",
@@ -211,26 +203,13 @@ def get_data(filters):
 
     # ------------------------------------------------------------------
     # Synthetic "Current Year Profit / (Loss)" row
-    #
-    # We do NOT attempt to derive net profit by summing income/expense
-    # account balances — that approach breaks when prior-year closing
-    # journal entries (which hit both P&L and Retained Earnings accounts)
-    # fall inside the current fiscal year date range, inflating totals.
-    #
-    # Instead: synthetic_balance = -(sum of all other row balances)
-    #
-    # This is the ONLY value mathematically guaranteed to make the trial
-    # balance sum to zero, and it is exactly correct accounting:
-    #   BS accounts net + P&L accounts net + Current Year Profit = 0
-    #
-    # net > 0 (debit synthetic) => loss year
-    # net < 0 (credit synthetic) => profitable year
     # ------------------------------------------------------------------
     sum_of_rows = sum(flt(r["balance"]) for r in rows)
 
     if abs(sum_of_rows) > 0.01:
         synthetic_balance = -sum_of_rows
         rows.append({
+            "account":        None,  # No account for synthetic row
             "account_number": "",
             "account_name":   "Current Year Profit / (Loss)",
             "parent_account": "Retained Earnings",
@@ -240,6 +219,7 @@ def get_data(filters):
             "root_type":  "Equity",
             "is_synthetic": True,
         })
+    
     # Totals
     # ------------------------------------------------------------------
     total_balance    = sum(flt(r["balance"])    for r in rows)
@@ -248,6 +228,7 @@ def get_data(filters):
 
     if rows:
         rows.append({
+            "account":        None,
             "account_number": "",
             "account_name":   "TOTAL",
             "parent_account": "",
@@ -293,9 +274,29 @@ def get_report_summary(data):
 # ---------------------------------------------------------------------------
 
 @frappe.whitelist()
-def download_cute_excel(filters):
+def download_cute_excel(filters=None):
     """Generate a world-class Excel Trial Balance report."""
-    filters = frappe._dict(frappe.parse_json(filters))
+    # Handle filters properly
+    if filters is None:
+        filters = {}
+    elif isinstance(filters, str):
+        try:
+            filters = json.loads(filters)
+        except Exception as e:
+            frappe.log_error(f"Error parsing filters: {str(e)}", "Trial Balance Export")
+            filters = {}
+    elif isinstance(filters, dict):
+        pass  # Already a dict
+    else:
+        filters = {}
+    
+    # Validate filters
+    if not filters.get("company"):
+        frappe.throw(_("Company is required. Please select a company."))
+    if not filters.get("as_at_date"):
+        frappe.throw(_("As at Date is required. Please select a date."))
+    
+    # Get data
     columns, data = execute(filters)[:2]
 
     if not data:
@@ -307,6 +308,7 @@ def download_cute_excel(filters):
         workbook  = writer.book
         worksheet = workbook.add_worksheet("Trial Balance")
 
+        # Colors
         C = {
             "navy":         "#1B3B6F",
             "royal_blue":   "#2E5090",
@@ -330,6 +332,7 @@ def download_cute_excel(filters):
         def F(**kw):
             return workbook.add_format(kw)
 
+        # Header formats
         branding_fmt = F(bold=True, font_size=26, font_name="Arial",
                          font_color=C["white"], bg_color=C["navy"],
                          align="center", valign="vcenter")
@@ -356,13 +359,21 @@ def download_cute_excel(filters):
                          text_wrap=True, top=3, bottom=3,
                          top_color=C["navy"], bottom_color=C["navy"])
 
+        # Hyperlink format
+        link_fmt = F(font_size=10, font_name="Arial",
+                     font_color=C["sky_blue"], underline=True,
+                     align="left", valign="vcenter")
+
+        # Set row heights
         for i, h in [(0,45),(1,32),(2,8),(3,24),(4,20),(5,20),(6,8),(7,35)]:
             worksheet.set_row(i, h)
 
+        # Set column widths
         col_widths = [16, 45, 38, 20, 20, 20]
         for i, w in enumerate(col_widths):
             worksheet.set_column(i, i, w)
 
+        # Header
         worksheet.merge_range("A1:F1", "TRIAL BALANCE REPORT", branding_fmt)
         worksheet.merge_range("A2:F2", filters.get("company","").upper(), company_fmt)
         worksheet.merge_range("A4:F4", "FINANCIAL STATEMENT", badge_fmt)
@@ -371,9 +382,11 @@ def download_cute_excel(filters):
         worksheet.merge_range("A6:B6", "Reporting Date:", lbl_fmt)
         worksheet.merge_range("C6:F6", str(filters.get("as_at_date","N/A")), val_fmt)
 
+        # Column headers
         for col_num, col in enumerate(columns):
             worksheet.write(7, col_num, col["label"], hdr_fmt)
 
+        # Data formats
         def tf(bg):
             return F(font_size=10, font_name="Calibri", font_color=C["charcoal"],
                      bg_color=bg, border=1, border_color=C["border_light"], valign="vcenter")
@@ -406,19 +419,28 @@ def download_cute_excel(filters):
                   bg_color=C["total_gold"], border=2, border_color=C["gold"],
                   top=3, top_color=C["navy"], align="right", valign="vcenter")
 
+        # Write data rows
         row_num = 8
         for dr in data:
             is_total = dr.get("is_total_row")
             is_syn   = dr.get("is_synthetic")
             is_even  = (row_num - 8) % 2 == 0
+            account  = dr.get("account")
 
             worksheet.set_row(row_num, 28 if is_total else 22)
 
             for col_num, col in enumerate(columns):
                 fn  = col["fieldname"]
                 val = dr.get(fn, "")
-
-                if is_total:
+                
+                # Create hyperlink for account name and account code if account exists
+                if account and fn in ["account_name", "account_number"] and not is_total and not is_syn:
+                    company = filters.get("company", "")
+                    as_at_date = filters.get("as_at_date", "")
+                    gl_url = f'/app/query-report/General%20Ledger?account={account}&company={company}&from_date={as_at_date}&to_date={as_at_date}'
+                    worksheet.write_url(row_num, col_num, gl_url, link_fmt, str(val))
+                    
+                elif is_total:
                     if col["fieldtype"] == "Currency" and val != "":
                         worksheet.write_number(row_num, col_num, flt(val), tot_n)
                     else:
@@ -446,6 +468,7 @@ def download_cute_excel(filters):
                                         t_even if is_even else t_odd)
             row_num += 1
 
+        # Executive Summary
         summary_data = get_report_summary(data)
         row_num += 3
 
@@ -475,6 +498,7 @@ def download_cute_excel(filters):
             worksheet.merge_range(ro,   co, ro,   co+2, s.get("label",""), s_lbl)
             worksheet.merge_range(ro+1, co, ro+1, co+2, flt(s.get("value",0)), s_val)
 
+        # Footer
         from datetime import datetime
         footer_row = sr + 7
         footer_fmt = F(italic=True, font_size=9, font_name="Arial",
@@ -485,10 +509,11 @@ def download_cute_excel(filters):
         worksheet.merge_range(
             footer_row, 0, footer_row, 5,
             f"Report Generated: {datetime.now().strftime('%A, %B %d, %Y at %I:%M %p')}"
-            f" | Powered by ERPNext & Value Impacts Consulting",
+            f" | Powered by ERPNext",
             footer_fmt,
         )
 
+        # Page setup
         worksheet.freeze_panes(8, 0)
         worksheet.autofilter(7, 0, row_num - 1, 5)
         worksheet.set_landscape()
@@ -502,6 +527,7 @@ def download_cute_excel(filters):
         worksheet.set_footer('&C&"Arial,Italic"&9Trial Balance Report - Confidential')
         worksheet.repeat_rows(7)
 
+    # Save and return
     from datetime import datetime
     ts           = datetime.now().strftime("%Y%m%d_%H%M%S")
     company_safe = filters.get("company","Company").replace(" ","_").replace("/","_")

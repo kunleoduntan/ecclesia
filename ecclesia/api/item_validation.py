@@ -1,4 +1,6 @@
-# apps/ecclesia/ecclesia/item_validation.py
+# item_validation.py
+# Deployed as apps/general/general/api/item_validation.py (per traceback)
+# or apps/ecclesia/ecclesia/item_validation.py - same content.
 
 import frappe
 from frappe import _
@@ -10,7 +12,7 @@ from frappe.utils import flt, cint, today
 def get_sle_balance(item_code, warehouse, company, as_of_date=None):
     """
     Compute actual_qty and stock_value directly from Stock Ledger Entry.
-    This is the ground truth — what Trial Balance stock valuation is based on.
+    This is the ground truth - what Trial Balance stock valuation is based on.
     """
     result = frappe.db.sql("""
         SELECT
@@ -56,9 +58,41 @@ def _qty_precision():
     return cint(frappe.db.get_single_value("System Settings", "float_precision") or 3)
 
 
+def _get_stock_item_codes(rows):
+    """
+    Return the set of item codes in `rows` that genuinely post Stock Ledger Entries.
+
+    Excluded:
+      - Non-stock items (services, expenses)
+      - Fixed assets (is_fixed_asset items are never stock items in ERPNext)
+      - Product Bundles (the bundle code never gets an SLE; its packed items do)
+    """
+    codes = list({r.item_code for r in rows if r.get("item_code")})
+    if not codes:
+        return set()
+
+    items = frappe.get_all(
+        "Item",
+        filters={"name": ["in", codes]},
+        fields=["name", "is_stock_item", "is_fixed_asset"],
+    )
+    stock_codes = {
+        i.name for i in items
+        if cint(i.is_stock_item) and not cint(i.is_fixed_asset)
+    }
+
+    bundles = set(frappe.get_all(
+        "Product Bundle",
+        filters={"new_item_code": ["in", list(stock_codes)]},
+        pluck="new_item_code",
+    )) if stock_codes else set()
+
+    return stock_codes - bundles
+
+
 # ─── Hook: Stock Entry Submit ─────────────────────────────────────────────────
 
-def validate_stock_entry_gl_on_submit(doc, method):
+def validate_stock_entry_gl_on_submit(doc, method=None):
     """
     On Stock Entry submit, verify that every SLE created for this voucher
     has a matching GL Entry for valuation (for perpetual inventory companies).
@@ -68,7 +102,10 @@ def validate_stock_entry_gl_on_submit(doc, method):
     if not _is_perpetual_inventory(company):
         return
 
-    # Each item row that moves stock should have a GL entry
+    # Nothing to verify if the entry contains no real stock items
+    if not _get_stock_item_codes(doc.get("items", [])):
+        return
+
     sle_items = frappe.db.sql("""
         SELECT item_code, warehouse,
                SUM(actual_qty) AS qty,
@@ -88,7 +125,6 @@ def validate_stock_entry_gl_on_submit(doc, method):
             "Check your item valuation settings."
         ).format(doc.name))
 
-    # Verify total GL stock impact equals total SLE value difference
     stock_accounts = _get_stock_accounts(company)
     if not stock_accounts:
         return
@@ -103,8 +139,8 @@ def validate_stock_entry_gl_on_submit(doc, method):
             AND is_cancelled = 0
     """, {"voucher_no": doc.name, "accounts": stock_accounts}, as_dict=True)
 
-    gl_net   = flt(gl_stock_impact[0].net if gl_stock_impact else 0, 2)
-    sle_val  = flt(sum(r.val_diff for r in sle_items), 2)
+    gl_net  = flt(gl_stock_impact[0].net if gl_stock_impact else 0, 2)
+    sle_val = flt(sum(r.val_diff for r in sle_items), 2)
 
     # For internal transfers net GL impact on stock accounts should be 0
     # For consumption/production it should match sle_val
@@ -122,34 +158,44 @@ def validate_stock_entry_gl_on_submit(doc, method):
 
 # ─── Hook: Purchase Receipt Submit ────────────────────────────────────────────
 
-def validate_purchase_receipt_stock_on_submit(doc, method):
+def validate_purchase_receipt_stock_on_submit(doc, method=None):
     """
-    On GRN submit, verify that received_qty in each item row
-    matches the SLE created for this voucher.
-    Catches quantity discrepancies between document and stock posting.
+    On GRN submit, verify that the quantity received on each stock item row
+    matches the SLE created for that row.
+
+    - Non-stock items and fixed assets are skipped (they never post SLEs).
+    - SLEs are matched on voucher_detail_no across all warehouses, so accepted
+      qty (item.warehouse) and rejected qty (rejected_warehouse) are both counted.
+    - Quantities are compared in stock UOM (x conversion_factor).
     """
-    for item in doc.get("items", []):
-        if not item.warehouse:
+    items = doc.get("items", [])
+    stock_codes = _get_stock_item_codes(items)
+    if not stock_codes:
+        return
+
+    for item in items:
+        if item.item_code not in stock_codes:
             continue
 
-        sle_qty = frappe.db.sql("""
-            SELECT COALESCE(SUM(actual_qty), 0) AS qty
+        # received_qty = accepted qty + rejected qty; fall back for older docs
+        received = flt(item.received_qty) or (flt(item.qty) + flt(item.rejected_qty))
+        expected = flt(received * flt(item.conversion_factor or 1), 6)
+
+        if not expected:
+            continue
+
+        sle_actual = flt(frappe.db.sql("""
+            SELECT COALESCE(SUM(actual_qty), 0)
             FROM `tabStock Ledger Entry`
             WHERE
-                voucher_type = 'Purchase Receipt'
-                AND voucher_no   = %(voucher_no)s
-                AND item_code    = %(item_code)s
-                AND warehouse    = %(warehouse)s
-                AND is_cancelled = 0
+                voucher_type      = 'Purchase Receipt'
+                AND voucher_no        = %(voucher_no)s
+                AND voucher_detail_no = %(detail_no)s
+                AND is_cancelled  = 0
         """, {
             "voucher_no": doc.name,
-            "item_code":  item.item_code,
-            "warehouse":  item.warehouse,
-        }, as_dict=True)
-
-        sle_actual = flt(sle_qty[0].qty if sle_qty else 0)
-        # Use received_qty instead of accepted_qty
-        expected   = flt(item.received_qty)
+            "detail_no":  item.name,
+        })[0][0])
 
         if abs(sle_actual - expected) > 0.001:
             frappe.throw(_(
@@ -161,33 +207,36 @@ def validate_purchase_receipt_stock_on_submit(doc, method):
 
 # ─── Hook: Delivery Note Submit ───────────────────────────────────────────────
 
-def validate_delivery_note_stock_on_submit(doc, method):
+def validate_delivery_note_stock_on_submit(doc, method=None):
     """
     On Delivery Note submit, verify that qty delivered matches
     the negative SLE (stock reduction) created for this voucher.
+    Non-stock items, fixed assets and product bundles are skipped.
     """
-    for item in doc.get("items", []):
-        if not item.warehouse:
+    items = doc.get("items", [])
+    stock_codes = _get_stock_item_codes(items)
+    if not stock_codes:
+        return
+
+    for item in items:
+        if item.item_code not in stock_codes or not item.warehouse:
             continue
 
-        sle_qty = frappe.db.sql("""
-            SELECT COALESCE(SUM(actual_qty), 0) AS qty
+        sle_actual = flt(frappe.db.sql("""
+            SELECT COALESCE(SUM(actual_qty), 0)
             FROM `tabStock Ledger Entry`
             WHERE
-                voucher_type = 'Delivery Note'
-                AND voucher_no   = %(voucher_no)s
-                AND item_code    = %(item_code)s
-                AND warehouse    = %(warehouse)s
-                AND is_cancelled = 0
+                voucher_type      = 'Delivery Note'
+                AND voucher_no        = %(voucher_no)s
+                AND voucher_detail_no = %(detail_no)s
+                AND is_cancelled  = 0
         """, {
             "voucher_no": doc.name,
-            "item_code":  item.item_code,
-            "warehouse":  item.warehouse,
-        }, as_dict=True)
+            "detail_no":  item.name,
+        })[0][0])
 
-        sle_actual = flt(sle_qty[0].qty if sle_qty else 0)
-        # Delivery reduces stock → SLE qty is negative
-        expected = flt(item.qty) * -1
+        # Delivery reduces stock → SLE qty is negative (stock UOM)
+        expected = flt(item.stock_qty or (flt(item.qty) * flt(item.conversion_factor or 1))) * -1
 
         if abs(sle_actual - expected) > 0.001:
             frappe.throw(_(
@@ -199,7 +248,7 @@ def validate_delivery_note_stock_on_submit(doc, method):
 
 # ─── Hook: Stock Entry / Purchase Receipt / Delivery Note Cancel ──────────────
 
-def validate_stock_cancel_integrity(doc, method):
+def validate_stock_cancel_integrity(doc, method=None):
     """
     On cancel, verify the reversal SLE zeroes out the original stock impact.
     Prevents ghost stock from incomplete cancellations.
@@ -254,7 +303,6 @@ def nightly_item_reconciliation_check():
 
 
 def _check_company_stock(company):
-    # Active item-warehouse combinations with SLE movement in last 90 days
     active_bins = frappe.db.sql("""
         SELECT DISTINCT item_code, warehouse
         FROM `tabStock Ledger Entry`
@@ -270,8 +318,8 @@ def _check_company_stock(company):
     discrepancies = []
 
     for row in active_bins:
-        sle_qty, sle_val   = get_sle_balance(row.item_code, row.warehouse, company)
-        bin_qty, bin_val   = get_bin_balance(row.item_code, row.warehouse)
+        sle_qty, sle_val = get_sle_balance(row.item_code, row.warehouse, company)
+        bin_qty, bin_val = get_bin_balance(row.item_code, row.warehouse)
 
         qty_variance = flt(sle_qty - bin_qty, 3)
         val_variance = flt(sle_val - bin_val, 2)
@@ -301,11 +349,10 @@ def _check_company_stock(company):
         )
 
     frappe.log_error(
-        title="Item/Stock Reconciliation Variance — {0}".format(company),
+        title="Item/Stock Reconciliation Variance - {0}".format(company),
         message="\n".join(msg_lines)
     )
 
-    # Create ToDo for Stock Manager
     stock_manager = frappe.db.get_value(
         "Has Role",
         {"role": "Stock Manager", "parenttype": "User"},
@@ -314,7 +361,7 @@ def _check_company_stock(company):
     if stock_manager:
         frappe.get_doc({
             "doctype":     "ToDo",
-            "owner":       stock_manager,
+            "allocated_to": stock_manager,
             "description": (
                 "Stock Bin vs SLE reconciliation variance detected for {0}. "
                 "Check Error Log for details."
@@ -332,24 +379,24 @@ def _check_company_stock(company):
 # Ref Doctype:  Stock Ledger Entry
 
 def execute(filters=None):
-    filters   = filters or {}
-    company   = filters.get("company") or frappe.defaults.get_user_default("Company")
+    filters    = filters or {}
+    company    = filters.get("company") or frappe.defaults.get_user_default("Company")
     as_of_date = filters.get("as_of_date") or frappe.utils.today()
-    warehouse = filters.get("warehouse")
+    warehouse  = filters.get("warehouse")
 
     columns = [
-        {"label": _("Item Code"),        "fieldname": "item_code",     "fieldtype": "Link",
-         "options": "Item",              "width": 160},
-        {"label": _("Item Name"),        "fieldname": "item_name",     "fieldtype": "Data",    "width": 160},
-        {"label": _("Warehouse"),        "fieldname": "warehouse",     "fieldtype": "Link",
-         "options": "Warehouse",         "width": 160},
-        {"label": _("SLE Qty"),          "fieldname": "sle_qty",       "fieldtype": "Float",   "width": 100},
-        {"label": _("Bin Qty"),          "fieldname": "bin_qty",       "fieldtype": "Float",   "width": 100},
-        {"label": _("Qty Variance"),     "fieldname": "qty_variance",  "fieldtype": "Float",   "width": 110},
-        {"label": _("SLE Value"),        "fieldname": "sle_val",       "fieldtype": "Currency","width": 130},
-        {"label": _("Bin Value"),        "fieldname": "bin_val",       "fieldtype": "Currency","width": 130},
-        {"label": _("Value Variance"),   "fieldname": "val_variance",  "fieldtype": "Currency","width": 130},
-        {"label": _("Status"),           "fieldname": "status",        "fieldtype": "Data",    "width": 100},
+        {"label": _("Item Code"),      "fieldname": "item_code",    "fieldtype": "Link",
+         "options": "Item",            "width": 160},
+        {"label": _("Item Name"),      "fieldname": "item_name",    "fieldtype": "Data",     "width": 160},
+        {"label": _("Warehouse"),      "fieldname": "warehouse",    "fieldtype": "Link",
+         "options": "Warehouse",       "width": 160},
+        {"label": _("SLE Qty"),        "fieldname": "sle_qty",      "fieldtype": "Float",    "width": 100},
+        {"label": _("Bin Qty"),        "fieldname": "bin_qty",      "fieldtype": "Float",    "width": 100},
+        {"label": _("Qty Variance"),   "fieldname": "qty_variance", "fieldtype": "Float",    "width": 110},
+        {"label": _("SLE Value"),      "fieldname": "sle_val",      "fieldtype": "Currency", "width": 130},
+        {"label": _("Bin Value"),      "fieldname": "bin_val",      "fieldtype": "Currency", "width": 130},
+        {"label": _("Value Variance"), "fieldname": "val_variance", "fieldtype": "Currency", "width": 130},
+        {"label": _("Status"),         "fieldname": "status",       "fieldtype": "Data",     "width": 100},
     ]
 
     warehouse_filter = "AND sle.warehouse = %(warehouse)s" if warehouse else ""
@@ -368,7 +415,6 @@ def execute(filters=None):
         "warehouse":  warehouse,
     }, as_dict=True)
 
-    # Item names lookup
     item_names = {
         r.name: r.item_name
         for r in frappe.get_all(

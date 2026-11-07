@@ -12,23 +12,58 @@ from frappe.utils import flt, today, getdate, get_datetime
 from frappe.model.document import Document
 import json
 from datetime import datetime, timedelta
+from ecclesia.api import voucher_router as vr
+from ecclesia.api import batch_excel_io as xio
+
+
+# Excel layout (Petty Cash Transaction child table).  Order is cosmetic: import
+# matches columns by header name.
+_SHEET = "Expenses"
+_COLUMNS = [
+    ("Date*",         "date",                    True,  "date",  {"width": 12, "example": "2026-11-02"}),
+    ("Beneficiary*",  "beneficiary",             True,  "str",   {"width": 26, "example": "Ade Stores"}),
+    ("Description*",  "transaction_description", True,  "str",   {"width": 40, "example": "Office stationery"}),
+    ("Account*",      "account",                 True,  "str",   {"width": 30, "link": "Account",
+                                                                   "note": "Expense GL account (not a group).",
+                                                                   "example": "Printing and Stationery - VIC"}),
+    ("Inflow",        "inflow",                  False, "float", {"width": 14, "note": "Cash received into petty cash."}),
+    ("Outflow",       "outflow",                 False, "float", {"width": 14, "note": "Cash paid out. Only outflows are posted.",
+                                                                   "example": 15000}),
+    ("Cost Center",   "cost_center",             False, "str",   {"width": 24, "link": "Cost Center",
+                                                                   "note": "Blank = the batch cost center."}),
+]
+_STATUS_COLUMNS = [
+    ("Balance", "balance", 14), ("Entry Created", "_created", 14),
+    ("Entry Type", "entry_type_created", 16), ("Entry Reference", "entry_reference", 22),
+]
+
 
 class ExpenseBatch(Document):
     def validate(self):
         """Enhanced validation with AI-powered checks"""
+        self.set_default_policy()
         self.validate_dates()
         self.validate_transactions()
         self.calculate_totals()
         self.detect_anomalies()
         self.set_title()
-    
+
+    def set_default_policy(self):
+        # Records saved before the field existed keep their original behaviour
+        # (Payments vouchers).
+        self.posting_policy = vr.resolve_policy(self.get("posting_policy"), default=vr.POLICY_VOUCHERS)
+
     def before_submit(self):
         """Pre-submission checks"""
         self.validate_reference_and_amount()
-        
+
+    def on_submit(self):
         if self.post_batch:
             self.create_payment_vouchers()
-    
+
+    def on_cancel(self):
+        self.cancel_posted_entries()
+
     def validate_dates(self):
         """Validate date range"""
         if self.batch_end_date < self.batch_start_date:
@@ -181,102 +216,92 @@ class ExpenseBatch(Document):
             
             frappe.msgprint(message, indicator='red', alert=True)
     
+
     def validate_reference_and_amount(self):
-        """Check for duplicate payments"""
+        """Guard against posting the same batch twice."""
+        policy = self.posting_policy
         for row in self.petty_cash_transaction:
-            if flt(row.outflow) > 0:
-                reference_no = row.name[-7:].upper()
-                
-                # Check if payment already exists
+            if flt(row.outflow) <= 0 or row.get("entry_reference"):
+                continue
+            reference_no = row.name[-7:].upper()
+            if policy == vr.POLICY_VOUCHERS:
                 existing = frappe.db.exists("Payments", {
-                    "reference_no": reference_no,
-                    "amount_paid": row.outflow
-                })
-                
-                if existing:
-                    frappe.throw(
-                        _("The reference number {0} with amount {1} already exists in Payments. Batch may be already posted.").format(
-                            reference_no, row.outflow
-                        )
-                    )
-    
+                    "reference_no": reference_no, "amount_paid": row.outflow, "docstatus": ["<", 2]})
+            else:
+                existing = frappe.db.exists("Journal Entry", {
+                    "cheque_no": reference_no, "docstatus": ["<", 2]})
+            if existing:
+                frappe.throw(_("Reference {0} with amount {1} already exists ({2}). "
+                               "Batch may be already posted.").format(reference_no, row.outflow, existing))
+
+    def _line(self, row):
+        """Petty cash outflow -> router line (Dr expense account, Cr petty cash)."""
+        return {
+            "idx": row.idx,
+            "trans_type": "Payment",
+            "posting_date": row.date,
+            "amount": flt(row.outflow),
+            "remark": (row.transaction_description or "").title(),
+            "payee_name": (row.beneficiary or "").title(),
+            "counter_account": row.account,
+            "bank_account_gl": self.petty_cash_account,
+            "mode_of_payment": "Cash",
+            "reference_no": row.name[-7:].upper(),
+            "cost_center": row.cost_center or self.cost_center,
+            "nature_of_expense": "Internal",
+            "issued_by": self.prepared_by or frappe.session.user,
+            "cashflow_type": "Operating costs",
+        }
+
     def create_payment_vouchers(self):
-        """Create payment vouchers with enhanced error handling"""
-        if not self.post_batch:
-            return
-        
-        created_payments = []
-        failed_payments = []
-        
+        """
+        Post every outflow row using the batch's Posting Policy.
+        Inflows are NOT posted (they are the cash top-up that funds the batch).
+        All-or-nothing: any failure aborts the submit and rolls everything back,
+        so a batch can never be half posted.
+        """
+        policy = self.posting_policy
+        created, errors = [], []
         for row in self.petty_cash_transaction:
-            if flt(row.outflow) > 0:
-                try:
-                    payment = self.create_single_payment(row)
-                    created_payments.append(payment.name)
-                except Exception as e:
-                    failed_payments.append({
-                        'row': row.idx,
-                        'error': str(e)
-                    })
-                    frappe.log_error(
-                        title=f"Payment Creation Failed - {row.name}",
-                        message=frappe.get_traceback()
-                    )
-        
-        # Show summary
-        if created_payments:
-            frappe.msgprint(
-                _("✅ Successfully created {0} payment voucher(s)").format(len(created_payments)),
-                indicator='green',
-                alert=True
-            )
-        
-        if failed_payments:
-            error_msg = _("❌ Failed to create {0} payment(s):<br>").format(len(failed_payments))
-            for fail in failed_payments[:5]:  # Show first 5
-                error_msg += f"• Row {fail['row']}: {fail['error']}<br>"
-            
-            frappe.msgprint(error_msg, indicator='red', alert=True)
-    
-    def create_single_payment(self, row):
-        """Create a single payment voucher"""
-        payment = frappe.new_doc('Payments')
-        
-        # Basic details
-        payment.transaction_date = row.date
-        payment.payee_name = (row.beneficiary or "").title()
-        payment.account_to_debit = row.account
-        payment.trans_type = "Expense Payment"
-        payment.payment_currency = self.account_currency or "NGN"
-        payment.cost_center = self.cost_center
-        
-        # Transaction details
-        payment.transaction_purposes = (row.transaction_description or "").title()
-        payment.mode_of_payment = "Cash"
-        payment.remittance_bank = self.petty_cash_account
-        payment.amount_paid = row.outflow
-        
-        # Exchange rate
-        if self.account_currency == "NGN":
-            payment.exchange_rate = 1
-        else:
-            payment.exchange_rate = self.get_exchange_rate()
-        
-        # Additional fields
-        payment.nature_of_expense = "Internal"
-        payment.create_accounting_entries = 1
-        payment.approval_doc = row.name[-7:].upper()
-        payment.reference_no = row.name[-7:].upper()
-        payment.issued_by = self.prepared_by or frappe.session.user
-        payment.date = today()
-        payment.cashflow_type = "Payment of Operation"
-        payment.auth_date = today()
-        payment.app_date = today()
-        
-        # Insert and return
-        payment.insert(ignore_permissions=True)
-        return payment
-    
+            if flt(row.outflow) <= 0 or row.get("entry_reference"):
+                continue
+            try:
+                name, dt = vr.create_entry(
+                    self._line(row), policy, self.company, self.petty_cash_account,
+                    source_doctype=self.doctype, source_name=self.name,
+                    source_row=row.name, submit=False, default_mode="Cash")
+            except Exception as e:
+                frappe.log_error(frappe.get_traceback(), f"Expense Batch {self.name}: row {row.idx}")
+                errors.append(str(e) if str(e).startswith("Row ") else f"Row {row.idx}: {e}")
+                continue
+            frappe.db.set_value(row.doctype, row.name,
+                                {"entry_type_created": dt, "entry_reference": name},
+                                update_modified=False)
+            created.append(name)
+
+        if errors:
+            frappe.throw("<br>".join(errors[:10]) + (f"<br>... and {len(errors) - 10} more" if len(errors) > 10 else ""),
+                         title=_("Batch not posted - fix these rows"))
+        if created:
+            frappe.msgprint(_("{0} {1} created as Draft.").format(
+                len(created), "Payments voucher(s)" if policy == vr.POLICY_VOUCHERS else "Journal Entr(ies)"),
+                indicator="green", alert=True)
+
+    def cancel_posted_entries(self):
+        done = {"cancelled": 0, "deleted": 0}
+        for row in self.petty_cash_transaction:
+            dt, name = row.get("entry_type_created"), row.get("entry_reference")
+            try:
+                res = vr.cancel_or_delete(dt, name)
+            except Exception:
+                frappe.log_error(frappe.get_traceback(), f"Expense Batch {self.name}: cancel {dt} {name}")
+                frappe.throw(_("Could not cancel {0} {1}. Cancel it manually first.").format(dt, name))
+            if res:
+                done[res] += 1
+        if done["cancelled"] or done["deleted"]:
+            frappe.msgprint(_("{0} entr(ies) cancelled, {1} draft(s) deleted.").format(
+                done["cancelled"], done["deleted"]), indicator="orange", alert=True)
+
     def get_exchange_rate(self):
         """Get current exchange rate for currency"""
         if self.account_currency == "NGN":
@@ -512,3 +537,77 @@ def generate_expense_report():
             message=frappe.get_traceback()
         )
         return {}
+
+# ============================================
+# EXCEL TEMPLATE / EXPORT / IMPORT
+# ============================================
+
+@frappe.whitelist()
+def download_template():
+    b64 = xio.build_workbook(_SHEET, _COLUMNS, template=True)
+    return {"filename": "Expense_Batch_Template.xlsx", "file_content": b64}
+
+
+@frappe.whitelist()
+def export_to_excel(doc_name):
+    doc = frappe.get_doc("Expense Batch", doc_name)
+    doc.check_permission("read")
+    rows = []
+    for r in doc.petty_cash_transaction:
+        rec = {c[1]: r.get(c[1]) for c in _COLUMNS}
+        rec.update({"balance": flt(r.get("balance")),
+                    "_created": "YES" if r.get("entry_reference") else "NO",
+                    "entry_type_created": r.get("entry_type_created") or "",
+                    "entry_reference": r.get("entry_reference") or "",
+                    "_done": bool(r.get("entry_reference"))})
+        rows.append(rec)
+    info = [
+        ("Expense Batch", doc.name), ("Company", doc.get("company") or ""),
+        ("Cost Center", doc.get("cost_center") or ""),
+        ("Period", f"{doc.get('batch_start_date')} to {doc.get('batch_end_date')}"),
+        ("Posting Policy", doc.get("posting_policy") or ""),
+        ("Opening Balance", flt(doc.get("opening_balance"))),
+        ("Total Inflow", flt(doc.get("total_inflow"))), ("Total Outflow", flt(doc.get("total_outflow"))),
+        ("Closing Balance", flt(doc.get("balance"))), ("Exported By", frappe.session.user),
+        ("Exported At", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+    ]
+    b64 = xio.build_workbook(_SHEET, _COLUMNS, rows, _STATUS_COLUMNS, info)
+    return {"filename": f"ExpenseBatch_{doc.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+            "file_content": b64}
+
+
+@frappe.whitelist()
+def import_from_excel(doc_name, file_content, filename, replace_existing=0):
+    doc = frappe.get_doc("Expense Batch", doc_name)
+    doc.check_permission("write")
+    if doc.docstatus != 0:
+        frappe.throw(_("Rows can only be imported into a Draft batch."))
+
+    records, errors, skipped = xio.parse_rows(file_content, filename, _SHEET, _COLUMNS,
+                                              describe_field="transaction_description")
+    good = []
+    for rec in records:
+        inflow, outflow = flt(rec.get("inflow")), flt(rec.get("outflow"))
+        if inflow <= 0 and outflow <= 0:
+            errors.append({"row": rec.get("_excel_row"), "description": rec.get("transaction_description") or "",
+                           "errors": ["Either Inflow or Outflow must be greater than zero"]})
+            skipped += 1
+            continue
+        if inflow > 0 and outflow > 0:
+            errors.append({"row": rec.get("_excel_row"), "description": rec.get("transaction_description") or "",
+                           "errors": ["Use Inflow OR Outflow on a row, not both"]})
+            skipped += 1
+            continue
+        rec.pop("_excel_row", None)
+        rec["inflow"], rec["outflow"] = inflow, outflow
+        rec["cost_center"] = rec.get("cost_center") or doc.cost_center
+        good.append(rec)
+
+    if good:
+        if int(replace_existing or 0):
+            doc.set("petty_cash_transaction", [])
+        for rec in good:
+            doc.append("petty_cash_transaction", rec)
+        doc.save()
+        frappe.db.commit()
+    return xio.import_result(len(good), skipped, errors)

@@ -75,33 +75,29 @@ def get_outstanding_from_invoices(party, company, as_of_date=None):
 # ─── Hook: Sales Invoice Submit ───────────────────────────────────────────────
 
 def validate_ar_gl_on_submit(doc, method):
-    """
-    After a Sales Invoice submits, the GL debit for this invoice
-    must equal the invoice's grand_total (rounded).
-    Catches misconfigured account mappings early.
-    """
-    ar_account = get_ar_account(doc.company)
+    """The receivable posting for this invoice must equal its total.
+    Gross side only, so an invoice paid on submit (POS) still passes."""
+    ar_account = doc.debit_to or get_ar_account(doc.company)
 
-    gl_for_this_doc = frappe.db.sql("""
-        SELECT COALESCE(SUM(debit - credit), 0) AS net
+    row = frappe.db.sql("""
+        SELECT COALESCE(SUM(debit), 0) AS debit, COALESCE(SUM(credit), 0) AS credit
         FROM `tabGL Entry`
-        WHERE
-            voucher_type = 'Sales Invoice'
-            AND voucher_no = %(voucher_no)s
-            AND account = %(account)s
-            AND is_cancelled = 0
-    """, {"voucher_no": doc.name, "account": ar_account}, as_dict=True)
+        WHERE voucher_type = 'Sales Invoice' AND voucher_no = %(v)s
+          AND account = %(a)s AND is_cancelled = 0
+    """, {"v": doc.name, "a": ar_account}, as_dict=True)[0]
 
-    gl_net = flt(gl_for_this_doc[0].net if gl_for_this_doc else 0, doc.precision("grand_total"))
-    expected = flt(doc.grand_total, doc.precision("grand_total"))
+    precision = doc.precision("base_grand_total")
+    # Debit for a sale, credit for a return. GL is in company currency.
+    posted = flt(row.credit if doc.is_return else row.debit, precision)
+    expected = abs(flt(doc.base_rounded_total or doc.base_grand_total, precision))
 
-    if abs(gl_net - expected) > 0.5:  # tolerance for rounding
+    if abs(posted - expected) > 0.5:
         frappe.throw(_(
             "AR Integrity Check Failed on {0}: "
             "GL entry to Receivable account shows {1} but invoice grand total is {2}. "
             "Check your accounts mapping or deferred revenue settings."
-        ).format(doc.name, gl_net, expected))
-
+        ).format(doc.name, posted, expected))
+        
 
 def validate_ar_gl_on_cancel(doc, method):
     """

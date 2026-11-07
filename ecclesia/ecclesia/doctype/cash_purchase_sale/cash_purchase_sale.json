@@ -1,0 +1,517 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-09-17 20:05:43.509700",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "transaction_type",
+  "transaction_date",
+  "column_break_main",
+  "company",
+  "amended_from",
+  "purchase_tab",
+  "purchase_party_section",
+  "walk_in_supplier",
+  "actual_supplier_name",
+  "actual_supplier_phone",
+  "column_break_psec",
+  "purchase_warehouse",
+  "mode_of_payment_purchase",
+  "cash_bank_account_purchase",
+  "purchase_items_section",
+  "purchase_items",
+  "purchase_total",
+  "purchase_tax_section",
+  "apply_withholding_tax_purchase",
+  "wht_rate_purchase",
+  "wht_amount_purchase",
+  "column_break_ptax",
+  "apply_vat_deduction_purchase",
+  "vat_rate_purchase",
+  "vat_amount_purchase",
+  "column_break_ptax2",
+  "net_payable",
+  "purchase_links_section",
+  "purchase_invoice",
+  "purchase_tax_journal_entry",
+  "column_break_plinks",
+  "purchase_payment_entry",
+  "sales_tab",
+  "sales_party_section",
+  "walk_in_customer",
+  "actual_customer_name",
+  "actual_customer_phone",
+  "column_break_ssec",
+  "sales_warehouse",
+  "mode_of_payment_sales",
+  "cash_bank_account_sales",
+  "sales_items_section",
+  "sales_items",
+  "sales_total",
+  "sales_tax_section",
+  "apply_withholding_tax_sales",
+  "wht_rate_sales",
+  "wht_amount_sales",
+  "column_break_stax",
+  "apply_vat_deduction_sales",
+  "vat_rate_sales",
+  "vat_amount_sales",
+  "column_break_stax2",
+  "net_receivable",
+  "sales_links_section",
+  "sales_invoice",
+  "sales_tax_journal_entry",
+  "column_break_slinks",
+  "sales_payment_entry"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Naming Series",
+   "options": "CPS-.YYYY.-"
+  },
+  {
+   "default": "Cash Purchase",
+   "fieldname": "transaction_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Type",
+   "options": "Cash Purchase\nCash Sale",
+   "reqd": 1
+  },
+  {
+   "fieldname": "transaction_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Transaction Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_main",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Cash Purchase Sale",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "fieldname": "purchase_tab",
+   "fieldtype": "Tab Break",
+   "label": "Purchase"
+  },
+  {
+   "fieldname": "purchase_party_section",
+   "fieldtype": "Section Break",
+   "label": "Party"
+  },
+  {
+   "default": "Walk-in Supplier",
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "description": "Fixed generic Supplier master used for all cash purchases \u2014 the real party is captured below.",
+   "fieldname": "walk_in_supplier",
+   "fieldtype": "Link",
+   "label": "Walk-in Supplier",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "options": "Supplier"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "description": "Name of the actual person/business this was bought from.",
+   "fieldname": "actual_supplier_name",
+   "fieldtype": "Data",
+   "label": "Actual Supplier Name",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Purchase'"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "fieldname": "actual_supplier_phone",
+   "fieldtype": "Data",
+   "label": "Actual Supplier Phone"
+  },
+  {
+   "fieldname": "column_break_psec",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "description": "Stock is received into this warehouse.",
+   "fieldname": "purchase_warehouse",
+   "fieldtype": "Link",
+   "label": "Receiving Warehouse",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "fieldname": "mode_of_payment_purchase",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "options": "Mode of Payment"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "description": "Cash/Bank account credited (money going out).",
+   "fieldname": "cash_bank_account_purchase",
+   "fieldtype": "Link",
+   "label": "Cash/Bank Account",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "fieldname": "purchase_items_section",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "fieldname": "purchase_items",
+   "fieldtype": "Table",
+   "label": "Items Purchased",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Purchase'",
+   "options": "Cash Transaction Item"
+  },
+  {
+   "default": "0",
+   "fieldname": "purchase_total",
+   "fieldtype": "Currency",
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.transaction_type == 'Cash Purchase' && (doc.apply_withholding_tax_purchase || doc.apply_vat_deduction_purchase)",
+   "fieldname": "purchase_tax_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Deductions (owed to FIRS)"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_withholding_tax_purchase",
+   "fieldtype": "Check",
+   "label": "Apply Withholding Tax"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_withholding_tax_purchase",
+   "fieldname": "wht_rate_purchase",
+   "fieldtype": "Percent",
+   "label": "WHT Rate",
+   "mandatory_depends_on": "apply_withholding_tax_purchase"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_withholding_tax_purchase",
+   "fieldname": "wht_amount_purchase",
+   "fieldtype": "Currency",
+   "label": "WHT Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ptax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_vat_deduction_purchase",
+   "fieldtype": "Check",
+   "label": "Apply VAT Deduction"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_vat_deduction_purchase",
+   "fieldname": "vat_rate_purchase",
+   "fieldtype": "Percent",
+   "label": "VAT Rate",
+   "mandatory_depends_on": "apply_vat_deduction_purchase"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_vat_deduction_purchase",
+   "fieldname": "vat_amount_purchase",
+   "fieldtype": "Currency",
+   "label": "VAT Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_ptax2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Total minus WHT/VAT withheld \u2014 what actually gets paid out.",
+   "fieldname": "net_payable",
+   "fieldtype": "Currency",
+   "label": "Net Payable",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.purchase_invoice",
+   "fieldname": "purchase_links_section",
+   "fieldtype": "Section Break",
+   "label": "Linked Documents"
+  },
+  {
+   "fieldname": "purchase_invoice",
+   "fieldtype": "Link",
+   "label": "Purchase Invoice",
+   "options": "Purchase Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "purchase_tax_journal_entry",
+   "fieldtype": "Link",
+   "label": "Tax Deduction Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_plinks",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "purchase_payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "fieldname": "sales_tab",
+   "fieldtype": "Tab Break",
+   "label": "Sales"
+  },
+  {
+   "fieldname": "sales_party_section",
+   "fieldtype": "Section Break",
+   "label": "Party"
+  },
+  {
+   "default": "Walk-in Customer",
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "description": "Fixed generic Customer master used for all cash sales \u2014 the real party is captured below.",
+   "fieldname": "walk_in_customer",
+   "fieldtype": "Link",
+   "label": "Walk-in Customer",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "options": "Customer"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "description": "Name of the actual person/business this was sold to.",
+   "fieldname": "actual_customer_name",
+   "fieldtype": "Data",
+   "label": "Actual Customer Name",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Sale'"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "fieldname": "actual_customer_phone",
+   "fieldtype": "Data",
+   "label": "Actual Customer Phone"
+  },
+  {
+   "fieldname": "column_break_ssec",
+   "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "description": "Stock is issued from this warehouse.",
+   "fieldname": "sales_warehouse",
+   "fieldtype": "Link",
+   "label": "Issuing Warehouse",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "options": "Warehouse"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "fieldname": "mode_of_payment_sales",
+   "fieldtype": "Link",
+   "label": "Mode of Payment",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "options": "Mode of Payment"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "description": "Cash/Bank account debited (money coming in).",
+   "fieldname": "cash_bank_account_sales",
+   "fieldtype": "Link",
+   "label": "Cash/Bank Account",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "options": "Account"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "fieldname": "sales_items_section",
+   "fieldtype": "Section Break",
+   "label": "Items"
+  },
+  {
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "fieldname": "sales_items",
+   "fieldtype": "Table",
+   "label": "Items Sold",
+   "mandatory_depends_on": "eval:doc.transaction_type == 'Cash Sale'",
+   "options": "Cash Transaction Item"
+  },
+  {
+   "default": "0",
+   "fieldname": "sales_total",
+   "fieldtype": "Currency",
+   "label": "Total",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.transaction_type == 'Cash Sale' && (doc.apply_withholding_tax_sales || doc.apply_vat_deduction_sales)",
+   "fieldname": "sales_tax_section",
+   "fieldtype": "Section Break",
+   "label": "Tax Withheld by Customer (recoverable)"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_withholding_tax_sales",
+   "fieldtype": "Check",
+   "label": "WHT Deducted by Customer"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_withholding_tax_sales",
+   "fieldname": "wht_rate_sales",
+   "fieldtype": "Percent",
+   "label": "WHT Rate",
+   "mandatory_depends_on": "apply_withholding_tax_sales"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_withholding_tax_sales",
+   "fieldname": "wht_amount_sales",
+   "fieldtype": "Currency",
+   "label": "WHT Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_stax",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "apply_vat_deduction_sales",
+   "fieldtype": "Check",
+   "label": "VAT Withheld by Customer"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_vat_deduction_sales",
+   "fieldname": "vat_rate_sales",
+   "fieldtype": "Percent",
+   "label": "VAT Rate",
+   "mandatory_depends_on": "apply_vat_deduction_sales"
+  },
+  {
+   "default": "0",
+   "depends_on": "apply_vat_deduction_sales",
+   "fieldname": "vat_amount_sales",
+   "fieldtype": "Currency",
+   "label": "VAT Amount",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_stax2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "description": "Total minus WHT/VAT withheld by the customer \u2014 what actually gets received in cash.",
+   "fieldname": "net_receivable",
+   "fieldtype": "Currency",
+   "label": "Net Receivable",
+   "read_only": 1
+  },
+  {
+   "collapsible": 1,
+   "depends_on": "eval:doc.sales_invoice",
+   "fieldname": "sales_links_section",
+   "fieldtype": "Section Break",
+   "label": "Linked Documents"
+  },
+  {
+   "fieldname": "sales_invoice",
+   "fieldtype": "Link",
+   "label": "Sales Invoice",
+   "options": "Sales Invoice",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sales_tax_journal_entry",
+   "fieldtype": "Link",
+   "label": "Tax Recoverable Journal Entry",
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_slinks",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sales_payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "options": "Payment Entry",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-09-17 20:05:43.509700",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Cash Purchase Sale",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

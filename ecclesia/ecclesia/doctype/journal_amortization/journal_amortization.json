@@ -1,0 +1,237 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "format:AMZ-{YYYY}-{#####}",
+ "creation": "2026-10-04 21:11:53.058941",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "journal_entry",
+  "purpose",
+  "beneficiary",
+  "col_break_1",
+  "company",
+  "journal_date",
+  "total_amount",
+  "terms_section",
+  "frequency",
+  "no_of_periods",
+  "col_break_2",
+  "start_date",
+  "end_date",
+  "period_charge",
+  "accounts_section",
+  "prepaid_account",
+  "expense_account",
+  "col_break_4",
+  "cost_center",
+  "progress_section",
+  "amortized_amount",
+  "col_break_3",
+  "balance_amount",
+  "status",
+  "schedule_section",
+  "amortization_schedule"
+ ],
+ "fields": [
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Journal Entry",
+   "options": "Journal Entry",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "description": "e.g. Office Rent. Added to the remark of each amortisation Journal Entry.",
+   "fieldname": "purpose",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Purpose"
+  },
+  {
+   "fetch_from": "journal_entry.pay_to_recd_from",
+   "fieldname": "beneficiary",
+   "fieldtype": "Data",
+   "label": "Beneficiary (Pay To / Received From)"
+  },
+  {
+   "fieldname": "col_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "journal_entry.company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "journal_entry.posting_date",
+   "fieldname": "journal_date",
+   "fieldtype": "Date",
+   "label": "Journal Date",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fetch_from": "journal_entry.total_debit",
+   "fieldname": "total_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Total Amount (Debit)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "terms_section",
+   "fieldtype": "Section Break",
+   "label": "Amortisation Terms"
+  },
+  {
+   "default": "Monthly",
+   "fieldname": "frequency",
+   "fieldtype": "Select",
+   "label": "Frequency",
+   "options": "Monthly\nQuarterly\nHalf Yearly\nYearly",
+   "reqd": 1
+  },
+  {
+   "fieldname": "no_of_periods",
+   "fieldtype": "Int",
+   "label": "No. of Periods",
+   "reqd": 1
+  },
+  {
+   "fieldname": "col_break_2",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "journal_entry.posting_date",
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date",
+   "read_only": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "period_charge",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Period Charge",
+   "read_only": 1
+  },
+  {
+   "fieldname": "accounts_section",
+   "fieldtype": "Section Break",
+   "label": "Posting Accounts"
+  },
+  {
+   "fieldname": "prepaid_account",
+   "fieldtype": "Link",
+   "label": "Prepaid / Deferred Account (Cr)",
+   "options": "Account"
+  },
+  {
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account (Dr)",
+   "options": "Account"
+  },
+  {
+   "fieldname": "col_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "progress_section",
+   "fieldtype": "Section Break",
+   "label": "Progress"
+  },
+  {
+   "fieldname": "amortized_amount",
+   "fieldtype": "Currency",
+   "label": "Amount Journalised",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "col_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "balance_amount",
+   "fieldtype": "Currency",
+   "label": "Balance Not Journalised",
+   "no_copy": 1,
+   "read_only": 1
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "Pending\nPartially Created\nCreated",
+   "read_only": 1
+  },
+  {
+   "fieldname": "schedule_section",
+   "fieldtype": "Section Break",
+   "label": "Amortisation Schedule"
+  },
+  {
+   "fieldname": "amortization_schedule",
+   "fieldtype": "Table",
+   "label": "Amortisation Schedule",
+   "no_copy": 1,
+   "options": "Journal Amortisation Schedule"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-10-05 09:24:39.947334",
+ "modified_by": "Administrator",
+ "module": "Ecclesia",
+ "name": "Journal Amortization",
+ "naming_rule": "Expression (old style)",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

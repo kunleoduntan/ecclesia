@@ -38,7 +38,6 @@ frappe.ui.form.on('Payments', {
         // Apply UI enhancements
         apply_zebra_striping(frm);
         style_buttons(frm);
-        apply_field_styling(frm);
 
         // Initialize allocation summary
         if (frm.doc.payments_reference && frm.doc.payments_reference.length > 0) {
@@ -50,7 +49,6 @@ frappe.ui.form.on('Payments', {
         // Apply UI enhancements
         apply_zebra_striping(frm);
         style_buttons(frm);
-        apply_field_styling(frm);
 
         // Update field visibility
         toggle_field_visibility(frm);
@@ -186,6 +184,7 @@ frappe.ui.form.on('Payments', {
             frm.set_value('local_currency_amount', frm.doc.amount_paid);
             calculate_wht(frm);
             convert_amount_to_words(frm);
+            sync_amortization_with_amount(frm);
         }
     },
 
@@ -250,7 +249,12 @@ frappe.ui.form.on('Payments', {
     },
 
     start_date: function(frm) {
-        if (frm.doc.start_date && frm.doc.end_date) {
+        if (frm.doc.no_of_days) {
+            // Recompute end_date in real time from Start Date + Number of
+            // Days. This fires the end_date handler below (validate_dates +
+            // schedule recalculation), so we don't duplicate that work here.
+            calculate_end_date_from_days(frm);
+        } else if (frm.doc.end_date) {
             validate_dates(frm);
             calculate_amortization_schedule(frm);
         }
@@ -264,9 +268,11 @@ frappe.ui.form.on('Payments', {
     },
 
     no_of_days: function(frm) {
-        if (frm.doc.no_of_days && frm.doc.local_currency_amount) {
-            calculate_charge_per_period(frm);
-        }
+        // Recompute end_date in real time from Start Date + Number of Days.
+        // This fires the end_date handler above (validate_dates + schedule
+        // AND charge_amount recalculation — see calculate_amortization_schedule),
+        // so nothing else is needed here.
+        calculate_end_date_from_days(frm);
     },
 
     // ==================== Button Handlers ====================
@@ -277,21 +283,44 @@ frappe.ui.form.on('Payments', {
             return;
         }
 
+        if (!frm.doc.company) {
+            frappe.msgprint(__('Please select a Company first'));
+            return;
+        }
+
+        // Calls our own whitelisted backend method — it queries Purchase
+        // Invoice directly and avoids ERPNext's get_outstanding_reference_documents,
+        // which requires a real party_account (usually sourced from an unset
+        // user default) and throws "cannot unpack non-iterable NoneType
+        // object" when it's missing.
         frappe.call({
-            method: 'erpnext.accounts.doctype.payment_entry.payment_entry.get_outstanding_reference_documents',
+            method: `${PAYMENTS_PY_PATH}.get_outstanding_supplier_invoices`,
             args: {
-                args: {
-                    party_type: 'Supplier',
-                    party: frm.doc.payee_id,
-                    party_account: frappe.defaults.get_default('default_payable_account'),
-                    company: frm.doc.company
-                }
+                supplier: frm.doc.payee_id,
+                company: frm.doc.company,
+                payment_currency: frm.doc.payment_currency || null
             },
+            freeze: true,
+            freeze_message: __('Fetching outstanding invoices...'),
             callback: function(r) {
                 if (r.message && r.message.length > 0) {
                     populate_invoice_table(frm, r.message);
+                    frappe.show_alert({
+                        message: __('{0} outstanding invoice(s) loaded', [r.message.length]),
+                        indicator: 'green'
+                    }, 5);
                 } else {
-                    frappe.msgprint(__('No outstanding invoices found for this supplier'));
+                    frm.clear_table('payments_reference');
+                    frm.refresh_field('payments_reference');
+                    update_allocation_summary(frm);
+                    frappe.msgprint({
+                        title: __('No Outstanding Invoices'),
+                        message: __(
+                            'No submitted, unpaid or part-paid Purchase Invoices were found for this supplier in {0}.',
+                            [frm.doc.payment_currency || __('the selected currency')]
+                        ),
+                        indicator: 'orange'
+                    });
                 }
             }
         });
@@ -353,11 +382,6 @@ frappe.ui.form.on('Payments', {
             if (!frm.doc.remittance_bank_gl) {
                 frappe.throw(__('Bank GL Account is required'));
             }
-
-            // account_to_debit for Expense Payment is intentionally NOT
-            // enforced here — the server's before_submit hook will attempt
-            // auto-coding first and throw its own actionable message if
-            // that fails. Enforcing it here would pre-empt auto-coding.
         }
 
         // Set payment status
@@ -480,8 +504,6 @@ frappe.ui.form.on('Related Company Payments', {
     }
 });
 
-
-
 // ==================== UI ENHANCEMENT FUNCTIONS ====================
 
 function apply_zebra_striping(frm) {
@@ -596,34 +618,6 @@ function style_buttons(frm) {
             }
         );
     }
-}
-
-function apply_field_styling(frm) {
-    // Apply color coding to important fields
-    const field_colors = {
-        'cost_center': '#90ee90',
-        'trans_type': '#87ceeb',
-        'transaction_date': '#fffacd',
-        'account_to_debit': '#90ee90',
-        'reference_no': '#87ceeb',
-        'amount_paid': '#fffacd',
-        'amount_paid_in_fc': '#fffacd',
-        'frequency': '#90ee90',
-        'end_date': '#87ceeb',
-        'charge_amount': '#fffacd',
-        'payee_id': '#90ee90',
-        'payee_name': '#87ceeb',
-        'mode_of_payment': '#fffacd',
-        'remittance_bank': '#90ee90',
-        'whtax_rate': '#ffb3ba',
-        'deduct_wht': '#bae1ff'
-    };
-
-    Object.keys(field_colors).forEach(field => {
-        if (frm.fields_dict[field]) {
-            frm.get_field(field).$input.css('background-color', field_colors[field]);
-        }
-    });
 }
 
 function update_allocation_summary(frm) {
@@ -810,6 +804,7 @@ function calculate_local_currency_amount(frm) {
     if (frm.doc.amount_paid_in_fc && frm.doc.exchange_rate) {
         let local_amount = frm.doc.amount_paid_in_fc * frm.doc.exchange_rate;
         frm.set_value('local_currency_amount', local_amount);
+        sync_amortization_with_amount(frm);
     }
 }
 
@@ -907,20 +902,26 @@ function calculate_all_totals(frm) {
 }
 
 function populate_invoice_table(frm, invoices) {
+    // invoices come from payments.py::get_outstanding_supplier_invoices,
+    // which returns a flat list with keys:
+    //   voucher_type, voucher_no, posting_date, due_date, bill_no,
+    //   currency, invoice_amount, outstanding_amount, exchange_rate
     frm.clear_table('payments_reference');
 
     invoices.forEach(function(invoice) {
         let row = frm.add_child('payments_reference');
-        row.reference_doctype = invoice.voucher_type;
-        row.reference_name = invoice.voucher_no;
-        row.due_date = invoice.due_date;
-        row.total_amount = invoice.invoice_amount;
+        row.reference_doctype  = invoice.voucher_type;
+        row.reference_name     = invoice.voucher_no;
+        row.due_date           = invoice.due_date;
+        row.total_amount       = invoice.invoice_amount;
         row.outstanding_amount = invoice.outstanding_amount;
-        row.allocated_amount = 0;
-        row.exchange_rate = invoice.exchange_rate || 1;
+        row.allocated_amount   = 0;
+        row.exchange_rate      = invoice.exchange_rate || 1;
     });
 
     frm.refresh_field('payments_reference');
+    calculate_total_allocated(frm);
+    update_allocation_summary(frm);
 }
 
 function perform_smart_allocation(frm) {
@@ -1101,10 +1102,33 @@ function validate_dates(frm) {
     }
 }
 
-function calculate_charge_per_period(frm) {
-    if (frm.doc.local_currency_amount && frm.doc.no_of_days) {
-        let charge = frm.doc.local_currency_amount / frm.doc.no_of_days;
-        frm.set_value('charge_amount', charge);
+function calculate_end_date_from_days(frm) {
+    if (!frm.doc.start_date || !frm.doc.no_of_days) return;
+
+    // no_of_days is the literal calendar-day duration of the amortization
+    // period, inclusive of the Start Date itself — a 30-day period starting
+    // 1 Jan ends 30 Jan (30 days total, not 31). Frequency (Monthly /
+    // Quarterly / Yearly) does not change this day-count math; it only
+    // controls how generate_amortization_schedule slices this date range
+    // into periods server-side. end_date is read-only in the DocType now
+    // that it's derived here, so this is the single source of truth for it.
+    let computed_end_date = frappe.datetime.add_days(frm.doc.start_date, frm.doc.no_of_days - 1);
+    frm.set_value('end_date', computed_end_date);
+}
+
+// local_currency_amount is a read-only, derived field (set from amount_paid
+// or amount_paid_in_fc x exchange_rate) with no frappe.ui.form.on handler
+// of its own. The schedule (and, with it, charge_amount — see
+// calculate_amortization_schedule) was previously only recalculated from
+// the no_of_days/start_date/end_date side, so if the amount got filled in
+// (or changed) AFTER the amortization fields, it never picked up the new
+// amount. This is called from every place that sets local_currency_amount
+// so the schedule stays in sync regardless of fill order.
+function sync_amortization_with_amount(frm) {
+    if (!frm.doc.amortize) return;
+
+    if (frm.doc.frequency && frm.doc.start_date && frm.doc.end_date) {
+        calculate_amortization_schedule(frm);
     }
 }
 
@@ -1122,16 +1146,44 @@ function calculate_amortization_schedule(frm) {
             amount: frm.doc.local_currency_amount
         },
         callback: function(r) {
-            if (r.message) {
-                frm.clear_table('amortization_schedule');
+            frm.clear_table('amortization_schedule');
+
+            if (r.message && r.message.length > 0) {
+                // Schedule of Prepayments has no period_start/period_end
+                // fields — its real columns are title, date,
+                // transaction_description, amount, period, frequency,
+                // account_to_debit, account_to_credit, prepayment_balance.
+                // Writing to period_start/period_end (as this used to do)
+                // silently went nowhere, which is why the grid looked empty.
+                let running_balance = flt(frm.doc.local_currency_amount);
+
                 r.message.forEach(function(entry) {
+                    running_balance -= flt(entry.amount);
+
                     let row = frm.add_child('amortization_schedule');
-                    row.period_start = entry.start;
-                    row.period_end = entry.end;
+                    row.title = __('Period {0}', [entry.period]);
+                    row.date = entry.start;
+                    row.transaction_description = __('Amortization {0} to {1}', [entry.start, entry.end]);
+                    row.period = `${entry.start} to ${entry.end}`;
+                    row.frequency = frm.doc.frequency;
                     row.amount = entry.amount;
+                    row.account_to_debit = frm.doc.expense_account;
+                    row.account_to_credit = frm.doc.deferred_expense_account;
+                    row.prepayment_balance = running_balance > 0 ? running_balance : 0;
                 });
-                frm.refresh_field('amortization_schedule');
+
+                // Every period is the same size (local_currency_amount split
+                // evenly across the Monthly/Quarterly/Yearly periods spanning
+                // start_date..end_date), so charge_amount is read straight off
+                // the schedule the server just generated rather than being
+                // recalculated separately client-side, where it could drift
+                // out of sync with what the schedule actually shows.
+                frm.set_value('charge_amount', r.message[0].amount);
+            } else {
+                frm.set_value('charge_amount', 0);
             }
+
+            frm.refresh_field('amortization_schedule');
         }
     });
 }

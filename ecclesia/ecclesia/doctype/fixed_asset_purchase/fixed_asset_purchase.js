@@ -44,8 +44,14 @@ frappe.ui.form.on('Fixed Asset Purchase', {
             frm.set_value('supplier', '');
             frm.set_value('supplier_account', '');
             frm.set_value('payment_status', 'Paid');
+            // Re-derive the payable account from the cash supplier (if already chosen)
+            if (frm.doc.cash_supplier) {
+                frm.trigger('cash_supplier');
+            }
         } else {
             frm.set_value('bank_account', '');
+            frm.set_value('cash_supplier', '');
+            frm.set_value('supplier_account', '');
             frm.set_value('payment_status', 'Unpaid');
         }
     },
@@ -74,6 +80,7 @@ frappe.ui.form.on('Fixed Asset Purchase', {
         // Toggle cash section
         frm.toggle_display('cash_purchase_section', is_cash);
         frm.toggle_reqd('bank_account', is_cash);
+        frm.toggle_reqd('cash_supplier', is_cash);
         
         // Toggle payment tab
         frm.toggle_display('payment_tab', !is_cash && frm.doc.payment_type === 'On Credit');
@@ -120,6 +127,24 @@ frappe.ui.form.on('Fixed Asset Purchase', {
             
             // Show supplier info
             show_supplier_info(frm);
+        }
+    },
+    
+    cash_supplier: function(frm) {
+        // Cash purchases are posted to this supplier - pick up its payable account
+        if (frm.doc.cash_supplier && frm.doc.company) {
+            frappe.call({
+                method: 'ecclesia.ecclesia.doctype.fixed_asset_purchase.fixed_asset_purchase.get_supplier_account',
+                args: {
+                    supplier: frm.doc.cash_supplier,
+                    company: frm.doc.company
+                },
+                callback: function(r) {
+                    if (r.message) {
+                        frm.set_value('supplier_account', r.message);
+                    }
+                }
+            });
         }
     },
     
@@ -357,7 +382,14 @@ function add_submitted_buttons(frm) {
         }, __('View'));
     }
     
-    // View Journal Entry
+    // View Payment Entry (cash purchases)
+    if (frm.doc.payment_entry) {
+        frm.add_custom_button(__('💳 View Payment Entry'), function() {
+            frappe.set_route('Form', 'Payment Entry', frm.doc.payment_entry);
+        }, __('View'));
+    }
+    
+    // View Journal Entry (legacy cash purchases only)
     if (frm.doc.journal_entry) {
         frm.add_custom_button(__('📒 View Journal Entry'), function() {
             frappe.set_route('Form', 'Journal Entry', frm.doc.journal_entry);
@@ -420,7 +452,7 @@ function set_status_indicators(frm) {
     }
     
     // Accounting entry indicator
-    if (frm.doc.journal_entry || frm.doc.purchase_invoice) {
+    if (frm.doc.journal_entry || frm.doc.purchase_invoice || frm.doc.payment_entry) {
         frm.dashboard.add_indicator(__('Accounting Posted'), 'green');
     }
 }
@@ -446,6 +478,11 @@ function show_summary_stats(frm) {
                         <tr>
                             <td><strong>Supplier:</strong></td>
                             <td>${frm.doc.supplier_name || frm.doc.supplier}</td>
+                        </tr>` : ''}
+                        ${frm.doc.cash_supplier ? `
+                        <tr>
+                            <td><strong>Cash Supplier:</strong></td>
+                            <td>${frm.doc.cash_supplier}</td>
                         </tr>` : ''}
                         ${frm.doc.bank_account ? `
                         <tr>
@@ -1022,7 +1059,7 @@ function show_welcome_message(frm) {
             <h4>👋 Welcome to Fixed Asset Purchase!</h4>
             <p>Choose your purchase type to get started:</p>
             <ul>
-                <li><strong>💵 Cash Purchase:</strong> Pay immediately from bank account (creates Journal Entry)</li>
+                <li><strong>💵 Cash Purchase:</strong> Pay immediately from bank account (creates Purchase Invoice + Payment Entry against the Cash Supplier)</li>
                 <li><strong>🏢 Supplier Purchase:</strong> Buy on credit or immediate payment (creates Purchase Invoice)</li>
             </ul>
             <p style="margin-top: 10px; color: #666;">
@@ -1050,6 +1087,15 @@ function set_field_queries(frm) {
                 'company': frm.doc.company,
                 'account_type': 'Payable',
                 'is_group': 0
+            }
+        };
+    });
+    
+    // Cash Supplier (enabled suppliers only)
+    frm.set_query('cash_supplier', function() {
+        return {
+            filters: {
+                'disabled': 0
             }
         };
     });
@@ -1127,14 +1173,10 @@ function flt(val, decimals = 2) {
 
 frappe.ui.form.on('Fixed Asset Purchase', {
     refresh: function(frm) {
-        // Show/hide item_linked_code based on purchase type
-        if (frm.doc.purchase_type === 'Supplier Purchase') {
-            frm.set_df_property('item_linked_code', 'reqd', 1);
-            frm.set_df_property('item_linked_code', 'hidden', 0);
-        } else {
-            frm.set_df_property('item_linked_code', 'reqd', 0);
-            frm.set_df_property('item_linked_code', 'hidden', 1);
-        }
+        // item_linked_code is needed by BOTH purchase types now
+        // (cash purchases also create a Purchase Invoice)
+        frm.set_df_property('item_linked_code', 'reqd', frm.doc.purchase_type ? 1 : 0);
+        frm.set_df_property('item_linked_code', 'hidden', 0);
         
         // Add "Create Assets" button only in draft status
         if (frm.doc.docstatus === 0 && frm.doc.asset_purchase_details && frm.doc.asset_purchase_details.length > 0) {
@@ -1171,15 +1213,9 @@ frappe.ui.form.on('Fixed Asset Purchase', {
     },
     
     purchase_type: function(frm) {
-        // Make item_linked_code mandatory for supplier purchase
-        if (frm.doc.purchase_type === 'Supplier Purchase') {
-            frm.set_df_property('item_linked_code', 'reqd', 1);
-            frm.set_df_property('item_linked_code', 'hidden', 0);
-        } else {
-            frm.set_df_property('item_linked_code', 'reqd', 0);
-            frm.set_df_property('item_linked_code', 'hidden', 1);
-            frm.set_value('item_linked_code', '');
-        }
+        // item_linked_code is mandatory for both purchase types
+        frm.set_df_property('item_linked_code', 'reqd', frm.doc.purchase_type ? 1 : 0);
+        frm.set_df_property('item_linked_code', 'hidden', 0);
     },
     
     item_linked_code: function(frm) {

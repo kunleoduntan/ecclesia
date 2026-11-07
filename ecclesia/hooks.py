@@ -83,6 +83,11 @@ after_migrate = [
     "ecclesia.ecclesia.custom.setup_custom_fields.install",
 ]
 
+doctype_list_js = {
+    "Employee": "public/js/employee_list.js",
+}
+
+
 
 # ─── Session Hooks ────────────────────────────────────────────────────────────
 on_login  = "ecclesia.api.session_hooks.on_login"
@@ -101,13 +106,14 @@ website_route_rules = [
 # ───────────────── DESK ASSETS ───────────────────────────────────────────────
 
 app_include_css = [
-    "/assets/ecclesia/css/global_form_styles.css",
+    #"/assets/ecclesia/css/global_form_styles.css",
     "/assets/ecclesia/css/telephone.css",
     "/assets/ecclesia/css/audit_styles.css",
 ]
 
 app_include_js = [
     "/assets/ecclesia/js/telephone.js",
+    #"/assets/ecclesia/js/vic_theme.js",
     "/assets/ecclesia/js/group_call.js",
     "/assets/ecclesia/js/audit_engine.js",
     "/assets/ecclesia/js/internal_chat.js",
@@ -115,9 +121,9 @@ app_include_js = [
     "/assets/ecclesia/js/universal_listview.js",
     "/assets/ecclesia/js/universal_excel_export.js",
     "/assets/ecclesia/js/universal_listview_download.js",
+    "/assets/ecclesia/js/erequest_pending.js",
+    "/assets/ecclesia/js/batch_excel.js",
 ]
-
-
 # ───────────────── DOCTYPE JS ─────────────────────────────────────────────────
 
 doctype_js = {
@@ -250,10 +256,15 @@ doc_events = {
     },
     "Payments": {
         "validate":      "ecclesia.ecclesia.doctype.payments.payments.validate_payment",
-        "before_submit": "ecclesia.ecclesia.doctype.payments.payments.before_submit_payment",
+        "before_submit": [
+            
+            "ecclesia.ecclesia.doctype.payments.payments.before_submit_payment",
+            #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+        ],
+            
         "on_trash":      "ecclesia.ecclesia.doctype.payments.payments.on_trash_payment",
         "on_submit": [
-            "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+            #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
             "ecclesia.api.compliance.allocation_engine_v2.on_payments_submit",
         ],
         "on_cancel": [
@@ -379,7 +390,7 @@ doc_events = {
             "ecclesia.api.approval.request_po_approval",
             "ecclesia.api.supplier_portal_api.on_purchase_order_submit",
         ],
-        "on_update": "ecclesia.api.supplier_portal_api.on_purchase_order_update",
+        "on_update": "ecclesia.api.supplier_portal_api.on_purchase_order_submit",
         "on_cancel": "ecclesia.api.supplier_portal_api.on_purchase_order_cancel",
     },
     "Purchase Receipt": {
@@ -389,14 +400,25 @@ doc_events = {
         ],
         "on_cancel": "ecclesia.api.item_validation.validate_stock_cancel_integrity",
     },
+    
     "Purchase Invoice": {
         "on_submit": [
             "ecclesia.api.supplier_portal_api.on_purchase_invoice_submit",
             "ecclesia.api.ap_validation.validate_ap_gl_on_submit",
             "ecclesia.api.compliance.liability_engine_v2.log_purchase_invoice_wht",
         ],
-        "on_cancel": "ecclesia.api.ar_validation.validate_ap_gl_on_cancel",
+    
+        "on_cancel": [
+            #"ecclesia.api.ar_validation.validate_ap_gl_on_cancel",
+            "ecclesia.api.purchase_invoice.purchase_invoice_on_cancel",
+        ],
+    
+        "validate": "ecclesia.api.purchase_invoice.purchase_invoice_validate",
+    
+        "before_cancel": "ecclesia.api.purchase_invoice.purchase_invoice_before_cancel",
     },
+
+    
     "Stock Entry": {
         "on_submit": "ecclesia.api.item_validation.validate_stock_entry_gl_on_submit",
         "on_cancel": "ecclesia.api.item_validation.validate_stock_cancel_integrity",
@@ -459,12 +481,18 @@ doc_events = {
     },
 
     # ── Employee ──────────────────────────────────────────────────────────────
-    "Employee": {
-        "before_insert": "ecclesia.api.employee_ctc.set_default_components",
-        "validate":      "ecclesia.api.employee_ctc.calculate_ctc",
-        "on_update":     "ecclesia.tasks.on_employee_update",
+   "Employee": {
+    "before_insert": "ecclesia.api.employee_ctc.set_default_components",
+    "validate": "ecclesia.api.employee_ctc.calculate_ctc",
+    "on_update": "ecclesia.tasks.on_employee_update",
+    "after_insert": [
+        "ecclesia.employee_events.create_tax_computation",
+        "ecclesia.employee_events.create_salary_structure_assignment",
+        ],
     },
-
+    
+    
+    
     # ── Performance Management ────────────────────────────────────────────────
     # FIX 7: Class methods (EmployeePerformanceRecord.on_update etc.) fire
     # automatically — removed from doc_events. Only cross-module propagation
@@ -703,7 +731,10 @@ doc_events = {
 
     # ── eRequest ──────────────────────────────────────────────────────────────
     "eRequest": {
-        "on_update": "ecclesia.ecclesia.doctype.erequest.erequest.on_update",
+        "on_update": [
+              "ecclesia.ecclesia.doctype.erequest.erequest.on_update",
+              "ecclesia.ecclesia.doctype.erequest.erequest_pending.publish_pending_refresh",
+          ],
         "on_cancel": "ecclesia.ecclesia.doctype.erequest.erequest.on_cancel",
     },
 }
@@ -721,9 +752,14 @@ scheduler_events = {
     "cron": {
         "*/5 * * * *": [
             "ecclesia.tasks.sync_all_accounts",
-            "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+            #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
             "ecclesia.biometric_attendance.push.flag_offline_push_devices",
         ],
+        
+        "15 6 * * *": [
+            "ecclesia.api.exchange_rates.sync_exchange_rates"
+            ],
+        
         "*/15 * * * *": [
             "ecclesia.tasks.retry_failed_messages",
             "ecclesia.tasks.process_message_queue",
@@ -747,7 +783,7 @@ scheduler_events = {
         "ecclesia.tasks.expire_pending_actions",
         "ecclesia.biometric_attendance.processor.process_pending_logs",
         "ecclesia.social_media.scheduler.sync_platform_metrics",
-        "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+        #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
         "ecclesia.ecclesia.doctype.work_session.work_session.flag_inactive_sessions",
         "ecclesia.api.ess_portal_events.check_new_payslips",
         "ecclesia.api.job_post_api.dispatch_scheduled_posts",
@@ -832,7 +868,9 @@ scheduler_events = {
 
 
 # ─── Permissions ──────────────────────────────────────────────────────────────
+
 permission_query_conditions = {
+    "eRequest":             "ecclesia.ecclesia.doctype.erequest.erequest_visibility.get_permission_query_conditions",
     "WFH Request":          "ecclesia.permissions.get_employee_permission_query",
     "WFH Session":          "ecclesia.permissions.get_employee_permission_query",
     "Work Activity Log":    "ecclesia.permissions.get_employee_permission_query",
@@ -845,7 +883,7 @@ permission_query_conditions = {
 }
 
 has_permission = {
-    "eRequest":             "ecclesia.ecclesia.doctype.erequest.erequest.has_permission",
+    "eRequest":             "ecclesia.ecclesia.doctype.erequest.erequest_visibility.has_permission",
     "WFH Request":          "ecclesia.permissions.has_permission",
     "WFH Session":          "ecclesia.permissions.has_permission",
     "Work Activity Log":    "ecclesia.permissions.has_permission",

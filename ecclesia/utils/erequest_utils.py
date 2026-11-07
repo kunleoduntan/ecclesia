@@ -1,5 +1,5 @@
 """
-ecclesia_erequest/utils/amount_words.py
+ecclesia.erequest/utils/amount_words.py
 ─────────────────────────────────────────────────────────────────────────────
 Convert a numeric amount to English words (Nigerian currency aware).
 """
@@ -64,7 +64,7 @@ def _manual_words(amount: float, currency: str) -> str:
 
 
 """
-ecclesia_erequest/utils/cleanup.py
+ecclesia.erequest/utils/cleanup.py
 Purge expired OTP cache entries (belt-and-suspenders — Redis TTL handles most).
 """
 import frappe
@@ -79,7 +79,7 @@ def purge_expired_otps():
 
 
 """
-ecclesia_erequest/utils/reminders.py
+ecclesia.erequest/utils/reminders.py
 Daily reminder emails for pending approvals.
 """
 import frappe

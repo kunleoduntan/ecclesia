@@ -16,6 +16,16 @@ Trans Type → Entry mapping (non-accountant friendly):
                       + optional amortisation over N periods
   Pending           → No entry created; row flagged only
 
+POSTING POLICY (new)
+────────────────────
+  The document carries a "Posting Policy" Select:
+    Journal & Payment Entry   -> behaviour described above (default for existing records)
+    Payments & Receipts       -> every row becomes a Payments or Receipts voucher
+                                 (Supplier Payment / Payment -> Payments,
+                                  Customer Receipt / Receipt -> Receipts, ...)
+                                 Amortised rows hand their schedule to the voucher.
+  Routing lives in ecclesia/api/voucher_router.py.
+
 Inflow / Outflow auto-set:
   Inflow types:  Customer Receipt, Transfer In, Supplier Refund, Receipt
   Outflow types: Supplier Payment, Transfer Out, Customer Refund, Payment
@@ -29,6 +39,8 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 from frappe.utils import flt, today, add_days, add_months
+
+from ecclesia.api import voucher_router as vr
 
 # ── Type routing ──────────────────────────────────────────────────────────────
 _PE_TYPES = {
@@ -99,9 +111,37 @@ _COLUMNS = [
 class BankTransactionProcessor(Document):
 
     def validate(self):
+        self._set_policy()
         self._set_inflow_outflow()
         self._validate_rows()
+        self._validate_policy_rows()
         self._calc_totals()
+
+    def _set_policy(self):
+        # Existing processors keep the Journal / Payment Entry behaviour.
+        new = vr.resolve_policy(self.get("posting_policy"), default=vr.POLICY_ENTRIES)
+        if not self.is_new():
+            old = frappe.db.get_value(self.doctype, self.name, "posting_policy") or vr.POLICY_ENTRIES
+            if old != new and any(r.get("entry_created") for r in self.get("transactions", [])):
+                frappe.throw(_(
+                    "Posting Policy cannot be changed after entries have been created. "
+                    "Cancel the created entries first (or start a new processor)."))
+        self.posting_policy = new
+
+    def _validate_policy_rows(self):
+        """Extra checks that only matter for Payments & Receipts."""
+        if self.posting_policy != vr.POLICY_VOUCHERS:
+            return
+        for row in self.get("transactions", []):
+            tt = row.get("trans_type") or ""
+            if tt == "Pending":
+                continue
+            line = _row_to_line(row, self.company)
+            vr.validate_amortisation(line, self.posting_policy)
+            if vr.canonical(tt) in ("Transfer Out", "Transfer In") and not line.get("counter_account"):
+                frappe.throw(_(
+                    "Row {0}: {1} needs the other account — fill "
+                    "'Account to {2}'.").format(row.idx, tt, "Debit" if tt == "Transfer Out" else "Credit"))
 
     def on_submit(self):
         self.db_set("status", "Submitted")
@@ -537,6 +577,10 @@ def post_next_amortisation_period(processor_name: str, row_name: str) -> dict:
     if not frappe.db.exists("Bank Transaction Line", row_name):
         frappe.throw(_("Row not found."))
 
+    if _policy_of(processor_name) == vr.POLICY_VOUCHERS:
+        frappe.throw(_("Under the 'Payments & Receipts' policy the voucher carries its own "
+                       "amortisation schedule. Post periods from the Payments / Receipts document."))
+
     row = frappe.get_doc("Bank Transaction Line", row_name)
 
     n_periods   = int(row.get("no_of_periods") or 0)
@@ -594,12 +638,70 @@ def post_next_amortisation_period(processor_name: str, row_name: str) -> dict:
 # Internal: route one row to the right builder
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _process_row(row, company, bank_account_name, processor_name):
+def _policy_of(processor_name):
+    return vr.resolve_policy(
+        frappe.db.get_value("Bank Transaction Processor", processor_name, "posting_policy"),
+        default=vr.POLICY_ENTRIES)
+
+
+def _row_to_line(row, company=None):
+    """Bank Transaction Line -> voucher_router line."""
+    tt = vr.canonical(row.get("trans_type"))
+    counter = None
+    bank_override = row.get("bank_account_gl")
+    if tt in ("Payment", "Transfer Out"):
+        counter = row.get("account_to_debit")
+    elif tt in ("Receipt", "Transfer In"):
+        counter = row.get("account_to_credit")
+    # Older transfer rows stored the OTHER bank GL in `bank_account_gl`
+    if tt in ("Transfer Out", "Transfer In") and not counter and bank_override:
+        counter, bank_override = bank_override, None
+    return {
+        "idx": row.get("idx"),
+        "trans_type": tt,
+        "posting_date": row.get("posting_date"),
+        "amount": flt(row.get("amount")),
+        "amount_in_fc": flt(row.get("amount_in_fc")),
+        "exch_rate": flt(row.get("exch_rate")),
+        "transaction_currency": row.get("transaction_currency"),
+        "remark": row.get("transaction_description") or row.get("remark"),
+        "party_type": row.get("party_type"),
+        "party": row.get("party"),
+        "party_name": row.get("party_name"),
+        "payee_name": row.get("payee_name"),
+        "counter_account": counter,
+        "bank_account_gl": bank_override,
+        "mode_of_payment": row.get("mode_of_payment"),
+        "reference_no": row.get("reference_no"),
+        "cost_center": row.get("cost_center"),
+        "department": row.get("department"),
+        "project": row.get("project"),
+        "branch": row.get("branch"),
+        "customer_id": row.get("customer_id"),
+        "nature_of_expense": row.get("nature_of_expense"),
+        "issued_by": frappe.session.user,
+        "amortise": row.get("amortise"),
+        "frequency": row.get("frequency"),
+        "no_of_periods": row.get("no_of_periods"),
+        "start_date": row.get("start_date"),
+    }
+
+
+def _process_row(row, company, bank_account_name, processor_name, policy=None):
     """Returns (entry_name, entry_doctype) or (None, 'Pending')."""
     tt = row.get("trans_type") or ""
+    policy = policy or _policy_of(processor_name)
 
     if tt == "Pending":
         return None, "Pending"
+
+    if policy == vr.POLICY_VOUCHERS:
+        # Payments / Receipts own their amortisation schedule, so the
+        # per-period Journal Entry loop below is not used.
+        return vr.create_entry(
+            _row_to_line(row, company), policy, company, bank_account_name,
+            source_doctype="Bank Transaction Processor", source_name=processor_name,
+            source_row=row.get("name"), submit=False, default_mode="Bank Transfer")
 
     if tt in _PE_TYPES:
         name = _build_payment_entry(row, company, bank_account_name, processor_name)
@@ -645,7 +747,8 @@ def create_entry_for_row(processor_name: str, row_name: str) -> dict:
         frappe.throw(_("Bank Account is not set on the processor."))
 
     try:
-        entry_name, entry_dtype = _process_row(row, company, bank_account, processor_name)
+        entry_name, entry_dtype = _process_row(row, company, bank_account, processor_name,
+                                               _policy_of(processor_name))
     except Exception as e:
         frappe.log_error(frappe.get_traceback(),
             f"BTP {processor_name}: failed row {row_name}")
@@ -679,6 +782,7 @@ def create_all_entries(processor_name: str) -> dict:
     proc         = frappe.get_doc("Bank Transaction Processor", processor_name)
     company      = proc.company
     bank_account = proc.bank_account
+    policy       = vr.resolve_policy(proc.get("posting_policy"), default=vr.POLICY_ENTRIES)
 
     created = skipped = errors = 0
     results = []
@@ -692,7 +796,7 @@ def create_all_entries(processor_name: str) -> dict:
             skipped += 1; continue
 
         try:
-            entry_name, entry_dtype = _process_row(row, company, bank_account, processor_name)
+            entry_name, entry_dtype = _process_row(row, company, bank_account, processor_name, policy)
             frappe.db.set_value("Bank Transaction Line", row.name, {
                 "entry_created":      1,
                 "entry_reference":    entry_name or "",
@@ -849,6 +953,7 @@ def export_to_excel(processor_name: str) -> dict:
         ("Company",        proc.company or ""),
         ("Bank Account",   proc.bank_account or ""),
         ("Status",         proc.status  or "Draft"),
+        ("Posting Policy", proc.get("posting_policy") or vr.POLICY_ENTRIES),
         ("Exported By",    frappe.session.user),
         ("Exported At",    datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         ("Total Rows",     len(proc.transactions)),

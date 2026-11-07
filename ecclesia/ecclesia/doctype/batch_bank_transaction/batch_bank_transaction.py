@@ -10,46 +10,113 @@ from frappe.model.document import Document
 from frappe.utils import flt, getdate, today, add_days, cstr
 import json
 from datetime import datetime
-import openpyxl
-from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
-import io
-import base64
+
+
+from ecclesia.api import voucher_router as vr
+from ecclesia.api import batch_excel_io as xio
+
+
+_SHEET = "Bank Transactions"
+_CHILD = "Transaction Entry"
+
+
+def _trans_type_options():
+    """The Select options actually defined on the child table."""
+    df = frappe.get_meta(_CHILD).get_field("trans_type")
+    return [o.strip() for o in (df.options or "").split("\n") if o.strip()] if df else []
+
+
+def _columns():
+    """Excel layout. Built at call time so Trans Type validates against the
+    options your child table really has."""
+    return [
+        ("Date*",           "posting_date",         True,  "date",  {"width": 12, "example": "2026-11-02",
+                                                                     "note": "Cannot be in the future."}),
+        ("Trans Type*",     "trans_type",           True,  "str",   {"width": 18, "options": _trans_type_options(),
+                                                                     "accept": vr.accepted_spellings(_trans_type_options()),
+                                                                     "example": "Supplier Payment"}),
+        ("Description*",    "remark",               True,  "str",   {"width": 40, "example": "Settlement of invoice 1042"}),
+        ("Amount*",         "amount",               True,  "float", {"width": 14, "example": 250000}),
+        ("Party Type",      "party_type",           False, "str",   {"width": 12, "note": "Blank = derived from Trans Type "
+                                                                     "(Supplier / Customer / Account)."}),
+        ("Party*",          "party",                True,  "str",   {"width": 28, "note": "Supplier or Customer ID, or a GL "
+                                                                     "Account for Payment / Receipt / Transfer rows."}),
+        ("Payee Name",      "payee_name",           False, "str",   {"width": 24}),
+        ("Mode of Payment", "mode_of_payment",      False, "str",   {"width": 18, "link": "Mode of Payment"}),
+        ("Exch Rate",       "exch_rate",            False, "float", {"width": 10, "note": "Foreign-currency bank accounts only."}),
+        ("Amount in FC",    "amount_in_fc",         False, "float", {"width": 14}),
+        ("Trans Currency",  "transaction_currency", False, "str",   {"width": 12, "link": "Currency"}),
+        ("Cost Center",     "cost_center",          False, "str",   {"width": 24, "link": "Cost Center"}),
+        ("Department",      "department",           False, "str",   {"width": 18, "link": "Department"}),
+        ("Branch",          "branch",               False, "str",   {"width": 16, "link": "Branch"}),
+        ("Customer ID",     "customer_id",          False, "str",   {"width": 18, "link": "Customer"}),
+    ]
+
+
+_STATUS_COLUMNS = [
+    ("Inflow", "inflow", 14), ("Outflow", "outflow", 14), ("Balance", "balance", 14),
+    ("Entry Created", "_created", 14), ("Entry Type", "entry_type_created", 16),
+    ("Entry Reference", "entry_reference", 22),
+]
 
 
 class BatchBankTransaction(Document):
     """
     Batch Bank Transaction Document Controller
-    Handles batch processing of bank transactions with AI-powered features
+    Handles batch processing of bank transactions.  What a row becomes
+    (Payments / Receipts vouchers, or Journal / Payment Entry) is decided by
+    the document's Posting Policy through voucher_router.
     """
-    
+
     def validate(self):
         """Validate document before saving"""
+        self.set_default_policy()
+        self.set_flows()
         self.validate_bank_account()
         self.validate_transactions()
         self.validate_duplicate_references()
         self.calculate_totals()
         self.validate_balance()
-        
+
     def before_submit(self):
         """Actions before submitting"""
         self.validate_all_transactions_complete()
         self.check_posting_restrictions()
-        
+
     def on_submit(self):
-        """Actions on submit - Create payment/receipt entries"""
+        """Actions on submit - create the entries chosen by the Posting Policy"""
         if self.post_batch:
-            self.create_payment_entries()
-            self.create_receipt_entries()
+            made = self.post_rows()
             self.update_bank_balance()
-            frappe.msgprint(_("Batch posted successfully. {0} entries created.").format(
-                len(self.transaction_entry)
-            ), indicator='green')
-    
+            frappe.msgprint(_("Batch posted successfully. {0} entries created as Draft.").format(made),
+                            indicator='green')
+
     def on_cancel(self):
         """Actions on cancel - Cancel related documents"""
         self.cancel_related_documents()
         frappe.msgprint(_("Batch cancelled and related documents removed."), indicator='orange')
-    
+
+    # ========================================
+    # POLICY / ROW NORMALISATION
+    # ========================================
+
+    def set_default_policy(self):
+        # Batches saved before the field existed keep creating Payments / Receipts.
+        self.posting_policy = vr.resolve_policy(self.get("posting_policy"), default=vr.POLICY_VOUCHERS)
+
+    def set_flows(self):
+        """Server-side source of truth for Party Type and Inflow / Outflow, so
+        imported rows behave exactly like rows keyed in on the form."""
+        for row in self.get("transaction_entry", []):
+            tt = vr.canonical(row.trans_type)
+            if not row.party_type and vr.party_type_for(tt):
+                row.party_type = vr.party_type_for(tt)
+            amt = flt(row.amount)
+            if tt in vr.INFLOW_TYPES:
+                row.inflow, row.outflow = amt, 0
+            elif tt in vr.OUTFLOW_TYPES:
+                row.inflow, row.outflow = 0, amt
+
     # ========================================
     # VALIDATION METHODS
     # ========================================
@@ -103,22 +170,24 @@ class BatchBankTransaction(Document):
                         idx + 1, row.party
                     ))
     
+
     def validate_duplicate_references(self):
         """Check for duplicate reference numbers in the system"""
+        policy = self.posting_policy
         for row in self.transaction_entry:
-            if row.name:
-                ref_no = row.name[-7:].upper()
-                
-                # Check in Payments
-                existing_payment = frappe.db.exists("Payments", {"reference_no": ref_no})
-                if existing_payment:
-                    frappe.throw(_("Reference number {0} already exists in Payments. This batch may have been posted already.").format(ref_no))
-                
-                # Check in Receipts
-                existing_receipt = frappe.db.exists("Receipts", {"reference_no": ref_no})
-                if existing_receipt:
-                    frappe.throw(_("Reference number {0} already exists in Receipts. This batch may have been posted already.").format(ref_no))
-    
+            if not row.name or row.get("entry_reference"):
+                continue
+            ref_no = row.name[-7:].upper()
+            if policy == vr.POLICY_VOUCHERS:
+                checks = (("Payments", {"reference_no": ref_no}), ("Receipts", {"reference_no": ref_no}))
+            else:
+                checks = (("Journal Entry", {"cheque_no": ref_no}), ("Payment Entry", {"reference_no": ref_no}))
+            for dt, flt_ in checks:
+                flt_["docstatus"] = ["<", 2]
+                if frappe.db.exists(dt, flt_):
+                    frappe.throw(_("Reference number {0} already exists in {1}. "
+                                   "This batch may have been posted already.").format(ref_no, dt))
+
     def calculate_totals(self):
         """Calculate total inflow, outflow and balance"""
         total_inflow = 0
@@ -177,550 +246,213 @@ class BatchBankTransaction(Document):
             except Exception as e:
                 frappe.throw(_("Row {0}: {1}").format(idx + 1, str(e)))
     
+
     # ========================================
-    # PAYMENT/RECEIPT CREATION
+    # POSTING  (replaces the 9 create_* methods)
     # ========================================
-    
-    def create_payment_entries(self):
-        """Create payment entries for outflow transactions"""
-        payment_types = ["Payment", "Supplier Payment", "Transfer Out", "Customer Refunds"]
-        
+
+    def _line(self, row):
+        """Child row -> router line."""
+        tt = vr.canonical(row.trans_type)
+        party_type = row.party_type or vr.party_type_for(tt)
+        line = {
+            "idx": row.idx,
+            "trans_type": tt,
+            "posting_date": row.posting_date,
+            "amount": flt(row.amount),
+            "amount_in_fc": flt(row.get("amount_in_fc")),
+            "exch_rate": flt(row.get("exch_rate")),
+            "transaction_currency": row.get("transaction_currency"),
+            "remark": (row.remark or "").strip(),
+            "party_type": party_type,
+            "party_name": row.get("party_name"),
+            "payee_name": (row.get("payee_name") or "").title(),
+            "mode_of_payment": row.get("mode_of_payment"),
+            "reference_no": row.name[-7:].upper(),
+            "cost_center": row.get("cost_center"),
+            "department": row.get("department"),
+            "branch": row.get("branch"),
+            "customer_id": row.get("customer_id"),
+            "issued_by": self.get("batch_owner") or frappe.session.user,
+            "amortise": row.get("amortise"),
+            "frequency": row.get("frequency"),
+            "no_of_periods": row.get("no_of_periods"),
+            "start_date": row.get("start_date"),
+        }
+        # Customer / Supplier rows carry the party; Payment / Receipt / Transfer
+        # rows carry a GL account in the same column.
+        if party_type == "Account":
+            line["counter_account"] = row.party
+        else:
+            line["party"] = row.party
+        return line
+
+    def post_rows(self):
+        """
+        Create one document per row according to the Posting Policy.
+        Idempotent (rows already linked are skipped) and all-or-nothing: any
+        row failing aborts the submit with the full list of problems.
+        """
+        policy = self.posting_policy
+        made, errors = 0, []
         for row in self.transaction_entry:
-            if row.trans_type in payment_types:
-                try:
-                    if row.trans_type == "Payment":
-                        self.create_expense_payment(row)
-                    elif row.trans_type == "Supplier Payment":
-                        self.create_supplier_payment(row)
-                    elif row.trans_type == "Transfer Out":
-                        self.create_transfer_out(row)
-                    elif row.trans_type == "Customer Refunds":
-                        self.create_customer_refund(row)
-                except Exception as e:
-                    frappe.log_error(f"Error creating payment for {row.name}: {str(e)}")
-                    frappe.throw(_("Error creating payment entry for row {0}: {1}").format(
-                        row.idx, str(e)
-                    ))
-    
-    def create_expense_payment(self, row):
-        """Create expense payment entry"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        payment = frappe.new_doc('Payments')
-        payment.transaction_date = row.posting_date
-        payment.payee_name = (row.payee_name or "").title()
-        payment.account_to_debit = row.party
-        payment.trans_type = "Expense Payment"
-        payment.payment_currency = self.bank_account_currency
-        payment.cost_center = row.cost_center
-        payment.transaction_purposes = (row.remark or "").title()
-        payment.mode_of_payment = row.mode_of_payment or "Wire Transfer"
-        payment.remittance_bank = self.bank_account
-        payment.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        payment.amount_paid = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        payment.amount_paid_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        payment.department = row.department
-        payment.customer_id = row.customer_id
-        payment.nature_of_expense = "Internal"
-        payment.create_accounting_entries = 1
-        payment.approval_doc = row.name
-        payment.cashflow_type = "Operating costs"
-        payment.branch = row.branch
-        payment.reference_no = row.name[-7:].upper()
-        payment.issued_by = self.batch_owner
-        payment.date = today()
-        
-        payment.insert(ignore_permissions=True)
-        payment.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "payment_entry", payment.name)
-    
-    def create_supplier_payment(self, row):
-        """Create supplier payment entry"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        payment = frappe.new_doc('Payments')
-        payment.transaction_date = row.posting_date
-        payment.payee_id = row.party
-        payment.payee_name = row.party_name or frappe.db.get_value("Supplier", row.party, "supplier_name")
-        payment.trans_type = "Supplier Payment"
-        payment.payment_currency = self.bank_account_currency
-        payment.cost_center = row.cost_center
-        payment.transaction_purposes = (row.remark or "").title()
-        payment.mode_of_payment = row.mode_of_payment or "Wire Transfer"
-        payment.remittance_bank = self.bank_account
-        payment.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        payment.amount_paid = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        payment.amount_paid_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        payment.department = row.department
-        payment.customer_id = row.customer_id
-        payment.create_accounting_entries = 1
-        payment.approval_doc = row.name
-        payment.cashflow_type = "Supplier payments"
-        payment.branch = row.branch
-        payment.reference_no = row.name[-7:].upper()
-        payment.issued_by = self.batch_owner
-        payment.date = today()
-        
-        payment.insert(ignore_permissions=True)
-        payment.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "payment_entry", payment.name)
-    
-    def create_transfer_out(self, row):
-        """Create transfer out payment"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        payment = frappe.new_doc('Payments')
-        payment.transaction_date = row.posting_date
-        payment.account_to_debit = row.party
-        payment.payee_name = row.party
-        payment.trans_type = "Transfer Out"
-        payment.cost_center = row.cost_center
-        payment.payment_currency = self.bank_account_currency
-        payment.transaction_purposes = row.remark
-        payment.mode_of_payment = "Wire Transfer"
-        payment.remittance_bank = self.bank_account
-        payment.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        payment.amount_paid = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        payment.amount_paid_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        payment.create_accounting_entries = 1
-        payment.approval_doc = row.name
-        payment.cashflow_type = "Funds Transfer"
-        payment.reference_no = row.name[-7:].upper()
-        payment.issued_by = self.batch_owner
-        payment.date = today()
-        
-        payment.insert(ignore_permissions=True)
-        payment.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "payment_entry", payment.name)
-    
-    def create_customer_refund(self, row):
-        """Create customer refund receipt"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        receipt = frappe.new_doc('Receipts')
-        receipt.transaction_date = row.posting_date
-        receipt.customer_id = row.party
-        receipt.cash_customer_name = row.party
-        receipt.customer_type = "Customer Refund"
-        receipt.receipt_currency = self.bank_account_currency
-        receipt.cost_center = row.cost_center
-        receipt.transaction_purposes = (row.remark or "").title()
-        receipt.mode_of_payment = row.mode_of_payment or "Wire Transfer"
-        receipt.remittance_bank = self.bank_account
-        receipt.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        receipt.amount_received = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        receipt.amount_received_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        receipt.department = row.department
-        receipt.create_accounting_entries = 1
-        receipt.approval_doc = row.name
-        receipt.cashflow_type = 'Receipt from Customer'
-        receipt.branch = row.branch
-        receipt.reference_no = row.name[-7:].upper()
-        receipt.issued_by = self.batch_owner
-        receipt.date = today()
-        
-        receipt.insert(ignore_permissions=True)
-        receipt.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "receipt_entry", receipt.name)
-    
-    def create_receipt_entries(self):
-        """Create receipt entries for inflow transactions"""
-        receipt_types = ["Customer Receipt", "Receipt", "Transfer In", "Supplier Refunds"]
-        
-        for row in self.transaction_entry:
-            if row.trans_type in receipt_types:
-                try:
-                    if row.trans_type == "Customer Receipt":
-                        self.create_customer_receipt(row)
-                    elif row.trans_type == "Receipt":
-                        self.create_general_receipt(row)
-                    elif row.trans_type == "Transfer In":
-                        self.create_transfer_in(row)
-                    elif row.trans_type == "Supplier Refunds":
-                        self.create_supplier_refund(row)
-                except Exception as e:
-                    frappe.log_error(f"Error creating receipt for {row.name}: {str(e)}")
-                    frappe.throw(_("Error creating receipt entry for row {0}: {1}").format(
-                        row.idx, str(e)
-                    ))
-    
-    def create_customer_receipt(self, row):
-        """Create customer receipt entry"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        receipt = frappe.new_doc("Receipts")
-        receipt.transaction_date = row.posting_date
-        receipt.customer_type = 'Receive from Registered'
-        receipt.cost_center = row.cost_center
-        receipt.customer_id = row.party
-        receipt.create_accounting_entries = 1
-        receipt.transaction_purposes = "Received from customer"
-        receipt.receipt_currency = self.bank_account_currency or row.transaction_currency
-        receipt.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        receipt.amount_received = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        receipt.amount_received_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        receipt.mode_of_payment = row.mode_of_payment or "Wire Transfer"
-        receipt.reference_no = row.name[-7:].upper()
-        receipt.referenced_document_no = self.name
-        receipt.remittance_bank = self.bank_account
-        receipt.approval_doc = row.name
-        receipt.branch = row.branch
-        receipt.issued_by = self.batch_owner
-        receipt.date = today()
-        
-        receipt.insert(ignore_permissions=True)
-        receipt.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "receipt_entry", receipt.name)
-    
-    def create_general_receipt(self, row):
-        """Create general revenue receipt"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        receipt = frappe.new_doc("Receipts")
-        receipt.transaction_date = row.posting_date
-        receipt.customer_type = 'Revenue Receipting'
-        receipt.account_to_credit = row.party
-        receipt.cost_center = row.cost_center
-        receipt.cash_customer_name = (row.payee_name or "").title()
-        receipt.create_accounting_entries = 1
-        receipt.transaction_purposes = f"Received from {row.payee_name} for {row.remark}"
-        receipt.receipt_currency = row.transaction_currency
-        receipt.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        receipt.amount_received = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        receipt.amount_received_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        receipt.mode_of_payment = row.mode_of_payment or "Wire Transfer"
-        receipt.reference_no = row.name[-7:].upper()
-        receipt.approval_doc = row.name
-        receipt.branch = row.branch
-        receipt.referenced_document_no = self.name
-        receipt.remittance_bank = self.bank_account
-        receipt.issued_by = self.batch_owner
-        receipt.date = today()
-        
-        receipt.insert(ignore_permissions=True)
-        receipt.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "receipt_entry", receipt.name)
-    
-    def create_transfer_in(self, row):
-        """Create transfer in receipt"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        receipt = frappe.new_doc("Receipts")
-        receipt.transaction_date = row.posting_date
-        receipt.customer_type = 'Transfer In'
-        receipt.account_to_credit = row.party
-        receipt.cash_customer_name = row.party
-        receipt.cost_center = row.cost_center
-        receipt.create_accounting_entries = 1
-        receipt.transaction_purposes = row.remark
-        receipt.receipt_currency = self.bank_account_currency
-        receipt.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        receipt.amount_received = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        receipt.amount_received_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        receipt.mode_of_payment = row.mode_of_payment or "Wire Transfer"
-        receipt.account_to_credit = row.party
-        receipt.reference_no = row.name[-7:].upper()
-        receipt.approval_doc = row.name
-        receipt.branch = row.branch
-        receipt.referenced_document_no = self.name
-        receipt.remittance_bank = self.bank_account
-        receipt.issued_by = self.batch_owner
-        receipt.date = today()
-        
-        receipt.insert(ignore_permissions=True)
-        receipt.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "receipt_entry", receipt.name)
-    
-    def create_supplier_refund(self, row):
-        """Create supplier refund payment"""
-        local_currency = frappe.db.get_value("Company", self.company, "default_currency")
-        payment = frappe.new_doc('Payments')
-        payment.transaction_date = row.posting_date
-        payment.payee_id = row.party
-        payment.trans_type = "Supplier Refunds"
-        payment.cost_center = row.cost_center
-        payment.payment_currency = self.bank_account_currency
-        payment.transaction_purposes = (row.remark or "").title()
-        payment.mode_of_payment = "Wire Transfer"
-        payment.remittance_bank = self.bank_account
-        payment.exchange_rate = 1 if self.bank_account_currency == local_currency else flt(row.exch_rate)
-        payment.amount_paid = flt(row.amount) if self.bank_account_currency == local_currency else 0
-        payment.amount_paid_in_fc = flt(row.amount_in_fc) if self.bank_account_currency != local_currency else 0
-        payment.create_accounting_entries = 1
-        payment.approval_doc = row.name
-        payment.cashflow_type = "Supplier payments"
-        payment.reference_no = row.name[-7:].upper()
-        payment.issued_by = self.batch_owner
-        payment.date = today()
-        
-        payment.insert(ignore_permissions=True)
-        payment.submit()
-        
-        frappe.db.set_value("Transaction Entry", row.name, "payment_entry", payment.name)
-    
+            if row.get("entry_reference"):
+                continue
+            try:
+                name, dt = vr.create_entry(
+                    self._line(row), policy, self.company, self.bank_account,
+                    source_doctype=self.doctype, source_name=self.name,
+                    source_row=row.name, submit=False, default_mode="Wire Transfer")
+            except Exception as e:
+                frappe.log_error(frappe.get_traceback(), f"Batch Bank Transaction {self.name}: row {row.idx}")
+                errors.append(str(e) if str(e).startswith("Row ") else _("Row {0}: {1}").format(row.idx, e))
+                continue
+
+            values = {"entry_type_created": dt, "entry_reference": name}
+            # keep the legacy link columns populated for existing reports
+            if dt == "Payments":
+                values["payment_entry"] = name
+            elif dt == "Receipts":
+                values["receipt_entry"] = name
+            frappe.db.set_value(row.doctype, row.name, values, update_modified=False)
+            made += 1
+
+        if errors:
+            frappe.throw("<br>".join(errors[:10]) + (f"<br>... and {len(errors) - 10} more" if len(errors) > 10 else ""),
+                         title=_("Batch not posted - fix these rows"))
+        return made
+
     def update_bank_balance(self):
         """Update bank account balance after posting"""
         # This would integrate with your bank reconciliation module
         pass
-    
+
     def cancel_related_documents(self):
-        """Cancel all related payment and receipt entries"""
-        # Cancel Journal Entries
-        journal_entries = frappe.get_all("Journal Entry", 
-            filters={"reference_document_no": self.name, "docstatus": 1},
-            fields=["name"])
-        
-        for je in journal_entries:
-            doc = frappe.get_doc("Journal Entry", je.name)
-            doc.cancel()
-        
-        # Cancel Payment Entries
-        payment_entries = frappe.get_all("Payment Entry",
-            filters={"reference_document_no": self.name, "docstatus": 1},
-            fields=["name"])
-        
-        for pe in payment_entries:
-            doc = frappe.get_doc("Payment Entry", pe.name)
-            doc.cancel()
-        
-        # Cancel Payments
+        """Cancel everything this batch created (Payments, Receipts, Journal
+        Entries, Payment Entries), whichever policy was used."""
+        # 1. Row-linked documents (new rows + legacy payment_entry / receipt_entry)
         for row in self.transaction_entry:
-            if row.payment_entry:
+            pairs = {(row.get("entry_type_created"), row.get("entry_reference"))}
+            if row.get("payment_entry"):
+                pairs.add(("Payments", row.get("payment_entry")))
+            if row.get("receipt_entry"):
+                pairs.add(("Receipts", row.get("receipt_entry")))
+            for dt, name in pairs:
                 try:
-                    doc = frappe.get_doc("Payments", row.payment_entry)
-                    if doc.docstatus == 1:
-                        doc.cancel()
-                except Exception as e:
-                    frappe.log_error(f"Error cancelling payment {row.payment_entry}: {str(e)}")
-            
-            if row.receipt_entry:
-                try:
-                    doc = frappe.get_doc("Receipts", row.receipt_entry)
-                    if doc.docstatus == 1:
-                        doc.cancel()
-                except Exception as e:
-                    frappe.log_error(f"Error cancelling receipt {row.receipt_entry}: {str(e)}")
-        
-        # Cancel Auto Repeat documents
+                    vr.cancel_or_delete(dt, name)
+                except Exception:
+                    frappe.log_error(frappe.get_traceback(), f"Batch Bank Transaction {self.name}: cancel {dt} {name}")
+                    frappe.throw(_("Could not cancel {0} {1}. Cancel it manually first.").format(dt, name))
+
+        # 2. Legacy documents tagged with this batch (unchanged behaviour)
+        for dt in ("Journal Entry", "Payment Entry"):
+            for d in frappe.get_all(dt, filters={"reference_document_no": self.name, "docstatus": 1},
+                                    fields=["name"]):
+                frappe.get_doc(dt, d.name).cancel()
+
+        # 3. Auto Repeat documents
         auto_repeats = frappe.get_all("Auto Repeat",
             filters={"reference_document": self.name, "docstatus": 1},
             fields=["name"])
-        
         for ar in auto_repeats:
             doc = frappe.get_doc("Auto Repeat", ar.name)
             doc.cancel()
 
 
 # ========================================
-# API METHODS (WHITELISTED)
+# EXCEL TEMPLATE / EXPORT / IMPORT
 # ========================================
 
 @frappe.whitelist()
-def import_transactions(file_url, has_header=True):
-    """
-    Import transactions from CSV/Excel file
-    
-    Args:
-        file_url: URL of the uploaded file
-        has_header: Boolean indicating if file has header row
-    
-    Returns:
-        List of transaction dictionaries
-    """
-    try:
-        # Get file from URL
-        file_doc = frappe.get_doc("File", {"file_url": file_url})
-        file_path = file_doc.get_full_path()
-        
-        transactions = []
-        
-        # Determine file type and parse accordingly
-        if file_path.endswith('.csv'):
-            transactions = parse_csv_file(file_path, has_header)
-        elif file_path.endswith(('.xlsx', '.xls')):
-            transactions = parse_excel_file(file_path, has_header)
-        else:
-            frappe.throw(_("Unsupported file format. Please upload CSV or Excel file."))
-        
-        return transactions
-        
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Import Transactions Error")
-        frappe.throw(_("Error importing transactions: {0}").format(str(e)))
-
-
-def parse_csv_file(file_path, has_header):
-    """Parse CSV file and return transaction list"""
-    import csv
-    
-    transactions = []
-    
-    with open(file_path, 'r', encoding='utf-8-sig') as f:
-        reader = csv.reader(f)
-        
-        if has_header:
-            next(reader)  # Skip header row
-        
-        for row in reader:
-            if len(row) >= 5:  # Minimum required columns
-                transactions.append({
-                    'posting_date': row[0],
-                    'trans_type': row[1],
-                    'party': row[2],
-                    'amount': flt(row[3]),
-                    'remark': row[4],
-                    'payee_name': row[5] if len(row) > 5 else None,
-                    'cost_center': row[6] if len(row) > 6 else None
-                })
-    
-    return transactions
-
-
-def parse_excel_file(file_path, has_header):
-    """Parse Excel file and return transaction list"""
-    wb = openpyxl.load_workbook(file_path)
-    ws = wb.active
-    
-    transactions = []
-    start_row = 2 if has_header else 1
-    
-    for row in ws.iter_rows(min_row=start_row, values_only=True):
-        if row[0]:  # Check if date exists
-            transactions.append({
-                'posting_date': cstr(row[0]),
-                'trans_type': cstr(row[1]) if row[1] else None,
-                'party': cstr(row[2]) if row[2] else None,
-                'amount': flt(row[3]),
-                'remark': cstr(row[4]) if row[4] else None,
-                'payee_name': cstr(row[5]) if len(row) > 5 and row[5] else None,
-                'cost_center': cstr(row[6]) if len(row) > 6 and row[6] else None
-            })
-    
-    return transactions
+def download_template():
+    b64 = xio.build_workbook(_SHEET, _columns(), template=True)
+    return {"filename": "Batch_Bank_Transaction_Template.xlsx", "file_content": b64}
 
 
 @frappe.whitelist()
 def export_to_excel(doc_name):
-    """
-    Export batch transactions to Excel file
-    
-    Args:
-        doc_name: Name of the Batch Bank Transaction document
-    
-    Returns:
-        Dictionary with file URL
-    """
-    try:
-        doc = frappe.get_doc("Batch Bank Transaction", doc_name)
-        
-        # Create workbook
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.title = "Transactions"
-        
-        # Define styles
-        header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
-        header_font = Font(bold=True, color="FFFFFF", size=12)
-        border = Border(
-            left=Side(style='thin'),
-            right=Side(style='thin'),
-            top=Side(style='thin'),
-            bottom=Side(style='thin')
-        )
-        
-        # Add batch header info
-        ws['A1'] = "Batch Bank Transaction Report"
-        ws['A1'].font = Font(bold=True, size=14)
-        ws['A2'] = f"Batch Date: {doc.batch_date}"
-        ws['A3'] = f"Bank Account: {doc.bank_account}"
-        ws['A4'] = f"Currency: {doc.bank_account_currency}"
-        ws['A5'] = f"Opening Balance: {doc.opening_balance}"
-        
-        # Headers for transaction table
-        headers = ['#', 'Date', 'Type', 'Party', 'Party Name', 'Amount', 
-                   'Inflow', 'Outflow', 'Balance', 'Remark', 'Reference']
-        
-        row = 7
-        for col, header in enumerate(headers, start=1):
-            cell = ws.cell(row=row, column=col, value=header)
-            cell.fill = header_fill
-            cell.font = header_font
-            cell.border = border
-            cell.alignment = Alignment(horizontal='center', vertical='center')
-        
-        # Add transaction data
-        for idx, trans in enumerate(doc.transaction_entry, start=1):
-            row += 1
-            data = [
-                idx,
-                trans.posting_date,
-                trans.trans_type,
-                trans.party,
-                trans.party_name or '',
-                trans.amount,
-                trans.inflow,
-                trans.outflow,
-                trans.balance,
-                trans.remark or '',
-                trans.reference_no or ''
-            ]
-            
-            for col, value in enumerate(data, start=1):
-                cell = ws.cell(row=row, column=col, value=value)
-                cell.border = border
-                
-                # Format currency columns
-                if col in [6, 7, 8, 9]:
-                    cell.number_format = '#,##0.00'
-        
-        # Add totals row
-        row += 1
-        ws.cell(row=row, column=1, value="TOTALS").font = Font(bold=True)
-        ws.cell(row=row, column=7, value=doc.total_inflow).font = Font(bold=True)
-        ws.cell(row=row, column=7).number_format = '#,##0.00'
-        ws.cell(row=row, column=8, value=doc.total_outflow).font = Font(bold=True)
-        ws.cell(row=row, column=8).number_format = '#,##0.00'
-        ws.cell(row=row, column=9, value=doc.balance).font = Font(bold=True)
-        ws.cell(row=row, column=9).number_format = '#,##0.00'
-        
-        # Adjust column widths
-        ws.column_dimensions['A'].width = 5
-        ws.column_dimensions['B'].width = 12
-        ws.column_dimensions['C'].width = 20
-        ws.column_dimensions['D'].width = 30
-        ws.column_dimensions['E'].width = 25
-        ws.column_dimensions['F'].width = 15
-        ws.column_dimensions['G'].width = 15
-        ws.column_dimensions['H'].width = 15
-        ws.column_dimensions['I'].width = 15
-        ws.column_dimensions['J'].width = 40
-        ws.column_dimensions['K'].width = 12
-        
-        # Save to BytesIO
-        file_stream = io.BytesIO()
-        wb.save(file_stream)
-        file_stream.seek(0)
-        
-        # Create file in ERPNext
-        filename = f"Batch_Bank_Transaction_{doc_name}_{today()}.xlsx"
-        file_doc = frappe.get_doc({
-            "doctype": "File",
-            "file_name": filename,
-            "content": file_stream.getvalue(),
-            "is_private": 1,
-            "attached_to_doctype": "Batch Bank Transaction",
-            "attached_to_name": doc_name
-        })
-        file_doc.insert(ignore_permissions=True)
-        
-        return {
-            "file_url": file_doc.file_url,
-            "file_name": filename
-        }
-        
-    except Exception as e:
-        frappe.log_error(frappe.get_traceback(), "Export to Excel Error")
-        frappe.throw(_("Error exporting to Excel: {0}").format(str(e)))
+    """Export in the SAME layout import reads, so a file can be edited and re-imported."""
+    doc = frappe.get_doc("Batch Bank Transaction", doc_name)
+    doc.check_permission("read")
+    cols = _columns()
+    rows = []
+    for r in doc.transaction_entry:
+        rec = {c[1]: r.get(c[1]) for c in cols}
+        rec.update({"inflow": flt(r.get("inflow")), "outflow": flt(r.get("outflow")),
+                    "balance": flt(r.get("balance")),
+                    "_created": "YES" if r.get("entry_reference") else "NO",
+                    "entry_type_created": r.get("entry_type_created") or "",
+                    "entry_reference": r.get("entry_reference") or "",
+                    "_done": bool(r.get("entry_reference"))})
+        rows.append(rec)
+    info = [
+        ("Batch", doc.name), ("Company", doc.get("company") or ""),
+        ("Bank Account", doc.bank_account or ""), ("Currency", doc.get("bank_account_currency") or ""),
+        ("Posting Policy", doc.get("posting_policy") or ""),
+        ("Opening Balance", flt(doc.opening_balance)), ("Total Inflow", flt(doc.total_inflow)),
+        ("Total Outflow", flt(doc.total_outflow)), ("Closing Balance", flt(doc.balance)),
+        ("Rows", len(doc.transaction_entry)), ("Exported By", frappe.session.user),
+        ("Exported At", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+    ]
+    b64 = xio.build_workbook(_SHEET, cols, rows, _STATUS_COLUMNS, info)
+    return {"filename": f"BBT_{doc.name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx",
+            "file_content": b64}
+
+
+@frappe.whitelist()
+def import_from_excel(doc_name, file_content, filename, replace_existing=0):
+    doc = frappe.get_doc("Batch Bank Transaction", doc_name)
+    doc.check_permission("write")
+    if doc.docstatus != 0:
+        frappe.throw(_("Rows can only be imported into a Draft batch."))
+
+    cols = _columns()
+    type_options = _trans_type_options()
+    by_canon = {vr.canonical(o): o for o in type_options}
+
+    records, errors, skipped = xio.parse_rows(file_content, filename, _SHEET, cols,
+                                              describe_field="remark")
+    default_cc = frappe.db.get_value("Company", doc.company, "cost_center") if doc.get("company") else None
+    good = []
+    for rec in records:
+        row_no = rec.pop("_excel_row", None)
+        problems = []
+
+        # Trans Type: accept either spelling (Customer Refund / Customer Refunds ...)
+        tt = vr.canonical(rec.get("trans_type"))
+        if tt not in vr.INFLOW_TYPES | vr.OUTFLOW_TYPES:
+            problems.append(f"Trans Type '{rec.get('trans_type')}' is not supported")
+        elif by_canon and tt in by_canon:
+            rec["trans_type"] = by_canon[tt]
+
+        if flt(rec.get("amount")) <= 0:
+            problems.append("Amount must be greater than zero")
+        if rec.get("posting_date") and getdate(rec["posting_date"]) > getdate(today()):
+            problems.append("Date cannot be in the future")
+
+        ptype = rec.get("party_type") or vr.party_type_for(tt)
+        if ptype and rec.get("party") and ptype in ("Customer", "Supplier", "Account"):
+            if not frappe.db.exists(ptype, rec["party"]):
+                problems.append(f"{ptype} '{rec['party']}' does not exist")
+        rec["party_type"] = ptype
+
+        if problems:
+            errors.append({"row": row_no, "errors": problems, "description": rec.get("remark") or ""})
+            skipped += 1
+            continue
+        if not rec.get("cost_center") and default_cc:
+            rec["cost_center"] = default_cc
+        good.append(rec)
+
+    if good:
+        if int(replace_existing or 0):
+            doc.set("transaction_entry", [])
+        for rec in good:
+            doc.append("transaction_entry", rec)
+        doc.save()
+        frappe.db.commit()
+    return xio.import_result(len(good), skipped, errors)
+
 
 
 @frappe.whitelist()

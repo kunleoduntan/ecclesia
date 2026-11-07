@@ -1,25 +1,96 @@
 # Copyright (c) 2026, Value Impacts Consulting
-# ecclesia/ecclesia/api/compliance/liability_engine_v2.py
+# ecclesia/api/compliance/liability_engine_v2.py
 """
 Compliance Liability Engine v2
 ═══════════════════════════════
 Data-driven: reads Compliance Rule DocType for rate/frequency/base_doctype.
 Generates Compliance Liability Ledger entries and logs to Compliance Event Log.
 
-Flow:
-  1. load_active_rules(company, obligation_type)
-  2. For each rule → compute liability from ERPNext source
-  3. get_or_create_cll(company, obligation_type, period_label)
-  4. cll.add_source_line(...)
-  5. log to Compliance Event Log
+Public entry points
+───────────────────
+Batch (whitelisted, called by scheduler / dashboard):
+    generate_vat_liability(company, period_label=None)
+    generate_wht_liability(company, period_label=None)
+    generate_payroll_liabilities(company, period_label=None)
+    run_all_liability_generation(period_label=None, company=None)
+
+Doc-event hooks (called by hooks.py doc_events, receive (doc, method)):
+    generate_vat_liability_from_doc   -> Sales Invoice    on_submit
+    log_purchase_invoice_wht          -> Purchase Invoice on_submit
+    link_salary_slip_to_cll           -> Salary Slip      on_submit
+
+hooks.py must therefore use:
+    "Sales Invoice": {
+        "on_submit": "ecclesia.api.compliance.liability_engine_v2.generate_vat_liability_from_doc"
+    }
+
+Safety net: Frappe calls a doc-event handler as handler(doc, method). If one of
+the BATCH functions above is registered in hooks.py by mistake, it would receive
+the document as `company` and the event name ("on_submit") as `period_label`,
+and fail with "Invalid period_label format" — blocking every invoice. The batch
+functions therefore detect a document as their first argument and hand it to the
+matching doc-event function instead (see _doc_event_safe).
+
+All functions are idempotent: re-running for the same period never adds a
+source line that already exists on the ledger.
+
+Doc-event functions run INSIDE the document's own transaction and must never
+commit: a commit there would persist a half-submitted invoice (GL, stock) that
+a later failure could not roll back. Only the batch/scheduler functions commit.
 """
+
+import calendar
+import functools
+import inspect
 
 import frappe
 from frappe import _
 from frappe.utils import flt, getdate, nowdate
 
+# ── Statutory rates (fallbacks when no Compliance Rule / salary component) ────
+VAT_RATE = 7.5
+PENSION_EMPLOYEE_RATE = 0.08
+PENSION_EMPLOYER_RATE = 0.10
+NHF_RATE = 0.025
+NSITF_RATE = 0.01
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# Salary Component name used for PAYE on your payslips
+PAYE_COMPONENT = "Tax"
+
+# Which doc-event function handles which document (used by the safety net)
+_DOC_EVENT_ROUTES = {
+    "Sales Invoice": "generate_vat_liability_from_doc",
+    "Purchase Invoice": "log_purchase_invoice_wht",
+    "Salary Slip": "link_salary_slip_to_cll",
+}
+
+
+def _doc_event_safe(fn):
+    """Let a batch function survive being registered as a doc_event by mistake.
+
+    If the first argument is a document (not a company name), route it to the
+    right doc-event function and return; documents with no route are ignored.
+    Normal calls (scheduler, dashboard button, other code) are untouched.
+    Also drops request fields the function does not declare (Frappe passes `cmd`)."""
+    params = list(inspect.signature(fn).parameters)
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        first = args[0] if args else None
+        if first is not None and not isinstance(first, str) and hasattr(first, "doctype"):
+            handler = globals().get(_DOC_EVENT_ROUTES.get(first.doctype, ""))
+            method = args[1] if len(args) > 1 else kwargs.get("method")
+            return handler(first, method) if handler else None
+        kwargs = {k: v for k, v in kwargs.items() if k in params}
+        return fn(*args, **kwargs)
+
+    wrapper.fnargs = params  # Frappe reads this to decide which request fields to pass
+    return wrapper
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  HELPERS
+# ══════════════════════════════════════════════════════════════════════════════
 
 def _period_label(date_str=None):
     """Return MM-YYYY for a date string (defaults to today)."""
@@ -27,148 +98,218 @@ def _period_label(date_str=None):
     return f"{d.month:02d}-{d.year:04d}"
 
 
+def _period_bounds(period_label):
+    """Return (start, end) ISO date strings for an MM-YYYY label."""
+    try:
+        month, year = (int(x) for x in period_label.split("-"))
+        last_day = calendar.monthrange(year, month)[1]
+    except Exception:
+        frappe.throw(_("Invalid period_label format ({0}). Use MM-YYYY.").format(str(period_label)[:40]))
+    return (
+        f"{year:04d}-{month:02d}-01",
+        f"{year:04d}-{month:02d}-{last_day:02d}",
+    )
+
+
 def _log_event(company, obligation_type, period_label, source_doctype, source_document,
                generated_ledger, liability_amount, status="Success", error=""):
     try:
         ev = frappe.new_doc("Compliance Event Log")
-        ev.event_name       = f"{obligation_type} | {period_label} | {source_doctype}"
-        ev.event_type       = "Invoice" if "Invoice" in source_doctype else "Payroll" if "Salary" in source_doctype else "Scheduler"
-        ev.source_doctype   = source_doctype
-        ev.source_document  = source_document
-        ev.obligation_type  = obligation_type
-        ev.period_label     = period_label
-        ev.company          = company
+        ev.event_name = f"{obligation_type} | {period_label} | {source_doctype}"
+        ev.event_type = (
+            "Invoice" if "Invoice" in source_doctype
+            else "Payroll" if "Salary" in source_doctype or "Payroll" in source_doctype
+            else "Scheduler"
+        )
+        ev.source_doctype = source_doctype
+        ev.source_document = source_document
+        ev.obligation_type = obligation_type
+        ev.period_label = period_label
+        ev.company = company
         ev.generated_ledger = generated_ledger
         ev.liability_amount = flt(liability_amount)
-        ev.status           = status
-        ev.error_log        = error
-        ev.processed_on     = frappe.utils.now()
-        ev.triggered_by     = frappe.session.user
+        ev.status = status
+        ev.error_log = error
+        ev.processed_on = frappe.utils.now()
+        ev.triggered_by = frappe.session.user
         ev.insert(ignore_permissions=True)
-    except Exception as e:
-        frappe.log_error(f"Event log write failed: {e}", "Compliance Event Log")
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "Compliance Event Log")
 
 
-def _get_or_create_cll(company, obligation_type, period_label, rule=None):
+def _active_rule(company, obligation_type):
+    """Name of the active Compliance Rule for company/obligation, or None."""
+    return frappe.db.get_value(
+        "Compliance Rule",
+        {"obligation_type": obligation_type, "company": company, "active": 1},
+        "name",
+    )
+
+
+def _get_deduction(salary_slip_name, component):
+    """Read a specific deduction amount from a Salary Slip's deductions table."""
+    return flt(frappe.db.get_value(
+        "Salary Detail",
+        {"parent": salary_slip_name, "salary_component": component,
+         "parentfield": "deductions"},
+        "amount",
+    ) or 0)
+
+
+def _paye_for_slip(salary_slip_name):
+    """PAYE for a slip: the 'Tax' deduction row, else HRMS current_month_income_tax."""
+    return (
+        _get_deduction(salary_slip_name, PAYE_COMPONENT)
+        or flt(frappe.db.get_value("Salary Slip", salary_slip_name, "current_month_income_tax"))
+    )
+
+
+def _existing_sources(cll):
+    return {r.source_document for r in (cll.source_lines or [])}
+
+
+def _add_line(cll, source_doctype, source_document, posting_date,
+              gross_amount, liability_amount, rate_applied=None):
+    """Append one source line to a CLL (does not save)."""
+    row = {
+        "source_doctype": source_doctype,
+        "source_document": source_document,
+        "posting_date": posting_date,
+        "gross_amount": flt(gross_amount),
+        "liability_amount": flt(liability_amount),
+    }
+    if rate_applied is not None:
+        row["rate_applied"] = flt(rate_applied)
+    cll.append("source_lines", row)
+
+
+def _get_or_create_cll(company, obligation_type, period_label, rule=None, commit=True):
     """
     Fetch or create the CLL for company/obligation/period.
-    Uses Compliance Rule to get due_date if available.
+    Uses the Compliance Rule (passed in, or looked up) to get the due date.
+
+    commit=True is for the batch/scheduler functions. The doc-event functions pass
+    commit=False: they run inside the submitting document's transaction, and a
+    commit here would persist a half-submitted invoice that cannot be rolled back.
     """
     existing = frappe.db.get_value(
         "Compliance Liability Ledger",
         {"company": company, "obligation_type": obligation_type, "period_label": period_label},
-        "name"
+        "name",
     )
     if existing:
         return frappe.get_doc("Compliance Liability Ledger", existing)
 
+    # Resolve rule (doc hooks don't pass one)
+    if not rule:
+        rule = _active_rule(company, obligation_type)
+
     # Resolve due date
     due_date = None
+    rule_name = None
     if rule:
-        rule_doc = frappe.get_doc("Compliance Rule", rule) if isinstance(rule, str) else rule
-        due_date = rule_doc.get_due_date(period_label)
+        try:
+            rule_doc = frappe.get_doc("Compliance Rule", rule) if isinstance(rule, str) else rule
+            rule_name = rule_doc.name
+            due_date = rule_doc.get_due_date(period_label)
+        except Exception:
+            frappe.log_error(frappe.get_traceback(), "Compliance Rule due date")
 
-    # Resolve period dates from period_label
+    # Resolve period dates
     try:
-        month, year = int(period_label.split('-')[0]), int(period_label.split('-')[1])
-        import calendar
-        last_day   = calendar.monthrange(year, month)[1]
-        period_start = f"{year:04d}-{month:02d}-01"
-        period_end   = f"{year:04d}-{month:02d}-{last_day:02d}"
+        period_start, period_end = _period_bounds(period_label)
     except Exception:
         period_start = period_end = None
 
     # Resolve fiscal year
     fiscal_year = None
-    try:
-        fiscal_year = frappe.db.get_value("Fiscal Year",
-            {"year_start_date": ["<=", period_start], "year_end_date": [">=", period_end]}, "name")
-    except Exception:
-        pass
+    if period_start and period_end:
+        try:
+            fiscal_year = frappe.db.get_value(
+                "Fiscal Year",
+                {"year_start_date": ["<=", period_start], "year_end_date": [">=", period_end]},
+                "name",
+            )
+        except Exception:
+            pass
 
     cll = frappe.new_doc("Compliance Liability Ledger")
-    cll.company          = company
-    cll.obligation_type  = obligation_type
-    cll.period_label     = period_label
-    cll.fiscal_year      = fiscal_year
-    cll.period_start     = period_start
-    cll.period_end       = period_end
-    cll.due_date         = due_date
-    cll.total_liability  = 0
+    cll.company = company
+    cll.obligation_type = obligation_type
+    cll.period_label = period_label
+    cll.fiscal_year = fiscal_year
+    cll.period_start = period_start
+    cll.period_end = period_end
+    cll.due_date = due_date
+    cll.total_liability = 0
     cll.generation_method = "Auto - Scheduler"
-    cll.compliance_rule  = rule if isinstance(rule, str) else (rule.name if rule else None)
+    cll.compliance_rule = rule_name
     cll.insert(ignore_permissions=True)
-    frappe.db.commit()
+    if commit:
+        frappe.db.commit()
     return cll
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  VAT ENGINE
+#  VAT ENGINE (batch)
 # ══════════════════════════════════════════════════════════════════════════════
 
 @frappe.whitelist()
+@_doc_event_safe
 def generate_vat_liability(company, period_label=None):
+    """Monthly batch: post VAT from all submitted Sales Invoices in the period."""
     period_label = period_label or _period_label()
-    try:
-        month, year = int(period_label.split('-')[0]), int(period_label.split('-')[1])
-    except Exception:
-        frappe.throw(_("Invalid period_label format. Use MM-YYYY."))
+    start, end = _period_bounds(period_label)
+    rule = _active_rule(company, "VAT")
 
-    start = f"{year:04d}-{month:02d}-01"
-    import calendar
-    end   = f"{year:04d}-{month:02d}-{calendar.monthrange(year,month)[1]:02d}"
-
-    rule = frappe.db.get_value("Compliance Rule",
-        {"obligation_type":"VAT","company":company,"active":1}, "name")
-
+    # NB: literal % must be doubled (%%) because the query uses %s parameters.
     invoices = frappe.db.sql("""
         SELECT si.name, si.posting_date, si.net_total,
-               COALESCE(SUM(st.tax_amount),0) AS vat_amount
+               COALESCE(SUM(st.tax_amount), 0) AS vat_amount
         FROM `tabSales Invoice` si
         LEFT JOIN `tabSales Taxes and Charges` st
                ON st.parent = si.name
-              AND (UPPER(st.account_head) LIKE '%VAT%' OR st.rate = 7.5)
-        WHERE si.company   = %s AND si.docstatus = 1
+              AND (UPPER(st.account_head) LIKE '%%VAT%%' OR st.rate = 7.5)
+        WHERE si.company = %s AND si.docstatus = 1
           AND si.posting_date BETWEEN %s AND %s
-        GROUP BY si.name HAVING vat_amount > 0
+        GROUP BY si.name, si.posting_date, si.net_total
+        HAVING vat_amount > 0
     """, (company, start, end), as_dict=True)
 
     if not invoices:
         return {"posted": 0, "total_vat": 0, "period": period_label}
 
     cll = _get_or_create_cll(company, "VAT", period_label, rule)
-    existing = {r.source_document for r in (cll.source_lines or [])}
-    posted, total_vat = 0, 0
+    existing = _existing_sources(cll)
+    posted, total_vat = 0, 0.0
 
     for inv in invoices:
-        if inv.name not in existing:
-            cll.add_source_line("Sales Invoice", inv.name, inv.posting_date,
-                                inv.net_total, inv.vat_amount, 7.5)
-            total_vat += flt(inv.vat_amount)
-            posted += 1
+        if inv.name in existing:
+            continue
+        _add_line(cll, "Sales Invoice", inv.name, inv.posting_date,
+                  inv.net_total, inv.vat_amount, VAT_RATE)
+        total_vat += flt(inv.vat_amount)
+        posted += 1
 
-    cll.save(ignore_permissions=True)
-    frappe.db.commit()
+    if posted:
+        cll.save(ignore_permissions=True)
+        frappe.db.commit()
+        _log_event(company, "VAT", period_label, "Sales Invoice",
+                   f"{posted} invoices", cll.name, total_vat)
 
-    _log_event(company, "VAT", period_label, "Sales Invoice", f"{posted} invoices",
-               cll.name, total_vat)
     return {"posted": posted, "total_vat": total_vat, "cll": cll.name, "period": period_label}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  WHT ENGINE — reads from Payments DocType (our existing custom DocType)
+#  WHT ENGINE (batch) — reads from Payments DocType
 # ══════════════════════════════════════════════════════════════════════════════
 
 @frappe.whitelist()
+@_doc_event_safe
 def generate_wht_liability(company, period_label=None):
     period_label = period_label or _period_label()
-    month, year = int(period_label.split('-')[0]), int(period_label.split('-')[1])
-    import calendar
-    start = f"{year:04d}-{month:02d}-01"
-    end   = f"{year:04d}-{month:02d}-{calendar.monthrange(year,month)[1]:02d}"
-
-    rule = frappe.db.get_value("Compliance Rule",
-        {"obligation_type":"WHT","company":company,"active":1}, "name")
+    start, end = _period_bounds(period_label)
+    rule = _active_rule(company, "WHT")
 
     payments = frappe.db.sql("""
         SELECT name, transaction_date, wht_amount, net_amount, whtax_rate
@@ -182,107 +323,113 @@ def generate_wht_liability(company, period_label=None):
         return {"posted": 0, "total_wht": 0, "period": period_label}
 
     cll = _get_or_create_cll(company, "WHT", period_label, rule)
-    existing = {r.source_document for r in (cll.source_lines or [])}
-    posted, total_wht = 0, 0
+    existing = _existing_sources(cll)
+    posted, total_wht = 0, 0.0
 
     for p in payments:
-        if p.name not in existing:
-            cll.add_source_line("Payments", p.name, p.transaction_date,
-                                p.net_amount, p.wht_amount, p.whtax_rate)
-            total_wht += flt(p.wht_amount)
-            posted += 1
+        if p.name in existing:
+            continue
+        _add_line(cll, "Payments", p.name, p.transaction_date,
+                  p.net_amount, p.wht_amount, p.whtax_rate)
+        total_wht += flt(p.wht_amount)
+        posted += 1
 
-    cll.save(ignore_permissions=True)
-    frappe.db.commit()
-    _log_event(company, "WHT", period_label, "Payments", f"{posted} payment docs", cll.name, total_wht)
+    if posted:
+        cll.save(ignore_permissions=True)
+        frappe.db.commit()
+        _log_event(company, "WHT", period_label, "Payments",
+                   f"{posted} payment docs", cll.name, total_wht)
+
     return {"posted": posted, "total_wht": total_wht, "cll": cll.name, "period": period_label}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-#  PAYROLL LIABILITIES — PAYE, Pension, NHF, NSITF
+#  PAYROLL LIABILITIES (batch) — PAYE, Pension, NHF, NSITF
 # ══════════════════════════════════════════════════════════════════════════════
 
 @frappe.whitelist()
+@_doc_event_safe
 def generate_payroll_liabilities(company, period_label=None):
     period_label = period_label or _period_label()
-    month, year  = int(period_label.split('-')[0]), int(period_label.split('-')[1])
-    import calendar
-    last_day = calendar.monthrange(year, month)[1]
-    start = f"{year:04d}-{month:02d}-01"
-    end   = f"{year:04d}-{month:02d}-{last_day:02d}"
+    start, end = _period_bounds(period_label)
 
     slips = frappe.db.sql("""
-        SELECT name, gross_pay, income_tax_deducted, start_date, end_date
+        SELECT name, gross_pay, start_date, end_date
         FROM `tabSalary Slip`
-        WHERE company=%s AND docstatus=1
-          AND start_date>=%s AND end_date<=%s
+        WHERE company = %s AND docstatus = 1
+          AND start_date >= %s AND end_date <= %s
     """, (company, start, end), as_dict=True)
 
     if not slips:
         return {"status": "No salary slips", "period": period_label}
 
-    totals = {
-        "PAYE":   {"amount":0,"slips":[]},
-        "Pension":{"amount":0,"slips":[]},
-        "NHF":    {"amount":0,"slips":[]},
-    }
+    # Per-slip lines: ob -> list of (slip, gross, end_date, amount)
+    lines = {"PAYE": [], "Pension": [], "NHF": []}
     total_gross = 0.0
 
     for s in slips:
         gross = flt(s.gross_pay)
         total_gross += gross
-        paye = flt(s.income_tax_deducted)
-        if paye > 0:
-            totals["PAYE"]["amount"] += paye
-            totals["PAYE"]["slips"].append(s.name)
-        pension_ee = _get_deduction(s.name, "Pension Contribution") or gross * 0.08
-        pension_er = gross * 0.10
-        totals["Pension"]["amount"] += pension_ee + pension_er
-        totals["Pension"]["slips"].append(s.name)
-        nhf = _get_deduction(s.name, "NHF Contribution") or gross * 0.025
-        totals["NHF"]["amount"] += nhf
-        totals["NHF"]["slips"].append(s.name)
 
-    # NSITF — 1% of gross payroll
-    if total_gross > 0:
-        nsitf_amount = total_gross * 0.01
-        rule_n = frappe.db.get_value("Compliance Rule", {"obligation_type":"NSITF","company":company,"active":1}, "name")
-        cll_n  = _get_or_create_cll(company, "NSITF", period_label, rule_n)
-        cll_n.append("source_lines", {
-            "source_doctype":"Payroll Entry","source_document":f"Payroll-{period_label}",
-            "posting_date":end,"gross_amount":total_gross,"liability_amount":nsitf_amount,"rate_applied":1.0
-        })
-        cll_n.save(ignore_permissions=True)
-        _log_event(company,"NSITF",period_label,"Payroll Entry","Monthly payroll",cll_n.name,nsitf_amount)
+        paye = _paye_for_slip(s.name)
+        if paye > 0:
+            lines["PAYE"].append((s.name, gross, s.end_date, paye))
+
+        pension_ee = _get_deduction(s.name, "Pension Contribution") or gross * PENSION_EMPLOYEE_RATE
+        pension_er = gross * PENSION_EMPLOYER_RATE
+        if pension_ee + pension_er > 0:
+            lines["Pension"].append((s.name, gross, s.end_date, pension_ee + pension_er))
+
+        nhf = _get_deduction(s.name, "NHF Contribution") or gross * NHF_RATE
+        if nhf > 0:
+            lines["NHF"].append((s.name, gross, s.end_date, nhf))
 
     results = {}
-    for ob, data in totals.items():
-        if data["amount"] <= 0:
+
+    # ── NSITF — 1% of gross payroll, one line per period (idempotent) ─────────
+    if total_gross > 0:
+        nsitf_amount = total_gross * NSITF_RATE
+        cll_n = _get_or_create_cll(company, "NSITF", period_label, _active_rule(company, "NSITF"))
+        src = f"Payroll-{period_label}"
+        existing_n = _existing_sources(cll_n)
+
+        if src in existing_n:
+            # Refresh the amount in case slips were added since the last run
+            for r in cll_n.source_lines:
+                if r.source_document == src:
+                    r.gross_amount = total_gross
+                    r.liability_amount = nsitf_amount
+            cll_n.save(ignore_permissions=True)
+        else:
+            _add_line(cll_n, "Payroll Entry", src, end, total_gross, nsitf_amount, NSITF_RATE * 100)
+            cll_n.save(ignore_permissions=True)
+            _log_event(company, "NSITF", period_label, "Payroll Entry",
+                       "Monthly payroll", cll_n.name, nsitf_amount)
+        results["NSITF"] = {"amount": nsitf_amount, "cll": cll_n.name}
+
+    # ── PAYE / Pension / NHF — actual per-slip amounts ───────────────────────
+    for ob, rows in lines.items():
+        if not rows:
             continue
-        rule_ref = frappe.db.get_value("Compliance Rule", {"obligation_type":ob,"company":company,"active":1}, "name")
-        cll = _get_or_create_cll(company, ob, period_label, rule_ref)
-        existing = {r.source_document for r in (cll.source_lines or [])}
-        n_slips  = list(set(data["slips"]))
-        amount_each = data["amount"] / len(n_slips) if n_slips else 0
-        for sn in n_slips:
-            if sn not in existing:
-                slip_d = frappe.db.get_value("Salary Slip", sn, ["gross_pay","end_date"], as_dict=True)
-                cll.append("source_lines", {
-                    "source_doctype":"Salary Slip","source_document":sn,
-                    "posting_date":slip_d.end_date,"gross_amount":flt(slip_d.gross_pay),
-                    "liability_amount":amount_each
-                })
-        cll.save(ignore_permissions=True)
-        _log_event(company,ob,period_label,"Salary Slip",f"{len(n_slips)} slips",cll.name,data["amount"])
-        results[ob] = {"amount": data["amount"], "cll": cll.name}
+        cll = _get_or_create_cll(company, ob, period_label, _active_rule(company, ob))
+        existing = _existing_sources(cll)
+        added, added_amount = 0, 0.0
+
+        for slip_name, gross, end_date, amount in rows:
+            if slip_name in existing:
+                continue
+            _add_line(cll, "Salary Slip", slip_name, end_date, gross, amount)
+            added += 1
+            added_amount += amount
+
+        if added:
+            cll.save(ignore_permissions=True)
+            _log_event(company, ob, period_label, "Salary Slip",
+                       f"{added} slips", cll.name, added_amount)
+        results[ob] = {"amount": sum(r[3] for r in rows), "added": added, "cll": cll.name}
 
     frappe.db.commit()
     return {"results": results, "period": period_label}
-
-
-def _get_deduction(salary_slip, component):
-    return flt(frappe.db.get_value("Salary Detail",
-        {"parent": salary_slip, "salary_component": component}, "amount") or 0)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -290,195 +437,142 @@ def _get_deduction(salary_slip, component):
 # ══════════════════════════════════════════════════════════════════════════════
 
 @frappe.whitelist()
+@_doc_event_safe
 def run_all_liability_generation(period_label=None, company=None):
     period_label = period_label or _period_label()
-    companies    = [company] if company else frappe.db.get_all("Company", filters={"is_group":0}, pluck="name")
-    results      = {}
+    companies = [company] if company else frappe.db.get_all(
+        "Company", filters={"is_group": 0}, pluck="name")
+    results = {}
+
+    steps = (
+        ("vat", generate_vat_liability),
+        ("wht", generate_wht_liability),
+        ("payroll", generate_payroll_liabilities),
+    )
 
     for co in companies:
-        try:
-            vat = generate_vat_liability(co, period_label)
-            wht = generate_wht_liability(co, period_label)
-            pay = generate_payroll_liabilities(co, period_label)
-            results[co] = {"vat":vat,"wht":wht,"payroll":pay,"status":"OK"}
-        except Exception as e:
-            frappe.log_error(f"Liability generation failed {co}: {e}", "Compliance Liability Engine v2")
-            results[co] = {"status":"Error","error":str(e)}
+        results[co] = {"status": "OK"}
+        # Each step is isolated so one failure doesn't block the others
+        for key, fn in steps:
+            try:
+                results[co][key] = fn(co, period_label)
+            except Exception:
+                frappe.db.rollback()
+                tb = frappe.get_traceback()
+                frappe.log_error(tb, f"Liability generation failed {co} [{key}]")
+                results[co][key] = {"status": "Error"}
+                results[co]["status"] = "Partial"
 
     return results
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  DOC-EVENT HOOKS — called directly by hooks.py doc_events
+#  (run inside the document's transaction: they must never commit)
 # ══════════════════════════════════════════════════════════════════════════════
 
-def generate_vat_liability(doc, method=None):
+def generate_vat_liability_from_doc(doc, method=None):
     """
-    hooks.py doc_events → Sales Invoice → on_submit
-    Wraps generate_vat_liability() for a single invoice on submit.
-    `doc` is the Sales Invoice document object passed by Frappe's hook runner.
+    hooks.py doc_events -> Sales Invoice -> on_submit
+    Posts VAT for a single submitted invoice. `doc` is the Sales Invoice.
+    (Renamed from generate_vat_liability, which clashed with the batch function.)
     """
     if not doc or not doc.name:
         return
     try:
         pl = _period_label(doc.posting_date)
-        # Sum VAT rows
+
         vat_amount = 0.0
         for tax in (doc.taxes or []):
             ah = (tax.account_head or "").upper()
-            if "VAT" in ah or flt(tax.rate) == 7.5:
+            if "VAT" in ah or flt(tax.rate) == VAT_RATE:
                 vat_amount += flt(tax.tax_amount)
         if vat_amount <= 0:
             return
 
-        cll = _get_or_create_cll(doc.company, "VAT", pl)
-        existing = {r.source_document for r in (cll.source_lines or [])}
-        if doc.name not in existing:
-            cll.append("source_lines", {
-                "source_doctype":  "Sales Invoice",
-                "source_document": doc.name,
-                "posting_date":    doc.posting_date,
-                "gross_amount":    flt(doc.net_total or doc.total),
-                "liability_amount": vat_amount,
-                "rate_applied":    7.5,
-            })
+        cll = _get_or_create_cll(doc.company, "VAT", pl, commit=False)
+        if doc.name not in _existing_sources(cll):
+            _add_line(cll, "Sales Invoice", doc.name, doc.posting_date,
+                      doc.net_total or doc.total, vat_amount, VAT_RATE)
             cll.save(ignore_permissions=True)
-            frappe.db.commit()
-            # Back-link on invoice
             frappe.db.set_value("Sales Invoice", doc.name,
                                 "vat_cll_entry", cll.name, update_modified=False)
-            _log_event(doc.company, "VAT", pl, "Sales Invoice", doc.name,
-                       cll.name, vat_amount)
-    except Exception as e:
-        frappe.log_error(f"VAT CLL generation failed for {doc.name}: {e}",
-                         "Compliance Liability Engine")
+            _log_event(doc.company, "VAT", pl, "Sales Invoice", doc.name, cll.name, vat_amount)
+    except Exception:
+        frappe.log_error(frappe.get_traceback(),
+                         f"VAT CLL generation failed for {doc.name}")
 
 
 def log_purchase_invoice_wht(doc, method=None):
     """
-    hooks.py doc_events → Purchase Invoice → on_submit
-    Reads WHT deducted on Purchase Invoice and posts to WHT CLL.
-    Relies on ERPNext's Tax Withheld Vouchers or a custom wht_amount field.
+    hooks.py doc_events -> Purchase Invoice -> on_submit
+    Reads WHT deducted on a Purchase Invoice and posts it to the WHT CLL.
     """
     if not doc or not doc.name:
         return
     try:
-        # Strategy 1: read from taxes table rows tagged as WHT
+        # Strategy 1: taxes table rows tagged as WHT
         wht_amount = 0.0
         for tax in (doc.taxes or []):
             ah = (tax.account_head or "").upper()
             if "WHT" in ah or "WITHHOLD" in ah:
-                wht_amount += flt(tax.tax_amount)
+                wht_amount += abs(flt(tax.tax_amount))
 
-        # Strategy 2: fallback to custom field if present
+        # Strategy 2: custom field fallback
         if wht_amount <= 0:
             wht_amount = flt(doc.get("wht_amount") or 0)
-
         if wht_amount <= 0:
             return
 
-        pl  = _period_label(doc.posting_date)
-        cll = _get_or_create_cll(doc.company, "WHT", pl)
-        existing = {r.source_document for r in (cll.source_lines or [])}
-        if doc.name not in existing:
-            cll.append("source_lines", {
-                "source_doctype":  "Purchase Invoice",
-                "source_document": doc.name,
-                "posting_date":    doc.posting_date,
-                "gross_amount":    flt(doc.net_total or doc.total),
-                "liability_amount": wht_amount,
-            })
+        pl = _period_label(doc.posting_date)
+        cll = _get_or_create_cll(doc.company, "WHT", pl, commit=False)
+        if doc.name not in _existing_sources(cll):
+            _add_line(cll, "Purchase Invoice", doc.name, doc.posting_date,
+                      doc.net_total or doc.total, wht_amount)
             cll.save(ignore_permissions=True)
-            frappe.db.commit()
             frappe.db.set_value("Purchase Invoice", doc.name,
                                 "wht_cll_entry", cll.name, update_modified=False)
-            _log_event(doc.company, "WHT", pl, "Purchase Invoice", doc.name,
-                       cll.name, wht_amount)
-    except Exception as e:
-        frappe.log_error(f"WHT CLL logging failed for {doc.name}: {e}",
-                         "Compliance Liability Engine")
+            _log_event(doc.company, "WHT", pl, "Purchase Invoice", doc.name, cll.name, wht_amount)
+    except Exception:
+        frappe.log_error(frappe.get_traceback(),
+                         f"WHT CLL logging failed for {doc.name}")
 
 
 def link_salary_slip_to_cll(doc, method=None):
     """
-    hooks.py doc_events → Salary Slip → on_submit
-    Back-links the salary slip to the PAYE / Pension / NHF CLL entries
-    for the slip's payroll period so each slip is traceable from the ledger.
+    hooks.py doc_events -> Salary Slip -> on_submit
+    Posts the slip to the PAYE / Pension / NHF CLLs and back-links them on the slip.
     """
     if not doc or not doc.name:
         return
     try:
-        pl   = _period_label(doc.end_date or doc.start_date)
-        co   = doc.company
+        pl = _period_label(doc.end_date or doc.start_date)
+        co = doc.company
+        gross = flt(doc.gross_pay)
         back_links = {}
 
-        # PAYE
-        paye = flt(doc.income_tax_deducted)
-        if paye > 0:
-            cll = _get_or_create_cll(co, "PAYE", pl)
-            existing = {r.source_document for r in (cll.source_lines or [])}
-            if doc.name not in existing:
-                cll.append("source_lines", {
-                    "source_doctype":  "Salary Slip",
-                    "source_document": doc.name,
-                    "posting_date":    doc.end_date,
-                    "gross_amount":    flt(doc.gross_pay),
-                    "liability_amount": paye,
-                })
-                cll.save(ignore_permissions=True)
-            back_links["paye_cll_entry"] = cll.name
+        pension_ee = _get_deduction(doc.name, "Pension Contribution") or gross * PENSION_EMPLOYEE_RATE
+        pension_er = gross * PENSION_EMPLOYER_RATE
 
-        # Pension — compute if not in deductions
-        gross = flt(doc.gross_pay)
-        pension_ee = _get_deduction(doc.name, "Pension Contribution") or (gross * 0.08)
-        pension_er = gross * 0.10
-        pension_total = pension_ee + pension_er
-        if pension_total > 0:
-            cll = _get_or_create_cll(co, "Pension", pl)
-            existing = {r.source_document for r in (cll.source_lines or [])}
-            if doc.name not in existing:
-                cll.append("source_lines", {
-                    "source_doctype":  "Salary Slip",
-                    "source_document": doc.name,
-                    "posting_date":    doc.end_date,
-                    "gross_amount":    gross,
-                    "liability_amount": pension_total,
-                })
-                cll.save(ignore_permissions=True)
-            back_links["pension_cll_entry"] = cll.name
+        items = (
+            ("PAYE", _paye_for_slip(doc.name), "paye_cll_entry"),
+            ("Pension", pension_ee + pension_er, "pension_cll_entry"),
+            ("NHF", _get_deduction(doc.name, "NHF Contribution") or gross * NHF_RATE, "nhf_cll_entry"),
+        )
 
-        # NHF
-        nhf = _get_deduction(doc.name, "NHF Contribution") or (gross * 0.025)
-        if nhf > 0:
-            cll = _get_or_create_cll(co, "NHF", pl)
-            existing = {r.source_document for r in (cll.source_lines or [])}
-            if doc.name not in existing:
-                cll.append("source_lines", {
-                    "source_doctype":  "Salary Slip",
-                    "source_document": doc.name,
-                    "posting_date":    doc.end_date,
-                    "gross_amount":    gross,
-                    "liability_amount": nhf,
-                })
+        for ob, amount, link_field in items:
+            if amount <= 0:
+                continue
+            cll = _get_or_create_cll(co, ob, pl, commit=False)
+            if doc.name not in _existing_sources(cll):
+                _add_line(cll, "Salary Slip", doc.name, doc.end_date, gross, amount)
                 cll.save(ignore_permissions=True)
-            back_links["nhf_cll_entry"] = cll.name
+            back_links[link_field] = cll.name
 
-        # Write back-links to the Salary Slip in one call
         if back_links:
-            frappe.db.set_value("Salary Slip", doc.name, back_links,
-                                update_modified=False)
+            frappe.db.set_value("Salary Slip", doc.name, back_links, update_modified=False)
+        # no frappe.db.commit(): this runs inside the slip's own submit transaction
 
-        frappe.db.commit()
-
-    except Exception as e:
-        frappe.log_error(f"Salary Slip CLL link failed for {doc.name}: {e}",
-                         "Compliance Liability Engine")
-
-
-def _get_deduction(salary_slip_name, component):
-    """Read a specific deduction amount from Salary Slip deductions table."""
-    return flt(frappe.db.get_value(
-        "Salary Detail",
-        {"parent": salary_slip_name, "salary_component": component},
-        "amount"
-    ) or 0)
+    except Exception:
+        frappe.log_error(frappe.get_traceback(),
+                         f"Salary Slip CLL link failed for {doc.name}")

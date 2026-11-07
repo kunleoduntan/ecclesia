@@ -13,15 +13,19 @@ Sections
  3.  Portal API               (whitelisted, session-authenticated)
  4.  Payment document creation + attachment transfer
  5.  Email notifications      (triggered by hooks doc_events)
- 6.  Permission logic         (has_permission hook)
- 7.  Scheduler tasks          (daily reminders)
- 8.  Post-install setup       (after_install hook)
- 9.  Amount-to-words utility
+ 6.  Scheduler tasks          (daily reminders)
+ 7.  Post-install setup       (after_install hook)
+ 8.  Private helpers + amount-to-words utility
+
+Record visibility (who may see which request) lives in the standalone module
+ecclesia_erequest/doctype/erequest/erequest_visibility.py
 
 hooks.py references for all callable paths:
   doc_events  → ecclesia_erequest.doctype.erequest.erequest.on_update
                 ecclesia_erequest.doctype.erequest.erequest.on_cancel
-  has_permission → ecclesia_erequest.doctype.erequest.erequest.has_permission
+  has_permission → ecclesia_erequest.doctype.erequest.erequest_visibility.has_permission
+  permission_query_conditions
+              → ecclesia_erequest.doctype.erequest.erequest_visibility.get_permission_query_conditions
   scheduler   → ecclesia_erequest.doctype.erequest.erequest.send_pending_approval_reminders
   after_install → ecclesia_erequest.doctype.erequest.erequest.after_install
 """
@@ -35,12 +39,15 @@ from frappe.utils import (
     money_in_words, add_days, get_url, cint,
 )
 
+from .erequest_visibility import can_view
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 1. CONSTANTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Roles allowed to see all eRequests (not just their own)
+# Roles that take part in approvals.  NOTE: this no longer grants visibility of
+# every request — visibility is decided by erequest_visibility.can_view().
 APPROVER_ROLES = frozenset({
     "eRequest Manager",
     "eRequest Finance",
@@ -386,12 +393,11 @@ def get_request_detail(name: str) -> dict:
     """Portal: return full detail of a single eRequest."""
     user = frappe.session.user
     doc  = frappe.get_doc("eRequest", name)
-    if doc.requested_by != user:
-        if not APPROVER_ROLES.intersection(set(frappe.get_roles(user))):
-            frappe.throw(
-                _("You do not have access to this request."),
-                frappe.PermissionError,
-            )
+    if not can_view(doc, user):
+        frappe.throw(
+            _("You do not have access to this request."),
+            frappe.PermissionError,
+        )
     return doc.as_dict()
 
 
@@ -403,12 +409,11 @@ def upload_attachment(docname: str, fieldname: str) -> dict:
 
     user = frappe.session.user
     doc  = frappe.get_doc("eRequest", docname)
-    if doc.requested_by != user:
-        if not APPROVER_ROLES.intersection(set(frappe.get_roles(user))):
-            frappe.throw(
-                _("You do not have access to this document."),
-                frappe.PermissionError,
-            )
+    if not can_view(doc, user):
+        frappe.throw(
+            _("You do not have access to this request."),
+            frappe.PermissionError,
+        )
 
     file_obj = list(frappe.request.files.values())[0]
     file_doc = frappe.get_doc({
@@ -630,31 +635,7 @@ def on_cancel(doc, method=None):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 6. PERMISSION LOGIC  — registered in hooks.py has_permission
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def has_permission(doc, ptype="read", user=None):
-    """
-    Employees may only read/write their own requests.
-    Managers, Finance, Admin, and System Manager see all.
-    """
-    user = user or frappe.session.user
-    if user == "Administrator":
-        return True
-
-    roles = frappe.get_roles(user)
-
-    if APPROVER_ROLES.intersection(roles):
-        return True
-
-    if "eRequest Employee" in roles:
-        return doc.requested_by == user
-
-    return False
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# 7. SCHEDULER TASKS  — registered in hooks.py scheduler_events
+# 6. SCHEDULER TASKS  — registered in hooks.py scheduler_events
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def send_pending_approval_reminders():
@@ -730,7 +711,7 @@ def send_pending_approval_reminders():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 8. POST-INSTALL SETUP  — called by hooks.py after_install
+# 7. POST-INSTALL SETUP  — called by hooks.py after_install
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def after_install():
@@ -747,7 +728,7 @@ def after_install():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 9. PRIVATE HELPERS
+# 8. PRIVATE HELPERS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # ── Employee lookup ────────────────────────────────────────────────────────────

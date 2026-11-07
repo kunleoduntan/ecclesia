@@ -2,20 +2,20 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-02-04 20:18:04.487433",
+ "creation": "2026-10-24 12:50:02.072374",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
   "document_info_section",
   "naming_series",
-  "asset_category",
   "company",
   "column_break_doc1",
   "posting_date",
   "posting_time",
   "column_break_doc2",
   "set_posting_time",
+  "amended_from",
   "purchase_type_section",
   "purchase_type",
   "column_break_type1",
@@ -30,6 +30,7 @@
   "supplier_invoice_date",
   "credit_days",
   "cash_purchase_section",
+  "cash_supplier",
   "bank_account",
   "column_break_cash1",
   "mode_of_payment",
@@ -59,7 +60,6 @@
   "department",
   "column_break_acc1",
   "project",
-  "item_linked_code",
   "column_break_acc2",
   "create_gl_entry",
   "payment_tab",
@@ -81,7 +81,9 @@
   "journal_entry",
   "column_break_je1",
   "purchase_invoice",
-  "amended_from"
+  "asset_category",
+  "item_linked_code",
+  "payment_entry"
  ],
  "fields": [
   {
@@ -522,7 +524,7 @@
    "label": "Accounting Entries"
   },
   {
-   "description": "Link to Journal Entry (for cash purchases)",
+   "description": "Legacy: Journal Entry created by cash purchases submitted before Payment Entry posting. Not used for new documents.",
    "fieldname": "journal_entry",
    "fieldtype": "Link",
    "label": "Journal Entry",
@@ -535,21 +537,12 @@
    "fieldtype": "Column Break"
   },
   {
-   "description": "Link to Purchase Invoice (for supplier purchases)",
+   "description": "Link to Purchase Invoice (supplier and cash purchases)",
    "fieldname": "purchase_invoice",
    "fieldtype": "Link",
    "label": "Purchase Invoice",
    "no_copy": 1,
    "options": "Purchase Invoice",
-   "read_only": 1
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Fixed Asset Purchase",
-   "print_hide": 1,
    "read_only": 1
   },
   {
@@ -564,12 +557,31 @@
    "fieldtype": "Data",
    "label": "Item Linked Code",
    "read_only": 1
+  },
+  {
+   "description": "Supplier master all cash purchases are posted to (e.g. your walk-in supplier). The Purchase Invoice and Payment Entry are booked against this supplier's payable account.",
+   "fieldname": "cash_supplier",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Cash Supplier",
+   "mandatory_depends_on": "eval:doc.purchase_type=='Cash Purchase'",
+   "options": "Supplier"
+  },
+  {
+   "description": "Payment Entry settling the cash purchase's Purchase Invoice",
+   "fieldname": "payment_entry",
+   "fieldtype": "Link",
+   "label": "Payment Entry",
+   "no_copy": 1,
+   "options": "Payment Entry",
+   "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-02 19:31:55.922349",
+ "modified": "2026-10-24 13:00:59.042014",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Fixed Asset Purchase",
@@ -587,34 +599,12 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts User",
-   "share": 1,
-   "write": 1
   }
  ],
  "quick_entry": 1,
- "sort_field": "modified",
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

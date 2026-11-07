@@ -1,576 +1,471 @@
-# Copyright (c) 2026, 	kunle Oduntan and contributors
+# Copyright (c) Value Plus
 # For license information, please see license.txt
 
+"""
+SFP - MQH: Statement of Financial Position
 
+Place at:
+    apps/ecclesia/ecclesia/ecclesia/report/sfp___mqh/sfp___mqh.py
 
-# Copyright (c) 2026, Ecclesia and contributors
-# For license information, please see license.txt
+* Line items come from the Financial Reporting Group doctype:
+    - label            = Financial Reporting Group name (what is set on Account.custom_financial_reporting_group)
+    - order in section = sort_order, then name
+    - section          = the group itself or the nearest ancestor in `parent_group`
+                         whose name is one of: Non Current Assets, Current Assets, Equity,
+                         Non Current Liabilities, Current Liabilities
+                         (hyphen / case / "&" tolerant). If no ancestor matches, the account is
+                         placed by its root/account type, keeping the group's name as the label.
+* Balance Sheet accounts are selected by root_type (Asset / Liability / Equity) and Profit and Loss
+  accounts by root_type (Income / Expense), so accounts with a blank report_type are not lost.
+* Column names follow the frequency: Monthly "Jan 2026", Quarterly "Q1 2026",
+  Half-Yearly "H1 2026", Yearly "FY 2026"; last-year columns carry the previous year.
+* Rows carry `level` (not `indent`) so there is no expand/collapse tree.
+"""
 
 import frappe
-from frappe.utils import flt, cint, get_first_day, get_last_day, add_days
-from datetime import datetime
-from collections import defaultdict
+from frappe import _
+from frappe.utils import add_months, add_years, escape_html, flt, fmt_money, getdate, today
 
-# Global message for report
-message = "Statement of Financial Position"
+PCV = "Period Closing Voucher"
+MONTHS = 12
+PRECISION = 2
 
-# Cache for account mappings to avoid repeated queries
-_account_cache = {}
+FREQ_STEP = {"Monthly": 1, "Quarterly": 3, "Half-Yearly": 6, "Yearly": 12}
+
+BLOCKS = [
+	("ASSETS", ("Non Current Assets", "Current Assets"), "Total Assets"),
+	(
+		"EQUITY AND LIABILITIES",
+		("Equity", "Non Current Liabilities", "Current Liabilities"),
+		"Total Equity & Liabilities",
+	),
+]
+
+CREDIT_SECTIONS = ("Equity", "Non Current Liabilities", "Current Liabilities")
+LIABILITY_SECTIONS = ("Non Current Liabilities", "Current Liabilities")
+NON_CURRENT_ASSET_TYPES = (
+	"Fixed Asset",
+	"Capital Work in Progress",
+	"Depreciation",
+	"Accumulated Depreciation",
+)
+
+PROFIT_LABEL = "Profit for the year"
+UNCLOSED_LABEL = "Retained earnings - prior years (not yet closed)"
+
+
+def norm(text):
+	return " ".join(
+		(text or "").lower().replace("&", " and ").replace("/", " ").replace("-", " ").split()
+	)
+
+
+SECTION_LOOKUP = {norm(s): s for _b, sections, _t in BLOCKS for s in sections}
 
 
 def execute(filters=None):
-    """Main execution function for the report"""
-    if not filters:
-        filters = {}
-    
-    # Validate required filters
-    validate_filters(filters)
-    
-    # Get report configuration
-    config = get_report_config(filters)
-    
-    # Get columns
-    columns = get_columns(config)
-    
-    # Get data
-    data = get_data(config)
-    
-    # Apply filters (e.g., hide zero YTD rows)
-    data = apply_post_filters(data, filters)
-    
-    # Prepare chart data
-    chart = get_chart_data(data, config)
-    
-    # Return report components
-    return columns, data, message, chart, None
+	filters = frappe._dict(filters or {})
+	fy = get_fiscal_year(filters)
+	periods = get_periods(fy.start, filters.get("frequency"))
+
+	columns = get_columns(periods)
+	data, warnings, notes = get_data(filters, fy, periods)
+
+	return columns, data, get_message(warnings, notes), None, None
 
 
-def validate_filters(filters):
-    """Validate required filter values"""
-    if not filters.get("company"):
-        frappe.throw("Please select a Company")
-    
-    if not filters.get("year"):
-        filters["year"] = str(frappe.utils.now_datetime().year)
+# --------------------------------------------------------------------------
+# Setup
+# --------------------------------------------------------------------------
+def get_fiscal_year(filters):
+	if not filters.get("company"):
+		frappe.throw(_("Please select a Company"))
+	if not filters.get("year"):
+		frappe.throw(_("Please select a Fiscal Year"))
+
+	fy = frappe.db.get_value(
+		"Fiscal Year", filters.year, ["year_start_date", "year_end_date"], as_dict=True
+	)
+	if not fy:
+		frappe.throw(_("Fiscal Year {0} not found").format(filters.year))
+
+	return frappe._dict(start=getdate(fy.year_start_date), end=getdate(fy.year_end_date))
 
 
-def get_report_config(filters):
-    """Build configuration object for the report"""
-    current_year = cint(filters.get("year") or frappe.utils.now_datetime().year)
-    previous_year = current_year - 1
-    
-    return {
-        "company": filters.get("company"),
-        "current_year": current_year,
-        "previous_year": previous_year,
-        "frequency": filters.get("frequency") or "Monthly",
-        "periods": get_periods(filters.get("frequency") or "Monthly"),
-        "hide_zero_ytd": cint(filters.get("show_only_ytd"))
-    }
+def get_periods(fy_start, frequency):
+	step = FREQ_STEP.get(frequency or "Monthly", 1)
+	periods = []
+	for i in range(MONTHS // step):
+		end_idx = (i + 1) * step - 1
+		year = getdate(add_months(fy_start, end_idx)).year  # year of the period's last month
+
+		if step == 1:
+			month_name = getdate(add_months(fy_start, i)).strftime("%b")
+			label, ly_label = f"{month_name} {year}", f"{month_name} {year - 1}"
+		elif step == 3:
+			label, ly_label = f"Q{i + 1} {year}", f"Q{i + 1} {year - 1}"
+		elif step == 6:
+			label, ly_label = f"H{i + 1} {year}", f"H{i + 1} {year - 1}"
+		else:
+			label, ly_label = f"FY {year}", f"FY {year - 1}"
+
+		periods.append(
+			frappe._dict(key=f"p{i}", label=label, ly_label=ly_label, end_idx=end_idx)
+		)
+	return periods
 
 
-def get_periods(frequency):
-    """Return period definitions based on frequency"""
-    if frequency == "Quarterly":
-        return [
-            ("Q1", [1, 2, 3]),
-            ("Q2", [4, 5, 6]),
-            ("Q3", [7, 8, 9]),
-            ("Q4", [10, 11, 12])
-        ]
-    elif frequency == "Half-Yearly":
-        return [
-            ("H1", [1, 2, 3, 4, 5, 6]),
-            ("H2", [7, 8, 9, 10, 11, 12])
-        ]
-    else:  # Monthly
-        return [
-            ("Jan", [1]), ("Feb", [2]), ("Mar", [3]), ("Apr", [4]),
-            ("May", [5]), ("Jun", [6]), ("Jul", [7]), ("Aug", [8]),
-            ("Sep", [9]), ("Oct", [10]), ("Nov", [11]), ("Dec", [12])
-        ]
+def get_columns(periods):
+	columns = [
+		{"label": _("Account Name"), "fieldname": "account_name", "fieldtype": "Data", "width": 300}
+	]
+	for p in periods:
+		columns += [
+			{"label": p.label, "fieldname": p.key, "fieldtype": "Currency", "width": 150},
+			{"label": p.ly_label, "fieldname": f"{p.key}_ly", "fieldtype": "Currency", "width": 150},
+			{"label": _("Var %"), "fieldname": f"{p.key}_var", "fieldtype": "Float", "precision": 1, "width": 60},
+		]
+	columns.append(
+		{"label": _("Year To Date"), "fieldname": "year_to_date", "fieldtype": "Currency", "width": 150}
+	)
+	return columns
 
 
-def get_columns(config):
-    """Generate column definitions"""
-    columns = [
-        {
-            "label": "Account Name",
-            "fieldname": "account_name",
-            "fieldtype": "Data",
-            "width": 300
-        }
-    ]
-    
-    period_keys = []
-    for period_label, _ in config["periods"]:
-        field_key = period_label.lower().replace(" ", "_")
-        period_keys.append(field_key)
-        
-        # Current year column
-        columns.append({
-            "label": f"{period_label}",
-            "fieldname": field_key,
-            "fieldtype": "Currency",
-            "width": 130
-        })
-        
-        # Last year column
-        columns.append({
-            "label": f"{period_label} LY",
-            "fieldname": f"{field_key}_ly",
-            "fieldtype": "Currency",
-            "width": 130
-        })
-        
-        # Variance percentage column
-        columns.append({
-            "label": f"{period_label} Var %",
-            "fieldname": f"{field_key}_var",
-            "fieldtype": "Percent",
-            "width": 110
-        })
-    
-    # Year to date column
-    columns.append({
-        "label": "Year To Date",
-        "fieldname": "year_to_date",
-        "fieldtype": "Currency",
-        "width": 150
-    })
-    
-    # Store period keys in config for later use
-    config["period_keys"] = period_keys
-    
-    return columns
+# --------------------------------------------------------------------------
+# Financial Reporting Group -> lines
+# --------------------------------------------------------------------------
+def get_group_meta():
+	rows = frappe.get_all(
+		"Financial Reporting Group", fields=["name", "parent_group", "sort_order"]
+	)
+	by_name = {r.name: r for r in rows}
+	by_norm = {norm(r.name): r for r in rows}
+	return by_name, by_norm
 
 
-def get_financial_structure():
-    """Define the financial statement structure"""
-    return {
-        "Non Current Assets": [
-            "Property, plant and equipment",
-            "Investments",
-            "Investment In properties",
-            "Intangible asset"
-        ],
-        "Current Assets": [
-            "Inventories & consumables",
-            "Trade & other receivables",
-            "Cash and cash equivalent",
-            "Short-term investments",
-            "Other receivables"
-        ],
-        "Equity": [
-            "Share capital",
-            "Retained earnings",
-            "Net profit/ (loss) for the month",
-            "Revaluation reserves",
-            "Other reserves"
-        ],
-        "Non Current Liabilities": [
-            "Long-term liabilities",
-            "Deferred tax liability"
-        ],
-        "Current Liabilities": [
-            "Trade & other payables",
-            "Borrowings",
-            "Tax liabilities",
-            "Finance lease",
-            "Intercompany",
-            "Other accrued expenses"
-        ]
-    }
+def resolve_section(group_name, by_name):
+	seen, current = set(), group_name
+	while current and current not in seen:
+		seen.add(current)
+		section = SECTION_LOOKUP.get(norm(current))
+		if section:
+			return section
+		current = (by_name.get(current) or {}).get("parent_group")
+	return None
 
 
-def get_account_mapping(company):
-    """Get account to financial group mapping with caching"""
-    cache_key = f"account_mapping_{company}"
-    
-    if cache_key in _account_cache:
-        return _account_cache[cache_key]
-    
-    accounts = frappe.get_all(
-        "Account",
-        filters={"company": company},
-        fields=["name", "custom_financial_reporting_group"]
-    )
-    
-    grouped = defaultdict(list)
-    for account in accounts:
-        if account.custom_financial_reporting_group:
-            grouped[account.custom_financial_reporting_group].append(account.name)
-    
-    _account_cache[cache_key] = dict(grouped)
-    return _account_cache[cache_key]
+def fallback_section(acc):
+	if acc.root_type == "Asset":
+		return "Non Current Assets" if acc.account_type in NON_CURRENT_ASSET_TYPES else "Current Assets"
+	if acc.root_type == "Liability":
+		return "Current Liabilities"
+	return "Equity"
 
 
-def get_gl_balances(accounts, from_date, to_date, company):
-    """Fetch GL balances efficiently using single query"""
-    if not accounts:
-        return {}
-    
-    # Use parameterized query with IN clause
-    account_placeholders = ', '.join(['%s'] * len(accounts))
-    
-    query = f"""
-        SELECT 
-            account,
-            SUM(debit) as total_debit,
-            SUM(credit) as total_credit
-        FROM `tabGL Entry`
-        WHERE 
-            account IN ({account_placeholders})
-            AND posting_date BETWEEN %s AND %s
-            AND company = %s
-            AND is_cancelled = 0
-        GROUP BY account
-    """
-    
-    params = list(accounts) + [from_date, to_date, company]
-    results = frappe.db.sql(query, params, as_dict=1)
-    
-    balances = {}
-    for row in results:
-        balances[row.account] = {
-            "debit": flt(row.total_debit),
-            "credit": flt(row.total_credit)
-        }
-    
-    return balances
+def build_lines(accounts):
+	"""Returns ({section: [(label, [accounts])]}, {(section, label)} placed without a valid group)."""
+	by_name, by_norm = get_group_meta()
+	groups, no_group = {}, set()
+
+	for a in accounts:
+		raw = a.custom_financial_reporting_group
+		meta = (by_name.get(raw) or by_norm.get(norm(raw))) if raw else None
+
+		label = meta.name if meta else (raw or a.account_name or a.name)
+		section = resolve_section(meta.name, by_name) if meta else None
+		if not section:
+			section = fallback_section(a)
+
+		key = (section, label)
+		entry = groups.setdefault(
+			key, {"order": flt(meta.sort_order) if meta else 9999, "accounts": []}
+		)
+		entry["accounts"].append(a.name)
+		if not meta:
+			no_group.add(key)
+
+	lines = {s: [] for _b, sections, _t in BLOCKS for s in sections}
+	for (section, label), entry in sorted(groups.items(), key=lambda kv: (kv[1]["order"], kv[0][1])):
+		lines[section].append((label, entry["accounts"]))
+
+	return lines, no_group
 
 
-def get_pl_totals(from_date, to_date, company):
-    """Get P&L totals (income and expenses) efficiently"""
-    query = """
-        SELECT 
-            acc.root_type,
-            SUM(gl.debit) as total_debit,
-            SUM(gl.credit) as total_credit
-        FROM `tabGL Entry` gl
-        INNER JOIN `tabAccount` acc ON gl.account = acc.name
-        WHERE 
-            gl.company = %s
-            AND gl.posting_date BETWEEN %s AND %s
-            AND acc.report_type = 'Profit and Loss'
-            AND acc.root_type IN ('Income', 'Expense')
-            AND gl.is_cancelled = 0
-        GROUP BY acc.root_type
-    """
-    
-    results = frappe.db.sql(query, (company, from_date, to_date), as_dict=1)
-    
-    income = 0
-    expense = 0
-    
-    for row in results:
-        if row.root_type == 'Income':
-            income = flt(row.total_credit) - flt(row.total_debit)
-        elif row.root_type == 'Expense':
-            expense = flt(row.total_debit) - flt(row.total_credit)
-    
-    return income - expense
+# --------------------------------------------------------------------------
+# GL access
+# --------------------------------------------------------------------------
+def month_index(ly_start, year, month):
+	return (year - ly_start.year) * 12 + (month - ly_start.month)
 
 
-def calculate_balance(debit, credit, section):
-    """Calculate balance based on account type"""
-    if section in ["Equity", "Non Current Liabilities", "Current Liabilities"]:
-        return flt(credit) - flt(debit)
-    return flt(debit) - flt(credit)
+def cumulative(values, start=0.0):
+	out, running = [], start
+	for v in values:
+		running += v
+		out.append(running)
+	return out
 
 
-def calculate_variance_percent(current, previous):
-    """Calculate variance percentage safely"""
-    if previous == 0:
-        return None
-    return ((current - previous) / abs(previous)) * 100
+def get_balances(company, accounts, ly_start, fy_end):
+	"""{account: {"ly": [12 net], "cur": [12 net]}}  (net = debit - credit)."""
+	result = {}
+	if not accounts:
+		return result
+
+	values = {"company": company, "accounts": tuple(accounts), "ly_start": ly_start, "to": fy_end}
+
+	opening = {
+		r.account: flt(r.net)
+		for r in frappe.db.sql(
+			"""
+			SELECT account, SUM(debit) - SUM(credit) AS net
+			FROM `tabGL Entry`
+			WHERE company = %(company)s AND is_cancelled = 0
+				AND posting_date < %(ly_start)s AND account IN %(accounts)s
+			GROUP BY account
+			""",
+			values,
+			as_dict=True,
+		)
+	}
+
+	movements = frappe.db.sql(
+		"""
+		SELECT account, YEAR(posting_date) AS y, MONTH(posting_date) AS m,
+			IFNULL(voucher_type, '') = %(pcv)s AS is_pcv,
+			SUM(debit) AS debit, SUM(credit) AS credit
+		FROM `tabGL Entry`
+		WHERE company = %(company)s AND is_cancelled = 0
+			AND posting_date BETWEEN %(ly_start)s AND %(to)s AND account IN %(accounts)s
+		GROUP BY account, y, m, is_pcv
+		""",
+		{**values, "pcv": PCV},
+		as_dict=True,
+	)
+
+	ly_move = {a: [0.0] * MONTHS for a in accounts}
+	cur_move = {a: [0.0] * MONTHS for a in accounts}
+	carry = dict.fromkeys(accounts, 0.0)
+
+	for r in movements:
+		idx = month_index(ly_start, r.y, r.m)
+		net = flt(r.debit) - flt(r.credit)
+		if 0 <= idx < MONTHS:
+			carry[r.account] += net
+			if not r.is_pcv:
+				ly_move[r.account][idx] += net
+		elif MONTHS <= idx < 2 * MONTHS and not r.is_pcv:
+			cur_move[r.account][idx - MONTHS] += net
+
+	for a in accounts:
+		open_bal = opening.get(a, 0.0)
+		result[a] = {
+			"ly": cumulative(ly_move[a], open_bal),
+			"cur": cumulative(cur_move[a], open_bal + carry[a]),
+		}
+	return result
 
 
-def get_date_range(year, month):
-    """Get first and last day of month"""
-    first_day = get_first_day(f"{year}-{month:02d}-01")
-    last_day = get_last_day(f"{year}-{month:02d}-01")
-    return first_day, last_day
+def get_profit(company, fy_start, ly_start, fy_end):
+	"""
+	profit  : cumulative P&L (credit - debit) from each year's start, excluding closing entries.
+	unclosed: P&L of earlier years not yet moved to equity by a Period Closing Voucher
+	          (all P&L entries incl. closing entries before the year start; zero once closed).
+	"""
+	rows = frappe.db.sql(
+		"""
+		SELECT YEAR(gle.posting_date) AS y, MONTH(gle.posting_date) AS m,
+			SUM(gle.credit - gle.debit) AS amount
+		FROM `tabGL Entry` gle
+		INNER JOIN `tabAccount` acc ON acc.name = gle.account
+		WHERE gle.company = %(company)s AND gle.is_cancelled = 0
+			AND acc.root_type IN ('Income', 'Expense')
+			AND IFNULL(gle.voucher_type, '') != %(pcv)s
+			AND gle.posting_date BETWEEN %(ly_start)s AND %(to)s
+		GROUP BY y, m
+		""",
+		{"company": company, "pcv": PCV, "ly_start": ly_start, "to": fy_end},
+		as_dict=True,
+	)
+
+	ly, cur = [0.0] * MONTHS, [0.0] * MONTHS
+	for r in rows:
+		idx = month_index(ly_start, r.y, r.m)
+		if 0 <= idx < MONTHS:
+			ly[idx] += flt(r.amount)
+		elif MONTHS <= idx < 2 * MONTHS:
+			cur[idx - MONTHS] += flt(r.amount)
+
+	def before(date):
+		res = frappe.db.sql(
+			"""
+			SELECT SUM(gle.credit - gle.debit)
+			FROM `tabGL Entry` gle
+			INNER JOIN `tabAccount` acc ON acc.name = gle.account
+			WHERE gle.company = %s AND gle.is_cancelled = 0
+				AND acc.root_type IN ('Income', 'Expense') AND gle.posting_date < %s
+			""",
+			(company, date),
+		)
+		return flt(res[0][0]) if res else 0.0
+
+	return {
+		"profit": {"ly": cumulative(ly), "cur": cumulative(cur)},
+		"unclosed": {"ly": [before(ly_start)] * MONTHS, "cur": [before(fy_start)] * MONTHS},
+	}
 
 
-def calculate_retained_earnings(config):
-    """Calculate retained earnings row with cumulative P&L"""
-    company = config["company"]
-    current_year = config["current_year"]
-    previous_year = config["previous_year"]
-    periods = config["periods"]
-    
-    retained_earnings_row = {
-        "account_name": "    Retained Earnings (Calculated)",
-        "indent": 1
-    }
-    
-    cumulative_current = 0
-    cumulative_previous = 0
-    ytd_current = 0
-    
-    for period_label, month_list in periods:
-        key = period_label.lower().replace(" ", "_")
-        
-        # Calculate for each month in period
-        period_profit_current = 0
-        period_profit_previous = 0
-        
-        for month in month_list:
-            # Current year
-            from_date_current, to_date_current = get_date_range(current_year, month)
-            profit_current = get_pl_totals(from_date_current, to_date_current, company)
-            period_profit_current += profit_current
-            
-            # Previous year
-            from_date_previous, to_date_previous = get_date_range(previous_year, month)
-            profit_previous = get_pl_totals(from_date_previous, to_date_previous, company)
-            period_profit_previous += profit_previous
-        
-        # Accumulate
-        cumulative_current += period_profit_current
-        cumulative_previous += period_profit_previous
-        ytd_current += period_profit_current
-        
-        # Store cumulative values
-        retained_earnings_row[key] = cumulative_current
-        retained_earnings_row[f"{key}_ly"] = cumulative_previous
-        retained_earnings_row[f"{key}_var"] = calculate_variance_percent(
-            cumulative_current, cumulative_previous
-        )
-    
-    retained_earnings_row["year_to_date"] = ytd_current
-    
-    return retained_earnings_row
+# --------------------------------------------------------------------------
+# Report body
+# --------------------------------------------------------------------------
+def variance(current, last_year):
+	if not flt(last_year, PRECISION):
+		return None
+	return flt((current - last_year) / abs(last_year) * 100, 1)
 
 
-def get_data(config):
-    """Generate report data"""
-    company = config["company"]
-    current_year = config["current_year"]
-    previous_year = config["previous_year"]
-    periods = config["periods"]
-    period_keys = config["period_keys"]
-    
-    # Get account mappings
-    account_mapping = get_account_mapping(company)
-    
-    # Get financial structure
-    financial_structure = get_financial_structure()
-    
-    data = []
-    
-    # Initialize summary rows
-    total_assets_row = {
-        "account_name": '<span style="font-weight:bold;">Total Assets</span>',
-        "is_total": True
-    }
-    total_liabilities_row = {
-        "account_name": '<span style="font-weight:bold;">Total Equity & Liabilities</span>',
-        "is_total": True
-    }
-    
-    for key in period_keys:
-        total_assets_row[key] = 0
-        total_assets_row[f"{key}_ly"] = 0
-        total_liabilities_row[key] = 0
-        total_liabilities_row[f"{key}_ly"] = 0
-    
-    total_assets_ytd = 0
-    total_liabilities_ytd = 0
-    
-    # Calculate retained earnings once
-    retained_earnings_row = calculate_retained_earnings(config)
-    
-    # Process each financial section
-    for section, categories in financial_structure.items():
-        # Add section header
-        data.append({
-            "account_name": f"▶ {section}",
-            "is_header": True
-        })
-        
-        section_totals = defaultdict(float)
-        section_ytd = 0
-        
-        # Process each category in section
-        for category in categories:
-            accounts = account_mapping.get(category, [])
-            if not accounts:
-                continue
-            
-            # Initialize category row
-            category_row = {
-                "account_name": f"    {category}",
-                "indent": 1
-            }
-            
-            category_ytd = 0
-            cumulative_current = 0
-            cumulative_previous = 0
-            
-            # Process each period
-            for period_label, month_list in periods:
-                key = period_label.lower().replace(" ", "_")
-                
-                period_total_current = 0
-                period_total_previous = 0
-                
-                # Get balances for all months in period at once
-                for month in month_list:
-                    # Current year
-                    from_date_current, to_date_current = get_date_range(current_year, month)
-                    balances_current = get_gl_balances(
-                        accounts, from_date_current, to_date_current, company
-                    )
-                    
-                    # Previous year
-                    from_date_previous, to_date_previous = get_date_range(previous_year, month)
-                    balances_previous = get_gl_balances(
-                        accounts, from_date_previous, to_date_previous, company
-                    )
-                    
-                    # Sum up balances
-                    for account in accounts:
-                        if account in balances_current:
-                            bal = balances_current[account]
-                            period_total_current += calculate_balance(
-                                bal["debit"], bal["credit"], section
-                            )
-                        
-                        if account in balances_previous:
-                            bal = balances_previous[account]
-                            period_total_previous += calculate_balance(
-                                bal["debit"], bal["credit"], section
-                            )
-                
-                # Accumulate
-                cumulative_current += period_total_current
-                cumulative_previous += period_total_previous
-                category_ytd += period_total_current
-                
-                # Store values
-                category_row[key] = cumulative_current
-                category_row[f"{key}_ly"] = cumulative_previous
-                category_row[f"{key}_var"] = calculate_variance_percent(
-                    cumulative_current, cumulative_previous
-                )
-                
-                # Add to section totals
-                section_totals[key] += cumulative_current
-                section_totals[f"{key}_ly"] += cumulative_previous
-            
-            category_row["year_to_date"] = category_ytd
-            section_ytd += category_ytd
-            
-            data.append(category_row)
-        
-        # Add retained earnings to Equity section
-        if section == "Equity":
-            data.append(retained_earnings_row)
-            for key in period_keys:
-                section_totals[key] += retained_earnings_row.get(key, 0)
-                section_totals[f"{key}_ly"] += retained_earnings_row.get(f"{key}_ly", 0)
-            section_ytd += retained_earnings_row.get("year_to_date", 0)
-        
-        # Add section total row
-        section_total_row = {
-            "account_name": f'<span style="font-weight:bold;">    Total - {section}</span>',
-            "is_section_total": True,
-            "indent": 1
-        }
-        
-        for key in period_keys:
-            section_total_row[key] = section_totals[key]
-            section_total_row[f"{key}_ly"] = section_totals[f"{key}_ly"]
-            section_total_row[f"{key}_var"] = calculate_variance_percent(
-                section_totals[key], section_totals[f"{key}_ly"]
-            )
-            
-            # Add to grand totals
-            if section in ["Non Current Assets", "Current Assets"]:
-                total_assets_row[key] += section_totals[key]
-                total_assets_row[f"{key}_ly"] += section_totals[f"{key}_ly"]
-            elif section in ["Equity", "Non Current Liabilities", "Current Liabilities"]:
-                total_liabilities_row[key] += section_totals[key]
-                total_liabilities_row[f"{key}_ly"] += section_totals[f"{key}_ly"]
-        
-        section_total_row["year_to_date"] = section_ytd
-        
-        if section in ["Non Current Assets", "Current Assets"]:
-            total_assets_ytd += section_ytd
-        elif section in ["Equity", "Non Current Liabilities", "Current Liabilities"]:
-            total_liabilities_ytd += section_ytd
-        
-        data.append(section_total_row)
-        
-        # Add separator and total assets after current assets
-        if section == "Current Assets":
-            data.append({"account_name": ""})
-            data.append(total_assets_row)
-            data.append({"account_name": ""})
-    
-    # Calculate variance for grand totals
-    for key in period_keys:
-        total_assets_row[f"{key}_var"] = calculate_variance_percent(
-            total_assets_row[key], total_assets_row[f"{key}_ly"]
-        )
-        total_liabilities_row[f"{key}_var"] = calculate_variance_percent(
-            total_liabilities_row[key], total_liabilities_row[f"{key}_ly"]
-        )
-    
-    total_assets_row["year_to_date"] = total_assets_ytd
-    total_liabilities_row["year_to_date"] = total_liabilities_ytd
-    
-    # Add final total liabilities row
-    data.append(total_liabilities_row)
-    
-    return data
+def zeros():
+	return {"cur": [0.0] * MONTHS, "ly": [0.0] * MONTHS}
 
 
-def apply_post_filters(data, filters):
-    """Apply post-processing filters"""
-    if cint(filters.get("show_only_ytd")):
-        # Filter out rows with zero YTD
-        data = [row for row in data if row.get("year_to_date") or row.get("is_header")]
-    
-    return data
+def add_into(total, line):
+	for k in ("cur", "ly"):
+		for i in range(MONTHS):
+			total[k][i] += line[k][i]
 
 
-def get_chart_data(data, config):
-    """Generate chart data for visualization"""
-    chart_data = {
-        "data": {
-            "labels": [],
-            "datasets": []
-        },
-        "type": "bar",
-        "colors": ["#4CAF50", "#FF9800", "#2196F3"]
-    }
-    
-    # Extract summary data for chart
-    assets_data = []
-    liabilities_data = []
-    equity_data = []
-    
-    for row in data:
-        account_name = row.get("account_name", "")
-        
-        if "Total - Current Assets" in account_name:
-            for key in config["period_keys"]:
-                assets_data.append(row.get(key, 0))
-        elif "Total - Equity" in account_name:
-            for key in config["period_keys"]:
-                equity_data.append(row.get(key, 0))
-        elif "Total - Current Liabilities" in account_name:
-            for key in config["period_keys"]:
-                liabilities_data.append(row.get(key, 0))
-    
-    chart_data["data"]["labels"] = [p[0] for p in config["periods"]]
-    chart_data["data"]["datasets"] = [
-        {"name": "Assets", "values": assets_data},
-        {"name": "Liabilities", "values": liabilities_data},
-        {"name": "Equity", "values": equity_data}
-    ]
-    
-    return chart_data
+def is_zero(line):
+	return all(abs(v) < 0.005 for k in ("cur", "ly") for v in line[k])
+
+
+def make_row(name, line, periods, ytd_idx, row_type, level=0):
+	row = {"account_name": name, "row_type": row_type, "level": level}
+	for p in periods:
+		cur = flt(line["cur"][p.end_idx], PRECISION)
+		ly = flt(line["ly"][p.end_idx], PRECISION)
+		row[p.key] = cur
+		row[f"{p.key}_ly"] = ly
+		row[f"{p.key}_var"] = variance(cur, ly)
+	row["year_to_date"] = flt(line["cur"][ytd_idx], PRECISION)
+	return row
+
+
+def spacer():
+	return {"account_name": "", "row_type": "spacer", "level": 0}
+
+
+def get_ytd_index(fy):
+	today_date = getdate(today())
+	if today_date >= fy.end:
+		return MONTHS - 1
+	if today_date < fy.start:
+		return 0
+	return min(max(month_index(fy.start, today_date.year, today_date.month), 0), MONTHS - 1)
+
+
+def get_data(filters, fy, periods):
+	company = filters.company
+	ly_start = getdate(add_years(fy.start, -1))
+	hide_zero = frappe.parse_json(filters.get("show_only_ytd") or 0)
+	ytd_idx = get_ytd_index(fy)
+
+	accounts = frappe.get_all(
+		"Account",
+		filters={"company": company, "is_group": 0, "root_type": ["in", ["Asset", "Liability", "Equity"]]},
+		fields=["name", "account_name", "custom_financial_reporting_group", "root_type", "account_type"],
+	)
+	balances = get_balances(company, [a.name for a in accounts], ly_start, fy.end)
+	lines, no_group = build_lines(accounts)
+	pl = get_profit(company, fy.start, ly_start, fy.end)
+
+	def account_line(names, sign):
+		line = zeros()
+		for n in names:
+			for k in ("cur", "ly"):
+				for i in range(MONTHS):
+					line[k][i] += sign * balances[n][k][i]
+		return line
+
+	data, grand = [], {}
+	liabilities = zeros()
+	auto_notes = []
+
+	for heading, sections, grand_label in BLOCKS:
+		data.append({"account_name": heading, "row_type": "heading", "level": 0})
+		block_total = zeros()
+
+		for section in sections:
+			sign = -1 if section in CREDIT_SECTIONS else 1
+			section_total = zeros()
+			rows = []
+
+			for label, names in lines[section]:
+				line = account_line(names, sign)
+				if (section, label) in no_group:
+					if is_zero(line):
+						continue
+					auto_notes.append(f"{escape_html(label)} → {section}")
+				add_into(section_total, line)
+				row = make_row(label, line, periods, ytd_idx, "line", level=2)
+				if hide_zero and not row["year_to_date"]:
+					continue
+				rows.append(row)
+
+			if section == "Equity":
+				unclosed = pl["unclosed"]
+				if not is_zero(unclosed):
+					add_into(section_total, unclosed)
+					rows.append(make_row(UNCLOSED_LABEL, unclosed, periods, ytd_idx, "line", level=2))
+				profit = pl["profit"]
+				add_into(section_total, profit)
+				rows.append(make_row(PROFIT_LABEL, profit, periods, ytd_idx, "profit", level=2))
+
+			data.append({"account_name": section, "row_type": "section", "level": 1})
+			data.extend(rows)
+			data.append(make_row(f"Total - {section}", section_total, periods, ytd_idx, "total", level=1))
+
+			add_into(block_total, section_total)
+			if section in LIABILITY_SECTIONS:
+				add_into(liabilities, section_total)
+				if section == LIABILITY_SECTIONS[-1]:
+					data.append(make_row("Total Liabilities", liabilities, periods, ytd_idx, "total", level=1))
+			data.append(spacer())
+
+		data.append(make_row(grand_label, block_total, periods, ytd_idx, "grand_total"))
+		data.append(spacer())
+		grand[heading] = block_total
+
+	warnings, notes = [], []
+
+	assets, eql = grand["ASSETS"], grand["EQUITY AND LIABILITIES"]
+	diff = {k: [assets[k][i] - eql[k][i] for i in range(MONTHS)] for k in ("cur", "ly")}
+	if any(abs(v) > 0.01 for k in diff for v in diff[k]):
+		data.append(make_row("Difference (Assets - Equity & Liabilities)", diff, periods, ytd_idx, "difference"))
+		worst = max(
+			((abs(v), k, i) for k in diff for i, v in enumerate(diff[k])), key=lambda t: t[0]
+		)
+		warnings.append(
+			_("Statement out of balance. Largest difference: {0} ({1}, month {2} of the fiscal year).").format(
+				fmt_money(worst[0], currency=frappe.get_cached_value("Company", company, "default_currency")),
+				_("this year") if worst[1] == "cur" else _("last year"),
+				worst[2] + 1,
+			)
+		)
+
+	if auto_notes:
+		notes.append(
+			_("Placed by account type because the account has no valid Financial Reporting Group: {0}").format(
+				"; ".join(sorted(set(auto_notes))[:10])
+			)
+		)
+
+	return data, warnings, notes
+
+
+def get_message(warnings, notes):
+	message = _("Statement of Financial Position")
+	for w in warnings:
+		message += f'<br><span style="color:var(--red-600)">{w}</span>'
+	for n in notes:
+		message += f'<br><span style="color:var(--text-muted)">{n}</span>'
+	return message

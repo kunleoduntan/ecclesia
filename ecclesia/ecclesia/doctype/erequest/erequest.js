@@ -65,7 +65,7 @@ frappe.ui.form.on('eRequest', {
     supplier(frm) {
         if (!frm.doc.supplier) return;
         frappe.call({
-            method: 'ecclesia_erequest.doctype.erequest.erequest.get_supplier_details',
+            method: 'ecclesia.erequest.doctype.erequest.erequest.get_supplier_details',
             args: { supplier: frm.doc.supplier },
             callback(r) {
                 if (r.message && r.message.supplier_name)
@@ -77,7 +77,7 @@ frappe.ui.form.on('eRequest', {
     employee(frm) {
         if (!frm.doc.employee) return;
         frappe.call({
-            method: 'ecclesia_erequest.doctype.erequest.erequest.get_employee_details',
+            method: 'ecclesia.erequest.doctype.erequest.erequest.get_employee_details',
             args: { employee: frm.doc.employee },
             callback(r) {
                 if (!r.message) return;

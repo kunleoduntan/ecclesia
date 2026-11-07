@@ -1461,6 +1461,68 @@ def create_accounting_entries_from_ui(payment_name):
 
 
 @frappe.whitelist()
+def get_outstanding_supplier_invoices(supplier, company, payment_currency=None):
+    """
+    Returns outstanding (submitted, unpaid / part-paid) Purchase Invoices for
+    a supplier, oldest due date first, ready to be dropped into the
+    'Invoice References' (Payments Reference) child table.
+
+    Queries Purchase Invoice directly instead of going through ERPNext's
+    get_outstanding_reference_documents, which needs a party_account /
+    posting_date / currency args bundle that varies between ERPNext v14
+    and v15 and throws
+    "TypeError: cannot unpack non-iterable NoneType object" when
+    party_account is missing (which is what happens when the caller passes
+    frappe.defaults.get_default('default_payable_account') and that user
+    default is unset, as it usually is).
+
+    If payment_currency is given, only invoices raised in that currency
+    are returned — Payment Entry references must match the payment's
+    currency.
+    """
+    if not supplier:
+        frappe.throw(_("Supplier is required"))
+    if not company:
+        frappe.throw(_("Company is required"))
+
+    filters = {
+        'supplier':           supplier,
+        'company':            company,
+        'docstatus':          1,
+        'outstanding_amount': ['>', 0],
+    }
+    if payment_currency:
+        filters['currency'] = payment_currency
+
+    invoices = frappe.get_all(
+        'Purchase Invoice',
+        filters=filters,
+        fields=[
+            'name', 'posting_date', 'due_date', 'bill_no', 'currency',
+            'grand_total', 'outstanding_amount', 'conversion_rate'
+        ],
+        order_by='due_date asc, posting_date asc',
+        limit_page_length=0,
+    )
+
+    return [{
+        'voucher_type':       'Purchase Invoice',
+        'voucher_no':         inv.name,
+        'posting_date':       inv.posting_date,
+        'due_date':           inv.due_date or inv.posting_date,
+        'bill_no':            inv.bill_no,
+        'currency':           inv.currency,
+        'invoice_amount':     flt(inv.grand_total),
+        'outstanding_amount': flt(inv.outstanding_amount),
+        'exchange_rate':      flt(inv.conversion_rate) or 1,
+    } for inv in invoices]
+
+
+
+
+
+
+@frappe.whitelist()
 def cancel_accounting_entries_from_ui(payment_name):
     try:
         doc        = frappe.get_doc('Payments', payment_name)

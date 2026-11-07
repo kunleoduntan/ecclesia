@@ -14,6 +14,13 @@ let ai_analysis_cache = {};
 // MAIN FORM EVENTS
 // ============================================
 
+// Excel template / export / import (shared helper: public/js/batch_excel.js)
+const _EB_XL = {
+    module: "ecclesia.ecclesia.doctype.expense_batch.expense_batch",
+    child_table: "petty_cash_transaction",
+    label: __("Expenses"),
+};
+
 frappe.ui.form.on("Expense Batch", {
     setup: function(frm) {
         // Set read-only fields
@@ -53,6 +60,7 @@ frappe.ui.form.on("Expense Batch", {
         create_dashboard_header(frm);
         apply_modern_grid_styling(frm);
         add_professional_action_buttons(frm);
+        ecclesia.batch_excel.add_buttons(frm, _EB_XL);
         update_month_display(frm);
         create_financial_metrics(frm);
         highlight_key_fields(frm);
@@ -742,6 +750,13 @@ function add_professional_action_buttons(frm) {
                     Export
                 </button>
             ` : ''}
+
+            ${frm.doc.docstatus === 0 ? `
+                <button class="btn-modern btn-modern-outline" id="btn-import">
+                    <i class="fa fa-file-import"></i>
+                    Import
+                </button>
+            ` : ''}
         </div>
     `;
     
@@ -753,6 +768,7 @@ function add_professional_action_buttons(frm) {
     $('#btn-insights').click(() => show_insights_dialog(frm));
     $('#btn-duplicates').click(() => check_duplicate_payments(frm));
     $('#btn-export').click(() => export_expenses(frm));
+    $('#btn-import').click(() => ecclesia.batch_excel.import_dialog(frm, _EB_XL));
 }
 
 function count_anomalies(frm) {
@@ -1353,7 +1369,7 @@ function show_toast_message(message, type = 'info') {
 }
 
 function export_expenses(frm) {
-    show_toast_message('Export feature coming soon', 'info');
+    ecclesia.batch_excel.export_rows(frm, _EB_XL);
 }
 
 // ============================================

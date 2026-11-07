@@ -3,7 +3,7 @@
 
 import frappe
 from frappe import _
-from frappe.utils import flt, getdate
+from frappe.utils import flt, getdate, cint
 import json
 from datetime import datetime, date
 from openpyxl import Workbook
@@ -119,9 +119,13 @@ def get_data(filters):
             asset_name,
             asset_category,
             purchase_date,
+            gross_purchase_amount,
+            residual_value,
+            salvage_value,
             current_gross_value,
             current_accumulated_depreciation,
             opening_accumulated_depreciation,
+            is_existing_asset,
             asset_status,
             company
         FROM `tabFixed Asset`
@@ -145,6 +149,8 @@ def get_data(filters):
             for key in totals.keys():
                 totals[key] += flt(row.get(key, 0))
 
+    asset_count = len(report_data)
+
     if report_data:
         report_data.append({
             "asset_code": "",
@@ -153,9 +159,19 @@ def get_data(filters):
             **totals
         })
 
-    summary = get_summary(totals, len(report_data) - 1 if report_data else 0)
+    summary = get_summary(totals, asset_count)
 
     return report_data, summary
+
+
+def get_disposal_date(asset_name):
+    """Latest submitted disposal date for an asset (None if no record)."""
+    res = frappe.db.sql("""
+        SELECT MAX(disposal_date) AS disposal_date
+        FROM `tabFixed Asset Disposal`
+        WHERE asset = %s AND docstatus = 1
+    """, (asset_name,), as_dict=1)
+    return safe_getdate(res[0].disposal_date) if res else None
 
 
 def get_asset_row(asset, from_date, to_date):
@@ -164,54 +180,91 @@ def get_asset_row(asset, from_date, to_date):
     try:
         gross_value = flt(asset.current_gross_value)
         current_dep = flt(asset.current_accumulated_depreciation)
-        opening_dep = flt(asset.opening_accumulated_depreciation or 0)
-
+        opening_dep_field = flt(asset.opening_accumulated_depreciation or 0)
         purchase_date = safe_getdate(asset.purchase_date)
+        is_existing = cint(asset.get("is_existing_asset"))
+        status = asset.asset_status
 
-        opening_cost = additions = 0
-        opening_depreciation = 0
-        disposals = write_off = 0
-        depreciation_disposals = depreciation_write_off = 0
-        closing_cost = closing_depreciation = 0
+        # Not yet acquired by the end of the selected period
+        if purchase_date and purchase_date > to_date:
+            return None
 
-        if not purchase_date:
-            if asset.asset_status not in ["Disposed", "Scrapped"]:
-                opening_cost = gross_value
-                opening_depreciation = opening_dep
-        elif purchase_date < from_date:
-            opening_cost = gross_value
-            opening_depreciation = opening_dep
-        elif from_date <= purchase_date <= to_date:
-            additions = gross_value
-            opening_depreciation = 0
+        # ---- Classification ------------------------------------------
+        # Existing assets (is_existing_asset = 1) are ALWAYS brought forward
+        # as Opening, whatever their purchase date. Only genuinely new
+        # purchases made during the year go into Additions.
+        is_opening = bool(
+            is_existing or not purchase_date or purchase_date < from_date
+        )
 
+        # ---- Revaluations in the period ------------------------------
         reval_data = get_asset_revaluations(asset.name, from_date, to_date)
         revaluations = flt(reval_data.get("total_revaluation_amount", 0)) if reval_data else 0
         depreciation_revaluations = flt(reval_data.get("depreciation_impact", 0)) if reval_data else 0
 
-        if asset.asset_status in ["Disposed", "Scrapped"]:
-            disposal_info = frappe.db.sql("""
-                SELECT disposal_date
-                FROM `tabFixed Asset Disposal`
-                WHERE asset = %s AND docstatus = 1
-                AND disposal_date BETWEEN %s AND %s
-            """, (asset.name, from_date, to_date), as_dict=1)
+        # ---- Status at period end ------------------------------------
+        disposed = False
+        if status in ("Disposed", "Scrapped"):
+            disposal_date = get_disposal_date(asset.name)
+            if disposal_date and disposal_date < from_date:
+                return None  # left the register in a prior year
+            # disposed within period (or no disposal record -> keep register balanced)
+            disposed = (not disposal_date) or disposal_date <= to_date
 
-            if disposal_info:
-                disposals = gross_value
-                depreciation_disposals = current_dep
+        # There is no write-off transaction in the system, so nothing is written off.
+        # (Previously any asset with status "Draft" was wrongly treated as written off.)
+        written_off = False
 
-        if asset.asset_status == "Draft" and purchase_date and purchase_date >= from_date:
-            write_off = gross_value
-            depreciation_write_off = current_dep
+        # ---- Cost movement -------------------------------------------
+        # Base cost comes from gross_purchase_amount (the original purchase price).
+        # current_gross_value is only a fallback, because it is read-only and may
+        # still be empty on new assets; it includes revaluations, so strip them out.
+        purchase_cost = flt(asset.gross_purchase_amount)
+        base_cost = purchase_cost if purchase_cost else (gross_value - revaluations)
 
-        if asset.asset_status not in ["Disposed", "Scrapped", "Draft"]:
-            closing_cost = gross_value
-            closing_depreciation = current_dep
+        # Cost carried at period end, before any disposal / write-off
+        gross_value = base_cost + revaluations
 
-        charge_for_year = closing_depreciation - opening_depreciation + depreciation_disposals
+        opening_cost = base_cost if is_opening else 0
+        additions = 0 if is_opening else base_cost
+
+        disposals = gross_value if disposed else 0
+        write_off = gross_value if written_off else 0
+
+        closing_cost = opening_cost + additions + revaluations - disposals - write_off
+
+        # ---- Depreciation movement -----------------------------------
+        # Existing assets carry their accumulated depreciation forward as opening;
+        # new additions start at zero.
+        opening_depreciation = opening_dep_field if is_opening else 0
+
+        depreciation_disposals = current_dep if disposed else 0
+        depreciation_write_off = current_dep if written_off else 0
+
+        charge_for_year = current_dep - opening_depreciation - depreciation_revaluations
+
+        closing_depreciation = (
+            opening_depreciation
+            + charge_for_year
+            + depreciation_revaluations
+            - depreciation_disposals
+            - depreciation_write_off
+        )
+
+        # ---- NBV -----------------------------------------------------
         current_year_nbv = closing_cost - closing_depreciation
         prior_year_nbv = opening_cost - opening_depreciation
+
+        # ---- Status shown in the report ------------------------------
+        # The stored status can say "Fully Depreciated" when the asset still has
+        # depreciable value left. Only keep that label if accumulated depreciation
+        # has actually reached cost less salvage/residual value.
+        display_status = status
+        if status == "Fully Depreciated":
+            floor_value = flt(asset.get("salvage_value")) or flt(asset.get("residual_value"))
+            depreciable = gross_value - floor_value
+            if depreciable <= 0 or current_dep < depreciable - 0.01:
+                display_status = "Active"
 
         category_name = frappe.db.get_value(
             "Fixed Asset Category", asset.asset_category, "category_name"
@@ -222,7 +275,7 @@ def get_asset_row(asset, from_date, to_date):
             "asset_name": asset.asset_name,
             "asset_category": category_name,
             "purchase_date": purchase_date,
-            "asset_status": asset.asset_status,
+            "asset_status": display_status,
             "opening_cost": opening_cost,
             "additions": additions,
             "revaluations": revaluations,

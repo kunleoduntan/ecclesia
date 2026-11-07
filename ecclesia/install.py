@@ -156,7 +156,7 @@ def _create_wa_settings():
 
 
 """
-ecclesia_erequest/utils/install.py
+ecclesia.erequest/utils/install.py
 Post-install setup: create roles and default settings.
 """
 import frappe

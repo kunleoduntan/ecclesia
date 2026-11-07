@@ -696,7 +696,6 @@ function attach_professional_handlers(frm) {
     $('[data-action="import"]').on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        show_loading(frm, 'Importing transactions...');
         show_import_dialog(frm);
     });
     
@@ -1016,114 +1015,21 @@ function check_for_alerts(frm) {
 // IMPORT/EXPORT FUNCTIONALITY
 // ========================================
 
+// Header-driven Excel/CSV import + same-layout export (shared helper:
+// public/js/batch_excel.js).  Template, export and import all use one column
+// layout, so an exported file can be edited and imported again.
+const _BBT_XL = {
+    module: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction',
+    child_table: 'transaction_entry',
+    label: __('Transactions'),
+};
+
 function show_import_dialog(frm) {
-    let d = new frappe.ui.Dialog({
-        title: __('📁 Import Transactions'),
-        fields: [
-            {
-                fieldname: 'section_break',
-                fieldtype: 'Section Break',
-                label: __('Upload File')
-            },
-            {
-                fieldname: 'file_url',
-                fieldtype: 'Attach',
-                label: __('Select CSV or Excel File'),
-                reqd: 1
-            },
-            {
-                fieldname: 'column_break',
-                fieldtype: 'Column Break'
-            },
-            {
-                fieldname: 'has_header',
-                fieldtype: 'Check',
-                label: __('File has header row'),
-                default: 1
-            },
-            {
-                fieldname: 'section_break_2',
-                fieldtype: 'Section Break',
-                label: __('File Format')
-            },
-            {
-                fieldname: 'format_info',
-                fieldtype: 'HTML',
-                options: `
-                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-                        <div style="font-weight: 600; margin-bottom: 10px; color: #475569;">Expected Columns:</div>
-                        <div style="font-family: monospace; font-size: 12px; color: #64748b;">
-                            1. Posting Date<br>
-                            2. Transaction Type<br>
-                            3. Party<br>
-                            4. Amount<br>
-                            5. Remark<br>
-                            6. Payee Name (Optional)<br>
-                            7. Cost Center (Optional)
-                        </div>
-                    </div>
-                `
-            }
-        ],
-        primary_action_label: __('✨ Import Transactions'),
-        primary_action(values) {
-            d.hide();
-            show_loading(frm, 'Importing transactions...');
-            
-            frappe.call({
-                method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.import_transactions',
-                args: {
-                    file_url: values.file_url,
-                    has_header: values.has_header
-                },
-                callback: function(r) {
-                    hide_loading(frm);
-                    if (r.message) {
-                        r.message.forEach(function(trans) {
-                            let child = frm.add_child('transaction_entry');
-                            $.extend(child, trans);
-                        });
-                        
-                        frm.refresh_field('transaction_entry');
-                        
-                        show_alert(frm, `Imported ${r.message.length} transactions successfully!`, 'success');
-                        setTimeout(() => update_professional_stats(frm), 200);
-                    }
-                },
-                error: function() {
-                    hide_loading(frm);
-                    show_alert(frm, 'Error importing transactions', 'error');
-                }
-            });
-        }
-    });
-    
-    d.show();
+    ecclesia.batch_excel.import_dialog(frm, _BBT_XL);
 }
 
 function export_to_excel(frm) {
-    if (!frm.doc.name) {
-        show_alert(frm, 'Please save the document first', 'warning');
-        return;
-    }
-    
-    show_loading(frm, 'Generating Excel report...');
-    
-    frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.export_to_excel',
-        args: { doc_name: frm.doc.name },
-        callback: function(r) {
-            hide_loading(frm);
-            if (r.message) {
-                window.open(r.message.file_url, '_blank');
-                show_alert(frm, 'Report exported successfully!', 'success');
-            }
-        },
-        error: function() {
-            hide_loading(frm);
-            show_alert(frm, 'Error exporting report', 'error');
-        }
-    });
+    ecclesia.batch_excel.export_rows(frm, _BBT_XL);
 }
 
 // ========================================
@@ -1137,7 +1043,7 @@ function get_ai_suggestions(frm) {
     }
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.get_ai_suggestions',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.get_ai_suggestions',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1270,7 +1176,7 @@ function auto_categorize_transaction(frm, row, cdt, cdn) {
     if (!row.remark) return;
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.auto_categorize_transaction',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.auto_categorize_transaction',
         args: { remark: row.remark },
         callback: function(r) {
             if (r.message && r.message.account) {
@@ -1292,7 +1198,7 @@ function reconcile_batch(frm) {
     }
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.reconcile_batch',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.reconcile_batch',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             if (r.message) {
@@ -1366,7 +1272,7 @@ function get_bank_balance(frm) {
     if (!frm.doc.bank_account) return;
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.get_bank_balance',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.get_bank_balance',
         args: {
             bank_account: frm.doc.bank_account,
             as_on_date: frm.doc.batch_date
@@ -1438,7 +1344,7 @@ function show_bulk_update_dialog(frm) {
             show_loading(frm, 'Applying bulk update...');
             
             frappe.call({
-                method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.bulk_update_cost_center',
+                method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.bulk_update_cost_center',
                 args: {
                     doc_name: frm.doc.name,
                     cost_center: values.cost_center
@@ -1475,7 +1381,7 @@ function generate_batch_report(frm) {
     show_loading(frm, 'Generating batch report...');
     
     frappe.call({
-        method: 'general.general_biz_apps.doctype.batch_bank_transaction.batch_bank_transaction.generate_batch_report',
+        method: 'ecclesia.ecclesia.doctype.batch_bank_transaction.batch_bank_transaction.generate_batch_report',
         args: { doc_name: frm.doc.name },
         callback: function(r) {
             hide_loading(frm);
@@ -1981,6 +1887,9 @@ window.apply_optimization = function(action) {
 
 frappe.ui.form.on("Batch Bank Transaction", {
     refresh(frm) {
+        // ── Excel: template / export / import ────────────────────────────────
+        ecclesia.batch_excel.add_buttons(frm, _BBT_XL);
+
         // ── Bank Payment buttons — shown on submitted docs only ──────────────
         if (frm.doc.docstatus === 1) {
             frm.add_custom_button(__('📥 Download Payment File'), () => {

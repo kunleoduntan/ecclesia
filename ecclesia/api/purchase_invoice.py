@@ -4,6 +4,15 @@
 """
 Purchase Invoice API Module
 File: ecclesia/api/purchase_invoice.py
+
+hooks.py (required):
+    doc_events = {
+        "Purchase Invoice": {
+            "validate": "ecclesia.api.purchase_invoice.purchase_invoice_validate",
+            "before_cancel": "ecclesia.api.purchase_invoice.purchase_invoice_before_cancel",
+            "on_cancel": "ecclesia.api.purchase_invoice.purchase_invoice_on_cancel",
+        }
+    }
 """
 
 import frappe
@@ -27,9 +36,25 @@ def purchase_invoice_validate(doc, method):
         calculate_transaction_balances(doc)
 
 
+def purchase_invoice_before_cancel(doc, method):
+    """
+    Runs while the invoice is still submitted in the DB and BEFORE Frappe's
+    linked-document check. Cancels everything linked to this invoice so the
+    cancel succeeds even if the invoice has been paid:
+
+      1. Amortization Journal Entries (cheque_no = invoice name)
+      2. Payment Entries referencing the invoice
+      3. Journal Entries referencing the invoice (Journal Entry Account.reference_name)
+      4. Return / Debit Notes against the invoice
+
+    Any failure throws, so the whole cancel is rolled back (no half-cancelled state).
+    """
+    cleanup_linked_documents(doc)
+
+
 def purchase_invoice_on_cancel(doc, method):
-    if doc.custom_is_amortized_cost:
-        delete_related_journal_entries(doc)
+    """Safety net: sweep any amortization JEs that may remain (idempotent)."""
+    delete_related_journal_entries(doc)
 
 
 # ============================================================================
@@ -290,25 +315,184 @@ def _create_shared_cost_entries(doc):
     return created
 
 
-def delete_related_journal_entries(doc):
-    related = frappe.get_all("Journal Entry",
+# ============================================================================
+# FORCE CANCEL — CANCEL INVOICE + ALL LINKED DOCUMENTS
+# ============================================================================
+
+def _cancel_submitted(doctype, name):
+    """Cancel a submitted document (no-op if not submitted)."""
+    d = frappe.get_doc(doctype, name)
+    if d.docstatus == 1:
+        d.flags.ignore_permissions = True
+        d.cancel()
+        return True
+    return False
+
+
+def get_linked_amortization_journals(doc):
+    """Journal Entries created from this invoice (link field: cheque_no)."""
+    return frappe.get_all(
+        "Journal Entry",
+        filters={"cheque_no": doc.name, "docstatus": ["!=", 2]},
+        pluck="name",
+        order_by="posting_date desc, creation desc"
+    )
+
+
+def get_linked_payment_entries(doc):
+    """Submitted Payment Entries that settle this invoice."""
+    rows = frappe.get_all(
+        "Payment Entry Reference",
         filters={
-            "cheque_no": doc.name,
-            "docstatus": ["!=", 2]
+            "reference_doctype": "Purchase Invoice",
+            "reference_name": doc.name,
+            "docstatus": 1
         },
+        fields=["parent"]
+    )
+    return list(dict.fromkeys(r.parent for r in rows))
+
+
+def get_linked_reference_journals(doc, exclude=None):
+    """Submitted Journal Entries that reference this invoice on an account line
+    (e.g. payments / adjustments posted through a Journal Entry)."""
+    exclude = set(exclude or [])
+    rows = frappe.get_all(
+        "Journal Entry Account",
+        filters={
+            "reference_type": "Purchase Invoice",
+            "reference_name": doc.name,
+            "docstatus": 1
+        },
+        fields=["parent"]
+    )
+    return [p for p in dict.fromkeys(r.parent for r in rows) if p not in exclude]
+
+
+def get_linked_returns(doc):
+    """Submitted return / debit notes raised against this invoice."""
+    return frappe.get_all(
+        "Purchase Invoice",
+        filters={"return_against": doc.name, "docstatus": 1},
         pluck="name"
     )
-    for entry_name in related:
-        try:
-            je = frappe.get_doc("Journal Entry", entry_name)
-            if je.docstatus == 1:
-                je.cancel()
-            frappe.delete_doc("Journal Entry", entry_name, force=1)
-        except Exception:
-            frappe.log_error(
-                frappe.get_traceback(),
-                "Error deleting JE {}".format(entry_name)
-            )
+
+
+def cleanup_linked_documents(doc):
+    """Cancel every document linked to the Purchase Invoice, in safe order."""
+    log = {
+        "journals": [],
+        "payments": [],
+        "reference_journals": [],
+        "returns": [],
+        "shared_payments": []
+    }
+
+    # 1. Amortization journals (cheque_no link) — cancel then delete
+    for name in get_linked_amortization_journals(doc):
+        _cancel_submitted("Journal Entry", name)
+        frappe.delete_doc("Journal Entry", name, force=1, ignore_permissions=True)
+        log["journals"].append(name)
+
+    # 2. Payment Entries — releases the "paid" status
+    for name in get_linked_payment_entries(doc):
+        pe_refs = frappe.get_all(
+            "Payment Entry Reference",
+            filters={"parent": name},
+            fields=["reference_doctype", "reference_name"]
+        )
+        others = [
+            r for r in pe_refs
+            if not (r.reference_doctype == "Purchase Invoice" and r.reference_name == doc.name)
+        ]
+        if others:
+            log["shared_payments"].append(name)
+        if _cancel_submitted("Payment Entry", name):
+            log["payments"].append(name)
+
+    # 3. Journal Entries that reference this invoice
+    for name in get_linked_reference_journals(doc):
+        if _cancel_submitted("Journal Entry", name):
+            log["reference_journals"].append(name)
+
+    # 4. Return / Debit Notes (their own before_cancel hook cleans their links)
+    for name in get_linked_returns(doc):
+        if _cancel_submitted("Purchase Invoice", name):
+            log["returns"].append(name)
+
+    # Refresh in-memory payment fields — cancelling payments changed them in DB
+    fresh = frappe.db.get_value(
+        "Purchase Invoice", doc.name, ["outstanding_amount", "status"], as_dict=True
+    )
+    if fresh:
+        doc.outstanding_amount = fresh.outstanding_amount
+
+    _report_cleanup(doc, log)
+    return log
+
+
+def _report_cleanup(doc, log):
+    lines = []
+    if log["journals"]:
+        lines.append(_("Amortization Journal Entries removed: {0}").format(", ".join(log["journals"])))
+    if log["payments"]:
+        lines.append(_("Payment Entries cancelled: {0}").format(", ".join(log["payments"])))
+    if log["reference_journals"]:
+        lines.append(_("Referencing Journal Entries cancelled: {0}").format(", ".join(log["reference_journals"])))
+    if log["returns"]:
+        lines.append(_("Debit Notes cancelled: {0}").format(", ".join(log["returns"])))
+    if log["shared_payments"]:
+        lines.append(_(
+            "<b>Warning:</b> these Payment Entries also settled other invoices, which are now "
+            "unallocated: {0}"
+        ).format(", ".join(log["shared_payments"])))
+
+    if lines:
+        frappe.msgprint(
+            "<br>".join(lines),
+            title=_("Linked documents cancelled for {0}").format(doc.name),
+            indicator="orange"
+        )
+
+
+@frappe.whitelist()
+def force_cancel_purchase_invoice(purchase_invoice):
+    """Button endpoint: cancel the invoice and every linked document in one transaction."""
+    doc = frappe.get_doc("Purchase Invoice", purchase_invoice)
+
+    if doc.docstatus == 2:
+        frappe.throw(_("Purchase Invoice {0} is already cancelled").format(doc.name))
+    if doc.docstatus == 0:
+        frappe.throw(_("Purchase Invoice {0} is a draft; delete it instead").format(doc.name))
+
+    frappe.has_permission("Purchase Invoice", "cancel", doc=doc, throw=True)
+
+    # before_cancel hook performs the cleanup as part of doc.cancel()
+    doc.cancel()
+    return {"success": True, "name": doc.name}
+
+
+@frappe.whitelist()
+def get_cancel_preview(purchase_invoice):
+    """Lists what will be cancelled — use in the UI confirm dialog."""
+    doc = frappe.get_doc("Purchase Invoice", purchase_invoice)
+    journals = get_linked_amortization_journals(doc)
+    payments = get_linked_payment_entries(doc)
+    return {
+        "journals": journals,
+        "payments": payments,
+        "reference_journals": get_linked_reference_journals(doc, exclude=journals),
+        "returns": get_linked_returns(doc),
+        "outstanding_amount": doc.outstanding_amount,
+        "status": doc.status
+    }
+
+
+def delete_related_journal_entries(doc):
+    """Cancel + delete any amortization JE still linked via cheque_no. Idempotent."""
+    for entry_name in get_linked_amortization_journals(doc):
+        _cancel_submitted("Journal Entry", entry_name)
+        frappe.delete_doc("Journal Entry", entry_name, force=1, ignore_permissions=True)
 
 
 # ============================================================================

@@ -2,7 +2,7 @@
  "actions": [],
  "allow_rename": 1,
  "autoname": "field:asset_code",
- "creation": "2026-02-05 18:01:01.590318",
+ "creation": "2026-10-31 13:58:50.714686",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -34,7 +34,6 @@
   "asset_tag_number",
   "identification_section",
   "qr_code",
-  "qr_code_display",
   "column_break_id1",
   "qr_code_image",
   "purchase_information_tab",
@@ -140,9 +139,11 @@
   "custom_field_4",
   "column_break_custom2",
   "custom_field_5",
+  "amended_from",
+  "qr_code_display",
   "dashboard_tab",
   "html_dashboard",
-  "amended_from"
+  "elapsed_depreciation_periods"
  ],
  "fields": [
   {
@@ -162,7 +163,6 @@
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Asset Code",
-   "read_only": 1,
    "reqd": 1,
    "unique": 1
   },
@@ -433,6 +433,8 @@
   {
    "fieldname": "supplier",
    "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Supplier",
    "options": "Supplier"
   },
@@ -489,14 +491,12 @@
   {
    "fieldname": "current_location",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Current Location",
    "options": "Warehouse"
   },
   {
    "fieldname": "department",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Department",
    "options": "Department"
   },
@@ -508,7 +508,6 @@
    "bold": 1,
    "fieldname": "cost_center",
    "fieldtype": "Link",
-   "in_standard_filter": 1,
    "label": "Cost Center",
    "options": "Cost Center",
    "reqd": 1
@@ -608,6 +607,7 @@
    "label": "Schedule Details"
   },
   {
+   "default": "Monthly",
    "depends_on": "is_depreciable_asset",
    "fieldname": "depreciation_frequency",
    "fieldtype": "Select",
@@ -734,6 +734,7 @@
    "fieldname": "depreciation_schedules",
    "fieldtype": "Table",
    "label": "Depreciation Schedule",
+   "mandatory_depends_on": "is_depreciable_asset",
    "options": "Depreciation Schedule Details"
   },
   {
@@ -959,20 +960,27 @@
    "fieldname": "html_dashboard",
    "fieldtype": "HTML",
    "label": "HTML Dashboard"
+  },
+  {
+   "depends_on": "eval:doc.is_depreciable_asset && doc.is_existing_asset",
+   "description": "Periods elapsed between Purchase Date and the cutover (Next Depreciation Date). Auto-computed.",
+   "fieldname": "elapsed_depreciation_periods",
+   "fieldtype": "Int",
+   "label": "Elapsed Depreciation Periods",
+   "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-05-15 16:45:31.486774",
+ "modified": "2026-10-31 13:58:50.714686",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Fixed Asset",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
-   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -982,41 +990,13 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
-   "submit": 1,
-   "write": 1
-  },
-  {
-   "cancel": 1,
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts Manager",
-   "share": 1,
-   "submit": 1,
-   "write": 1
-  },
-  {
-   "cancel": 1,
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts User",
-   "share": 1,
-   "submit": 1,
    "write": 1
   }
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "sort_field": "modified",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

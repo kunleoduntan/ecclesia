@@ -1,9 +1,8 @@
 {
  "actions": [],
- "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:group_name",
- "creation": "2026-02-12 17:08:23.588410",
+ "creation": "2026-10-03 13:43:18.738172",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -14,13 +13,17 @@
   "column_break_1",
   "sort_order",
   "is_group",
+  "is_formula",
   "is_active",
+  "formula_section",
+  "highlight",
+  "components",
   "section_break_1",
   "description"
  ],
  "fields": [
   {
-   "description": "e.g., 'Brokerage income', 'Administrative Expenses', 'Employee Benefits'",
+   "description": "e.g., 'Brokerage income', 'Administrative Expenses', 'Gross Profit'",
    "fieldname": "group_name",
    "fieldtype": "Data",
    "in_list_view": 1,
@@ -40,7 +43,7 @@
    "reqd": 1
   },
   {
-   "description": "Optional: For hierarchical grouping",
+   "description": "Optional: For hierarchical grouping. On the Balance Sheet, set this to the section (e.g. Current Assets)",
    "fieldname": "parent_group",
    "fieldtype": "Link",
    "label": "Parent Group",
@@ -52,7 +55,7 @@
   },
   {
    "default": "0",
-   "description": "Order in which groups appear in reports",
+   "description": "Order in which groups and formula rows appear in reports",
    "fieldname": "sort_order",
    "fieldtype": "Int",
    "in_list_view": 1,
@@ -66,11 +69,43 @@
    "label": "Is Group"
   },
   {
+   "default": "0",
+   "depends_on": "eval:doc.report_type != 'Balance Sheet' && !doc.is_group",
+   "description": "Calculated row (e.g. Gross Profit, EBITDA) built from other groups. No accounts are linked to it",
+   "fieldname": "is_formula",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Is Formula"
+  },
+  {
    "default": "1",
    "fieldname": "is_active",
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Active"
+  },
+  {
+   "depends_on": "is_formula",
+   "fieldname": "formula_section",
+   "fieldtype": "Section Break",
+   "label": "Formula"
+  },
+  {
+   "depends_on": "is_formula",
+   "description": "How the calculated row is coloured in the report and in Excel",
+   "fieldname": "highlight",
+   "fieldtype": "Select",
+   "label": "Highlight",
+   "options": "\nSubtotal\nKey Result\nFinal Result"
+  },
+  {
+   "depends_on": "is_formula",
+   "description": "Add or subtract other groups (including other formula rows that appear earlier or later)",
+   "fieldname": "components",
+   "fieldtype": "Table",
+   "label": "Components",
+   "mandatory_depends_on": "is_formula",
+   "options": "Financial Reporting Group Component"
   },
   {
    "collapsible": 1,
@@ -85,13 +120,13 @@
    "label": "Description"
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-04-03 14:12:05.288692",
+ "modified": "2026-10-03 13:43:18.738172",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Financial Reporting Group",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -105,23 +140,12 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts Manager",
-   "share": 1,
-   "write": 1
   }
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "sort_field": "modified",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

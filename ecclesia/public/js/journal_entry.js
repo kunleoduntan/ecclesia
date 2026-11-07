@@ -7,8 +7,8 @@ frappe.ui.form.on("Journal Entry", {
             if (!frm.doc.title) {
                 frm.set_value("title", val);
             }
-            if (!frm.doc.payee_name) {
-                frm.set_value("payee_name", val);
+            if (!frm.doc.paid_to_or_received_from) {
+                frm.set_value("paid_to_or_received_from", frm.doc.title);
             }
         }
     }

@@ -323,6 +323,15 @@ class FixedAsset(Document):
             self.current_net_book_value = (
                 flt(self.current_gross_value) - flt(self.current_accumulated_depreciation)
             )
+        elif not flt(self.opening_gross_value) and flt(self.gross_purchase_amount):
+            # Self-heal: an existing (already-saved) record whose
+            # opening_gross_value never got persisted — e.g. rows created via
+            # Data Import/API before this field existed, or where the initial
+            # insert bypassed the block above. Without this, calculate_current_value()
+            # would treat opening_gross_value as 0, drive current_net_book_value
+            # to 0, and set_status() would then wrongly mark the asset
+            # "Fully Depreciated" even though no depreciation was ever posted.
+            self.opening_gross_value = flt(self.gross_purchase_amount)
 
     # ============================================================================
     # DEPRECIATION CALCULATIONS
@@ -361,6 +370,29 @@ class FixedAsset(Document):
             self.total_depreciation_months = self.useful_life_months
 
         self.calculate_depreciation_rate()
+
+        # --- Existing/migrated asset cutover handling ---
+        # For is_existing_asset assets, depreciation_start_date and
+        # next_depreciation_date are system-controlled: both are pinned to the
+        # 25th of the first month of the current Fiscal Year. The schedule
+        # (built later in get_..._schedule()) only generates the REMAINING
+        # periods from that date forward — never the full useful life again.
+        if self.is_existing_asset and self.company:
+            cutover = self.get_cutover_date()
+            if cutover:
+                self.depreciation_start_date = cutover
+                self.next_depreciation_date = cutover
+
+                elapsed = self.get_elapsed_periods(cutover)
+                self.elapsed_depreciation_periods = elapsed
+
+                computed_opening = self.compute_elapsed_depreciation(elapsed)
+                # Keep the computed figure available for the drift-warning check
+                # in intelligent_validation(); never overwrite a value the user
+                # has deliberately entered to match their migrated trial balance.
+                self._computed_opening_accumulated_depreciation = computed_opening
+                if not self.opening_accumulated_depreciation:
+                    self.opening_accumulated_depreciation = computed_opening
 
     def get_frequency_months(self):
         """Return the number of months in each depreciation period"""
@@ -455,7 +487,14 @@ class FixedAsset(Document):
             )
 
             total_revaluation = self.get_total_revaluation()
-            self.current_gross_value = flt(self.opening_gross_value) + flt(total_revaluation)
+            # Fall back to gross_purchase_amount if opening_gross_value was
+            # never persisted for this record. Without this fallback, a blank
+            # opening_gross_value silently computes current_gross_value as 0,
+            # which drags current_net_book_value to 0 and makes set_status()
+            # falsely report "Fully Depreciated" for an asset that hasn't
+            # actually had a single depreciation entry posted.
+            gross_basis = flt(self.opening_gross_value) or flt(self.gross_purchase_amount)
+            self.current_gross_value = gross_basis + flt(total_revaluation)
             self.total_revaluation_amount = flt(total_revaluation)
 
             self.current_net_book_value = (
@@ -519,7 +558,7 @@ class FixedAsset(Document):
         else:
             if self.is_under_maintenance():
                 self.asset_status = "Under Maintenance"
-            elif flt(self.current_net_book_value) <= flt(self.salvage_value or 0):
+            elif self.is_fully_depreciated():
                 self.asset_status = "Fully Depreciated"
             elif self.is_scrapped():
                 self.asset_status = "Scrapped"
@@ -527,6 +566,37 @@ class FixedAsset(Document):
                 self.asset_status = "Transferred"
             else:
                 self.asset_status = "Active"
+
+    def is_fully_depreciated(self):
+        """
+        True only when the asset has genuinely been depreciated down to (or
+        below) salvage value through real, posted depreciation — never as a
+        side-effect of missing/zero opening values or an asset that simply
+        isn't set up to depreciate.
+
+        Guards against the previous bug where current_net_book_value could
+        read as 0 (e.g. opening_gross_value not persisted, or gross_purchase_amount
+        blank) and get misread as "fully depreciated" even though:
+          - the asset doesn't have Calculate Depreciation enabled at all, or
+          - the asset has a real gross value but no depreciation has been
+            posted against it yet (current_accumulated_depreciation == 0), or
+          - the asset simply has no purchase value on record yet.
+        """
+        if not self.calculate_depreciation:
+            return False
+
+        gross = flt(self.current_gross_value) or flt(self.gross_purchase_amount)
+        if gross <= 0:
+            return False
+
+        # Nothing has actually been depreciated yet — cannot be "fully depreciated".
+        # (Existing/migrated assets are an exception: their opening_accumulated_depreciation
+        # already reflects real prior depreciation before this system took over.)
+        if flt(self.current_accumulated_depreciation) <= 0:
+            return False
+
+        salvage = flt(self.salvage_value or 0)
+        return flt(self.current_net_book_value) <= salvage and gross > salvage
 
     def is_under_maintenance(self):
         """
@@ -823,6 +893,20 @@ class FixedAsset(Document):
             elif days_to_expiry < 30:
                 warnings.append(_("Insurance expiring in {0} days").format(days_to_expiry))
 
+        if self.is_existing_asset and self.calculate_depreciation:
+            computed = getattr(self, "_computed_opening_accumulated_depreciation", None)
+            if (computed is not None and flt(self.opening_accumulated_depreciation)
+                    and abs(flt(self.opening_accumulated_depreciation) - flt(computed)) > 0.01):
+                warnings.append(
+                    _("Opening Accumulated Depreciation ({0}) differs from the system-computed "
+                      "elapsed depreciation of {1} for {2} elapsed period(s). This is fine if it "
+                      "matches your migrated trial balance figure.").format(
+                        frappe.format_value(self.opening_accumulated_depreciation, {"fieldtype": "Currency"}),
+                        frappe.format_value(computed, {"fieldtype": "Currency"}),
+                        self.elapsed_depreciation_periods or 0
+                    )
+                )
+
         if warnings:
             # Use HTML entity &bull; to avoid encoding corruption
             frappe.msgprint(
@@ -903,6 +987,204 @@ class FixedAsset(Document):
             )
 
     # ============================================================================
+    # EXISTING-ASSET CUTOVER (elapsed periods / opening balance) HELPERS
+    # ============================================================================
+
+    def get_current_fiscal_year_start(self):
+        """
+        Returns the year_start_date of the Fiscal Year record that contains
+        today's date.
+
+        NOTE: This queries the `Fiscal Year` doctype directly via SQL rather
+        than frappe.utils.get_fiscal_year() — that helper is not exported at
+        the frappe.utils package level in every Frappe version (it moves
+        between frappe.utils.data / accounts-specific modules depending on
+        version), so a direct date-range query is more portable.
+
+        This does NOT filter by Company. Frappe framework's core Fiscal Year
+        doctype is date-range based and (in most setups) shared across
+        companies unless you've customised it with a company-scoping child
+        table/field. If your Fiscal Year records ARE company-specific and
+        multiple companies can have different fiscal years running
+        concurrently, tell me the exact field/child-table name and I'll add
+        the company filter back in.
+        """
+        row = frappe.db.sql("""
+            SELECT year_start_date
+            FROM `tabFiscal Year`
+            WHERE %s BETWEEN year_start_date AND year_end_date
+            AND IFNULL(disabled, 0) = 0
+            ORDER BY year_start_date DESC
+            LIMIT 1
+        """, (nowdate(),), as_dict=True)
+
+        if not row:
+            frappe.throw(_(
+                "No Fiscal Year record found covering today's date ({0}). "
+                "Please create a Fiscal Year record before setting up existing/migrated assets."
+            ).format(format_date(nowdate())))
+
+        return getdate(row[0].year_start_date)
+
+    def get_cutover_date(self):
+        """
+        Determines the date from which Ecclesia takes over posting depreciation
+        for this asset:
+
+          - Existing / migrated asset (is_existing_asset = 1):
+              25th of the first month of the current Fiscal Year, e.g. if the
+              Company's Fiscal Year starts 01-01-2026, cutover = 25-01-2026.
+              This becomes both depreciation_start_date and next_depreciation_date,
+              and is the first schedule_date of the generated schedule.
+
+          - New purchase (is_existing_asset = 0):
+              Available for Use Date (unchanged prior behaviour).
+        """
+        if self.is_existing_asset:
+            if not self.company:
+                return None
+            fy_start = self.get_current_fiscal_year_start()
+            if not fy_start:
+                return None
+            return datetime(fy_start.year, fy_start.month, 25).date()
+
+        if self.available_for_use_date:
+            return getdate(self.available_for_use_date)
+        return None
+
+    def get_elapsed_periods(self, cutover_date=None):
+        """
+        Number of full depreciation periods between the asset's basis date
+        (Purchase Date, falling back to Available for Use Date) and the
+        cutover date. Always 0 for new-purchase assets.
+
+        IMPORTANT: this deliberately does NOT use frappe.utils.month_diff().
+        month_diff() only compares calendar year/month numbers and ignores
+        day-of-month entirely, so e.g. month_diff(25-Jan-2026, 21-Mar-2021)
+        returns 59 even though the period anchored on the 21st only
+        completes 58 times on or before 25-Jan-2026 (the 58th anniversary
+        falls on 21-Jan-2026; the 59th falls on 21-Feb-2026, after cutover).
+        Instead we walk forward in real frequency-month increments from the
+        basis date and count how many period-end anchor dates land on or
+        before the cutover date.
+        """
+        if not self.is_existing_asset:
+            return 0
+
+        cutover_date = cutover_date or self.get_cutover_date()
+        basis_date = None
+        if self.purchase_date:
+            basis_date = getdate(self.purchase_date)
+        elif self.available_for_use_date:
+            basis_date = getdate(self.available_for_use_date)
+
+        if not basis_date or not cutover_date:
+            return 0
+
+        frequency = self.get_frequency_months()
+        total = cint(self.total_number_of_depreciations or 0)
+
+        elapsed = 0
+        n = 1
+        while True:
+            period_end = getdate(add_months(basis_date, frequency * n))
+            if period_end > cutover_date:
+                break
+            elapsed = n
+            if total and elapsed >= total:
+                break
+            n += 1
+
+        return elapsed
+
+    def compute_elapsed_depreciation(self, elapsed_periods):
+        """
+        Virtually runs the chosen depreciation method for `elapsed_periods`
+        periods (from the original purchase basis) to derive what the
+        accumulated depreciation should be as of the cutover date.
+
+        This is a preview/suggestion only — it populates
+        opening_accumulated_depreciation as a default, but the field stays
+        editable so it can be overridden to match the actual migrated trial
+        balance figure.
+        """
+        elapsed_periods = cint(elapsed_periods)
+        if elapsed_periods <= 0:
+            return 0.0
+
+        method = self.depreciation_method
+        gross = flt(self.gross_purchase_amount)
+        salvage = flt(self.salvage_value)
+        total_n = cint(self.total_number_of_depreciations or 0)
+        frequency = self.get_frequency_months()
+
+        book_value = gross
+        accumulated = 0.0
+
+        if method == "Straight Line":
+            depreciable = gross - salvage
+            if depreciable <= 0 or total_n <= 0:
+                return 0.0
+            per_period = flt(depreciable / total_n, 2)
+            for _i in range(elapsed_periods):
+                amount = per_period
+                if book_value - amount < salvage:
+                    amount = book_value - salvage
+                if amount <= 0:
+                    break
+                accumulated += amount
+                book_value -= amount
+
+        elif method == "Written Down Value":
+            rate = flt(self.depreciation_rate) / 100
+            period_rate = rate * (frequency / 12)
+            for _i in range(elapsed_periods):
+                amount = book_value * period_rate
+                if book_value - amount < salvage:
+                    amount = book_value - salvage
+                if amount <= 0:
+                    break
+                accumulated += amount
+                book_value -= amount
+
+        elif method == "Double Declining Balance":
+            if self.total_depreciation_months:
+                years = flt(self.total_depreciation_months) / 12
+                ddb_rate = 2 / years if years > 0 else 0
+                period_rate = ddb_rate * (frequency / 12)
+            else:
+                period_rate = 0
+            for i in range(elapsed_periods):
+                remaining_from_here = total_n - i
+                amount = book_value * period_rate
+                if remaining_from_here > 0:
+                    sl_amount = (book_value - salvage) / remaining_from_here
+                    amount = max(amount, sl_amount)
+                if book_value - amount < salvage:
+                    amount = book_value - salvage
+                if amount <= 0:
+                    break
+                accumulated += amount
+                book_value -= amount
+
+        elif method == "Sum of Years Digits":
+            sum_digits = (total_n * (total_n + 1)) / 2 if total_n else 0
+            depreciable = gross - salvage
+            if sum_digits <= 0 or depreciable <= 0:
+                return 0.0
+            for i in range(elapsed_periods):
+                remaining_life = total_n - i
+                amount = (remaining_life / sum_digits) * depreciable
+                if book_value - amount < salvage:
+                    amount = book_value - salvage
+                if amount <= 0:
+                    break
+                accumulated += amount
+                book_value -= amount
+
+        return flt(accumulated, 2)
+
+    # ============================================================================
     # DEPRECIATION SCHEDULE CREATION
     # ============================================================================
 
@@ -932,6 +1214,42 @@ class FixedAsset(Document):
                 indicator="orange"
             )
             return
+
+        # --- Reconciliation guard ---
+        # The last generated row's accumulated depreciation must never exceed
+        # the Gross Purchase Amount, and should land close to (Gross - Salvage).
+        # If it doesn't, something upstream is feeding a bad opening balance
+        # into the calculation (e.g. stale posted rows left over from an
+        # earlier schedule run, or a corrupted opening_accumulated_depreciation)
+        # — better to stop and surface it than silently insert a nonsensical
+        # schedule.
+        last_accumulated = flt(schedule[-1]["accumulated_depreciation"])
+        expected_ceiling = flt(self.gross_purchase_amount)
+        expected_final = flt(self.gross_purchase_amount) - flt(self.salvage_value)
+
+        if last_accumulated > expected_ceiling + 1:
+            frappe.throw(_(
+                "Schedule generation aborted: the projected final Accumulated Depreciation "
+                "({0}) exceeds the Gross Purchase Amount ({1}). This usually means the "
+                "Opening Accumulated Depreciation field or an existing (possibly posted) "
+                "schedule row is stale. Please check the Depreciation Schedule table for "
+                "leftover rows and the Opening Accumulated Depreciation value before "
+                "regenerating."
+            ).format(
+                frappe.format_value(last_accumulated, {"fieldtype": "Currency"}),
+                frappe.format_value(expected_ceiling, {"fieldtype": "Currency"})
+            ))
+
+        if abs(last_accumulated - expected_final) > flt(expected_final) * 0.02 + 1:
+            frappe.msgprint(
+                _("Note: the schedule's final projected Accumulated Depreciation ({0}) "
+                  "does not closely match Gross Purchase Amount minus Salvage Value ({1}). "
+                  "Please review before posting.").format(
+                    frappe.format_value(last_accumulated, {"fieldtype": "Currency"}),
+                    frappe.format_value(expected_final, {"fieldtype": "Currency"})
+                ),
+                indicator="orange"
+            )
 
         # Insert schedule rows via raw SQL (safer than frappe.get_doc().db_insert()
         # during post-submit operations)
@@ -1014,12 +1332,27 @@ class FixedAsset(Document):
         }
 
     def get_straight_line_schedule(self):
-        """Calculate Straight Line depreciation schedule"""
+        """
+        Calculate Straight Line depreciation schedule.
+
+        For existing/migrated assets, only the REMAINING periods (total life
+        minus elapsed periods) are generated, dated from the cutover date
+        forward. The remaining depreciable balance is re-levelled evenly
+        across the remaining periods so the schedule always lands exactly on
+        salvage value by the final period, regardless of whether
+        opening_accumulated_depreciation was auto-computed or manually
+        overridden to match a migrated trial balance.
+        """
         schedule = []
 
         start_date = getdate(self.depreciation_start_date)
         number_of_depreciations = cint(self.total_number_of_depreciations)
+        elapsed = self.get_elapsed_periods()
+        remaining = max(number_of_depreciations - elapsed, 0)
         frequency = self.get_frequency_months()
+
+        if remaining <= 0:
+            return []
 
         depreciable_value = (
             flt(self.gross_purchase_amount)
@@ -1030,12 +1363,14 @@ class FixedAsset(Document):
         if depreciable_value <= 0:
             return []
 
-        depreciation_per_period = flt(depreciable_value / number_of_depreciations, 2)
+        depreciation_per_period = flt(depreciable_value / remaining, 2)
         accumulated_depreciation = flt(self.opening_accumulated_depreciation)
         book_value = flt(self.gross_purchase_amount) - accumulated_depreciation
         current_date = start_date
 
-        for i in range(number_of_depreciations):
+        for i in range(remaining):
+            absolute_period = elapsed + i
+
             if i == 0:
                 schedule_date = get_last_day(add_months(start_date, frequency - 1))
             else:
@@ -1045,7 +1380,7 @@ class FixedAsset(Document):
             depreciation_amount = depreciation_per_period
 
             # Last period: adjust to reach exact salvage value
-            if i == number_of_depreciations - 1:
+            if absolute_period == number_of_depreciations - 1:
                 depreciation_amount = book_value - flt(self.salvage_value)
 
             if book_value - depreciation_amount < flt(self.salvage_value):
@@ -1059,7 +1394,7 @@ class FixedAsset(Document):
             book_value -= depreciation_amount
 
             schedule.append(self._build_schedule_entry(
-                i + 1, schedule_date, opening_nbv,
+                absolute_period + 1, schedule_date, opening_nbv,
                 depreciation_amount, accumulated_depreciation
             ))
 
@@ -1069,20 +1404,33 @@ class FixedAsset(Document):
         return schedule
 
     def get_wdv_schedule(self):
-        """Calculate Written Down Value (Reducing Balance) depreciation schedule"""
+        """
+        Calculate Written Down Value (Reducing Balance) depreciation schedule.
+        For existing/migrated assets, only the remaining periods are generated,
+        starting from the cutover date, using book_value = gross - opening
+        accumulated depreciation as the starting balance.
+        """
         schedule = []
 
         start_date = getdate(self.depreciation_start_date)
         rate = flt(self.depreciation_rate) / 100
         number_of_depreciations = cint(self.total_number_of_depreciations)
+        elapsed = self.get_elapsed_periods()
+        remaining = max(number_of_depreciations - elapsed, 0)
         frequency = self.get_frequency_months()
+
+        if remaining <= 0:
+            return []
+
         period_rate = rate * (frequency / 12)
 
         accumulated_depreciation = flt(self.opening_accumulated_depreciation)
         book_value = flt(self.gross_purchase_amount) - accumulated_depreciation
         current_date = start_date
 
-        for i in range(number_of_depreciations):
+        for i in range(remaining):
+            absolute_period = elapsed + i
+
             if i == 0:
                 schedule_date = get_last_day(add_months(start_date, frequency - 1))
             else:
@@ -1102,7 +1450,7 @@ class FixedAsset(Document):
             book_value -= depreciation_amount
 
             schedule.append(self._build_schedule_entry(
-                i + 1, schedule_date, opening_nbv,
+                absolute_period + 1, schedule_date, opening_nbv,
                 depreciation_amount, accumulated_depreciation
             ))
 
@@ -1112,12 +1460,24 @@ class FixedAsset(Document):
         return schedule
 
     def get_ddb_schedule(self):
-        """Calculate Double Declining Balance depreciation schedule"""
+        """
+        Calculate Double Declining Balance depreciation schedule.
+        For existing/migrated assets, only the remaining periods are generated.
+        The "switch to straight line" comparison uses the asset's absolute
+        period position in its original life (elapsed + i), not the position
+        within just the remaining schedule, so the SL-crossover point matches
+        what it would have been had the schedule run uninterrupted.
+        """
         schedule = []
 
         start_date = getdate(self.depreciation_start_date)
         number_of_depreciations = cint(self.total_number_of_depreciations)
+        elapsed = self.get_elapsed_periods()
+        remaining = max(number_of_depreciations - elapsed, 0)
         frequency = self.get_frequency_months()
+
+        if remaining <= 0:
+            return []
 
         if self.total_depreciation_months:
             years = flt(self.total_depreciation_months) / 12
@@ -1130,7 +1490,9 @@ class FixedAsset(Document):
         book_value = flt(self.gross_purchase_amount) - accumulated_depreciation
         current_date = start_date
 
-        for i in range(number_of_depreciations):
+        for i in range(remaining):
+            absolute_period = elapsed + i
+
             if i == 0:
                 schedule_date = get_last_day(add_months(start_date, frequency - 1))
             else:
@@ -1140,9 +1502,9 @@ class FixedAsset(Document):
             depreciation_amount = book_value * period_rate
 
             # Switch to straight line if it gives a higher depreciation
-            remaining_periods = number_of_depreciations - i
-            if remaining_periods > 0:
-                straight_line_amount = (book_value - flt(self.salvage_value)) / remaining_periods
+            remaining_from_here = number_of_depreciations - absolute_period
+            if remaining_from_here > 0:
+                straight_line_amount = (book_value - flt(self.salvage_value)) / remaining_from_here
                 depreciation_amount = max(depreciation_amount, straight_line_amount)
 
             if book_value - depreciation_amount < flt(self.salvage_value):
@@ -1156,7 +1518,7 @@ class FixedAsset(Document):
             book_value -= depreciation_amount
 
             schedule.append(self._build_schedule_entry(
-                i + 1, schedule_date, opening_nbv,
+                absolute_period + 1, schedule_date, opening_nbv,
                 depreciation_amount, accumulated_depreciation
             ))
 
@@ -1166,12 +1528,24 @@ class FixedAsset(Document):
         return schedule
 
     def get_sum_of_years_digits_schedule(self):
-        """Calculate Sum of Years Digits depreciation schedule"""
+        """
+        Calculate Sum of Years Digits depreciation schedule.
+        For existing/migrated assets, only the remaining periods are generated.
+        sum_of_digits and remaining_life are both computed against the
+        asset's ORIGINAL total_number_of_depreciations and absolute period
+        position, so the SYD weighting is unaffected by the cutover.
+        """
         schedule = []
 
         start_date = getdate(self.depreciation_start_date)
         number_of_depreciations = cint(self.total_number_of_depreciations)
+        elapsed = self.get_elapsed_periods()
+        remaining = max(number_of_depreciations - elapsed, 0)
         frequency = self.get_frequency_months()
+
+        if remaining <= 0:
+            return []
+
         sum_of_digits = (number_of_depreciations * (number_of_depreciations + 1)) / 2
 
         depreciable_value = (
@@ -1187,14 +1561,16 @@ class FixedAsset(Document):
         book_value = flt(self.gross_purchase_amount) - accumulated_depreciation
         current_date = start_date
 
-        for i in range(number_of_depreciations):
+        for i in range(remaining):
+            absolute_period = elapsed + i
+
             if i == 0:
                 schedule_date = get_last_day(add_months(start_date, frequency - 1))
             else:
                 schedule_date = get_last_day(add_months(current_date, frequency))
 
             current_date = schedule_date
-            remaining_life = number_of_depreciations - i
+            remaining_life = number_of_depreciations - absolute_period
             depreciation_amount = (remaining_life / sum_of_digits) * depreciable_value
 
             if book_value - depreciation_amount < flt(self.salvage_value):
@@ -1208,7 +1584,7 @@ class FixedAsset(Document):
             book_value -= depreciation_amount
 
             schedule.append(self._build_schedule_entry(
-                i + 1, schedule_date, opening_nbv,
+                absolute_period + 1, schedule_date, opening_nbv,
                 depreciation_amount, accumulated_depreciation
             ))
 
@@ -1491,6 +1867,52 @@ def scan_qr_code(qr_data):
 
 
 @frappe.whitelist()
+def get_cutover_info(company, is_existing_asset, purchase_date=None, available_for_use_date=None,
+                      gross_purchase_amount=0, salvage_value=0, depreciation_method=None,
+                      depreciation_rate=0, total_number_of_depreciations=0,
+                      depreciation_frequency="Monthly", total_depreciation_months=0,
+                      opening_accumulated_depreciation=0):
+    """
+    Draft-time helper for the client script (fixed_asset.js).
+
+    Given the asset's current (unsaved) field values, returns the cutover
+    date, elapsed periods, and the system-computed opening accumulated
+    depreciation — so the browser can preview the schedule correctly before
+    the document is even saved.
+
+    This reuses the exact same Document methods used at save-time
+    (get_cutover_date / get_elapsed_periods / compute_elapsed_depreciation)
+    via a throwaway in-memory doc, so there is only one implementation of
+    the cutover math to maintain.
+    """
+    asset = frappe.new_doc("Fixed Asset")
+    asset.update({
+        "company": company,
+        "is_existing_asset": cint(is_existing_asset),
+        "purchase_date": purchase_date,
+        "available_for_use_date": available_for_use_date,
+        "gross_purchase_amount": flt(gross_purchase_amount),
+        "salvage_value": flt(salvage_value),
+        "depreciation_method": depreciation_method,
+        "depreciation_rate": flt(depreciation_rate),
+        "total_number_of_depreciations": cint(total_number_of_depreciations),
+        "depreciation_frequency": depreciation_frequency,
+        "total_depreciation_months": cint(total_depreciation_months),
+        "opening_accumulated_depreciation": flt(opening_accumulated_depreciation),
+    })
+
+    cutover = asset.get_cutover_date()
+    elapsed = asset.get_elapsed_periods(cutover)
+    computed_opening = asset.compute_elapsed_depreciation(elapsed)
+
+    return {
+        "cutover_date": cutover,
+        "elapsed_periods": elapsed,
+        "computed_opening_accumulated_depreciation": computed_opening,
+    }
+
+
+@frappe.whitelist()
 def generate_depreciation_schedule(asset_name):
     """
     Generate (or regenerate) the depreciation schedule for a submitted asset.
@@ -1512,7 +1934,9 @@ def generate_depreciation_schedule(asset_name):
         # Persist recalculated values
         for field in ["depreciable_amount", "total_number_of_depreciations",
                       "total_depreciation_months", "depreciation_rate",
-                      "useful_life_months", "salvage_value", "residual_value"]:
+                      "useful_life_months", "salvage_value", "residual_value",
+                      "depreciation_start_date", "next_depreciation_date",
+                      "opening_accumulated_depreciation", "elapsed_depreciation_periods"]:
             val = getattr(asset, field, None)
             if val is not None:
                 asset.db_set(field, val, update_modified=False)
@@ -1548,7 +1972,9 @@ def recalculate_depreciation(asset_name):
         for field in ["depreciable_amount", "total_number_of_depreciations",
                       "total_depreciation_months", "depreciation_rate",
                       "current_accumulated_depreciation", "current_net_book_value",
-                      "depreciation_percentage_complete", "useful_life_months"]:
+                      "depreciation_percentage_complete", "useful_life_months",
+                      "depreciation_start_date", "next_depreciation_date",
+                      "opening_accumulated_depreciation", "elapsed_depreciation_periods"]:
             val = getattr(asset, field, None)
             if val is not None:
                 asset.db_set(field, val, update_modified=False)
@@ -1646,7 +2072,7 @@ def post_depreciation_entry(schedule_name):
         )
         asset.db_set("next_depreciation_date", next_schedule or None, update_modified=False)
 
-        if flt(asset.current_net_book_value) <= flt(asset.salvage_value or 0):
+        if asset.is_fully_depreciated():
             asset.update_asset_status("Fully Depreciated")
 
         asset.log_asset_history(
@@ -1963,7 +2389,7 @@ def post_catchup_depreciation(asset_name, up_to_date=None, post_as="individual")
     )
     asset.db_set("next_depreciation_date", next_pending or None, update_modified=False)
 
-    if flt(asset.current_net_book_value) <= flt(asset.salvage_value or 0):
+    if asset.is_fully_depreciated():
         asset.update_asset_status("Fully Depreciated")
 
     return {
@@ -2050,142 +2476,3 @@ def bulk_post_catchup_depreciation(filters=None, up_to_date=None, post_as="indiv
         "asset_results": asset_results,
         "errors": global_errors,
     }
-
-# Add this method to your existing FixedAsset class in fixed_asset.py
-
-@frappe.whitelist()
-def get_dashboard_metrics(self):
-    """Return comprehensive metrics for the HTML dashboard"""
-    try:
-        # Asset values
-        gross_purchase = flt(self.gross_purchase_amount)
-        current_gross = flt(self.current_gross_value or self.gross_purchase_amount)
-        salvage = flt(self.salvage_value or 0)
-        accumulated_dep = flt(self.current_accumulated_depreciation or 0)
-        opening_dep = flt(self.opening_accumulated_depreciation or 0)
-        net_book = flt(self.current_net_book_value or 0)
-        depreciable = flt(self.depreciable_amount or 0)
-        
-        # Calculate value metrics
-        total_depreciation_posted = accumulated_dep + opening_dep
-        depreciation_percentage = (total_depreciation_posted / gross_purchase * 100) if gross_purchase else 0
-        remaining_value = gross_purchase - total_depreciation_posted
-        value_preserved = (net_book / gross_purchase * 100) if gross_purchase else 0
-        
-        # Depreciation schedule metrics
-        schedules = frappe.get_all('Depreciation Schedule Details',
-            filters={'parent': self.name},
-            fields=['name', 'schedule_date', 'depreciation_amount', 'status', 'journal_entry'],
-            order_by='schedule_date'
-        )
-        
-        total_periods = len(schedules)
-        posted_periods = len([s for s in schedules if s.journal_entry])
-        pending_periods = total_periods - posted_periods
-        
-        # Calculate total expected depreciation
-        total_expected_depreciation = sum(flt(s.depreciation_amount) for s in schedules)
-        total_posted_depreciation = sum(flt(s.depreciation_amount) for s in schedules if s.journal_entry)
-        
-        # Upcoming schedules
-        upcoming = [s for s in schedules if not s.journal_entry and getdate(s.schedule_date) >= getdate(today())]
-        overdue = [s for s in schedules if not s.journal_entry and getdate(s.schedule_date) < getdate(today())]
-        
-        next_depreciation = upcoming[0].schedule_date if upcoming else None
-        next_depreciation_amount = flt(upcoming[0].depreciation_amount) if upcoming else 0
-        
-        # Asset age calculation
-        purchase_date = getdate(self.purchase_date) if self.purchase_date else None
-        asset_age_months = 0
-        if purchase_date:
-            today_date = getdate(today())
-            asset_age_months = (today_date.year - purchase_date.year) * 12 + (today_date.month - purchase_date.month)
-        
-        # Useful life metrics
-        useful_life = cint(self.useful_life_months or 0)
-        remaining_useful_life = useful_life - asset_age_months if useful_life else 0
-        life_consumed_pct = (asset_age_months / useful_life * 100) if useful_life else 0
-        
-        # Maintenance metrics
-        maintenance_count = frappe.db.count('Asset Maintenance', 
-            filters={'asset': self.name, 'docstatus': 1})
-        
-        # Insurance status
-        insurance_expired = False
-        insurance_days = 0
-        if self.insurance_expiry_date:
-            insurance_days = frappe.utils.date_diff(self.insurance_expiry_date, today())
-            insurance_expired = insurance_days < 0
-        
-        # Warranty status
-        warranty_expired = False
-        warranty_days = 0
-        if self.warranty_expiry_date:
-            warranty_days = frappe.utils.date_diff(self.warranty_expiry_date, today())
-            warranty_expired = warranty_days < 0
-        
-        return {
-            'asset_code': self.asset_code or 'N/A',
-            'asset_name': self.asset_name or 'N/A',
-            'asset_status': self.asset_status or 'Draft',
-            'asset_category': self.asset_category or 'N/A',
-            'company': self.company or 'N/A',
-            'department': self.department or 'N/A',
-            'current_location': self.current_location or 'N/A',
-            'custodian': self.custodian or 'N/A',
-            
-            # Financial metrics
-            'gross_purchase_amount': gross_purchase,
-            'current_gross_value': current_gross,
-            'salvage_value': salvage,
-            'depreciable_amount': depreciable,
-            'total_depreciation_posted': total_depreciation_posted,
-            'current_net_book_value': net_book,
-            'remaining_value': remaining_value,
-            'depreciation_percentage': round(depreciation_percentage, 1),
-            'value_preserved': round(value_preserved, 1),
-            
-            # Schedule metrics
-            'total_schedule_periods': total_periods,
-            'posted_periods': posted_periods,
-            'pending_periods': pending_periods,
-            'total_expected_depreciation': total_expected_depreciation,
-            'total_posted_depreciation': total_posted_depreciation,
-            'upcoming_count': len(upcoming),
-            'overdue_count': len(overdue),
-            'next_depreciation_date': next_depreciation,
-            'next_depreciation_amount': next_depreciation_amount,
-            
-            # Depreciation info
-            'is_depreciable': self.is_depreciable_asset or 0,
-            'calculate_depreciation': self.calculate_depreciation or 0,
-            'depreciation_method': self.depreciation_method or 'N/A',
-            'depreciation_frequency': self.depreciation_frequency or 'N/A',
-            'depreciation_rate': flt(self.depreciation_rate or 0),
-            'depreciation_percentage_complete': flt(self.depreciation_percentage_complete or 0),
-            
-            # Age & Lifecycle
-            'purchase_date': str(self.purchase_date) if self.purchase_date else None,
-            'available_for_use_date': str(self.available_for_use_date) if self.available_for_use_date else None,
-            'asset_age_months': asset_age_months,
-            'useful_life_months': useful_life,
-            'remaining_useful_life': remaining_useful_life,
-            'life_consumed_pct': round(life_consumed_pct, 1),
-            
-            # Maintenance & Insurance
-            'maintenance_count': maintenance_count,
-            'warranty_expiry_date': str(self.warranty_expiry_date) if self.warranty_expiry_date else None,
-            'insurance_expiry_date': str(self.insurance_expiry_date) if self.insurance_expiry_date else None,
-            'insurance_expired': insurance_expired,
-            'insurance_days': insurance_days,
-            'warranty_expired': warranty_expired,
-            'warranty_days': warranty_days,
-            
-            # Additional flags
-            'is_existing_asset': self.is_existing_asset or 0,
-            'has_qr_code': bool(self.qr_code_image),
-            'asset_quantity': cint(self.asset_quantity or 1),
-        }
-    except Exception as e:
-        frappe.log_error(f"Dashboard metrics error: {str(e)}", "Asset Dashboard")
-        return {}

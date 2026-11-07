@@ -12,6 +12,7 @@
   "vehicle_name",
   "plate_number",
   "vehicle_type",
+  "vehicle_licence_expiry",
   "col_break_1",
   "brand",
   "model",
@@ -312,12 +313,17 @@
    "fieldtype": "Long Text",
    "label": "AI Insights",
    "read_only": 1
+  },
+  {
+   "fieldname": "vehicle_licence_expiry",
+   "fieldtype": "Date",
+   "label": "Vehicle License Expiry"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-06-14 14:07:59.653448",
+ "modified": "2026-10-16 16:57:16.180324",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Company Vehicle",

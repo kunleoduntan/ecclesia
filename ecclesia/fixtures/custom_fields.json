@@ -642,5 +642,98 @@
     "fieldtype": "Datetime",
     "insert_after": "portal_session_token",
     "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Bank Transaction Processor-posting_policy",
+    "dt": "Bank Transaction Processor",
+    "fieldname": "posting_policy",
+    "label": "Posting Policy",
+    "fieldtype": "Select",
+    "options": "Payments & Receipts\nJournal & Payment Entry",
+    "default": "Payments & Receipts",
+    "reqd": 1,
+    "insert_after": "bank_account",
+    "module": "Ecclesia",
+    "description": "Payments & Receipts = create Payments / Receipts vouchers. Journal & Payment Entry = create ERPNext Journal / Payment Entries."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Batch Bank Transaction-posting_policy",
+    "dt": "Batch Bank Transaction",
+    "fieldname": "posting_policy",
+    "label": "Posting Policy",
+    "fieldtype": "Select",
+    "options": "Payments & Receipts\nJournal & Payment Entry",
+    "default": "Payments & Receipts",
+    "reqd": 1,
+    "insert_after": "bank_account",
+    "module": "Ecclesia",
+    "description": "Payments & Receipts = create Payments / Receipts vouchers. Journal & Payment Entry = create ERPNext Journal / Payment Entries."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Expense Batch-posting_policy",
+    "dt": "Expense Batch",
+    "fieldname": "posting_policy",
+    "label": "Posting Policy",
+    "fieldtype": "Select",
+    "options": "Payments & Receipts\nJournal & Payment Entry",
+    "default": "Payments & Receipts",
+    "reqd": 1,
+    "insert_after": "cost_center",
+    "module": "Ecclesia",
+    "description": "Payments & Receipts = create Payments / Receipts vouchers. Journal & Payment Entry = create ERPNext Journal / Payment Entries."
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Transaction Entry-entry_type_created",
+    "dt": "Transaction Entry",
+    "fieldname": "entry_type_created",
+    "label": "Entry Type",
+    "fieldtype": "Data",
+    "read_only": 1,
+    "no_copy": 1,
+    "print_hide": 1,
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Transaction Entry-entry_reference",
+    "dt": "Transaction Entry",
+    "fieldname": "entry_reference",
+    "label": "Entry Reference",
+    "fieldtype": "Data",
+    "read_only": 1,
+    "no_copy": 1,
+    "in_list_view": 1,
+    "insert_after": "entry_type_created",
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Petty Cash Transaction-entry_type_created",
+    "dt": "Petty Cash Transaction",
+    "fieldname": "entry_type_created",
+    "label": "Entry Type",
+    "fieldtype": "Data",
+    "read_only": 1,
+    "no_copy": 1,
+    "print_hide": 1,
+    "module": "Ecclesia"
+  },
+  {
+    "doctype": "Custom Field",
+    "name": "Petty Cash Transaction-entry_reference",
+    "dt": "Petty Cash Transaction",
+    "fieldname": "entry_reference",
+    "label": "Entry Reference",
+    "fieldtype": "Data",
+    "read_only": 1,
+    "no_copy": 1,
+    "in_list_view": 1,
+    "insert_after": "entry_type_created",
+    "module": "Ecclesia"
   }
+  
 ]
