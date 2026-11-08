@@ -1,18 +1,47 @@
 frappe.ui.form.on("Employee", {
 
     refresh(frm) {
-        frm.trigger("check_pending_leave_policy");
-        frm.trigger("add_leave_policy_button");
-    },
+        // ── Tax sync button ─────────────────────────────────────────
+        // Moved first and wrapped so a failure elsewhere can never
+        // suppress this button.
+        try {
+            frm.add_custom_button(__("Sync Monthly Tax Payable"), function () {
+                sync_tax(frm);
+            }, __("Actions"));
+        } catch (e) {
+            console.error("[Ecclesia] Failed to add Sync Tax button", e);
+        }
 
-    status(frm) {
-        // Re-check on every status change in case the flag was just set
-        if (frm.doc.status === "Active" && !frm.is_new()) {
-            setTimeout(() => frm.trigger("check_pending_leave_policy"), 400);
+        // ── HR manual reassign button ────────────────────────────────
+        try {
+            frm.trigger("add_leave_policy_button");
+        } catch (e) {
+            console.error("[Ecclesia] add_leave_policy_button failed", e);
+        }
+
+        // ── Leave policy checks (dialog only, no buttons) ─────────────
+        try {
+            frm.trigger("check_pending_leave_policy");
+        } catch (e) {
+            console.error("[Ecclesia] check_pending_leave_policy failed", e);
         }
     },
 
-    // ── New employee confirmation dialog ─────────────────────────────
+    status(frm) {
+        if (frm.doc.status === "Active" && !frm.is_new()) {
+            setTimeout(() => {
+                try {
+                    frm.trigger("check_pending_leave_policy");
+                } catch (e) {
+                    console.error("[Ecclesia] check_pending_leave_policy (status) failed", e);
+                }
+            }, 400);
+        }
+    },
+
+    after_save(frm) {
+        sync_tax(frm);
+    },
 
     check_pending_leave_policy(frm) {
         if (frm.is_new()) return;
@@ -22,11 +51,17 @@ frappe.ui.form.on("Employee", {
         setTimeout(() => _show_policy_assignment_dialog(frm), 700);
     },
 
-    // ── HR manual reassign button ────────────────────────────────────
-
     add_leave_policy_button(frm) {
         if (frm.is_new()) return;
-        if (!frappe.user.has_role(["HR Manager", "System Manager"])) return;
+
+        let has_role = false;
+        try {
+            has_role = frappe.user.has_role(["HR Manager", "System Manager"]);
+        } catch (e) {
+            console.error("[Ecclesia] has_role check failed", e);
+            return;
+        }
+        if (!has_role) return;
 
         frm.add_custom_button("Assign Leave Policy", () => {
             _show_manual_assign_dialog(frm);
@@ -314,4 +349,107 @@ function _show_manual_assign_dialog(frm) {
     });
 
     dialog.show();
+}
+
+
+// ── Tax sync ────────────────────────────────────────────────────────────
+
+function sync_tax(frm) {
+    if (frm.is_new()) return;
+
+    frappe.call({
+        method: "ecclesia.api.employee_tax_sync.sync_employee_tax",
+        args: { employee: frm.doc.name },
+        freeze: true,
+        freeze_message: __("Syncing tax data..."),
+        callback: function (r) {
+            frappe.show_alert({
+                message: __("Tax sync completed"),
+                indicator: "green"
+            });
+            frm.reload_doc();
+        },
+        error: function (r) {
+            frappe.show_alert({
+                message: __("Tax sync failed: ") + (r.message || ""),
+                indicator: "red"
+            });
+        }
+    });
+}
+
+
+
+// Client Script — DocType: Employee
+// Computes monthly_gross_pay and ctc from annual_gross_salary,
+// using per-Company rates instead of hardcoded 30/30/30/10.
+//
+// Prerequisite Custom Fields on Company (all Percent type):
+//   custom_basic_salary_rate       (default 30)
+//   custom_transport_allowance_rate (default 30)
+//   custom_housing_allowance_rate   (default 30)
+//   custom_employer_pension_rate    (default 10)
+//
+// Prerequisite Custom Fields on Employee:
+//   annual_gross_salary  (Currency)
+//   monthly_gross_pay    (Currency, read-only)
+//   ctc                  (Currency, read-only)
+
+frappe.ui.form.on('Employee', {
+	refresh: function (frm) {
+		calculate_salary_breakdown(frm);
+	},
+
+	annual_gross_salary: function (frm) {
+		calculate_salary_breakdown(frm);
+	},
+
+	company: function (frm) {
+		calculate_salary_breakdown(frm);
+	},
+
+	validate: function (frm) {
+		calculate_salary_breakdown(frm);
+	}
+});
+
+function calculate_salary_breakdown(frm) {
+	if (!frm.doc.annual_gross_salary || !frm.doc.company) {
+		return;
+	}
+
+	frappe.db.get_value(
+		'Company',
+		frm.doc.company,
+		[
+			'custom_basic_salary_rate',
+			'custom_transport_allowance_rate',
+			'custom_housing_allowance_rate',
+			'custom_employer_pension_rate'
+		],
+		function (r) {
+			if (!r) {
+				frappe.msgprint(__('Salary rates not configured on Company {0}', [frm.doc.company]));
+				return;
+			}
+
+			// Fall back to 30/30/30/10 only if the Company fields are blank
+			const basic_rate = flt(r.custom_basic_salary_rate) || 30;
+			const transport_rate = flt(r.custom_transport_allowance_rate) || 30;
+			const housing_rate = flt(r.custom_housing_allowance_rate) || 30;
+			const pension_rate = flt(r.custom_employer_pension_rate) || 10;
+
+			const annual_gross = flt(frm.doc.annual_gross_salary);
+
+			// Monthly Gross Pay = (Basic% + Transport% + Housing%) of annual gross, spread over 12 months
+			const combined_rate = (basic_rate + transport_rate + housing_rate) / 100;
+			const monthly_gross_pay = (annual_gross * combined_rate) / 12;
+
+			// CTC = Annual Gross + Employer Pension Contribution (pension_rate% of annual gross)
+			const ctc = annual_gross + (annual_gross * pension_rate) / 100;
+
+			frm.set_value('monthly_gross_pay', monthly_gross_pay);
+			frm.set_value('ctc', ctc);
+		}
+	);
 }

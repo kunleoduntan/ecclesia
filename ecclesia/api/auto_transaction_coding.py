@@ -35,12 +35,25 @@ DESIGN PRINCIPLES
    and operates on individual documents; no batch SQL updates that could
    cause lost-update races.
 
+6. **Commit discipline** — writes only call frappe.db.commit() when running
+   as an independent transaction (the hourly scheduler, or the whitelisted
+   on-demand API). When invoked from inside another document's save/submit
+   transaction (the on_submit doc_event), no explicit commit is issued —
+   the write rides along with, and can be rolled back by, the parent
+   transaction, so a downstream failure elsewhere in that request can't
+   leave coding data committed while the rest of the submit rolls back.
+
 hooks.py wiring
 ---------------
     scheduler_events = {
         "hourly": [
             "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding"
         ],
+    }
+    doc_events = {
+        "Payments": {
+            "on_submit": "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding"
+        },
     }
 """
 
@@ -54,11 +67,35 @@ from frappe.utils import now_datetime
 # Public scheduled entry-point
 # ============================================================
 
-def run_auto_transaction_coding():
+def run_auto_transaction_coding(doc=None, method=None):
     """
-    Scheduled entry-point (hourly).
-    Processes all uncoded or pending-recode Payments across all companies.
+    Dual-mode entry-point:
+
+      1. Scheduler mode (hourly, no args):
+         Processes ALL uncoded / pending-recode Payments across all companies.
+         Each write commits independently (safe — no parent transaction to
+         interfere with).
+
+      2. Doc-event mode (called by hooks.py on Payments.on_submit, passed
+         `doc` and `method` positionally by Frappe's hook runner):
+         Codes ONLY the single Payment being submitted, and does NOT issue
+         its own commit — it rides along with the parent doc.submit()
+         transaction so it rolls back correctly if anything later in that
+         request fails.
     """
+    if doc is not None:
+        # Called as a doc_event hook — code just this payment.
+        try:
+            _code_payment_now(doc.name, commit=False)
+        except Exception:
+            # Never let auto-coding block a submit — log and move on.
+            frappe.log_error(
+                frappe.get_traceback(),
+                f"[AutoCoding] on_submit coding failed for Payment {doc.name}"
+            )
+        return
+
+    # ---- Scheduler mode: full batch run ----
     rules = _load_active_rules()
     if not rules:
         frappe.logger().info("[AutoCoding] No active rules — skipping run.")
@@ -112,10 +149,11 @@ def run_auto_transaction_coding():
 def code_payment_api(payment_name: str) -> dict:
     """
     Code a single Payment immediately (on-demand button).
+    Runs as its own request/transaction, so it commits normally.
     Returns: {"status", "account", "rule", "resolution_method"}
     """
     frappe.only_for(["Accounts User", "Accounts Manager", "System Manager"])
-    return _code_payment_now(payment_name)
+    return _code_payment_now(payment_name, commit=True)
 
 
 @frappe.whitelist()
@@ -151,8 +189,17 @@ def preview_match(description: str, company: str) -> dict:
 # Internal orchestration
 # ============================================================
 
-def _code_payment_now(payment_name: str) -> dict:
-    """Resolve and persist coding for a single named Payment."""
+def _code_payment_now(payment_name: str, commit: bool = True) -> dict:
+    """
+    Resolve and persist coding for a single named Payment.
+
+    `commit` controls whether the write commits independently (True — safe
+    for the scheduler and the whitelisted API, which own their transaction)
+    or rides along with an in-flight parent transaction (False — required
+    when called from inside another document's save/submit, e.g. the
+    on_submit doc_event, so it can roll back correctly if that request
+    fails downstream).
+    """
     doc = frappe.get_value(
         "Payments", payment_name,
         ["name", "transaction_description", "company"],
@@ -170,11 +217,17 @@ def _code_payment_now(payment_name: str) -> dict:
         doc.company or "",
         company_rules, global_rules, cache
     )
-    return _persist_result(doc.name, doc.company, doc.transaction_description, result)
+    return _persist_result(
+        doc.name, doc.company, doc.transaction_description, result, commit=commit
+    )
 
 
 def _process_payment(payment: dict, company_rules, global_rules, cache) -> str:
-    """Process one payment dict (name, company, transaction_description)."""
+    """
+    Process one payment dict (name, company, transaction_description).
+    Always called from the scheduler's batch loop, so it always commits
+    independently per payment (commit=True, the default).
+    """
     result = _match_and_resolve(
         payment.get("transaction_description") or "",
         payment.get("company") or "",
@@ -187,7 +240,7 @@ def _process_payment(payment: dict, company_rules, global_rules, cache) -> str:
     return outcome["status_key"]
 
 
-def _persist_result(payment_name, company, description, result) -> dict:
+def _persist_result(payment_name, company, description, result, commit: bool = True) -> dict:
     """Write matched account (or unmatched status) back to the Payment."""
     if result and result.get("account"):
         frappe.db.set_value(
@@ -201,13 +254,15 @@ def _persist_result(payment_name, company, description, result) -> dict:
             },
             update_modified=False,
         )
-        frappe.db.commit()
+        if commit:
+            frappe.db.commit()
         _write_coding_log(
             payment=payment_name, company=company, description=description,
             rule=result["rule"], account=result["account"],
             rule_scope=result["rule_scope"],
             resolution_method=result["resolution_method"],
             status="Matched",
+            commit=commit,
         )
         return {"status": "Matched", "status_key": "matched",
                 "account": result["account"], "rule": result["rule"],
@@ -220,7 +275,8 @@ def _persist_result(payment_name, company, description, result) -> dict:
             {"auto_coding_status": "Resolution Failed", "auto_coding_date": now_datetime()},
             update_modified=False,
         )
-        frappe.db.commit()
+        if commit:
+            frappe.db.commit()
         _write_coding_log(
             payment=payment_name, company=company, description=description,
             rule=result["rule"], account=None,
@@ -228,6 +284,7 @@ def _persist_result(payment_name, company, description, result) -> dict:
             resolution_method="Not Resolved",
             status="Resolution Failed",
             notes=result.get("notes"),
+            commit=commit,
         )
         return {"status": "Resolution Failed", "status_key": "resolution_failed",
                 "account": None, "rule": result["rule"]}
@@ -239,11 +296,13 @@ def _persist_result(payment_name, company, description, result) -> dict:
             {"auto_coding_status": "Unmatched", "auto_coding_date": now_datetime()},
             update_modified=False,
         )
-        frappe.db.commit()
+        if commit:
+            frappe.db.commit()
         _write_coding_log(
             payment=payment_name, company=company, description=description,
             rule=None, account=None, rule_scope=None,
             resolution_method=None, status="Unmatched",
+            commit=commit,
         )
         return {"status": "Unmatched", "status_key": "unmatched", "account": None}
 
@@ -548,8 +607,14 @@ def _fetch_uncoded_payments() -> list[dict]:
 
 def _write_coding_log(
     payment, company, description,
-    rule, account, rule_scope, resolution_method, status, notes=None
+    rule, account, rule_scope, resolution_method, status, notes=None,
+    commit: bool = True,
 ):
+    """
+    `commit` mirrors the flag threaded through `_persist_result` — when
+    False (on_submit path) the log insert rides along with the parent
+    transaction instead of committing independently.
+    """
     try:
         frappe.get_doc({
             "doctype"                : "Auto Transaction Coding Log",
@@ -564,12 +629,14 @@ def _write_coding_log(
             "notes"                  : notes,
             "logged_on"              : now_datetime(),
         }).insert(ignore_permissions=True)
-        frappe.db.commit()
+        if commit:
+            frappe.db.commit()
     except Exception:
         frappe.log_error(frappe.get_traceback(), "[AutoCoding] Failed to write coding log")
 
 
 def _write_run_log(coded, unmatched, res_failed, errors, total):
+    """Always called from the scheduler's own transaction — commits independently."""
     try:
         frappe.get_doc({
             "doctype"  : "Auto Transaction Coding Log",

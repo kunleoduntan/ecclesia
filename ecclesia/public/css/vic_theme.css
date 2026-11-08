@@ -1,0 +1,1297 @@
+/* =========================================================================
+   VIC THEME — multi-theme, day-business, cute-but-professional
+   =========================================================================
+   - Themes: violet (default), farepoint, emerald, sunset, ocean, nova,
+     ember, midnight, verdant, arctic, forest, candy.
+     Each has a light + dark variant driven by [data-vic-theme] on <html>
+     and Frappe's own [data-theme="light|dark"].
+   - Performance: no color-mix(), no per-row transitions, no backdrop-filter.
+   - Retained: pill buttons (with hover), custom table checkboxes, field
+     background colors, 2px field borders with 4px left accents.
+   - Sidebar: soft accent-tinted surface with bold accent pill on selected.
+   - Theme picker: card grid dialog matching the VIC Theme mockup.
+
+   CHANGELOG (this revision)
+   - NEW THEMES: cyan, mint (Mint Blue), electric (Electric Blue, #00F0FF),
+     each with light + dark variants. Added --vic-on-accent and
+     --vic-accent-ink so very bright accents stay readable.
+   - Section 6 (lists / tables) removed: tables are back to Frappe's default style.
+   - FIX: Link / Dynamic Link dropdown options were invisible because
+     .form-section used overflow:hidden (clipped the dropdown) and the
+     dropdown list had no themed surface. Now overflow is visible and the
+     Awesomplete list is fully styled (section 14), z-index above modals.
+   - NEW: styled dropdown menus, modals, toasts, scrollbars, focus rings,
+     text selection, reduced-motion support (sections 14-17).
+   ========================================================================= */
+
+/* -------------------------------------------------------------------------
+   1. THEME PRESETS
+   ------------------------------------------------------------------------- */
+
+:root,
+:root[data-vic-theme="violet"] {
+  --vic-accent:         #6c5ce7;
+  --vic-accent-hover:   #5b4bd6;
+  --vic-accent-soft:    #efecfd;
+  --vic-accent-line:    #d6cffa;
+  --vic-sidebar-bg:     #f4f2fd;
+  --vic-bg:             #f5f4fb;
+  --vic-surface:        #ffffff;
+  --vic-surface-alt:    #faf9fe;
+  --vic-border:         #e6e4f0;
+  --vic-border-strong:  #c9c5dc;
+  --vic-text:           #1f1f2b;
+  --vic-text-muted:     #6b6b80;
+  --vic-success:        #16a34a;
+  --vic-success-bg:     #e6f7ec;
+  --vic-warning:        #b26a00;
+  --vic-warning-bg:     #fdf3e2;
+  --vic-danger:         #c0362c;
+  --vic-danger-bg:      #fbe9e8;
+  --vic-info:           #3b82f6;
+  --vic-info-bg:        #e7f0fe;
+}
+
+:root[data-vic-theme="farepoint"] {
+  --vic-accent:         #e91e8c;
+  --vic-accent-hover:   #c9126f;
+  --vic-accent-soft:    #fce7f3;
+  --vic-accent-line:    #f6b8d8;
+  --vic-sidebar-bg:     #fdf3f9;
+  --vic-bg:             #f4f6fc;
+  --vic-surface:        #ffffff;
+  --vic-surface-alt:    #f8fafd;
+  --vic-border:         #e3e6f0;
+  --vic-border-strong:  #c2c8dd;
+  --vic-text:           #1b2a4e;
+  --vic-text-muted:     #5b6785;
+  --vic-success:        #16a34a;
+  --vic-success-bg:     #e6f7ec;
+  --vic-warning:        #b26a00;
+  --vic-warning-bg:     #fdf3e2;
+  --vic-danger:         #c0362c;
+  --vic-danger-bg:      #fbe9e8;
+  --vic-info:           #2f6fed;
+  --vic-info-bg:        #e7eefe;
+}
+
+:root[data-vic-theme="emerald"] {
+  --vic-accent:         #0f766e;
+  --vic-accent-hover:   #0b5c56;
+  --vic-accent-soft:    #e3f6f4;
+  --vic-accent-line:    #a9dcd6;
+  --vic-sidebar-bg:     #f0faf8;
+  --vic-bg:             #f3f9f8;
+  --vic-surface:        #ffffff;
+  --vic-surface-alt:    #f7fbfa;
+  --vic-border:         #e0ece9;
+  --vic-border-strong:  #bcd4d0;
+  --vic-text:           #123d38;
+  --vic-text-muted:     #5f7d78;
+  --vic-success:        #22c55e;
+  --vic-success-bg:     #e6f7ec;
+  --vic-warning:        #b26a00;
+  --vic-warning-bg:     #fdf3e2;
+  --vic-danger:         #c0362c;
+  --vic-danger-bg:      #fbe9e8;
+  --vic-info:           #0ea5e9;
+  --vic-info-bg:        #e2f4fd;
+}
+
+:root[data-vic-theme="sunset"] {
+  --vic-accent:         #d97706;
+  --vic-accent-hover:   #b45f04;
+  --vic-accent-soft:    #fdecd2;
+  --vic-accent-line:    #f2c98a;
+  --vic-sidebar-bg:     #fef8ee;
+  --vic-bg:             #fcf8f3;
+  --vic-surface:        #ffffff;
+  --vic-surface-alt:    #fdfbf7;
+  --vic-border:         #f0e4d6;
+  --vic-border-strong:  #d6c2a8;
+  --vic-text:           #3b2a20;
+  --vic-text-muted:     #7a6a5c;
+  --vic-success:        #16a34a;
+  --vic-success-bg:     #e6f7ec;
+  --vic-warning:        #b26a00;
+  --vic-warning-bg:     #fdf3e2;
+  --vic-danger:         #c0362c;
+  --vic-danger-bg:      #fbe9e8;
+  --vic-info:           #7c2d56;
+  --vic-info-bg:        #fbe7f0;
+}
+
+:root[data-vic-theme="ocean"] {
+  --vic-accent:         #2563eb;
+  --vic-accent-hover:   #1d4fc4;
+  --vic-accent-soft:    #e4ecfd;
+  --vic-accent-line:    #b8cbf7;
+  --vic-sidebar-bg:     #f2f6fe;
+  --vic-bg:             #f4f7fc;
+  --vic-surface:        #ffffff;
+  --vic-surface-alt:    #f8fafd;
+  --vic-border:         #e2e8f4;
+  --vic-border-strong:  #c0cce2;
+  --vic-text:           #0f2149;
+  --vic-text-muted:     #5c6b8a;
+  --vic-success:        #16a34a;
+  --vic-success-bg:     #e6f7ec;
+  --vic-warning:        #b26a00;
+  --vic-warning-bg:     #fdf3e2;
+  --vic-danger:         #c0362c;
+  --vic-danger-bg:      #fbe9e8;
+  --vic-info:           #0ea5e9;
+  --vic-info-bg:        #e2f4fd;
+}
+
+/* --- Additional palettes (nova, ember, midnight, verdant, arctic,
+   forest, candy) — same naming convention --- */
+:root[data-vic-theme="nova"] {
+  --vic-accent: #7c3aed; --vic-accent-hover: #6d28d9; --vic-accent-soft: #f5f3ff;
+  --vic-accent-line: #ddd6fe; --vic-sidebar-bg: #f7f4ff; --vic-bg: #faf5ff;
+  --vic-surface: #ffffff; --vic-surface-alt: #fbf9ff;
+  --vic-border: #e9d5ff; --vic-border-strong: #c4b5fd;
+  --vic-text: #2e1065; --vic-text-muted: #7c6a9c;
+  --vic-success: #10b981; --vic-success-bg: #e6f7ec;
+  --vic-warning: #f59e0b; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #ef4444;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #06b6d4;    --vic-info-bg: #e2f4fd;
+}
+:root[data-theme="dark"][data-vic-theme="nova"] {
+  --vic-accent: #a78bfa; --vic-accent-hover: #c4b5fd; --vic-accent-soft: #2e1065;
+  --vic-accent-line: #4c2c8a; --vic-sidebar-bg: #1e1236;
+  --vic-bg: #1a1033; --vic-surface: #241640; --vic-surface-alt: #2c1b4d;
+  --vic-border: #3b2463; --vic-border-strong: #5b3d94;
+  --vic-text: #f3edff; --vic-text-muted: #b8a6e0;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+:root[data-vic-theme="ember"] {
+  --vic-accent: #f97316; --vic-accent-hover: #ea580c; --vic-accent-soft: #fff7ed;
+  --vic-accent-line: #fed7aa; --vic-sidebar-bg: #fffaf4; --vic-bg: #fff7ed;
+  --vic-surface: #ffffff; --vic-surface-alt: #fffaf3;
+  --vic-border: #fed7aa; --vic-border-strong: #fdba74;
+  --vic-text: #431407; --vic-text-muted: #9a6b4a;
+  --vic-success: #22c55e; --vic-success-bg: #e6f7ec;
+  --vic-warning: #eab308; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #ef4444;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #0ea5e9;    --vic-info-bg: #e2f4fd;
+}
+:root[data-theme="dark"][data-vic-theme="ember"] {
+  --vic-accent: #fb923c; --vic-accent-hover: #fdba74; --vic-accent-soft: #431407;
+  --vic-accent-line: #7a3410; --vic-sidebar-bg: #2c1608;
+  --vic-bg: #241206; --vic-surface: #331a09; --vic-surface-alt: #3e200b;
+  --vic-border: #4d2a10; --vic-border-strong: #703f18;
+  --vic-text: #fff1e5; --vic-text-muted: #d0a583;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+:root[data-vic-theme="midnight"] {
+  --vic-accent: #818cf8; --vic-accent-hover: #a5b4fc;
+  --vic-accent-soft: rgba(129,140,248,.16); --vic-accent-line: rgba(129,140,248,.35);
+  --vic-sidebar-bg: #0b1220; --vic-bg: #0f172a;
+  --vic-surface: #1e293b; --vic-surface-alt: #243347;
+  --vic-border: rgba(255,255,255,.1); --vic-border-strong: rgba(255,255,255,.22);
+  --vic-text: #f1f5f9; --vic-text-muted: #94a3b8;
+  --vic-success: #34d399; --vic-success-bg: #14301f;
+  --vic-warning: #fcd34d; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+:root[data-vic-theme="verdant"] {
+  --vic-accent: #059669; --vic-accent-hover: #047857; --vic-accent-soft: #ecfdf5;
+  --vic-accent-line: #a7f3d0; --vic-sidebar-bg: #f0fdf6; --vic-bg: #ecfdf5;
+  --vic-surface: #ffffff; --vic-surface-alt: #f6fefa;
+  --vic-border: #a7f3d0; --vic-border-strong: #6ee7b7;
+  --vic-text: #022c22; --vic-text-muted: #4d8a76;
+  --vic-success: #10b981; --vic-success-bg: #e6f7ec;
+  --vic-warning: #f59e0b; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #ef4444;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #0ea5e9;    --vic-info-bg: #e2f4fd;
+}
+:root[data-theme="dark"][data-vic-theme="verdant"] {
+  --vic-accent: #34d399; --vic-accent-hover: #6ee7b7; --vic-accent-soft: #022c22;
+  --vic-accent-line: #145c46; --vic-sidebar-bg: #032019;
+  --vic-bg: #011a14; --vic-surface: #0a2a20; --vic-surface-alt: #0e3529;
+  --vic-border: #124435; --vic-border-strong: #1f6a53;
+  --vic-text: #ecfdf5; --vic-text-muted: #8fc9b3;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+:root[data-vic-theme="arctic"] {
+  --vic-accent: #0284c7; --vic-accent-hover: #0369a1; --vic-accent-soft: #f0f9ff;
+  --vic-accent-line: #bae6fd; --vic-sidebar-bg: #f6fbfe; --vic-bg: #f8fafc;
+  --vic-surface: #ffffff; --vic-surface-alt: #fafcfe;
+  --vic-border: #e2e8f0; --vic-border-strong: #cbd5e1;
+  --vic-text: #0f172a; --vic-text-muted: #64748b;
+  --vic-success: #10b981; --vic-success-bg: #e6f7ec;
+  --vic-warning: #f59e0b; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #ef4444;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #06b6d4;    --vic-info-bg: #e2f4fd;
+}
+:root[data-theme="dark"][data-vic-theme="arctic"] {
+  --vic-accent: #38bdf8; --vic-accent-hover: #7dd3fc; --vic-accent-soft: #0c2b40;
+  --vic-accent-line: #1d4d70; --vic-sidebar-bg: #08121d;
+  --vic-bg: #0a1420; --vic-surface: #101d2e; --vic-surface-alt: #16273d;
+  --vic-border: #1c3049; --vic-border-strong: #2f4d70;
+  --vic-text: #eef4fb; --vic-text-muted: #93a8c2;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+:root[data-vic-theme="forest"] {
+  --vic-accent: #22c55e; --vic-accent-hover: #4ade80;
+  --vic-accent-soft: rgba(34,197,94,.14); --vic-accent-line: rgba(34,197,94,.4);
+  --vic-sidebar-bg: #042613; --vic-bg: #052e16;
+  --vic-surface: #14532d; --vic-surface-alt: #1a6b3a;
+  --vic-border: rgba(187,247,208,.12); --vic-border-strong: rgba(187,247,208,.28);
+  --vic-text: #f0fdf4; --vic-text-muted: #86efac;
+  --vic-success: #22c55e; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+:root[data-vic-theme="candy"] {
+  --vic-accent: #db2777; --vic-accent-hover: #be185d; --vic-accent-soft: #fdf2f8;
+  --vic-accent-line: #fbcfe8; --vic-sidebar-bg: #fdf5fa; --vic-bg: #fdf2f8;
+  --vic-surface: #ffffff; --vic-surface-alt: #fef6fb;
+  --vic-border: #fbcfe8; --vic-border-strong: #f9a8d4;
+  --vic-text: #500724; --vic-text-muted: #a15a7d;
+  --vic-success: #10b981; --vic-success-bg: #e6f7ec;
+  --vic-warning: #f59e0b; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #ef4444;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #06b6d4;    --vic-info-bg: #e2f4fd;
+}
+:root[data-theme="dark"][data-vic-theme="candy"] {
+  --vic-accent: #f472b6; --vic-accent-hover: #f9a8d4; --vic-accent-soft: #500724;
+  --vic-accent-line: #7a103a; --vic-sidebar-bg: #1e030f;
+  --vic-bg: #2b0313; --vic-surface: #3d0a1d; --vic-surface-alt: #4a0e24;
+  --vic-border: #5c1230; --vic-border-strong: #7c1c44;
+  --vic-text: #fdf2f8; --vic-text-muted: #d999b6;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+/* --- Cool-blue family: cyan, mint, electric --- */
+/* Cyan */
+:root[data-vic-theme="cyan"] {
+  --vic-accent: #0891b2; --vic-accent-hover: #0e7490; --vic-accent-soft: #e2f6fa;
+  --vic-accent-line: #a5e0eb; --vic-sidebar-bg: #f0fafc; --vic-bg: #f3fafc;
+  --vic-surface: #ffffff; --vic-surface-alt: #f7fcfd;
+  --vic-border: #dcecf0; --vic-border-strong: #b8d4db;
+  --vic-text: #0b3440; --vic-text-muted: #5a7f8a;
+  --vic-success: #16a34a; --vic-success-bg: #e6f7ec;
+  --vic-warning: #b26a00; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #c0362c;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #2563eb;    --vic-info-bg: #e4ecfd;
+}
+:root[data-theme="dark"][data-vic-theme="cyan"] {
+  --vic-accent: #22d3ee; --vic-accent-hover: #67e8f9; --vic-accent-soft: #0b2f38;
+  --vic-accent-line: #17566a; --vic-sidebar-bg: #08181d;
+  --vic-bg: #0a161a; --vic-surface: #102027; --vic-surface-alt: #152a33;
+  --vic-border: #1c3640; --vic-border-strong: #2f5663;
+  --vic-text: #e8f8fb; --vic-text-muted: #8fb4be;
+  --vic-on-accent: #032830;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #60a5fa;    --vic-info-bg: #14264a;
+}
+
+/* Mint Blue */
+:root[data-vic-theme="mint"] {
+  --vic-accent: #0fa3a0; --vic-accent-hover: #0b8a88; --vic-accent-soft: #e0f7f4;
+  --vic-accent-line: #a6e3dd; --vic-sidebar-bg: #effbf9; --vic-bg: #f2fbfa;
+  --vic-surface: #ffffff; --vic-surface-alt: #f7fdfc;
+  --vic-border: #dcefec; --vic-border-strong: #b4d9d4;
+  --vic-text: #0e3b3a; --vic-text-muted: #5b8584;
+  --vic-success: #16a34a; --vic-success-bg: #e6f7ec;
+  --vic-warning: #b26a00; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #c0362c;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #2563eb;    --vic-info-bg: #e4ecfd;
+}
+:root[data-theme="dark"][data-vic-theme="mint"] {
+  --vic-accent: #5eead4; --vic-accent-hover: #99f6e4; --vic-accent-soft: #0d2e2d;
+  --vic-accent-line: #1b5a56; --vic-sidebar-bg: #09191a;
+  --vic-bg: #0a1a1c; --vic-surface: #102629; --vic-surface-alt: #15313a;
+  --vic-border: #1d3b42; --vic-border-strong: #33606a;
+  --vic-text: #e6f9f8; --vic-text-muted: #8dbab8;
+  --vic-on-accent: #04302d;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #60a5fa;    --vic-info-bg: #14264a;
+}
+
+/* Electric Blue — #00F0FF is very bright, so text sitting ON the accent is
+   dark (--vic-on-accent) and links/labels use a deeper readable shade
+   (--vic-accent-ink) in light mode. Fills, borders and glows use #00F0FF. */
+:root[data-vic-theme="electric"] {
+  --vic-accent: #00F0FF; --vic-accent-hover: #00d4e3; --vic-accent-soft: #e0fdff;
+  --vic-accent-line: #8cf5ff; --vic-sidebar-bg: #effeff; --vic-bg: #f2fdff;
+  --vic-surface: #ffffff; --vic-surface-alt: #f7feff;
+  --vic-border: #d6f3f6; --vic-border-strong: #a8dde3;
+  --vic-text: #062a36; --vic-text-muted: #4f7a86;
+  --vic-on-accent: #03242c;
+  --vic-accent-ink: #007c89; --vic-accent-ink-hover: #00616b;
+  --vic-success: #16a34a; --vic-success-bg: #e6f7ec;
+  --vic-warning: #b26a00; --vic-warning-bg: #fdf3e2;
+  --vic-danger: #c0362c;  --vic-danger-bg: #fbe9e8;
+  --vic-info: #2563eb;    --vic-info-bg: #e4ecfd;
+}
+:root[data-theme="dark"][data-vic-theme="electric"] {
+  --vic-accent: #00F0FF; --vic-accent-hover: #5cf6ff; --vic-accent-soft: #06303a;
+  --vic-accent-line: #0e6571; --vic-sidebar-bg: #050f18;
+  --vic-bg: #060d16; --vic-surface: #0b1824; --vic-surface-alt: #102233;
+  --vic-border: #15303f; --vic-border-strong: #27506a;
+  --vic-text: #e9fbff; --vic-text-muted: #86b3c2;
+  --vic-on-accent: #03242c;
+  --vic-accent-ink: #00F0FF; --vic-accent-ink-hover: #5cf6ff;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #60a5fa;    --vic-info-bg: #14264a;
+}
+
+/* --- Dark variants for the 5 original themes --- */
+:root[data-theme="dark"][data-vic-theme="violet"] {
+  --vic-accent: #8b7cf6; --vic-accent-hover: #a394f8; --vic-accent-soft: #2a2547;
+  --vic-accent-line: #4c4488; --vic-sidebar-bg: #1a1a26;
+  --vic-bg: #14141c; --vic-surface: #1c1c28; --vic-surface-alt: #232330;
+  --vic-border: #2c2c3c; --vic-border-strong: #4a4a5e;
+  --vic-text: #f0f0f5; --vic-text-muted: #9c9cb0;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #60a5fa;    --vic-info-bg: #14264a;
+}
+:root[data-theme="dark"][data-vic-theme="farepoint"] {
+  --vic-accent: #ff4fa8; --vic-accent-hover: #ff77bc; --vic-accent-soft: #3a1530;
+  --vic-accent-line: #6e2d55; --vic-sidebar-bg: #131c38;
+  --vic-bg: #0f1830; --vic-surface: #16213f; --vic-surface-alt: #1d2a4d;
+  --vic-border: #223258; --vic-border-strong: #3c5286;
+  --vic-text: #eef1fb; --vic-text-muted: #9aa6c8;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #60a5fa;    --vic-info-bg: #14264a;
+}
+:root[data-theme="dark"][data-vic-theme="emerald"] {
+  --vic-accent: #2dd4bf; --vic-accent-hover: #5eead4; --vic-accent-soft: #0e2e2a;
+  --vic-accent-line: #1f5a52; --vic-sidebar-bg: #0e1a18;
+  --vic-bg: #0b1615; --vic-surface: #12211f; --vic-surface-alt: #182b28;
+  --vic-border: #1e332f; --vic-border-strong: #375a54;
+  --vic-text: #eaf6f4; --vic-text-muted: #8fada7;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+:root[data-theme="dark"][data-vic-theme="sunset"] {
+  --vic-accent: #fb923c; --vic-accent-hover: #fdba74; --vic-accent-soft: #34220f;
+  --vic-accent-line: #6a4420; --vic-sidebar-bg: #1e1814;
+  --vic-bg: #1a1512; --vic-surface: #241d18; --vic-surface-alt: #2d2520;
+  --vic-border: #3a2e25; --vic-border-strong: #5c4a3c;
+  --vic-text: #f7efe8; --vic-text-muted: #ad9a8b;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #f0abfc;    --vic-info-bg: #3a163e;
+}
+:root[data-theme="dark"][data-vic-theme="ocean"] {
+  --vic-accent: #60a5fa; --vic-accent-hover: #93c5fd; --vic-accent-soft: #122240;
+  --vic-accent-line: #2c4a7a; --vic-sidebar-bg: #0f1928;
+  --vic-bg: #0c1524; --vic-surface: #131e33; --vic-surface-alt: #1a2842;
+  --vic-border: #1f3050; --vic-border-strong: #375079;
+  --vic-text: #eaf1fc; --vic-text-muted: #91a3c4;
+  --vic-success: #4ade80; --vic-success-bg: #14301f;
+  --vic-warning: #fbbf24; --vic-warning-bg: #3a2c0e;
+  --vic-danger: #f87171;  --vic-danger-bg: #3a1618;
+  --vic-info: #38bdf8;    --vic-info-bg: #0e2b3d;
+}
+
+/* -------------------------------------------------------------------------
+   2. MAP onto Frappe's own variables + field-type tokens
+   ------------------------------------------------------------------------- */
+:root {
+  --primary: var(--vic-accent);
+  --primary-color: var(--vic-accent);
+  --btn-primary: var(--vic-accent);
+  --bg-color: var(--vic-bg);
+  --fg-color: var(--vic-surface);
+  --border-color: var(--vic-border);
+  --text-color: var(--vic-text);
+  --text-muted: var(--vic-text-muted);
+  --heading-color: var(--vic-text);
+  --gray-600: var(--vic-text-muted);
+
+  /* text colour that sits ON the accent (buttons, selected pills, section heads) */
+  --vic-on-accent:        #ffffff;
+  /* accent shade used for TEXT / links on normal surfaces (readable on white) */
+  --vic-accent-ink:       var(--vic-accent);
+  --vic-accent-ink-hover: var(--vic-accent-hover);
+
+  --vic-field-currency-bg:    #e8f4fd;
+  --vic-field-currency-line:  #90caf9;
+  --vic-field-currency-text:  #0d47a1;
+  --vic-field-smalltext-bg:   #f0ffe0;
+  --vic-field-smalltext-line: #b6dca0;
+  --vic-field-select-bg:      #ffe8f1;
+  --vic-field-select-line:    #e8b8c8;
+  --vic-field-neutral-bg:     #f7f8fa;
+  --vic-field-neutral-line:   #cfd6de;
+
+  --vic-radius:      8px;
+  --vic-radius-sm:   6px;
+  --vic-radius-lg:   14px;
+  --vic-radius-pill: 999px;
+
+  --vic-shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.06);
+  --vic-shadow-md:   0 4px 14px rgba(0, 0, 0, 0.10);
+  --vic-shadow-lg:   0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+:root[data-theme="dark"] {
+  --vic-field-currency-bg:    #0e2a48;
+  --vic-field-currency-line:  #1c4a7a;
+  --vic-field-currency-text:  #a8d4ff;
+  --vic-field-smalltext-bg:   #14301f;
+  --vic-field-smalltext-line: #2d5a3c;
+  --vic-field-select-bg:      #3a1630;
+  --vic-field-select-line:    #6a2c56;
+  --vic-field-neutral-bg:     #1c1c28;
+  --vic-field-neutral-line:   #3a3a4a;
+
+  --vic-shadow-sm:   0 1px 3px rgba(0, 0, 0, 0.35);
+  --vic-shadow-md:   0 4px 14px rgba(0, 0, 0, 0.45);
+  --vic-shadow-lg:   0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* -------------------------------------------------------------------------
+   3. BUTTONS — pill shape + hover
+   ------------------------------------------------------------------------- */
+.btn {
+  border-radius: var(--vic-radius-pill);
+  transition: background-color 0.12s linear, border-color 0.12s linear,
+              color 0.12s linear, box-shadow 0.12s linear, transform 0.12s linear;
+}
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+.btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-primary,
+.btn-primary:not(:disabled):not(.disabled) {
+  background-color: var(--vic-accent);
+  border-color: var(--vic-accent);
+  color: var(--vic-on-accent);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--vic-accent-hover);
+  border-color: var(--vic-accent-hover);
+  color: var(--vic-on-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+}
+
+.btn-default,
+.btn-secondary,
+.btn-outline-primary,
+.btn-outline-secondary {
+  background-color: var(--vic-surface);
+  border: 1px solid var(--vic-accent);
+  color: var(--vic-accent-ink);
+}
+.btn-default:hover,
+.btn-secondary:hover,
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover {
+  background-color: var(--vic-accent-soft);
+  border-color: var(--vic-accent-hover);
+  color: var(--vic-accent-ink-hover);
+}
+
+.btn:disabled,
+.btn.disabled {
+  background-color: var(--vic-surface-alt);
+  border: 1px solid var(--vic-border);
+  color: var(--vic-text-muted);
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-group .btn {
+  border: 1px solid var(--vic-border);
+  background-color: var(--vic-surface);
+  color: var(--vic-text);
+  border-radius: var(--vic-radius-pill);
+}
+.btn-group .btn:hover {
+  background-color: var(--vic-accent-soft);
+  color: var(--vic-accent-ink);
+}
+.btn-group .btn.active,
+.btn-group .btn.btn-active {
+  background-color: var(--vic-accent);
+  border-color: var(--vic-accent);
+  color: var(--vic-on-accent);
+}
+
+/* -------------------------------------------------------------------------
+   4. NAVBAR, LINKS, WORKSPACE CHROME
+   ------------------------------------------------------------------------- */
+a { color: var(--vic-accent-ink); }
+a:hover { color: var(--vic-accent-ink-hover); }
+
+.navbar,
+.page-head {
+  background-color: var(--vic-surface);
+  border-color: var(--vic-border);
+}
+.navbar {
+  border-bottom: 2px solid var(--vic-accent-line);
+}
+.page-head .page-title .title-text {
+  font-weight: 700;
+  color: var(--vic-text);
+}
+
+.layout-main,
+.page-container,
+.workspace-container {
+  background-color: var(--vic-bg);
+}
+
+.workspace-shortcut,
+.widget.shortcut-widget-box {
+  border-radius: var(--vic-radius);
+  border: 1px solid var(--vic-border);
+  background-color: var(--vic-surface);
+  transition: border-color 0.1s linear, background-color 0.1s linear;
+}
+.workspace-shortcut:hover,
+.widget.shortcut-widget-box:hover {
+  border-color: var(--vic-accent);
+  background-color: var(--vic-accent-soft);
+}
+
+/* -------------------------------------------------------------------------
+   4b. SOFT-TINTED SIDEBAR
+   ------------------------------------------------------------------------- */
+.desk-sidebar,
+.body-sidebar,
+.layout-side-section,
+.layout-side-section .sidebar-menu {
+  background-color: var(--vic-sidebar-bg);
+  color: var(--vic-text);
+  border-right: 1px solid var(--vic-accent-line);
+}
+
+.desk-sidebar .sidebar-label,
+.desk-sidebar .sidebar-section-label,
+.body-sidebar .sidebar-label,
+.sidebar-menu .sidebar-label {
+  color: var(--vic-text-muted);
+  text-transform: uppercase;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 8px 14px 4px;
+}
+
+.desk-sidebar .standard-sidebar-item,
+.desk-sidebar .sidebar-item,
+.body-sidebar .standard-sidebar-item,
+.body-sidebar .sidebar-item,
+.sidebar-menu .standard-sidebar-item,
+.sidebar-menu .sidebar-item {
+  color: var(--vic-text);
+  border-radius: var(--vic-radius-pill);
+  background-color: transparent;
+  transition: background-color 0.1s linear;
+}
+
+.desk-sidebar .standard-sidebar-item:hover,
+.desk-sidebar .sidebar-item:hover,
+.body-sidebar .standard-sidebar-item:hover,
+.body-sidebar .sidebar-item:hover,
+.sidebar-menu .standard-sidebar-item:hover,
+.sidebar-menu .sidebar-item:hover {
+  background-color: var(--vic-surface);
+  color: var(--vic-accent-ink);
+}
+
+.desk-sidebar .standard-sidebar-item.selected,
+.desk-sidebar .sidebar-item.selected,
+.body-sidebar .standard-sidebar-item.selected,
+.body-sidebar .sidebar-item.selected,
+.sidebar-menu .standard-sidebar-item.selected,
+.sidebar-menu .sidebar-item.selected,
+.desk-sidebar .list-sidebar .selected a,
+.body-sidebar .list-sidebar .selected a {
+  background-color: var(--vic-accent);
+  color: var(--vic-on-accent);
+  font-weight: 600;
+}
+
+.desk-sidebar .standard-sidebar-item .icon,
+.desk-sidebar .sidebar-item .icon,
+.body-sidebar .standard-sidebar-item .icon,
+.body-sidebar .sidebar-item .icon {
+  color: inherit;
+  opacity: 0.75;
+}
+.desk-sidebar .standard-sidebar-item:hover .icon,
+.body-sidebar .standard-sidebar-item:hover .icon,
+.desk-sidebar .standard-sidebar-item.selected .icon,
+.body-sidebar .standard-sidebar-item.selected .icon {
+  opacity: 1;
+}
+
+.desk-sidebar .sidebar-item-container,
+.body-sidebar .sidebar-item-container {
+  color: var(--vic-text);
+}
+
+:root[data-theme="dark"] .desk-sidebar,
+:root[data-theme="dark"] .body-sidebar,
+:root[data-theme="dark"] .layout-side-section,
+:root[data-theme="dark"] .layout-side-section .sidebar-menu {
+  background-color: var(--vic-sidebar-bg);
+  color: var(--vic-text);
+  border-right: 1px solid var(--vic-border);
+}
+:root[data-theme="dark"] .desk-sidebar .standard-sidebar-item:hover,
+:root[data-theme="dark"] .body-sidebar .standard-sidebar-item:hover,
+:root[data-theme="dark"] .sidebar-menu .standard-sidebar-item:hover {
+  background-color: var(--vic-accent-soft);
+  color: var(--vic-accent-ink);
+}
+:root[data-theme="dark"] .desk-sidebar .standard-sidebar-item.selected,
+:root[data-theme="dark"] .body-sidebar .standard-sidebar-item.selected,
+:root[data-theme="dark"] .sidebar-menu .standard-sidebar-item.selected {
+  background-color: var(--vic-accent);
+  color: var(--vic-on-accent);
+}
+
+/* -------------------------------------------------------------------------
+   5. STATUS PILLS
+   ------------------------------------------------------------------------- */
+.indicator-pill,
+.filterable {
+  border-radius: var(--vic-radius-pill);
+  font-weight: 500;
+  font-size: 12px;
+  padding: 2px 10px;
+  border: none;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.indicator-pill.green,  .filterable.green  { background-color: var(--vic-success-bg); color: var(--vic-success); }
+.indicator-pill.orange, .filterable.orange { background-color: var(--vic-warning-bg); color: var(--vic-warning); }
+.indicator-pill.red,    .filterable.red    { background-color: var(--vic-danger-bg);  color: var(--vic-danger);  }
+.indicator-pill.blue,   .filterable.blue   { background-color: var(--vic-info-bg);    color: var(--vic-info);    }
+.indicator-pill.gray,
+.indicator-pill.grey,
+.filterable.gray,
+.filterable.grey                            { background-color: var(--vic-surface-alt); color: var(--vic-text-muted); }
+
+/* -------------------------------------------------------------------------
+   6. LISTS / TABLES — intentionally NOT styled.
+   List view, report view and child-table grids use Frappe's default look
+   (row height, header, hover, spacing). Only the theme colours and the
+   custom checkboxes in section 8 still apply to tables.
+   ------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------
+   7. CARDS
+   ------------------------------------------------------------------------- */
+.widget,
+.dashboard-widget-box,
+.card,
+.kanban-card {
+  border-radius: var(--vic-radius);
+  border: 1px solid var(--vic-border);
+  background-color: var(--vic-surface);
+}
+
+/* -------------------------------------------------------------------------
+   8. CUSTOM TABLE CHECKBOXES
+   ------------------------------------------------------------------------- */
+.grid-body .grid-row .grid-static-col input[type="checkbox"],
+.grid-body .grid-row .grid-row-checkbox,
+.grid-heading-row input[type="checkbox"],
+.list-row-checkbox,
+input[type="checkbox"].input-with-feedback {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--vic-border-strong);
+  border-radius: 4px;
+  background-color: var(--vic-surface);
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  transition: background-color 0.1s linear, border-color 0.1s linear;
+}
+.grid-body .grid-row .grid-static-col input[type="checkbox"]:hover,
+.grid-body .grid-row .grid-row-checkbox:hover,
+.grid-heading-row input[type="checkbox"]:hover,
+.list-row-checkbox:hover,
+input[type="checkbox"].input-with-feedback:hover {
+  border-color: var(--vic-accent);
+}
+.grid-body .grid-row .grid-static-col input[type="checkbox"]:checked,
+.grid-body .grid-row .grid-row-checkbox:checked,
+.grid-heading-row input[type="checkbox"]:checked,
+.list-row-checkbox:checked,
+input[type="checkbox"].input-with-feedback:checked {
+  background-color: var(--vic-accent);
+  border-color: var(--vic-accent);
+}
+.grid-body .grid-row .grid-static-col input[type="checkbox"]:checked::after,
+.grid-body .grid-row .grid-row-checkbox:checked::after,
+.grid-heading-row input[type="checkbox"]:checked::after,
+.list-row-checkbox:checked::after,
+input[type="checkbox"].input-with-feedback:checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--vic-on-accent);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.grid-row.row-selected .data-row td,
+.list-row-container.selected .list-row {
+  background-color: var(--vic-accent-soft);
+}
+
+/* -------------------------------------------------------------------------
+   9. FORM SECTIONS & TABS
+   FIX: overflow is VISIBLE (was hidden) so Link dropdowns are never clipped.
+   Rounded corners are applied to the header instead.
+   ------------------------------------------------------------------------- */
+.form-section {
+  border: 1px solid var(--vic-border);
+  border-radius: var(--vic-radius);
+  margin-bottom: 16px;
+  background: var(--vic-surface);
+  overflow: visible;
+  box-shadow: var(--vic-shadow-sm);
+}
+.form-section .section-head {
+  background: var(--vic-accent);
+  color: var(--vic-on-accent);
+  padding: 1px 8px;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: var(--vic-radius) var(--vic-radius) 0 0;
+  margin: 0 0 10px 0; /* Changed from -1px to 0 to remove the overlap/thick edge */
+}
+.form-section .section-body,
+.form-section .form-column,
+.form-tabs .tab-content,
+.form-page {
+  overflow: visible;
+}
+.form-tabs .nav-tabs {
+  border-bottom: 2px solid var(--vic-accent);
+  background: var(--vic-surface-alt);
+  border-radius: var(--vic-radius) var(--vic-radius) 0 0;
+  padding: 6px 8px 0 8px;
+}
+.form-tabs .nav-tabs .nav-link {
+  background: var(--vic-surface);
+  color: var(--vic-text-muted);
+  border: 1px solid var(--vic-border);
+  border-bottom: none;
+  margin: 0 4px 0 0;
+  border-radius: var(--vic-radius-pill) var(--vic-radius-pill) 0 0;
+  font-weight: 600;
+  padding: 6px 16px;
+}
+.form-tabs .nav-tabs .nav-link:hover {
+  background: var(--vic-accent-soft);
+  color: var(--vic-accent-ink);
+}
+.form-tabs .nav-tabs .nav-link.active {
+  background: var(--vic-accent);
+  color: var(--vic-on-accent);
+  border-color: var(--vic-accent);
+}
+
+/* -------------------------------------------------------------------------
+   10. FIELD-TYPE ACCENTS
+   ------------------------------------------------------------------------- */
+.frappe-control[data-fieldtype="Currency"] input,
+.frappe-control[data-fieldtype="Float"] input,
+.frappe-control[data-fieldtype="Int"] input {
+  background-color: var(--vic-field-currency-bg);
+  border: 2px solid var(--vic-field-currency-line);
+  border-radius: 4px;
+  color: var(--vic-field-currency-text);
+  font-weight: 600;
+  text-align: right;
+}
+.frappe-control[data-fieldtype="Currency"] .control-input,
+.frappe-control[data-fieldtype="Float"] .control-input,
+.frappe-control[data-fieldtype="Int"] .control-input {
+  border-left: 4px solid var(--vic-success);
+  border-radius: 4px;
+}
+.frappe-control[data-fieldtype="Small Text"] textarea {
+  background-color: var(--vic-field-smalltext-bg);
+  border: 2px solid var(--vic-field-smalltext-line);
+  border-radius: 4px;
+  color: var(--vic-field-currency-text);
+  font-weight: 600;
+}
+.frappe-control[data-fieldtype="Small Text"] .control-input {
+  border-left: 4px solid var(--vic-border);
+  border-radius: 4px;
+}
+.frappe-control[data-fieldtype="Select"] select {
+  background-color: var(--vic-field-select-bg);
+  border: 2px solid var(--vic-field-select-line);
+  border-radius: 4px;
+}
+.frappe-control[data-fieldtype="Select"] .control-input {
+  border-left: 4px solid var(--vic-info);
+  border-radius: 4px;
+}
+.frappe-control[data-fieldtype="Link"] input,
+.frappe-control[data-fieldtype="Dynamic Link"] input {
+  background-color: var(--vic-field-neutral-bg);
+  border: 2px solid var(--vic-field-neutral-line);
+  border-radius: 4px;
+}
+/* Link fields: let the dropdown escape the field box (no clipping) */
+.frappe-control[data-fieldtype="Link"] .control-input,
+.frappe-control[data-fieldtype="Dynamic Link"] .control-input {
+  border-left: 4px solid var(--vic-info);
+  border-radius: 4px;
+  overflow: visible;
+}
+.frappe-control[data-fieldtype="Link"],
+.frappe-control[data-fieldtype="Dynamic Link"],
+.frappe-control[data-fieldtype="Link"] .control-input-wrapper,
+.frappe-control[data-fieldtype="Dynamic Link"] .control-input-wrapper {
+  overflow: visible;
+}
+.frappe-control[data-fieldtype="Data"] input,
+.frappe-control[data-fieldtype="Date"] input,
+.frappe-control[data-fieldtype="Text"] textarea {
+  background-color: var(--vic-field-neutral-bg);
+  border: 2px solid var(--vic-field-neutral-line);
+  border-radius: 4px;
+}
+.frappe-control[data-fieldtype="Data"] .control-input,
+.frappe-control[data-fieldtype="Date"] .control-input,
+.frappe-control[data-fieldtype="Text"] .control-input {
+  border-left: 4px solid var(--vic-border);
+  border-radius: 4px;
+}
+.frappe-control input,
+.frappe-control select,
+.frappe-control textarea {
+  border: 2px solid var(--vic-border-strong);
+  border-radius: 4px;
+}
+
+/* Field hover */
+.frappe-control input:hover,
+.frappe-control select:hover,
+.frappe-control textarea:hover {
+  border-color: var(--vic-accent);
+  background-color: var(--vic-accent-soft);
+  transition: background-color 0.08s linear, border-color 0.08s linear;
+}
+.frappe-control[data-fieldtype="Currency"] input:hover,
+.frappe-control[data-fieldtype="Float"] input:hover,
+.frappe-control[data-fieldtype="Int"] input:hover {
+  background-color: #d8ebfb;
+  border-color: var(--vic-accent);
+  color: var(--vic-field-currency-text);
+}
+.frappe-control[data-fieldtype="Small Text"] textarea:hover {
+  background-color: #e4f7d0;
+  border-color: var(--vic-accent);
+}
+.frappe-control[data-fieldtype="Select"] select:hover {
+  background-color: #ffd9e8;
+  border-color: var(--vic-accent);
+}
+.frappe-control[data-fieldtype="Link"] input:hover,
+.frappe-control[data-fieldtype="Dynamic Link"] input:hover,
+.frappe-control[data-fieldtype="Data"] input:hover,
+.frappe-control[data-fieldtype="Date"] input:hover,
+.frappe-control[data-fieldtype="Text"] textarea:hover {
+  background-color: var(--vic-accent-soft);
+  border-color: var(--vic-accent);
+}
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Currency"] input:hover,
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Float"] input:hover,
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Int"] input:hover {
+  background-color: #14395f;
+  border-color: var(--vic-accent);
+}
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Small Text"] textarea:hover {
+  background-color: #1c4029;
+  border-color: var(--vic-accent);
+}
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Select"] select:hover {
+  background-color: #4a1c3d;
+  border-color: var(--vic-accent);
+}
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Link"] input:hover,
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Dynamic Link"] input:hover,
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Data"] input:hover,
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Date"] input:hover,
+:root[data-theme="dark"] .frappe-control[data-fieldtype="Text"] textarea:hover {
+  background-color: var(--vic-accent-soft);
+  border-color: var(--vic-accent);
+}
+
+/* Focus */
+.frappe-control input:focus,
+.frappe-control select:focus,
+.frappe-control textarea:focus {
+  border: 2px solid var(--vic-accent);
+  outline: 2px solid var(--vic-accent-soft);
+  outline-offset: 0;
+  background-color: var(--vic-surface);
+}
+
+/* -------------------------------------------------------------------------
+   11. UTILITY CLASSES
+   ------------------------------------------------------------------------- */
+.vic-stat-bar {
+  height: 4px;
+  border-radius: var(--vic-radius-pill);
+  background-color: var(--vic-border);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.vic-stat-bar > span {
+  display: block;
+  height: 100%;
+  background-color: var(--vic-accent);
+  border-radius: var(--vic-radius-pill);
+}
+.vic-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--vic-radius-pill);
+  border: 1px solid var(--vic-border);
+  background-color: var(--vic-surface);
+  color: var(--vic-text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.vic-pill.active {
+  border-color: var(--vic-accent);
+  color: var(--vic-accent-ink);
+  background-color: var(--vic-accent-soft);
+}
+
+/* -------------------------------------------------------------------------
+   12. THEME SWITCHER (navbar dot)
+   ------------------------------------------------------------------------- */
+.vic-theme-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+.vic-theme-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--vic-border);
+  background: conic-gradient(var(--vic-accent), var(--vic-accent-hover), var(--vic-accent));
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.vic-theme-dot:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px var(--vic-accent-soft);
+}
+
+/* -------------------------------------------------------------------------
+   13. THEME PICKER DIALOG (vic_theme.open_picker) — grid of theme cards
+   (active card border colour is set inline by vic_theme.js)
+   ------------------------------------------------------------------------- */
+.vic-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.vic-picker-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--vic-border);
+  background: var(--vic-surface);
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.vic-picker-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+.vic-picker-icon {
+  font-size: 22px;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.vic-picker-info {
+  flex: 1;
+  min-width: 0;
+}
+.vic-picker-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vic-text);
+  margin-bottom: 6px;
+}
+.vic-picker-swatch {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+}
+.vic-picker-check {
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+@media (max-width: 700px) {
+  .vic-picker-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* -------------------------------------------------------------------------
+   14. LINK-FIELD DROPDOWN (Awesomplete) — the fix
+   Themed surface, readable text, accent highlight, always on top.
+   ------------------------------------------------------------------------- */
+.frappe-control .awesomplete > ul,
+.awesomplete > ul {
+  z-index: 1080 !important;            /* above modals (1050) and sticky headers */
+  background: var(--vic-surface) !important;
+  color: var(--vic-text) !important;
+  border: 2px solid var(--vic-accent);
+  border-radius: var(--vic-radius);
+  box-shadow: var(--vic-shadow-lg);
+  padding: 4px;
+  margin-top: 4px;
+  min-width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  text-shadow: none;
+}
+.awesomplete > ul::before {            /* remove the default little arrow */
+  display: none;
+}
+.awesomplete > ul > li {
+  color: var(--vic-text);
+  background: transparent;
+  border-radius: var(--vic-radius-sm);
+  padding: 6px 10px;
+  cursor: pointer;
+  line-height: 1.35;
+}
+.awesomplete > ul > li p {
+  margin: 0;
+  color: inherit;
+}
+.awesomplete > ul > li .small,
+.awesomplete > ul > li .text-muted,
+.awesomplete > ul > li span.small {
+  color: var(--vic-text-muted);
+}
+.awesomplete > ul > li:hover,
+.awesomplete > ul > li[aria-selected="true"] {
+  background: var(--vic-accent-soft);
+  color: var(--vic-accent-ink);
+}
+.awesomplete > ul > li:hover .small,
+.awesomplete > ul > li[aria-selected="true"] .small {
+  color: var(--vic-accent-ink-hover);
+}
+.awesomplete mark,
+.awesomplete li:hover mark,
+.awesomplete li[aria-selected="true"] mark {
+  background: transparent;
+  color: var(--vic-accent-ink);
+  font-weight: 700;
+  padding: 0;
+}
+/* "Create a new …" / "Advanced Search" rows at the bottom of the list */
+.awesomplete > ul > li[data-value^="__link_option"],
+.awesomplete > ul > li.link-option {
+  border-top: 1px dashed var(--vic-border-strong);
+  margin-top: 4px;
+  padding-top: 8px;
+  color: var(--vic-accent-ink);
+  font-weight: 600;
+}
+
+/* Text inside grid link cells stays readable while editing */
+.grid-row .awesomplete > ul {
+  min-width: 220px;
+}
+
+/* -------------------------------------------------------------------------
+   15. DROPDOWN MENUS, POPOVERS, MODALS, TOASTS
+   ------------------------------------------------------------------------- */
+.dropdown-menu {
+  background: var(--vic-surface);
+  border: 1px solid var(--vic-border);
+  border-radius: var(--vic-radius);
+  box-shadow: var(--vic-shadow-md);
+  padding: 4px;
+}
+.dropdown-menu .dropdown-item,
+.dropdown-menu .dropdown-item a {
+  color: var(--vic-text);
+  border-radius: var(--vic-radius-sm);
+}
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background: var(--vic-accent-soft);
+  color: var(--vic-accent-ink);
+}
+.dropdown-menu .dropdown-divider {
+  border-top-color: var(--vic-border);
+}
+
+.popover {
+  border: 1px solid var(--vic-border);
+  border-radius: var(--vic-radius);
+  background: var(--vic-surface);
+  box-shadow: var(--vic-shadow-md);
+}
+
+.modal-content {
+  background: var(--vic-surface);
+  color: var(--vic-text);
+  border: 1px solid var(--vic-border);
+  border-radius: var(--vic-radius-lg);
+  box-shadow: var(--vic-shadow-lg);
+}
+.modal-header {
+  border-bottom: 1px solid var(--vic-border);
+  border-radius: var(--vic-radius-lg) var(--vic-radius-lg) 0 0;
+  background: var(--vic-accent-soft);
+}
+.modal-header .modal-title {
+  font-weight: 700;
+  color: var(--vic-text);
+}
+.modal-footer {
+  border-top: 1px solid var(--vic-border);
+}
+
+.desk-alert,
+.alert {
+  border-radius: var(--vic-radius);
+  border: 1px solid var(--vic-border);
+  background: var(--vic-surface);
+  color: var(--vic-text);
+  box-shadow: var(--vic-shadow-md);
+}
+
+.progress {
+  background-color: var(--vic-border);
+  border-radius: var(--vic-radius-pill);
+}
+.progress-bar {
+  background-color: var(--vic-accent);
+  border-radius: var(--vic-radius-pill);
+}
+
+/* -------------------------------------------------------------------------
+   16. POLISH — selection, scrollbars, focus rings
+   ------------------------------------------------------------------------- */
+::selection {
+  background: var(--vic-accent-soft);
+  color: var(--vic-text);
+}
+
+html,
+.layout-side-section,
+.modal-body,
+.awesomplete > ul {
+  scrollbar-width: thin;
+  scrollbar-color: var(--vic-border-strong) transparent;
+}
+.layout-side-section::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.awesomplete > ul::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.layout-side-section::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb,
+.awesomplete > ul::-webkit-scrollbar-thumb {
+  background: var(--vic-border-strong);
+  border-radius: var(--vic-radius-pill);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible,
+.standard-sidebar-item:focus-visible,
+.dropdown-item:focus-visible {
+  outline: 2px solid var(--vic-accent);
+  outline-offset: 2px;
+}
+
+/* -------------------------------------------------------------------------
+   17. ACCESSIBILITY — respect reduced-motion
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .vic-theme-dot,
+  .vic-picker-card {
+    transition: none;
+  }
+  .btn:hover,
+  .vic-theme-dot:hover,
+  .vic-picker-card:hover {
+    transform: none;
+  }
+}

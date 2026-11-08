@@ -1,5 +1,5 @@
 """
-ecclesia.erequest/api/portal.py
+ecclesia_erequest/api/portal.py
 ─────────────────────────────────────────────────────────────────────────────
 Portal API endpoints.
 

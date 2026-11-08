@@ -229,6 +229,7 @@ def get_data(filters):
         raw_rows.append({
             "account_code":   meta.get("account_number") or "",
             "account_name":   meta["account_name"],
+            "account":        meta["name"],  # Add this for linking
             "account_type":   root_type,
             "parent_account": meta.get("parent_account") or "",
             "debit":          debit,
@@ -253,6 +254,7 @@ def get_data(filters):
         raw_rows.append({
             "account_code":   "",
             "account_name":   "Current Year Profit / (Loss)",
+            "account":        None,  # No account link for synthetic row
             "account_type":   "Equity",
             "parent_account": "Retained Earnings",
             "debit":          0.0                if synthetic_bal < 0 else synthetic_bal,

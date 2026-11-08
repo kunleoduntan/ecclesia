@@ -4,13 +4,23 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2026-06-23 13:26:36.080895",
+ "modified": "2026-09-02 16:10:03.412402",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "ecclesia",
  "owner": "Administrator",
  "page_name": "ecclesia",
- "roles": [],
+ "roles": [
+  {
+   "role": "Accounts Manager"
+  },
+  {
+   "role": "Accounts User"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
  "script": null,
  "standard": "Yes",
  "style": null,

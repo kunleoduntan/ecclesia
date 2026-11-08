@@ -79,8 +79,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Status",
-   "options": "Draft\nSubmitted\nCancelled",
-   "read_only": 1
+   "options": "Draft\nSubmitted\nCancelled"
   },
   {
    "fieldname": "amended_from",
@@ -149,7 +148,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-04-13 08:15:31.520121",
+ "modified": "2026-07-30 19:14:31.053715",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Journal Entry Voucher",

@@ -19,7 +19,7 @@ def policy_query_condition(user):
 
 
 """
-ecclesia.erequest/utils/permissions.py
+ecclesia_erequest/utils/permissions.py
 ─────────────────────────────────────────────────────────────────────────────
 Custom permission logic for eRequest.
 Employees can only see their own requests; managers/finance/admin see all.

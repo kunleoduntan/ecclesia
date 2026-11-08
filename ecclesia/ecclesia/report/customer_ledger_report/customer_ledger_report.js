@@ -1,256 +1,144 @@
 // Copyright (c) 2024, Ecclesia and contributors
 // For license information, please see license.txt
 
+// ── Palette (soft tints so it works in light and dark desk themes) ──
+const CLR = {
+    accent:   "#1F3A5F",                 // navy
+    band:     "rgba(31, 58, 95, 0.10)",  // customer header band
+    subtle:   "rgba(31, 58, 95, 0.05)",  // subtotal band
+    line:     "rgba(31, 58, 95, 0.35)",
+    debit:    "#1D4ED8",                 // blue
+    credit:   "#0F766E",                 // teal
+    owing:    "#B45309",                 // amber  (customer owes)
+    negative: "#B91C1C",                 // red    (customer in credit)
+    muted:    "#6B7280"
+};
+
 frappe.query_reports["Customer Ledger Report"] = {
-    "filters": [
+    filters: [
         {
-            "fieldname": "company",
-            "label": __("Company"),
-            "fieldtype": "Link",
-            "options": "Company",
-            "default": frappe.defaults.get_user_default("Company"),
-            "reqd": 1
+            fieldname: "company",
+            label: __("Company"),
+            fieldtype: "Link",
+            options: "Company",
+            default: frappe.defaults.get_user_default("Company"),
+            reqd: 1
         },
         {
-            "fieldname": "from_date",
-            "label": __("From Date"),
-            "fieldtype": "Date",
-            "default": frappe.datetime.add_months(frappe.datetime.get_today(), -1),
-            "reqd": 1
+            fieldname: "from_date",
+            label: __("From Date"),
+            fieldtype: "Date",
+            default: frappe.datetime.add_months(frappe.datetime.get_today(), -1),
+            reqd: 1
         },
         {
-            "fieldname": "to_date",
-            "label": __("To Date"),
-            "fieldtype": "Date",
-            "default": frappe.datetime.get_today(),
-            "reqd": 1
+            fieldname: "to_date",
+            label: __("To Date"),
+            fieldtype: "Date",
+            default: frappe.datetime.get_today(),
+            reqd: 1
         },
         {
-            "fieldname": "customer",
-            "label": __("Customer"),
-            "fieldtype": "Link",
-            "options": "Customer"
+            fieldname: "customer",
+            label: __("Customer"),
+            fieldtype: "Link",
+            options: "Customer"
         }
     ],
 
-    "formatter": function(value, row, column, data, default_formatter) {
+    formatter: function (value, row, column, data, default_formatter) {
         value = default_formatter(value, row, column, data);
 
-        if (!data) return value;
+        // spacer rows / empty rows
+        if (!data || !Object.keys(data).length) return value;
 
-        // Customer Header Row
+        const f = column.fieldname;
+        const money = (v) => frappe.format(v || 0, { fieldtype: "Currency", options: "currency" }, {}, data);
+        const esc = (v) => frappe.utils.escape_html(v || "");
+        const cell = (inner, css = "") =>
+            `<div style="margin:-4px -8px;padding:7px 10px;${css}">${inner}</div>`;
+        const balColor = (b) => (b > 0 ? CLR.owing : b < 0 ? CLR.negative : CLR.muted);
+
+        // ── Customer header band ───────────────────────────────────
         if (data.is_header_row) {
-            if (column.fieldname === "posting_date") {
-                return `<div style="
-                    background: linear-gradient(90deg, #1E3F6E 0%, #2C5A9E 100%);
-                    margin: -4px -8px;
-                    padding: 8px 12px;
-                    color: white;
-                    font-weight: 700;
-                    font-size: 13px;
-                ">⬤ ${frappe.utils.escape_html(data.customer_name || '')} 
-                <span style="font-size:11px; opacity:0.8;">[${frappe.utils.escape_html(data.customer || '')}]</span>
-                </div>`;
-            }
-            if (column.fieldname === "balance" && data.balance) {
-                const color = data.balance > 0 ? "#90caf9" : "#ef9a9a";
-                return `<div style="
-                    background: linear-gradient(90deg, #1E3F6E 0%, #2C5A9E 100%);
-                    margin: -4px -8px;
-                    padding: 8px 12px;
-                    color: ${color};
-                    font-size: 11px;
-                    text-align: right;
-                ">Opening: ${frappe.format(data.balance, {fieldtype: "Currency"})}</div>`;
-            }
-            if (column.fieldname !== "posting_date" && column.fieldname !== "balance") {
-                return `<div style="
-                    background: linear-gradient(90deg, #1E3F6E 0%, #2C5A9E 100%);
-                    margin: -4px -8px;
-                    padding: 8px 12px;
-                "></div>`;
-            }
+            const band = `background:${CLR.band};`;
+            const accent = f === "posting_date" ? `border-left:3px solid ${CLR.accent};` : "";
+
+            if (f === "customer_name")
+                return cell(esc(data.customer_name), `${band}font-weight:700;font-size:13px;`);
+            if (f === "customer")
+                return cell(esc(data.customer), `${band}color:${CLR.muted};font-size:11px;`);
+            if (f === "description" && data.balance)
+                return cell("Opening balance", `${band}color:${CLR.muted};font-size:11px;text-align:right;`);
+            if (f === "balance" && data.balance)
+                return cell(money(data.balance), `${band}font-weight:600;text-align:right;color:${balColor(data.balance)};`);
+            return cell("", band + accent);
         }
 
-        // Subtotal Row
+        // ── Subtotal row ───────────────────────────────────────────
         if (data.is_total_row) {
-            const bgColor = "#E6F0FA";
-            
-            if (column.fieldname === "customer_name") {
-                return `<div style="
-                    background-color: ${bgColor};
-                    margin: -4px -8px;
-                    padding: 6px 12px;
-                    font-weight: 700;
-                    color: #1E3F6E;
-                    border-top: 2px solid #2C5A9E;
-                ">${frappe.utils.escape_html(data.customer_name || '')}</div>`;
-            }
-            
-            if (column.fieldname === "debit") {
-                return `<div style="
-                    background-color: ${bgColor};
-                    margin: -4px -8px;
-                    padding: 6px 12px;
-                    font-weight: 700;
-                    color: #2568B2;
-                    text-align: right;
-                    border-top: 2px solid #2C5A9E;
-                ">${frappe.format(data.debit || 0, {fieldtype: "Currency"})}</div>`;
-            }
-            
-            if (column.fieldname === "credit") {
-                return `<div style="
-                    background-color: ${bgColor};
-                    margin: -4px -8px;
-                    padding: 6px 12px;
-                    font-weight: 700;
-                    color: #1E7E34;
-                    text-align: right;
-                    border-top: 2px solid #2C5A9E;
-                ">${frappe.format(data.credit || 0, {fieldtype: "Currency"})}</div>`;
-            }
-            
-            if (column.fieldname === "balance") {
-                const color = data.balance > 0 ? "#E67E22" : data.balance < 0 ? "#C0392B" : "#1E7E34";
-                return `<div style="
-                    background-color: ${bgColor};
-                    margin: -4px -8px;
-                    padding: 6px 12px;
-                    font-weight: 700;
-                    color: ${color};
-                    text-align: right;
-                    border-top: 2px solid #2C5A9E;
-                ">${frappe.format(data.balance || 0, {fieldtype: "Currency"})}</div>`;
-            }
-            
-            if (column.fieldname === "description") {
-                return `<div style="
-                    background-color: ${bgColor};
-                    margin: -4px -8px;
-                    padding: 6px 12px;
-                    font-style: italic;
-                    color: #555;
-                    border-top: 2px solid #2C5A9E;
-                ">${frappe.utils.escape_html(data.description || '')}</div>`;
-            }
-            
-            return `<div style="
-                background-color: ${bgColor};
-                margin: -4px -8px;
-                padding: 6px 12px;
-                border-top: 2px solid #2C5A9E;
-            "></div>`;
+            const base = `background:${CLR.subtle};border-top:1px solid ${CLR.line};font-weight:700;`;
+            if (f === "customer_name") return cell(esc(data.customer_name), base);
+            if (f === "description")   return cell(esc(data.description), `${base}color:${CLR.muted};font-weight:500;text-align:right;`);
+            if (f === "debit")         return cell(money(data.debit),  `${base}color:${CLR.debit};text-align:right;`);
+            if (f === "credit")        return cell(money(data.credit), `${base}color:${CLR.credit};text-align:right;`);
+            if (f === "balance")       return cell(money(data.balance), `${base}color:${balColor(data.balance)};text-align:right;`);
+            return cell("", base);
         }
 
-        // Normal Transaction Rows
-        if (column.fieldname === "balance") {
-            const color = data.balance > 0 ? "#E67E22" : data.balance < 0 ? "#C0392B" : "#555";
-            return `<span style="color: ${color}; font-weight: 600;">${value}</span>`;
+        // ── Grand total row ────────────────────────────────────────
+        if (data.is_grand_total) {
+            const base = `background:${CLR.accent};color:#fff;font-weight:700;padding:9px 10px;`;
+            const wrap = (inner, extra = "") => `<div style="margin:-4px -8px;${base}${extra}">${inner}</div>`;
+            if (f === "description") return wrap(esc(data.description), "text-align:right;");
+            if (f === "debit")       return wrap(money(data.debit),   "text-align:right;");
+            if (f === "credit")      return wrap(money(data.credit),  "text-align:right;");
+            if (f === "balance")     return wrap(money(data.balance), "text-align:right;font-size:13px;");
+            return wrap("");
         }
 
-        if (column.fieldname === "debit" && data.debit > 0) {
-            return `<span style="color: #2568B2;">${value}</span>`;
-        }
+        // ── Normal transaction rows ────────────────────────────────
+        // customer is already shown in the header band, so keep rows clean
+        if (f === "customer" || f === "customer_name") return "";
 
-        if (column.fieldname === "credit" && data.credit > 0) {
-            return `<span style="color: #1E7E34;">${value}</span>`;
+        if (f === "debit" || f === "credit") {
+            const v = data[f];
+            if (!v) return `<span style="color:${CLR.muted};opacity:.4;">${value}</span>`;
+            return `<span style="color:${f === "debit" ? CLR.debit : CLR.credit};">${value}</span>`;
         }
+        if (f === "balance")
+            return `<span style="color:${balColor(data.balance)};font-weight:600;">${value}</span>`;
+        if (f === "voucher_type" || f === "against_voucher")
+            return `<span style="color:${CLR.muted};">${value}</span>`;
 
         return value;
     },
 
-    "onload": function(report) {
-        // Add Export to Excel button
-        report.page.add_inner_button(__("Export to Excel"), function() {
-            download_excel(report);
-        });
+    onload: function (report) {
+        report.page.add_inner_button(__("Export to Excel"), () => download_excel(report));
 
-        // Add Toggle Grouping button
-        report.page.add_inner_button(__("Toggle Grouping"), function() {
-            toggle_grouping(report);
-        });
-
-        // Add Expand All button
-        report.page.add_inner_button(__("Expand All"), function() {
-            expand_all(report);
-        });
-
-        // Add Collapse All button
-        report.page.add_inner_button(__("Collapse All"), function() {
-            collapse_all(report);
-        });
-
-        // Keyboard shortcuts
-        report.page.wrapper.on("keydown", function(e) {
-            if (e.ctrlKey && e.key === 'e') {
+        report.page.wrapper.on("keydown", function (e) {
+            if (e.ctrlKey && e.key === "e") {
                 e.preventDefault();
                 download_excel(report);
-            }
-            if (e.ctrlKey && e.key === 'g') {
-                e.preventDefault();
-                toggle_grouping(report);
             }
         });
     }
 };
 
-// Download Excel function - FIXED
 function download_excel(report) {
     const filters = report.get_values();
 
-    // Validate required filters
     if (!filters.company || !filters.from_date || !filters.to_date) {
         frappe.msgprint(__("Please set Company, From Date and To Date before exporting."));
         return;
     }
 
-    // Show loading message
-    frappe.show_alert({
-        message: __("Preparing Excel export..."),
-        indicator: "blue"
-    }, 3);
+    frappe.show_alert({ message: __("Preparing Excel export..."), indicator: "blue" }, 3);
 
-    // Build URL for download
-    const params = new URLSearchParams({
-        cmd: "ecclesia.ecclesia.report.customer_ledger_report.customer_ledger_report.download_excel",
-        filters: JSON.stringify(filters)
-    });
-
-    // Trigger download
-    window.open(`/api/method/ecclesia.ecclesia.report.customer_ledger_report.customer_ledger_report.download_excel?${params.toString()}`, "_blank");
-}
-
-// Toggle Grouping function - FIXED
-function toggle_grouping(report) {
-    if (!report.datatable) return;
-    
-    const current = report.datatable.options.tree;
-    report.datatable.options.tree = !current;
-    report.datatable.refresh();
-    
-    frappe.show_alert({
-        message: current ? __("Grouping Disabled") : __("Grouping Enabled"),
-        indicator: "blue"
-    }, 2);
-}
-
-// Expand All function
-function expand_all(report) {
-    if (!report.datatable) return;
-    report.datatable.rowManager.expandAllNodes();
-    frappe.show_alert({
-        message: __("All rows expanded"),
-        indicator: "green"
-    }, 2);
-}
-
-// Collapse All function
-function collapse_all(report) {
-    if (!report.datatable) return;
-    report.datatable.rowManager.collapseAllNodes();
-    frappe.show_alert({
-        message: __("All rows collapsed"),
-        indicator: "orange"
-    }, 2);
+    const params = new URLSearchParams({ filters: JSON.stringify(filters) });
+    window.open(
+        `/api/method/ecclesia.ecclesia.report.customer_ledger_report.customer_ledger_report.download_excel?${params.toString()}`,
+        "_blank"
+    );
 }

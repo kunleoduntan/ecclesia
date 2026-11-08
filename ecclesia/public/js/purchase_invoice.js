@@ -18,7 +18,7 @@ frappe.ui.form.on("Purchase Invoice", {
                 filters: { 
                     is_group: 0, 
                     company: frm.doc.company,
-                    account_type: ["in", ["Payable", "Expense Account" , "Current Asset"]] 
+                    account_type: ["in", ["Payable", "Expense Account" ,"Capital Work in Progress", "Current Asset", ""]] 
                 } 
             };
         });
@@ -28,7 +28,7 @@ frappe.ui.form.on("Purchase Invoice", {
                 filters: { 
                     is_group: 0,
                     company: frm.doc.company,
-                    account_type: "Expense Account" 
+                    account_type: ["in", ["Payable", "Expense Account" ,"Capital Work in Progress", "Current Asset"]] 
                 } 
             };
         });

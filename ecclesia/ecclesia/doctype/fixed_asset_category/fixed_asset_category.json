@@ -1,10 +1,9 @@
 {
  "actions": [],
- "allow_events_in_timeline": 1,
  "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:category_name",
- "creation": "2026-02-04 18:18:32.412889",
+ "creation": "2026-08-15 09:39:39.581750",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -12,13 +11,11 @@
   "category_info_section",
   "category_name",
   "category_code",
-  "item_linked_code",
   "column_break_cat1",
   "parent_category",
   "is_group",
   "column_break_cat2",
   "description",
-  "disabled",
   "asset_code_section",
   "asset_code_prefix",
   "asset_code_series_start",
@@ -27,12 +24,8 @@
   "next_asset_number",
   "depreciation_section",
   "enable_depreciation",
-  "depreciation_rate",
   "depreciation_method",
-  "useful_life_years",
   "column_break_dep1",
-  "useful_life_months",
-  "rate_of_depreciation",
   "total_number_of_depreciations",
   "column_break_dep2",
   "frequency_of_depreciation",
@@ -67,7 +60,13 @@
   "warranty_period_months",
   "column_break_add2",
   "insurance_required",
-  "minimum_insurance_amount"
+  "minimum_insurance_amount",
+  "disabled",
+  "item_linked_code",
+  "useful_life_months",
+  "rate_of_depreciation",
+  "depreciation_rate",
+  "useful_life_years"
  ],
  "fields": [
   {
@@ -462,13 +461,14 @@
    "read_only": 1
   }
  ],
+ "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-10-15 18:53:41.758532",
+ "make_attachments_public": 1,
+ "modified": "2026-09-16 10:43:51.706689",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Fixed Asset Category",
- "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
@@ -482,35 +482,12 @@
    "role": "System Manager",
    "share": 1,
    "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts Manager",
-   "share": 1,
-   "write": 1
-  },
-  {
-   "create": 1,
-   "delete": 1,
-   "email": 1,
-   "export": 1,
-   "print": 1,
-   "read": 1,
-   "report": 1,
-   "role": "Accounts User",
-   "share": 1,
-   "write": 1
   }
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "sort_field": "modified",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "creation",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

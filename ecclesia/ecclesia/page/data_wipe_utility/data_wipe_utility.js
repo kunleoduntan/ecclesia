@@ -1,391 +1,374 @@
-
-
 frappe.pages["data-wipe-utility"].on_page_load = function (wrapper) {
-	frappe.ui.make_app_page({
-		parent: wrapper,
-		title: __("Data Wipe Utility"),
-		single_column: true,
-	});
+    frappe.ui.make_app_page({
+        parent: wrapper,
+        title: __("Data Wipe Center"),
+        single_column: true,
+    });
 
-	new DataWipeUtility(wrapper);
+    new DataWipeUtility(wrapper);
 };
 
 class DataWipeUtility {
-	constructor(wrapper) {
-		this.wrapper = wrapper;
-		this.page = wrapper.page;
-		this.company = null;
-		this.all_doctypes = [];
-		this.selected_doctypes = new Set();
-		this.mode = "all"; // 'all' | 'selected'
+    constructor(wrapper) {
+        this.wrapper = wrapper;
+        this.page = wrapper.page;
+        this.company = null;
+        this.all_doctypes = [];
+        this.selected_doctypes = new Set();
+        this.mode = "all";
+        this.theme = localStorage.getItem("dwu-theme") || "ocean";
+        this.running = false;
 
-		this._setup_toolbar();
-		this._render_shell();
-		this._bind_events();
-	}
+        this.render();
+        this.setup_company_field();
+        this.bind_events();
+    }
 
-	// ── Toolbar ──────────────────────────────
-	_setup_toolbar() {
-		this.company_field = this.page.add_field({
-			fieldname: "company",
-			fieldtype: "Link",
-			options: "Company",
-			label: __("Company"),
-			placeholder: __("Filter by Company (optional)"),
-			change: () => {
-				this.company = this.company_field.get_value();
-				this._load_doctypes();
-			},
-		});
-	}
+    render() {
+        $(this.wrapper).find(".page-content").html(`
+            <div class="dwu-wrap" data-theme="${frappe.utils.escape_html(this.theme)}">
+                <div class="dwu-hero">
+                    <div>
+                        <div class="dwu-eyebrow">ERPNext Data Administration</div>
+                        <h1>Data Wipe Center</h1>
+                        <p>Safely reset company business data with preview, verification and detailed failure reporting.</p>
+                    </div>
+                    <div class="dwu-theme-box">
+                        <span>Theme</span>
+                        <select id="dwu-theme">
+                            <option value="ocean">Ocean</option>
+                            <option value="royal">Royal</option>
+                            <option value="emerald">Emerald</option>
+                            <option value="violet">Violet</option>
+                            <option value="rose">Rose</option>
+                            <option value="amber">Amber</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                </div>
 
-	// ── Shell HTML ───────────────────────────
-	_render_shell() {
-		$(this.wrapper).find(".page-content").html(`
-      <div class="dwu-wrap">
+                <div class="dwu-grid">
+                    <section class="dwu-card dwu-card-company">
+                        <div class="dwu-step"><span>01</span> Company</div>
+                        <div class="dwu-title">Choose the company to reset</div>
+                        <div id="dwu-company-field" class="dwu-company-field"></div>
+                        <div class="dwu-note">Only records belonging to the selected company are targeted. System configuration remains protected.</div>
+                    </section>
 
-        <!-- Step 1: Mode selector -->
-        <div class="dwu-card" id="step-mode">
-          <div class="dwu-step-label">Step 1 — Select scope</div>
-          <div class="dwu-mode-row">
-            <button class="dwu-mode-btn active" data-mode="all">
-              <span class="dwu-mode-icon">&#9776;</span>
-              <span>All submittable documents</span>
-            </button>
-            <button class="dwu-mode-btn" data-mode="selected">
-              <span class="dwu-mode-icon">&#9635;</span>
-              <span>Selected document types</span>
-            </button>
-          </div>
-        </div>
+                    <section class="dwu-card">
+                        <div class="dwu-step"><span>02</span> Scope</div>
+                        <div class="dwu-scope-grid">
+                            <button class="dwu-scope active" data-mode="all">
+                                <b>All Company Data</b><small>Transactions and company-owned records</small>
+                            </button>
+                            <button class="dwu-scope" data-mode="selected">
+                                <b>Selected DocTypes</b><small>Choose exactly what to remove</small>
+                            </button>
+                        </div>
+                    </section>
 
-        <!-- Step 2: Doctype picker (shown for 'selected' mode) -->
-        <div class="dwu-card" id="step-picker" style="display:none;">
-          <div class="dwu-step-label">Step 2 — Choose document types</div>
-          <div class="dwu-search-row">
-            <input type="text" id="dwu-search" placeholder="Search document types…" />
-            <button id="dwu-select-all" class="dwu-link-btn">Select all</button>
-            <button id="dwu-clear-all" class="dwu-link-btn">Clear all</button>
-          </div>
-          <div id="dwu-doctype-list" class="dwu-doctype-list">
-            <div class="dwu-loading">Loading document types…</div>
-          </div>
-          <div id="dwu-selection-summary" class="dwu-summary-bar" style="display:none;"></div>
-        </div>
+                    <section class="dwu-card" id="step-picker" style="display:none;">
+                        <div class="dwu-step"><span>03</span> DocTypes</div>
+                        <div class="dwu-toolbar">
+                            <input id="dwu-search" placeholder="Search document types...">
+                            <button class="dwu-mini" id="dwu-select-all">Select visible</button>
+                            <button class="dwu-mini" id="dwu-clear-all">Clear</button>
+                        </div>
+                        <div id="dwu-doctype-list" class="dwu-doctype-list">
+                            <div class="dwu-empty">Select a company to load data.</div>
+                        </div>
+                        <div id="dwu-selection-summary" class="dwu-summary" style="display:none;"></div>
+                    </section>
 
-        <!-- Step 3: Confirm & Execute -->
-        <div class="dwu-card dwu-danger-card" id="step-confirm">
-          <div class="dwu-step-label">Step 3 — Execute wipe</div>
-          <div class="dwu-warning-box">
-            <div class="dwu-warning-icon">&#9888;</div>
-            <div>
-              <strong>This operation is irreversible.</strong>
-              All submitted documents will be cancelled and permanently deleted.
-              Attached files will be <em>unlinked</em> (not deleted from disk).
-              The <strong>Document Audit Log</strong> is never affected.
+                    <section class="dwu-card dwu-danger">
+                        <div class="dwu-step"><span>04</span> Review & Execute</div>
+                        <div class="dwu-warning">
+                            <div class="dwu-warning-icon">!</div>
+                            <div>
+                                <b>This is a destructive operation.</b>
+                                <span>Preview first. A real wipe permanently removes targeted records. Protected system records are never deleted.</span>
+                            </div>
+                        </div>
+
+                        <div class="dwu-actions">
+                            <label class="dwu-confirm">
+                                <input type="checkbox" id="dwu-confirm-check">
+                                <span>I understand that this operation cannot be undone.</span>
+                            </label>
+                            <button id="dwu-dry-run-btn" class="dwu-btn secondary">Preview Data</button>
+                            <button id="dwu-execute-btn" class="dwu-btn danger" disabled>Wipe Data</button>
+                        </div>
+                    </section>
+
+                    <section class="dwu-card" id="step-results" style="display:none;">
+                        <div class="dwu-results-head">
+                            <div>
+                                <div class="dwu-step"><span>05</span> Verification</div>
+                                <div class="dwu-title">Operation results</div>
+                            </div>
+                            <button class="dwu-mini" id="dwu-refresh">Refresh Counts</button>
+                        </div>
+                        <div id="dwu-results-body"></div>
+                    </section>
+                </div>
             </div>
-          </div>
-          <div class="dwu-confirm-row">
-            <label class="dwu-confirm-label">
-              <input type="checkbox" id="dwu-confirm-check" />
-              I understand this action cannot be undone
-            </label>
-            <button id="dwu-dry-run-btn" class="dwu-btn dwu-btn-secondary">
-              Preview (dry run)
-            </button>
-            <button id="dwu-execute-btn" class="dwu-btn dwu-btn-danger" disabled>
-              Wipe Data
-            </button>
-          </div>
-        </div>
 
-        <!-- Results panel -->
-        <div class="dwu-card" id="step-results" style="display:none;">
-          <div class="dwu-step-label">Results</div>
-          <div id="dwu-results-body"></div>
-        </div>
+            <style>
+                .dwu-wrap {
+                    --p:#2563eb; --p2:#1d4ed8; --soft:#eff6ff;
+                    --ok:#16a34a; --danger:#dc2626; --warn:#d97706;
+                    --card:var(--card-bg); --bg:var(--bg-color);
+                    --text:var(--text-color); --muted:var(--text-muted);
+                    --border:var(--border-color);
+                    max-width:1120px;margin:0 auto;padding:24px 16px 48px;color:var(--text);
+                }
+                .dwu-wrap[data-theme="royal"]{--p:#7c3aed;--p2:#6d28d9;--soft:#f5f3ff}
+                .dwu-wrap[data-theme="emerald"]{--p:#059669;--p2:#047857;--soft:#ecfdf5}
+                .dwu-wrap[data-theme="violet"]{--p:#8b5cf6;--p2:#7c3aed;--soft:#f5f3ff}
+                .dwu-wrap[data-theme="rose"]{--p:#e11d48;--p2:#be123c;--soft:#fff1f2}
+                .dwu-wrap[data-theme="amber"]{--p:#d97706;--p2:#b45309;--soft:#fffbeb}
+                .dwu-wrap[data-theme="dark"]{--p:#60a5fa;--p2:#3b82f6;--soft:#172033}
+                .dwu-hero{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:28px;border-radius:20px;
+                    background:linear-gradient(135deg,var(--soft),var(--card));border:1px solid var(--border);margin-bottom:18px;
+                    box-shadow:0 10px 30px rgba(0,0,0,.05)}
+                .dwu-eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:800;color:var(--p)}
+                .dwu-hero h1{margin:6px 0;font-size:30px;letter-spacing:-.03em}.dwu-hero p{margin:0;color:var(--muted)}
+                .dwu-theme-box{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--muted)}
+                #dwu-theme{border:1px solid var(--border);border-radius:10px;padding:8px 12px;background:var(--card);color:var(--text)}
+                .dwu-grid{display:flex;flex-direction:column;gap:16px}.dwu-card{background:var(--card);border:1px solid var(--border);
+                    border-radius:16px;padding:20px;box-shadow:0 5px 20px rgba(0,0,0,.035)}
+                .dwu-step{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800;margin-bottom:10px}
+                .dwu-step span{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;
+                    background:var(--soft);color:var(--p);margin-right:7px}
+                .dwu-title{font-size:18px;font-weight:750;margin-bottom:14px}.dwu-company-field{max-width:420px}
+                .dwu-note{font-size:12px;color:var(--muted);margin-top:10px}.dwu-scope-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+                .dwu-scope{text-align:left;padding:18px;border:1.5px solid var(--border);background:var(--card);color:var(--text);border-radius:13px;cursor:pointer}
+                .dwu-scope b,.dwu-scope small{display:block}.dwu-scope small{margin-top:5px;color:var(--muted)}.dwu-scope:hover,.dwu-scope.active{border-color:var(--p);background:var(--soft)}
+                .dwu-scope.active b{color:var(--p)}.dwu-toolbar{display:flex;gap:8px;margin-bottom:10px}.dwu-toolbar input{flex:1}
+                .dwu-toolbar input,#dwu-search{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;padding:9px 12px}
+                .dwu-mini{border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:9px;padding:8px 11px;cursor:pointer}
+                .dwu-mini:hover{border-color:var(--p);color:var(--p)}.dwu-doctype-list{max-height:390px;overflow:auto;border:1px solid var(--border);border-radius:12px}
+                .dwu-dt-group{padding:9px 12px;background:var(--bg);color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;position:sticky;top:0}
+                .dwu-dt-row{display:flex;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border);cursor:pointer}
+                .dwu-dt-row:hover,.dwu-dt-row.checked{background:var(--soft)}.dwu-dt-name{flex:1;font-weight:600}.dwu-dt-count{font-size:11px;color:var(--muted)}
+                .dwu-summary{margin-top:10px;padding:9px 12px;background:var(--soft);color:var(--p);border-radius:9px;font-size:12px;font-weight:700}
+                .dwu-warning{display:flex;gap:12px;padding:13px 15px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+                [data-theme="dark"] .dwu-warning{background:#302414;color:#fdba74;border-color:#6b4a20}
+                .dwu-warning-icon{width:25px;height:25px;border-radius:50%;background:var(--warn);color:white;text-align:center;line-height:25px;font-weight:800}
+                .dwu-warning span{display:block;margin-top:3px;font-size:12px}.dwu-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+                .dwu-confirm{display:flex;gap:8px;align-items:center;flex:1;font-size:12px}.dwu-btn{border:0;border-radius:10px;padding:10px 18px;font-weight:750;cursor:pointer}
+                .dwu-btn.secondary{background:var(--soft);color:var(--p)}.dwu-btn.danger{background:var(--danger);color:white}.dwu-btn:disabled{opacity:.4;cursor:not-allowed}
+                .dwu-results-head{display:flex;justify-content:space-between;align-items:center}.dwu-result-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+                .dwu-stat{padding:15px;border-radius:12px;background:var(--soft)}.dwu-stat b{display:block;font-size:20px}.dwu-stat span{font-size:11px;color:var(--muted)}
+                .dwu-result-row{display:flex;gap:12px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--border);font-size:12px}
+                .dwu-result-row .name{flex:1;font-weight:650}.ok{color:var(--ok);font-weight:750}.partial{color:var(--warn);font-weight:750}.err{color:var(--danger);font-weight:750}.skip{color:var(--muted);font-weight:700}
+                .dwu-empty{padding:30px;text-align:center;color:var(--muted)}
+                @media(max-width:700px){.dwu-hero{flex-direction:column;align-items:flex-start}.dwu-scope-grid{grid-template-columns:1fr}.dwu-result-summary{grid-template-columns:1fr 1fr}.dwu-toolbar{flex-wrap:wrap}.dwu-toolbar input{min-width:100%}}
+            </style>
+        `);
+        $("#dwu-theme").val(this.theme);
+    }
 
-      </div>
+    setup_company_field() {
+        this.company_control = frappe.ui.form.make_control({
+            parent: $(this.wrapper).find("#dwu-company-field"),
+            df: {
+                fieldtype: "Link", fieldname: "company", options: "Company",
+                label: __("Company"), reqd: 1, placeholder: __("Select Company"),
+                change: () => {
+                    this.company = this.company_control.get_value();
+                    this.on_company_change();
+                }
+            },
+            render_input: true
+        });
+        this.company_control.refresh();
+    }
 
-      <style>
-        .dwu-wrap { padding: 1.5rem 0; max-width: 860px; display: flex; flex-direction: column; gap: 1rem; }
-        .dwu-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1.25rem 1.5rem; }
-        .dwu-danger-card { border-color: #e04a4a33; }
-        .dwu-step-label { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; }
+    bind_events() {
+        const $root = $(this.wrapper).find(".dwu-wrap");
 
-        /* Mode buttons */
-        .dwu-mode-row { display: flex; gap: .75rem; }
-        .dwu-mode-btn { flex: 1; display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border: 1.5px solid var(--border-color); border-radius: var(--border-radius-md); background: var(--card-bg); cursor: pointer; font-size: 14px; transition: border-color .15s, background .15s; }
-        .dwu-mode-btn:hover { border-color: var(--blue-400, #4f93ce); background: var(--blue-50, #eef5fb); }
-        .dwu-mode-btn.active { border-color: var(--blue-500, #2490ef); background: var(--blue-50, #eef5fb); color: var(--blue-600, #1e6faf); font-weight: 600; }
-        .dwu-mode-icon { font-size: 18px; }
+        $root.on("change", "#dwu-theme", e => {
+            this.theme = $(e.currentTarget).val();
+            localStorage.setItem("dwu-theme", this.theme);
+            $root.attr("data-theme", this.theme);
+        });
 
-        /* Search row */
-        .dwu-search-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .75rem; }
-        #dwu-search { flex: 1; padding: .4rem .75rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); font-size: 13px; background: var(--input-bg); color: var(--text-color); }
-        .dwu-link-btn { background: none; border: none; color: var(--blue-500, #2490ef); font-size: 13px; cursor: pointer; padding: 0 .25rem; }
-        .dwu-link-btn:hover { text-decoration: underline; }
+        $root.on("click", ".dwu-scope", e => {
+            $root.find(".dwu-scope").removeClass("active");
+            $(e.currentTarget).addClass("active");
+            this.mode = $(e.currentTarget).data("mode");
+            $("#step-picker").toggle(this.mode === "selected");
+            if (this.mode === "selected" && this.company && !this.all_doctypes.length) this.load_doctypes();
+            if (this.mode === "all") this.selected_doctypes.clear();
+            this.update_summary();
+        });
 
-        /* Doctype list */
-        .dwu-doctype-list { max-height: 320px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); }
-        .dwu-dt-row { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem; border-bottom: 1px solid var(--border-color); font-size: 13px; cursor: pointer; transition: background .1s; }
-        .dwu-dt-row:last-child { border-bottom: none; }
-        .dwu-dt-row:hover { background: var(--blue-50, #eef5fb); }
-        .dwu-dt-row.checked { background: var(--blue-50, #eef5fb); }
-        .dwu-dt-row input[type=checkbox] { margin: 0; cursor: pointer; }
-        .dwu-dt-name { flex: 1; font-weight: 500; }
-        .dwu-dt-module { font-size: 11px; color: var(--text-muted); }
-        .dwu-dt-count { font-size: 12px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 999px; padding: 1px 8px; color: var(--text-muted); min-width: 40px; text-align: center; }
-        .dwu-dt-group { padding: .4rem .75rem; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; background: var(--bg-color); color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
-        .dwu-loading { padding: 2rem; text-align: center; color: var(--text-muted); font-size: 13px; }
+        $root.on("input", "#dwu-search", e => {
+            const q = String($(e.currentTarget).val() || "").toLowerCase();
+            $root.find(".dwu-dt-row").each(function () {
+                $(this).toggle($(this).find(".dwu-dt-name").text().toLowerCase().includes(q));
+            });
+        });
 
-        /* Summary bar */
-        .dwu-summary-bar { margin-top: .75rem; padding: .5rem .75rem; background: var(--blue-50, #eef5fb); border-radius: var(--border-radius-md); font-size: 13px; color: var(--blue-600, #1e6faf); }
+        $root.on("click", "#dwu-select-all", () => {
+            $root.find(".dwu-dt-row:visible input").prop("checked", true).trigger("change");
+        });
+        $root.on("click", "#dwu-clear-all", () => {
+            $root.find(".dwu-dt-row input").prop("checked", false).trigger("change");
+        });
+        $root.on("change", ".dwu-dt-row input", e => {
+            const cb = $(e.currentTarget), dt = cb.val();
+            if (cb.is(":checked")) { this.selected_doctypes.add(dt); cb.closest(".dwu-dt-row").addClass("checked"); }
+            else { this.selected_doctypes.delete(dt); cb.closest(".dwu-dt-row").removeClass("checked"); }
+            this.update_summary();
+        });
+        $root.on("click", ".dwu-dt-row", e => {
+            if ($(e.target).is("input")) return;
+            $(e.currentTarget).find("input").trigger("click");
+        });
+        $root.on("change", "#dwu-confirm-check", e => {
+            $("#dwu-execute-btn").prop("disabled", !$(e.currentTarget).is(":checked") || this.running);
+        });
+        $root.on("click", "#dwu-dry-run-btn", () => this.run(true));
+        $root.on("click", "#dwu-execute-btn", () => {
+            if (!this.company) return frappe.msgprint(__("Please select a Company."));
+            frappe.confirm(
+                __("This will permanently delete targeted business data for {0}. Continue?", [this.company]),
+                () => this.run(false)
+            );
+        });
+        $root.on("click", "#dwu-refresh", () => this.load_doctypes());
+    }
 
-        /* Warning box */
-        .dwu-warning-box { display: flex; gap: .75rem; align-items: flex-start; padding: .75rem 1rem; background: #fff8e1; border: 1px solid #ffe082; border-radius: var(--border-radius-md); font-size: 13px; color: #5d4037; margin-bottom: 1rem; }
-        .dwu-warning-icon { font-size: 20px; line-height: 1; margin-top: 1px; }
+    on_company_change() {
+        this.all_doctypes = [];
+        this.selected_doctypes.clear();
+        $(".dwu-wrap").toggleClass("dwu-locked", !this.company);
+        if (this.company) this.load_doctypes();
+        else $("#dwu-doctype-list").html('<div class="dwu-empty">Select a company to load data.</div>');
+        this.update_summary();
+    }
 
-        /* Confirm row */
-        .dwu-confirm-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .dwu-confirm-label { display: flex; align-items: center; gap: .5rem; font-size: 13px; cursor: pointer; flex: 1; min-width: 200px; }
+    load_doctypes() {
+        if (!this.company) return;
+        $("#dwu-doctype-list").html('<div class="dwu-empty">Loading company data...</div>');
+        frappe.call({
+            method: "ecclesia.ecclesia.page.data_wipe_utility.wipe_api.get_company_doctypes",
+            args: { company: this.company },
+            callback: r => {
+                this.all_doctypes = r.message || [];
+                this.render_doctype_list();
+            }
+        });
+    }
 
-        /* Buttons */
-        .dwu-btn { padding: .45rem 1.25rem; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 600; border: 1.5px solid transparent; cursor: pointer; transition: opacity .15s; }
-        .dwu-btn:disabled { opacity: .4; cursor: not-allowed; }
-        .dwu-btn-secondary { background: var(--card-bg); border-color: var(--border-color); color: var(--text-color); }
-        .dwu-btn-secondary:hover:not(:disabled) { background: var(--bg-color); }
-        .dwu-btn-danger { background: #e53935; color: #fff; border-color: #c62828; }
-        .dwu-btn-danger:hover:not(:disabled) { background: #c62828; }
+    render_doctype_list() {
+        const $list = $("#dwu-doctype-list").empty();
+        if (!this.all_doctypes.length) {
+            $list.html('<div class="dwu-empty">No company-owned records were found.</div>');
+            return;
+        }
+        const groups = {};
+        this.all_doctypes.forEach(d => (groups[d.module] ||= []).push(d));
+        Object.keys(groups).sort().forEach(module => {
+            $list.append(`<div class="dwu-dt-group">${frappe.utils.escape_html(module)}</div>`);
+            groups[module].forEach(d => {
+                const checked = this.selected_doctypes.has(d.doctype);
+                $list.append(`
+                    <div class="dwu-dt-row ${checked ? "checked" : ""}">
+                        <input type="checkbox" value="${frappe.utils.escape_html(d.doctype)}" ${checked ? "checked" : ""}>
+                        <span class="dwu-dt-name">${frappe.utils.escape_html(d.doctype)}</span>
+                        <span class="dwu-dt-count">${Number(d.count || 0).toLocaleString()}</span>
+                    </div>
+                `);
+            });
+        });
+    }
 
-        /* Results */
-        .dwu-result-row { display: flex; align-items: center; gap: .75rem; padding: .45rem .25rem; border-bottom: 1px solid var(--border-color); font-size: 13px; }
-        .dwu-result-row:last-child { border-bottom: none; }
-        .dwu-status-ok { color: #2e7d32; font-weight: 600; }
-        .dwu-status-err { color: #c62828; font-weight: 600; }
-        .dwu-status-dry { color: #1565c0; font-weight: 600; }
-        .dwu-result-summary { padding: .75rem; margin-bottom: .75rem; border-radius: var(--border-radius-md); font-weight: 600; text-align: center; }
-        .dwu-result-ok { background: #e8f5e9; color: #1b5e20; }
-        .dwu-result-dry { background: #e3f2fd; color: #0d47a1; }
-        .dwu-result-err { background: #ffebee; color: #b71c1c; }
+    update_summary() {
+        const $s = $("#dwu-selection-summary");
+        if (this.mode === "selected" && this.selected_doctypes.size) {
+            $s.show().text(`${this.selected_doctypes.size} DocType(s) selected`);
+        } else $s.hide();
+    }
 
-        .dwu-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #ccc; border-top-color: #2490ef; border-radius: 50%; animation: dwu-spin .6s linear infinite; vertical-align: middle; margin-right: 6px; }
-        @keyframes dwu-spin { to { transform: rotate(360deg); } }
-      </style>
-    `);
-	}
+    get_targets() {
+        return this.mode === "all"
+            ? this.all_doctypes.map(d => d.doctype)
+            : Array.from(this.selected_doctypes);
+    }
 
-	// ── Events ───────────────────────────────
-	_bind_events() {
-		const $wrap = $(this.wrapper).find(".page-content");
+    run(dry_run) {
+        if (this.running) return;
+        if (!this.company) return frappe.msgprint(__("Please select a Company."));
+        const doctypes = this.get_targets();
+        if (!doctypes.length) return frappe.msgprint(__("No company data was found or selected."));
 
-		// Mode toggle
-		$wrap.on("click", ".dwu-mode-btn", (e) => {
-			const btn = $(e.currentTarget);
-			$wrap.find(".dwu-mode-btn").removeClass("active");
-			btn.addClass("active");
-			this.mode = btn.data("mode");
+        this.running = true;
+        $("#dwu-dry-run-btn").prop("disabled", true).text(dry_run ? __("Previewing...") : __("Working..."));
+        $("#dwu-execute-btn").prop("disabled", true);
+        $("#step-results").show();
+        $("#dwu-results-body").html('<div class="dwu-empty">Processing. Please wait...</div>');
 
-			if (this.mode === "selected") {
-				$("#step-picker").show();
-				if (!this.all_doctypes.length) this._load_doctypes();
-			} else {
-				$("#step-picker").hide();
-				this.selected_doctypes.clear();
-				this._update_summary();
-			}
-		});
+        frappe.call({
+            method: "ecclesia.ecclesia.page.data_wipe_utility.wipe_api.execute_wipe",
+            args: { doctypes: JSON.stringify(doctypes), company: this.company, dry_run: dry_run ? 1 : 0 },
+            freeze: true,
+            freeze_message: dry_run ? __("Building preview...") : __("Deleting company data and verifying results..."),
+            callback: r => {
+                this.render_results(r.message || {}, dry_run);
+                this.running = false;
+                $("#dwu-dry-run-btn").prop("disabled", false).text(__("Preview Data"));
+                $("#dwu-execute-btn").prop("disabled", !$("#dwu-confirm-check").is(":checked"));
+            },
+            error: () => {
+                this.running = false;
+                $("#dwu-results-body").html('<div class="dwu-empty err">The server operation failed. Check the Error Log.</div>');
+                $("#dwu-dry-run-btn").prop("disabled", false).text(__("Preview Data"));
+                $("#dwu-execute-btn").prop("disabled", !$("#dwu-confirm-check").is(":checked"));
+            }
+        });
+    }
 
-		// Search
-		$wrap.on("input", "#dwu-search", () => {
-			const q = $("#dwu-search").val().toLowerCase();
-			$wrap.find(".dwu-dt-row").each(function () {
-				const name = $(this).find(".dwu-dt-name").text().toLowerCase();
-				$(this).toggle(name.includes(q));
-			});
-		});
+    render_results(data, dry_run) {
+        const results = data.results || [];
+        const total = Number(data.total_deleted || 0);
+        const remaining = Number(data.total_remaining || 0);
+        const failed = Number(data.total_failed || 0);
+        const attempted = Number(data.total_targeted || 0);
 
-		// Select / clear all
-		$wrap.on("click", "#dwu-select-all", () => {
-			$wrap.find(".dwu-dt-row input[type=checkbox]:visible").prop("checked", true).trigger("change");
-		});
-		$wrap.on("click", "#dwu-clear-all", () => {
-			$wrap.find(".dwu-dt-row input[type=checkbox]").prop("checked", false).trigger("change");
-		});
-
-		// Checkbox toggle
-		$wrap.on("change", ".dwu-dt-row input[type=checkbox]", (e) => {
-			const cb = $(e.currentTarget);
-			const dt = cb.val();
-			if (cb.is(":checked")) {
-				this.selected_doctypes.add(dt);
-				cb.closest(".dwu-dt-row").addClass("checked");
-			} else {
-				this.selected_doctypes.delete(dt);
-				cb.closest(".dwu-dt-row").removeClass("checked");
-			}
-			this._update_summary();
-		});
-
-		// Row click
-		$wrap.on("click", ".dwu-dt-row", (e) => {
-			if ($(e.target).is("input")) return;
-			$(e.currentTarget).find("input[type=checkbox]").trigger("click");
-		});
-
-		// Confirm checkbox
-		$wrap.on("change", "#dwu-confirm-check", () => {
-			$("#dwu-execute-btn").prop("disabled", !$("#dwu-confirm-check").is(":checked"));
-		});
-
-		// Dry run
-		$wrap.on("click", "#dwu-dry-run-btn", () => this._run(true));
-
-		// Execute
-		$wrap.on("click", "#dwu-execute-btn", () => {
-			frappe.confirm(
-				__("Are you absolutely sure? This will permanently delete data and cannot be undone."),
-				() => this._run(false)
-			);
-		});
-	}
-
-	// ── Load doctypes ─────────────────────────
-	_load_doctypes() {
-		$("#dwu-doctype-list").html('<div class="dwu-loading"><span class="dwu-spinner"></span> Loading…</div>');
-		frappe.call({
-			method: "YOUR_APP.YOUR_MODULE.wipe_api.get_submittable_doctypes",
-			args: { company: this.company || "" },
-			callback: (r) => {
-				this.all_doctypes = r.message || [];
-				this._render_doctype_list();
-			},
-		});
-	}
-
-	_render_doctype_list() {
-		const $list = $("#dwu-doctype-list").empty();
-
-		if (!this.all_doctypes.length) {
-			$list.html('<div class="dwu-loading">No submittable documents found.</div>');
-			return;
-		}
-
-		// Group by module
-		const groups = {};
-		this.all_doctypes.forEach((d) => {
-			if (!groups[d.module]) groups[d.module] = [];
-			groups[d.module].push(d);
-		});
-
-		Object.keys(groups)
-			.sort()
-			.forEach((module) => {
-				$list.append(`<div class="dwu-dt-group">${module}</div>`);
-				groups[module].forEach((d) => {
-					const checked = this.selected_doctypes.has(d.doctype);
-					$list.append(`
-            <div class="dwu-dt-row ${checked ? "checked" : ""}">
-              <input type="checkbox" value="${d.doctype}" ${checked ? "checked" : ""} />
-              <span class="dwu-dt-name">${d.doctype}</span>
-              <span class="dwu-dt-module">${d.module}</span>
-              <span class="dwu-dt-count">${d.count.toLocaleString()}</span>
+        let html = `
+            <div class="dwu-result-summary">
+                <div class="dwu-stat"><b>${attempted.toLocaleString()}</b><span>Targeted</span></div>
+                <div class="dwu-stat"><b>${total.toLocaleString()}</b><span>${dry_run ? "Would delete" : "Deleted"}</span></div>
+                <div class="dwu-stat"><b>${remaining.toLocaleString()}</b><span>Remaining</span></div>
+                <div class="dwu-stat"><b>${failed.toLocaleString()}</b><span>Failed</span></div>
             </div>
-          `);
-				});
-			});
-	}
+        `;
 
-	_update_summary() {
-		const $bar = $("#dwu-selection-summary");
-		if (this.selected_doctypes.size) {
-			$bar.show().text(
-				`${this.selected_doctypes.size} document type${this.selected_doctypes.size > 1 ? "s" : ""} selected for wipe`
-			);
-		} else {
-			$bar.hide();
-		}
-	}
+        if (!dry_run && remaining === 0 && failed === 0)
+            html += `<div class="dwu-summary" style="color:var(--ok)">✓ Company data wipe completed and verified.</div>`;
+        else if (!dry_run)
+            html += `<div class="dwu-summary" style="color:var(--danger)">⚠ Wipe incomplete. Review the failure details below.</div>`;
 
-	// ── Run wipe / dry run ───────────────────
-	_run(dry_run) {
-		const doctypes = this._get_target_doctypes();
-		if (!doctypes.length) {
-			frappe.msgprint(__("No document types to wipe. Please select at least one."));
-			return;
-		}
-
-		const label = dry_run ? "Running preview…" : "Wiping data…";
-		$("#dwu-dry-run-btn, #dwu-execute-btn").prop("disabled", true).text(label);
-		$("#step-results").show();
-		$("#dwu-results-body").html(`<div class="dwu-loading"><span class="dwu-spinner"></span> ${label}</div>`);
-
-		frappe.call({
-			method: "YOUR_APP.YOUR_MODULE.wipe_api.execute_wipe",
-			args: {
-				doctypes: JSON.stringify(doctypes),
-				company: this.company || "",
-				dry_run: dry_run ? 1 : 0,
-			},
-			callback: (r) => {
-				this._render_results(r.message, dry_run);
-				$("#dwu-dry-run-btn").prop("disabled", false).text(__("Preview (dry run)"));
-				if (!dry_run) {
-					$("#dwu-execute-btn").prop("disabled", true);
-					$("#dwu-confirm-check").prop("checked", false);
-				} else {
-					$("#dwu-execute-btn").prop("disabled", !$("#dwu-confirm-check").is(":checked"));
-				}
-			},
-			error: () => {
-				$("#dwu-results-body").html('<div class="dwu-loading" style="color:red;">An error occurred. Check the error log.</div>');
-				$("#dwu-dry-run-btn").prop("disabled", false).text(__("Preview (dry run)"));
-				$("#dwu-execute-btn").prop("disabled", !$("#dwu-confirm-check").is(":checked"));
-			},
-		});
-	}
-
-	_get_target_doctypes() {
-		if (this.mode === "all") {
-			return this.all_doctypes.length
-				? this.all_doctypes.map((d) => d.doctype)
-				: []; // will trigger a load if needed
-		}
-		return Array.from(this.selected_doctypes);
-	}
-
-	_render_results(data, dry_run) {
-		if (!data) {
-			$("#dwu-results-body").html('<div class="dwu-loading" style="color:red;">No response from server.</div>');
-			return;
-		}
-
-		const cls = dry_run ? "dwu-result-dry" : data.total_deleted > 0 ? "dwu-result-ok" : "dwu-result-err";
-		const label = dry_run
-			? `Preview: ${data.total_deleted.toLocaleString()} records would be deleted`
-			: `Wipe complete: ${data.total_deleted.toLocaleString()} records deleted`;
-
-		let html = `<div class="dwu-result-summary ${cls}">${label}</div>`;
-		html += `<div>`;
-		(data.results || []).forEach((r) => {
-			const statusCls =
-				r.status === "error" ? "dwu-status-err" : dry_run ? "dwu-status-dry" : "dwu-status-ok";
-			const statusLabel =
-				r.status === "error" ? "Error" : dry_run ? `~${r.deleted.toLocaleString()} records` : `${r.deleted.toLocaleString()} deleted`;
-			html += `
-        <div class="dwu-result-row">
-          <span style="flex:1; font-weight:500;">${r.doctype}</span>
-          <span class="${statusCls}">${statusLabel}</span>
-          ${r.log && r.log !== "OK" ? `<span style="font-size:11px;color:#999;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.log}">${r.log}</span>` : ""}
-        </div>`;
-		});
-		html += `</div>`;
-
-		$("#dwu-results-body").html(html);
-
-		// Reload doctype counts after a real wipe
-		if (!dry_run && this.mode === "selected") {
-			this._load_doctypes();
-		}
-	}
+        results.forEach(r => {
+            const cls = r.status === "success" ? "ok" :
+                        r.status === "partial" ? "partial" :
+                        r.status === "error" ? "err" : "skip";
+            html += `<div class="dwu-result-row">
+                <span class="name">${frappe.utils.escape_html(r.doctype)}</span>
+                <span class="${cls}">${frappe.utils.escape_html(r.status_label || r.status || "")}</span>
+                <span>${Number(r.deleted || 0).toLocaleString()} deleted</span>
+                <span>${Number(r.remaining || 0).toLocaleString()} remaining</span>
+            </div>`;
+            if (r.errors && r.errors.length) {
+                html += `<details style="padding:8px 4px;color:var(--danger);font-size:11px">
+                    <summary>${r.errors.length} failure(s)</summary>
+                    ${r.errors.map(x => `<div>${frappe.utils.escape_html(x)}</div>`).join("")}
+                </details>`;
+            }
+        });
+        $("#dwu-results-body").html(html);
+    }
 }

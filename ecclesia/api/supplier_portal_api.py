@@ -1384,6 +1384,43 @@ def on_purchase_order_submit(doc, method=None):
         frappe.log_error(f"on_purchase_order_submit: {e}", "Supplier Portal Notifications")
 
 
+def on_purchase_order_update(doc, method=None):
+    """
+    Wired to Purchase Order's `on_update` hook, which fires on EVERY save —
+    including drafts and every subsequent edit — so this must be cheap and
+    safe on every call. Only email the supplier when the PO is submitted
+    and its status actually changed since the last save (e.g. To Receive
+    and Bill → To Bill), not on every unrelated field edit.
+    """
+    try:
+        if doc.docstatus != 1:
+            return
+
+        # get_doc_before_save() is only populated on updates to an existing
+        # document, not on the very first insert.
+        previous = doc.get_doc_before_save()
+        if not previous or previous.status == doc.status:
+            return
+
+        email = _get_supplier_email(doc.supplier)
+        if not email:
+            return
+
+        _send(email, f"Purchase Order {doc.name} — Status Updated to {doc.status}",
+            f"""<p>Dear {doc.supplier_name},</p>
+<p>The status of your Purchase Order has changed.</p>
+<table style="border-collapse:collapse;width:100%;max-width:480px">
+  {_row('PO No.', doc.name)}
+  {_row('Previous Status', previous.status)}
+  {_row('New Status', doc.status)}
+  {_row('Order Value', _fmt(doc.grand_total, doc.currency))}
+</table>
+<p style="margin-top:20px"><a href="{_url()}" style="background:#0a5c3a;color:white;padding:10px 20px;border-radius:6px;text-decoration:none">View PO in Portal</a></p>""",
+            ref_dt="Purchase Order", ref_name=doc.name)
+    except Exception as e:
+        frappe.log_error(f"on_purchase_order_update: {e}", "Supplier Portal Notifications")
+
+
 def on_purchase_order_cancel(doc, method=None):
     try:
         email = _get_supplier_email(doc.supplier)

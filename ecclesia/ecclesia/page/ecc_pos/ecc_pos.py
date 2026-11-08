@@ -106,7 +106,7 @@ def get_terminal_config(settings_name):
             # Operational
             "warehouse": warehouse,
             "default_pos_profile": doc.default_pos_profile or "",
-            "naming_series": doc.naming_series or "POS-.YYYY.-.MM.-.DD.-",
+            "naming_series": doc.naming_series or "POS-.DD.-.MM.-.YY.-",
             "default_customer": default_customer,
             "price_list": doc.price_list or "Standard Selling",
             # Tax

@@ -15,7 +15,7 @@ frappe.ui.form.on('Bank Reconciliation', {
     setup: function(frm) {
         // Set read-only properties
         const readonly_fields = [
-            'cashbook_ending_balance', 'total_unpresented_cheque',
+            'total_unpresented_cheque',
             'total_uncredited_cheque', 'total_direct_withdrawal',
             'total_direct_lodgment', 'balance_per_cash_book',
             'total_debit', 'total_credit', 'balance_diff'

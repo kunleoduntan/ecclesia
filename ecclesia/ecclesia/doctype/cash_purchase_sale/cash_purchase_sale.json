@@ -1,8 +1,9 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "naming_series:",
- "creation": "2026-09-17 20:05:43.509700",
+ "creation": "2026-08-17 13:14:24.216569",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -12,6 +13,7 @@
   "transaction_date",
   "column_break_main",
   "company",
+  "trx_ref",
   "amended_from",
   "purchase_tab",
   "purchase_party_section",
@@ -196,6 +198,8 @@
    "default": "0",
    "fieldname": "purchase_total",
    "fieldtype": "Currency",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
    "label": "Total",
    "read_only": 1
   },
@@ -482,19 +486,28 @@
    "label": "Payment Entry",
    "options": "Payment Entry",
    "read_only": 1
+  },
+  {
+   "fieldname": "trx_ref",
+   "fieldtype": "Data",
+   "label": "Trx Ref",
+   "length": 7,
+   "reqd": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-09-17 20:05:43.509700",
+ "modified": "2026-11-02 10:00:41.690504",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Cash Purchase Sale",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -504,6 +517,35 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

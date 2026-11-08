@@ -1,8 +1,9 @@
 {
  "actions": [],
+ "allow_import": 1,
  "allow_rename": 1,
  "autoname": "field:asset_code",
- "creation": "2026-10-31 13:58:50.714686",
+ "creation": "2026-02-05 18:01:01.590318",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -34,6 +35,7 @@
   "asset_tag_number",
   "identification_section",
   "qr_code",
+  "qr_code_display",
   "column_break_id1",
   "qr_code_image",
   "purchase_information_tab",
@@ -82,6 +84,7 @@
   "column_break_depconfig1",
   "useful_life_months",
   "total_number_of_depreciations",
+  "elapsed_depreciation_periods",
   "depreciation_schedule_section",
   "depreciation_frequency",
   "depreciation_start_date",
@@ -139,11 +142,9 @@
   "custom_field_4",
   "column_break_custom2",
   "custom_field_5",
-  "amended_from",
-  "qr_code_display",
   "dashboard_tab",
   "html_dashboard",
-  "elapsed_depreciation_periods"
+  "amended_from"
  ],
  "fields": [
   {
@@ -970,17 +971,19 @@
    "read_only": 1
   }
  ],
- "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-31 13:58:50.714686",
+ "make_attachments_public": 1,
+ "modified": "2026-09-29 20:15:15.181288",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Fixed Asset",
+ "naming_rule": "By fieldname",
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -990,13 +993,41 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],
  "quick_entry": 1,
  "row_format": "Dynamic",
- "rows_threshold_for_grid_search": 20,
- "sort_field": "creation",
+ "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
  "track_changes": 1

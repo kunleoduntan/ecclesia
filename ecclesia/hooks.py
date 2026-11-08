@@ -1,7 +1,7 @@
 # hooks.py — apps/ecclesia/ecclesia/hooks.py
-# Version 2.0.0  |  Ecclesia ERP Platform
+# Version 2.1.0  |  Ecclesia ERP Platform
 #
-# ── FIXES APPLIED (vs Document 4 / new version provided) ─────────────────────
+# ── FIXES APPLIED (vs v2.0.0) ──────────────────────────────────────────────
 #
 #  FIX 1  after_install re-added (was absent from doc 4).
 #
@@ -39,6 +39,34 @@
 #
 #  FIX 10 fixtures Custom Field dt list: corrected — proper DocType names,
 #          no snake_case. Added all DocTypes whose custom fields need exporting.
+#
+#  FIX 11 doc_events "Accounting Dimension": path was
+#          "ecclesia.ecclesia.utils.accounting_dimensions.auto_add_to_payments"
+#          (double "ecclesia") — inconsistent with every other ecclesia.utils.*
+#          helper (audit_engine, audit_trail, gl_monitor, item_validator,
+#          item_filters). Fixed to single "ecclesia.utils." prefix.
+#
+#  FIX 12 doc_events "Delivery Note" on_cancel: typo'd function name
+#          "alidate_stock_cancel_integrity" (missing the "v") would raise
+#          AttributeError at runtime. Corrected to
+#          "validate_stock_cancel_integrity", matching Purchase Receipt /
+#          Stock Entry's on_cancel handlers.
+#
+#  FIX 13 doc_events "Purchase Invoice" on_cancel: was calling
+#          "ecclesia.api.ar_validation.validate_ap_gl_on_cancel" — an AP
+#          function living in the AR module (copy-paste from Sales Invoice).
+#          Corrected to "ecclesia.api.ap_validation.validate_ap_gl_on_cancel",
+#          matching this doctype's own on_submit module.
+#
+#  NEW    doc_events "Sales Order" / "Sales Invoice" / "Purchase Order" /
+#          "Purchase Invoice": added "validate" hook calling
+#          ecclesia.utils.item_filters.validate_item_type_on_transaction —
+#          server-side enforcement that only items marked is_sales_item /
+#          is_purchase_item can be used on the matching transaction type.
+#          Client-side filtering of the Item link field is handled in
+#          public/js/global_item_filter.js (already globally loaded via
+#          app_include_js), which calls
+#          ecclesia.utils.item_filters.item_query.
 # ─────────────────────────────────────────────────────────────────────────────
 
 from __future__ import unicode_literals
@@ -52,7 +80,7 @@ app_description = (
 )
 app_email   = "kunleoduntan@gmail.com"
 app_license = "MIT"
-app_version = "2.0.0"
+app_version = "2.1.0"
 app_icon    = "octicon octicon-shield"
 app_color   = "#2c3e50"
 
@@ -83,11 +111,6 @@ after_migrate = [
     "ecclesia.ecclesia.custom.setup_custom_fields.install",
 ]
 
-doctype_list_js = {
-    "Employee": "public/js/employee_list.js",
-}
-
-
 
 # ─── Session Hooks ────────────────────────────────────────────────────────────
 on_login  = "ecclesia.api.session_hooks.on_login"
@@ -107,13 +130,14 @@ website_route_rules = [
 
 app_include_css = [
     #"/assets/ecclesia/css/global_form_styles.css",
+    "/assets/ecclesia/css/vic_theme.css",
     "/assets/ecclesia/css/telephone.css",
     "/assets/ecclesia/css/audit_styles.css",
 ]
 
 app_include_js = [
     "/assets/ecclesia/js/telephone.js",
-    #"/assets/ecclesia/js/vic_theme.js",
+    "/assets/ecclesia/js/vic_theme.js",
     "/assets/ecclesia/js/group_call.js",
     "/assets/ecclesia/js/audit_engine.js",
     "/assets/ecclesia/js/internal_chat.js",
@@ -124,6 +148,12 @@ app_include_js = [
     "/assets/ecclesia/js/erequest_pending.js",
     "/assets/ecclesia/js/batch_excel.js",
 ]
+
+doctype_list_js = {
+    "Employee": "public/js/employee_list.js",
+}
+
+
 # ───────────────── DOCTYPE JS ─────────────────────────────────────────────────
 
 doctype_js = {
@@ -246,8 +276,10 @@ doc_events = {
         ),
     },
     "Accounting Dimension": {
+        # FIX 11: was "ecclesia.ecclesia.utils.accounting_dimensions" (double
+        # ecclesia) — inconsistent with every other ecclesia.utils.* helper.
         "after_insert": (
-            "ecclesia.ecclesia.utils.accounting_dimensions"
+            "ecclesia.utils.accounting_dimensions"
             ".auto_add_to_payments"
         ),
     },
@@ -256,15 +288,10 @@ doc_events = {
     },
     "Payments": {
         "validate":      "ecclesia.ecclesia.doctype.payments.payments.validate_payment",
-        "before_submit": [
-            
-            "ecclesia.ecclesia.doctype.payments.payments.before_submit_payment",
-            #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
-        ],
-            
+        "before_submit": "ecclesia.ecclesia.doctype.payments.payments.before_submit_payment",
         "on_trash":      "ecclesia.ecclesia.doctype.payments.payments.on_trash_payment",
         "on_submit": [
-            #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+            "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
             "ecclesia.api.compliance.allocation_engine_v2.on_payments_submit",
         ],
         "on_cancel": [
@@ -334,6 +361,8 @@ doc_events = {
         "on_cancel": "ecclesia.api.customer_portal_api.on_quotation_cancel",
     },
     "Sales Order": {
+        # Universal item-type enforcement (is_sales_item must = 1)
+        "validate": "ecclesia.utils.item_filters.validate_item_type_on_transaction",
         "on_submit": [
             "ecclesia.api.notification.trigger_notification",
             "ecclesia.api.customer_portal_api.on_sales_order_submit",
@@ -350,9 +379,14 @@ doc_events = {
             "ecclesia.api.customer_portal_api.on_delivery_submit",
             "ecclesia.api.item_validation.validate_delivery_note_stock_on_submit",
         ],
-        "on_cancel": "ecclesia.api.item_validation.alidate_stock_cancel_integrity",
+        # FIX 12: was "alidate_stock_cancel_integrity" (typo, missing "v") —
+        # would raise AttributeError. Corrected to match Purchase Receipt /
+        # Stock Entry's on_cancel handler.
+        "on_cancel": "ecclesia.api.item_validation.validate_stock_cancel_integrity",
     },
     "Sales Invoice": {
+        # Universal item-type enforcement (is_sales_item must = 1)
+        "validate": "ecclesia.utils.item_filters.validate_item_type_on_transaction",
         "on_submit": [
             "ecclesia.api.notification.trigger_notification",
             "ecclesia.api.customer_portal_api.on_invoice_submit",
@@ -385,10 +419,12 @@ doc_events = {
         "on_cancel": "ecclesia.api.supplier_portal_api.on_rfq_cancel",
     },
     "Purchase Order": {
+        # Universal item-type enforcement (is_purchase_item must = 1)
+        "validate": "ecclesia.utils.item_filters.validate_item_type_on_transaction",
         "on_submit": [
             "ecclesia.api.notification.trigger_notification",
             "ecclesia.api.approval.request_po_approval",
-            "ecclesia.api.supplier_portal_api.on_purchase_order_submit",
+             "ecclesia.api.supplier_portal_api.on_purchase_order_submit",
         ],
         "on_update": "ecclesia.api.supplier_portal_api.on_purchase_order_submit",
         "on_cancel": "ecclesia.api.supplier_portal_api.on_purchase_order_cancel",
@@ -402,23 +438,28 @@ doc_events = {
     },
     
     "Purchase Invoice": {
+        # Universal item-type enforcement (is_purchase_item must = 1)
+        "validate": [
+            "ecclesia.utils.item_filters.validate_item_type_on_transaction",
+            "ecclesia.api.purchase_invoice.purchase_invoice_validate",
+        ],
+    
         "on_submit": [
             "ecclesia.api.supplier_portal_api.on_purchase_invoice_submit",
             "ecclesia.api.ap_validation.validate_ap_gl_on_submit",
             "ecclesia.api.compliance.liability_engine_v2.log_purchase_invoice_wht",
         ],
     
-        "on_cancel": [
-            #"ecclesia.api.ar_validation.validate_ap_gl_on_cancel",
-            "ecclesia.api.purchase_invoice.purchase_invoice_on_cancel",
+        "before_cancel": [
+            "ecclesia.api.purchase_invoice.purchase_invoice_before_cancel",
         ],
     
-        "validate": "ecclesia.api.purchase_invoice.purchase_invoice_validate",
-    
-        "before_cancel": "ecclesia.api.purchase_invoice.purchase_invoice_before_cancel",
+        "on_cancel": [
+            "ecclesia.api.ap_validation.validate_ap_gl_on_cancel",
+            "ecclesia.api.purchase_invoice.purchase_invoice_on_cancel",
+        ],
     },
 
-    
     "Stock Entry": {
         "on_submit": "ecclesia.api.item_validation.validate_stock_entry_gl_on_submit",
         "on_cancel": "ecclesia.api.item_validation.validate_stock_cancel_integrity",
@@ -480,18 +521,22 @@ doc_events = {
         "on_update_after_submit": "ecclesia.api.ess_portal_events.on_expense_status_change",
     },
 
-    # ── Employee ──────────────────────────────────────────────────────────────
-   "Employee": {
+   # ── Employee ──────────────────────────────────────────────────────────────
+    "Employee": {
     "before_insert": "ecclesia.api.employee_ctc.set_default_components",
-    "validate": "ecclesia.api.employee_ctc.calculate_ctc",
-    "on_update": "ecclesia.tasks.on_employee_update",
+
     "after_insert": [
         "ecclesia.employee_events.create_tax_computation",
         "ecclesia.employee_events.create_salary_structure_assignment",
+    ],
+
+    "validate": "ecclesia.api.employee_ctc.calculate_ctc",
+
+    "on_update": [
+        "ecclesia.tasks.on_employee_update",
+        "ecclesia.api.employee_tax_sync.sync_on_employee_update",
         ],
     },
-    
-    
     
     # ── Performance Management ────────────────────────────────────────────────
     # FIX 7: Class methods (EmployeePerformanceRecord.on_update etc.) fire
@@ -730,13 +775,13 @@ doc_events = {
     },
 
     # ── eRequest ──────────────────────────────────────────────────────────────
-    "eRequest": {
-        "on_update": [
-              "ecclesia.ecclesia.doctype.erequest.erequest.on_update",
-              "ecclesia.ecclesia.doctype.erequest.erequest_pending.publish_pending_refresh",
-          ],
-        "on_cancel": "ecclesia.ecclesia.doctype.erequest.erequest.on_cancel",
-    },
+     "eRequest": {
+            "on_update": [
+                "ecclesia.ecclesia.doctype.erequest.erequest.on_update",
+                "ecclesia.ecclesia.doctype.erequest.erequest_pending.notify_pending_refresh",
+            ],
+            "on_cancel": "ecclesia.ecclesia.doctype.erequest.erequest.on_cancel",
+        },
 }
 
 
@@ -752,14 +797,11 @@ scheduler_events = {
     "cron": {
         "*/5 * * * *": [
             "ecclesia.tasks.sync_all_accounts",
-            #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+            "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
             "ecclesia.biometric_attendance.push.flag_offline_push_devices",
+            "ecclesia.api.backdated_depreciation.process_all_backdated_depreciation",
+            "ecclesia.api.bulk_reconcile.run",
         ],
-        
-        "15 6 * * *": [
-            "ecclesia.api.exchange_rates.sync_exchange_rates"
-            ],
-        
         "*/15 * * * *": [
             "ecclesia.tasks.retry_failed_messages",
             "ecclesia.tasks.process_message_queue",
@@ -774,6 +816,14 @@ scheduler_events = {
             "ecclesia.tasks.assign_leave_policies_new_year",
             "ecclesia.scheduled_tasks.holiday_automation.create_annual_holiday_list",
         ],
+
+        # NOTE: runs every minute. Confirm this is intentional — a daily or
+        # hourly cadence is more typical for a "monthly tax payable" sync
+        # and would meaningfully reduce load. Left unchanged since it wasn't
+        # part of the reported item-filter task; flagging for your review.
+        "*/1 * * * *": [
+			"ecclesia.api.employee_tax_sync.sync_monthly_tax_payable",
+		],
     },
 
     "hourly": [
@@ -783,7 +833,7 @@ scheduler_events = {
         "ecclesia.tasks.expire_pending_actions",
         "ecclesia.biometric_attendance.processor.process_pending_logs",
         "ecclesia.social_media.scheduler.sync_platform_metrics",
-        #"ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
+        "ecclesia.api.auto_transaction_coding.run_auto_transaction_coding",
         "ecclesia.ecclesia.doctype.work_session.work_session.flag_inactive_sessions",
         "ecclesia.api.ess_portal_events.check_new_payslips",
         "ecclesia.api.job_post_api.dispatch_scheduled_posts",
@@ -868,7 +918,6 @@ scheduler_events = {
 
 
 # ─── Permissions ──────────────────────────────────────────────────────────────
-
 permission_query_conditions = {
     "eRequest":             "ecclesia.ecclesia.doctype.erequest.erequest_visibility.get_permission_query_conditions",
     "WFH Request":          "ecclesia.permissions.get_employee_permission_query",
@@ -883,6 +932,7 @@ permission_query_conditions = {
 }
 
 has_permission = {
+    
     "eRequest":             "ecclesia.ecclesia.doctype.erequest.erequest_visibility.has_permission",
     "WFH Request":          "ecclesia.permissions.has_permission",
     "WFH Session":          "ecclesia.permissions.has_permission",

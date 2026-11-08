@@ -49,7 +49,7 @@ frappe.ui.form.on('Fixed Asset Category', {
         frm.set_query('depreciation_expense_account', function() {
             return {
                 filters: {
-                    'root_type': 'Expense',
+                    'account_type': 'Depreciation',
                     'is_group': 0
                 }
             };

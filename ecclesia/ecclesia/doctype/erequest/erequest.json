@@ -594,6 +594,7 @@
    "label": "Current Status"
   },
   {
+   "allow_on_submit": 1,
    "bold": 1,
    "default": "Draft",
    "fieldname": "workflow_state",
@@ -823,8 +824,7 @@
    "no_copy": 1,
    "options": "eRequest",
    "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
+   "read_only": 1
   },
   {
    "fieldname": "amended_from",
@@ -833,14 +833,13 @@
    "no_copy": 1,
    "options": "eRequest",
    "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-10-15 14:41:31.881623",
+ "modified": "2026-10-17 11:14:45.118443",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "eRequest",

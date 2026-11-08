@@ -33,6 +33,43 @@ frappe.query_reports["Standard Trial Balance - Classified"] = {
         
         if (!data) return value;
         
+        // Make account names clickable - opens General Ledger for that account
+        if (column.fieldname === "account_name" && data.account && 
+            !data.is_section_header && !data.is_subtotal_row && 
+            !data.is_total_row && !data.is_header_row && !data.is_separator) {
+            
+            // Build URL with filters for General Ledger
+            const gl_url = `/app/query-report/General%20Ledger?account=${encodeURIComponent(data.account)}&company=${encodeURIComponent(frappe.query_report.filters[0].value)}&from_date=${encodeURIComponent(frappe.query_report.filters[1].value)}&to_date=${encodeURIComponent(frappe.query_report.filters[1].value)}`;
+            
+            return `<a href="${gl_url}" 
+                       target="_blank"
+                       style="color: #1E3F6E; text-decoration: none; cursor: pointer; 
+                              display: block; padding: 2px 8px; margin: -4px -8px;"
+                       onmouseover="this.style.textDecoration='underline'" 
+                       onmouseout="this.style.textDecoration='none'"
+                       title="View General Ledger for this account">
+                        ${value}
+                    </a>`;
+        }
+        
+        // Make account codes clickable too (optional)
+        if (column.fieldname === "account_code" && data.account && 
+            !data.is_section_header && !data.is_subtotal_row && 
+            !data.is_total_row && !data.is_header_row && !data.is_separator) {
+            
+            const gl_url = `/app/query-report/General%20Ledger?account=${encodeURIComponent(data.account)}&company=${encodeURIComponent(frappe.query_report.filters[0].value)}&from_date=${encodeURIComponent(frappe.query_report.filters[1].value)}&to_date=${encodeURIComponent(frappe.query_report.filters[1].value)}`;
+            
+            return `<a href="${gl_url}" 
+                       target="_blank"
+                       style="color: #1E3F6E; text-decoration: none; cursor: pointer; 
+                              display: block; padding: 2px 8px; margin: -4px -8px;"
+                       onmouseover="this.style.textDecoration='underline'" 
+                       onmouseout="this.style.textDecoration='none'"
+                       title="View General Ledger for this account">
+                        ${value}
+                    </a>`;
+        }
+        
         // Section Headers
         if (data.is_header_row || data.is_separator) {
             return `<div style="

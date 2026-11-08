@@ -132,6 +132,7 @@
   "invoice_amount",
   "column_break_xqegw",
   "balance_due",
+  "created_entries",
   "amended_from"
  ],
  "fields": [
@@ -667,13 +668,14 @@
    "label": "Apply Withholding tax"
   },
   {
+   "default": "Submitted",
    "fieldname": "receipt_status",
    "fieldtype": "Select",
    "in_filter": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Receipt Status",
-   "options": "\nDraft\nPending Approval\nApproved\nProcessing\nCompleted\nCancelled\nRejected"
+   "options": "\nSubmitted\nPending Approval\nApproved\nDraft\nProcessing\nCompleted\nCancelled\nRejected"
   },
   {
    "fieldname": "invoice_allocation_info",
@@ -839,6 +841,16 @@
   {
    "fieldname": "column_break_xqegw",
    "fieldtype": "Column Break"
+  },
+  {
+   "depends_on": "eval:doc.docstatus==1",
+   "fieldname": "created_entries",
+   "fieldtype": "Data",
+   "hidden": 1,
+   "label": "Created Entries",
+   "no_copy": 1,
+   "print_hide": 1,
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
@@ -855,7 +867,7 @@
    "link_fieldname": "customer_name"
   }
  ],
- "modified": "2026-04-05 21:40:09.763121",
+ "modified": "2026-08-24 19:08:16.398956",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Receipts",

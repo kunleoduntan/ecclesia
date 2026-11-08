@@ -1,7 +1,7 @@
 {
  "actions": [],
  "allow_rename": 1,
- "creation": "2026-10-03 13:42:53.490363",
+ "creation": "2026-10-03 13:22:04.276935",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
@@ -32,7 +32,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-10-03 13:42:53.490363",
+ "modified": "2026-10-03 13:22:04.276935",
  "modified_by": "Administrator",
  "module": "Ecclesia",
  "name": "Financial Reporting Group Component",
